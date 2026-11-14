@@ -814,6 +814,20 @@ function investorList() {
       <b>${esc({ strong: "insiders doubling down", bridge: "bridges" }[IFILTER] || IFILTER)}</b>
       — ${cs.length} of ${all.length}.
       <button class="btn sm" id="clearf">Clear</button></div>` : "")
+  + (!pre.length && IFILTER === "all" && I.coverage
+      ? section("ipre", "Pre-emptions",
+          `0 of ${all.length} — starved, not absent`,
+          `<div class="emptywhy">
+            <b>Not enough round sizes to detect one.</b>
+            A pre-emption is an insider-only round at 2x or more within twelve
+            months, which needs the size of this round and the one before it.
+            Of ${I.coverage.round_records} round records in this corpus,
+            ${I.coverage.with_amount} carry an amount
+            (${Math.round(100 * I.coverage.with_amount / Math.max(I.coverage.round_records, 1))}%),
+            and only ${I.coverage.amount_pairs} consecutive pairs have both.
+            <span class="sub">The zero is the coverage, not the market.</span>
+          </div>`)
+      : "")
   + (pre.length && IFILTER === "all" ? section("ipre", "Pre-emptions", "",
       `<div class="hl">${pre.slice(0, 6).map(c => `<div class="hlc green"><div class="hlhd">${logo(c.company)}
         <div><div class="nm">${esc(c.company)}</div><div class="sb">${c.rounds.at(-1).stage}</div></div>
@@ -834,10 +848,17 @@ function investorList() {
         <div><div class="nm">${esc(o.company)}</div><div class="sb">${o.months} months since last round</div></div>
         ${badge("needs a new lead", "amber")}</div>
         <ul class="reasons">${o.why.map(w => `<li>${esc(w)}</li>`).join("")}</ul></div>`).join("")}</div>`)
-    : section("iorph", "Well-performing orphans", "none found in this corpus",
-      `<div class="msg" style="padding:26px">No company met every condition: lead's fund slowed,
-       15+ months since the last round, and headcount still growing.
-       An empty list here is a statement about coverage, not a bug.</div>`));
+    : section("iorph", "Well-performing orphans", "detector is inert — one input is missing",
+      `<div class="emptywhy">
+        <b>This cannot fire on the data we have.</b>
+        An orphan is a company still growing whose lead's fund has stopped
+        deploying. Two of the three conditions are checkable — the fund has
+        slowed, and 15+ months since the last round. The third, headcount
+        still growing, is not: Cala carries no headcount series for private
+        companies, so the condition can never be evaluated and the detector
+        can never return anyone.
+        <span class="sub">Shown rather than hidden, because a section that
+        silently never fires is worse than one that says why.</span></div>`));
 }
 
 function investorEntity() {
@@ -2378,17 +2399,32 @@ function entityView() {
 
   const counts = {};
   for (const g of ENT.groups || []) counts[g.rel] = g.items.length;
+
+  /* A zero is a claim: "this fund has made no investments". We may simply
+     never have asked. Show 0 only for edges we actually queried, and a
+     muted dash with its reason for the rest. */
+  const asked = new Set(ENT.rels_queried || []);
+  const n = rel => {
+    if (counts[rel] != null) return counts[rel];
+    if (asked.has(rel)) return 0;
+    return `<span class="unchecked" title="Not retrieved — the live lookup was
+      unavailable, so this edge was never asked for">—</span>`;
+  };
+  const sum = rels => rels.every(r => !asked.has(r) && counts[r] == null)
+    ? n(rels[0]) : rels.reduce((a, r) => a + (counts[r] || 0), 0);
+
   const statRow = isPerson
-    ? [["Roles", (counts.IS_CEO_OF || 0) + (counts.WORKS_AT || 0)],
-       ["Founded", counts.FOUNDED || 0],
-       ["Investments", counts.INVESTED_IN || 0],
-       ["Rounds on record", counts.PARTICIPATES_IN_FUNDING_ROUND || 0],
-       ["Boards", counts.IS_MEMBER_OF || 0]]
-    : [["Investments", counts.INVESTED_IN || 0],
-       ["Rounds on record", counts.PARTICIPATES_IN_FUNDING_ROUND || 0],
+    ? [["Roles", sum(["IS_CEO_OF", "WORKS_AT"])],
+       ["Founded", n("FOUNDED")],
+       ["Investments", n("INVESTED_IN")],
+       ["Rounds on record", n("PARTICIPATES_IN_FUNDING_ROUND")],
+       ["Boards", n("IS_MEMBER_OF")]]
+    : [["Investments", n("INVESTED_IN")],
+       ["Rounds on record", n("PARTICIPATES_IN_FUNDING_ROUND")],
        ["Exits found", EXITS[ENT.id]?.exits?.length ?? "…"],
-       ["Industries", counts.OPERATES_IN_INDUSTRY || 0],
-       ["Employees", val("employee_count") ?? "—"]];
+       ["Industries", n("OPERATES_IN_INDUSTRY")],
+       ["Employees", val("employee_count")
+         ?? `<span class="unchecked" title="Cala holds no employee count for this entity">—</span>`]];
 
   let body = `<div class="ehd"><div class="ehdtop">
       ${bigLogo(ENT.name, val("website"))}

@@ -620,10 +620,12 @@ def entity_profile(entity_id: str, kind: str = "fund"):
     props = PERSON_PROPS if kind == "people" else FUND_PROPS
     from . import cache_index
     degraded = None
+    queried: list[str] = []      # edges we genuinely asked the graph for
     try:
         intro = cala_introspect(entity_id)
         have = set((intro.get("relationships") or {}).get("outgoing") or [])
         rels = [r for r in want if r in have] or want[:4]
+        queried = list(rels)
         e = _entity(entity_id, props, rels)
     except Exception as ex:
         # The response cache is keyed by the exact request, so asking for this
@@ -634,7 +636,12 @@ def entity_profile(entity_id: str, kind: str = "fund"):
         if e is None:
             return JSONResponse({"error": f"{type(ex).__name__}: {str(ex)[:120]}"},
                                 status_code=200)
-        rels = list(((e.get("relationships") or {}).get("outgoing") or {}).keys()) or want[:4]
+        # Only what the cached payload actually carries. Claiming we asked
+        # for edges we never requested turns "we did not look" into "there
+        # are none", which is the lie this field exists to prevent.
+        rels = list(((e.get("relationships") or {}).get("outgoing") or {}).keys())
+        queried = list(rels)
+        rels = rels or want[:4]
         degraded = ("Live lookup unavailable, so this profile is built from what "
                     "we already hold. Some relationships may be missing."
                     if "402" not in str(ex) and "credits" not in str(ex).lower() else
@@ -684,6 +691,10 @@ def entity_profile(entity_id: str, kind: str = "fund"):
     return {"id": entity_id, "kind": kind, "name": e.get("name"),
             "entity_type": e.get("entity_type"), "properties": out_props,
             "description": e.get("description"),
+            # Which edges we actually asked for. Without this the UI cannot
+            # tell "we asked and there are none" from "we never asked", and
+            # it rendered both as 0 - a false claim about the fund.
+            "rels_queried": queried,
             "degraded": degraded, "groups": groups}
 
 
@@ -1311,7 +1322,18 @@ def _age_conviction(d: dict) -> dict:
             c["score"] = round(fresh * rf, 1)
         out.append(c)
     out.sort(key=lambda c: (c.get("score") is None, -(c.get("score") or 0)))
+    # Why a detector is empty matters as much as the fact. Pre-emption needs
+    # two consecutive round sizes and almost no round carries one, so a zero
+    # here is starved input, not an absence of pre-emptions in the market.
+    records = [r for c in out for r in (c.get("rounds") or [])]
+    with_amount = [r for r in records if r.get("amount")]
+    pairs = sum(1 for c in out for a, b in zip(c.get("rounds") or [],
+                                               (c.get("rounds") or [])[1:])
+                if a.get("amount") and b.get("amount"))
     return {**d, "companies": out,
+            "coverage": {"round_records": len(records),
+                         "with_amount": len(with_amount),
+                         "amount_pairs": pairs},
             "recency": {"grace_months": CV.GRACE_MONTHS,
                         "halflife_months": CV.HALFLIFE_MONTHS,
                         "floor": CV.RECENCY_FLOOR,
