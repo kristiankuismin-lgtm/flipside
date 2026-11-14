@@ -8,7 +8,7 @@ const initials = s => (s || "?").replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/)
 
 let MODE = "home", F = null, I = null, SEL = null, TAB = 0;
 let SYN = null;                        // /syndicates, filled after the screen
-let IFILTER = "all";                   // which KPI card is active
+let IFILTER = "all", FFILTER = "all";  // which KPI card is active
 
 /* A number nobody can act on is decoration. Each card is a filter, and the
    active one says so. */
@@ -144,10 +144,18 @@ function wire() {
     TAB = +b.dataset.tab; render();
   });
   document.querySelectorAll("[data-kpi]").forEach(b => b.onclick = () => {
-    IFILTER = IFILTER === b.dataset.kpi ? "all" : b.dataset.kpi; render();
+    const k = b.dataset.kpi;
+    if (MODE === "founder") FFILTER = FFILTER === k ? "all" : k;
+    else IFILTER = IFILTER === k ? "all" : k;
+    render();
   });
   const cf = $("#clearf");
-  if (cf) cf.onclick = () => { IFILTER = "all"; render(); };
+  if (cf) cf.onclick = () => { FFILTER = IFILTER = "all"; render(); };
+  document.querySelectorAll("[data-hero]").forEach(b => b.onclick = () => {
+    const go = (HEROACTS[+b.dataset.hero] || [])[2] || {};
+    if (go.brief) return openBrief(go.brief);
+    if (go.filter) { FFILTER = go.filter; render(); }
+  });
   document.querySelectorAll("[data-brief]").forEach(b => b.onclick = e => {
     e.stopPropagation();           // the row underneath opens the fund profile
     openBrief(b.dataset.brief);
@@ -260,7 +268,7 @@ function syndicateBlock() {
 function founderList() {
   if (!F) return searchPanel() + `<div class="msg">Run diligence to screen your target list.</div>`;
   const inv = F.investors, red = inv.filter(x => x.signals.conflict.label === "🔴");
-  const rows = inv.map((x, i) => {
+  const rowsFor = list => list.map((x, i) => {
     const s = x.signals, c = s.conflict;
     const verdict = c.label === "🔴" ? badge("Do not pitch", "red")
       : x.score === null ? badge("No data", "grey")
@@ -283,22 +291,80 @@ function founderList() {
     </tr>`;
   }).join("");
 
-  return searchPanel() + stats(6, [
-    ["Investors screened", inv.length],
-    ["Backing a competitor", `<span style="color:var(--red)">${red.length}</span>`],
-    ["Stopped deploying", `<span style="color:var(--amber)">${inv.filter(x => x.signals.dry_powder.label === "🔴").length}</span>`],
-    ["Lead at your stage", `<span style="color:var(--green)">${inv.filter(x => x.signals.lead_rate.label === "🟢").length}</span>`],
-    ["Competitors in Cala", F.competitors.length],
-    ["Warm routes found", inv.filter(x => x.signals.warm_path.label !== "⚪").length],
-  ]) + (red.length ? `<div class="verdict red"><b>${red.length} fund${red.length > 1 ? "s" : ""} in your
-      list already back a competitor.</b> ${red.map(x => `${esc(x.investor)} → ${esc(x.backs.join(", "))}`).join(" · ")}</div>` : "")
+  const leads = inv.filter(x => x.signals.lead_rate.label === "🟢");
+  const warm = inv.filter(x => x.signals.warm_path.label !== "⚪");
+  const shown = FFILTER === "lead" ? leads : FFILTER === "warm" ? warm
+    : FFILTER === "conflict" ? red : inv;
+
+  return searchPanel() + heroCard(inv, red, leads, warm)
     + syndicateBlock()
-    + section("ftable", "Target list", "", `<div class="tbl"><table>
+    + kpis([
+      ["Investors screened", inv.length, "all", "two or more rounds on record"],
+      ["Lead at your stage", leads.length, "lead", `led a ${F.stage} in the last three years`],
+      ["Warm routes", warm.length, "warm", "a shared cap table reaches them"],
+    ], FFILTER, null)
+    + (FFILTER !== "all" ? `<div class="filterline">Showing
+        <b>${esc({ lead: "funds that lead at your stage", warm: "funds with a warm route",
+                   conflict: "funds backing a competitor" }[FFILTER] || FFILTER)}</b>
+        — ${shown.length} of ${inv.length}.
+        <button class="btn sm" id="clearf">Clear</button></div>` : "")
+    + section("ftable", "Target list", `${shown.length} of ${inv.length} screened`,
+      `<div class="tbl"><table>
       <thead><tr><th></th><th>Investor</th><th>Verdict</th><th style="text-align:right">Score</th>
       <th style="text-align:right">Lead</th><th style="text-align:right">Follow-on</th>
-      <th>Pace</th><th>Conflict</th><th>Route</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`)
-    + section("fmap", "Conflict map", "", conflictMap());
+      <th>Pace</th><th>Conflict</th><th>Route</th><th></th></tr></thead>
+      <tbody>${rowsFor(shown)}</tbody></table></div>`)
+    + section("fmap", "Conflict map",
+      `${(F.edges || []).length} fund–competitor links`, conflictMap());
 }
+
+/* The conclusion first, then what to do about it. Six KPI cards, a banner, a
+   paragraph and a map all competing for the top of the page meant the one
+   thing this product knows - who to assemble and who can introduce you - was
+   below the fold. */
+function heroCard(inv, red, leads, warm) {
+  const best = SYN?.syndicates?.[0];
+  const top = inv.find(x => x.signals.conflict.label !== "🔴" && x.score != null);
+  const acts = [];
+  if (best) acts.push([`Open with ${best.lead}`,
+    `leads at your stage and ${best.members[0]?.name} joins ${
+      Math.round((best.members[0]?.share || 0) * 100)}% of the rounds they lead`,
+    { brief: best.lead }]);
+  if (warm.length) acts.push([`Ask ${warm[0].signals.warm_path.text.replace(/^via /, "")} for an intro`,
+    `the only warm route in this list — it reaches ${warm[0].investor}`,
+    { brief: warm[0].investor }]);
+  if (red.length) acts.push([`Do not pitch ${red.map(x => x.investor).slice(0, 2).join(", ")}`,
+    `${red.length === 1 ? "it backs" : "they back"} ${
+      [...new Set(red.flatMap(x => x.backs))].slice(0, 3).join(", ")}`, { filter: "conflict" }]);
+  while (acts.length < 3 && top) {
+    acts.push([`Brief ${top.investor}`, "highest-scoring fund with no conflict",
+               { brief: top.investor }]);
+    break;
+  }
+
+  HEROACTS = acts.slice(0, 3);
+  const line = best
+    ? `Build the round around <b>${esc(best.lead)}</b>, with <b>${
+        esc(best.members.map(m => m.name).join(" and "))}</b> following them in.`
+    : leads.length
+      ? `<b>${leads.length}</b> of ${inv.length} funds screened actually lead at ${esc(F.stage)}.`
+      : `No fund in this list leads at ${esc(F.stage)} — that is the finding.`;
+
+  return `<div class="hero">
+    <div class="herotop">
+      <span class="herotag">Slush 2026 · 18 Nov · ${esc(F.company)} · ${esc(F.stage)}</span>
+      <h2>${line}</h2>
+      ${warm.length ? "" : `<p class="herosub">No warm route reaches any of them,
+        so the floor at Slush is the introduction.</p>`}
+    </div>
+    <div class="heroacts">${acts.slice(0, 3).map(([t, why, go], i) => `
+      <button class="heroact" data-hero="${i}">
+        <span class="n">${i + 1}</span>
+        <span><b>${esc(t)}</b><em>${esc(why)}</em></span></button>`).join("")}</div>
+  </div>`;
+}
+
+let HEROACTS = [];
 
 function searchPanel() {
   return `<div class="search">
