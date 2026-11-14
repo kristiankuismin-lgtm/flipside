@@ -118,3 +118,50 @@ def test_a_person_signal_breaks_a_tie_between_equal_firms():
     out = C.build([inv("Atomico", 70)], people)
     assert out["rows"][0]["person"] == "Knows Health"
     assert "market" in " ".join(out["rows"][0]["bonus_why"])
+
+
+# ---------------------------------------------------- tenure at the firm
+import datetime as _dt
+
+from app import calllist as _C
+
+
+def test_years_at_firm_handles_the_three_shapes_cala_returns():
+    today = _dt.date(2026, 11, 14)
+    assert _C.years_at_firm("2021-05-18", today) == 5.5
+    assert _C.years_at_firm("2023", today) == 3.9          # year only
+    assert _C.years_at_firm("2023-01-01T00:00:00", today) == 3.9
+
+
+def test_unknown_start_date_is_none_not_zero():
+    """A partner whose start date Cala does not hold is not a new partner."""
+    assert _C.years_at_firm(None) is None
+    assert _C.years_at_firm("") is None
+    assert _C.years_at_firm("not a date") is None
+
+
+def test_a_start_date_in_the_future_is_not_negative_tenure():
+    assert _C.years_at_firm("2099-01-01", _dt.date(2026, 11, 14)) is None
+
+
+def test_tenure_saturates_so_a_long_serving_partner_cannot_dominate():
+    long_ = _C.person_bonus({"years_at_firm": 30})[0]
+    full = _C.person_bonus({"years_at_firm": _C.TENURE_FULL})[0]
+    assert long_ == full == _C.PERSON_WEIGHTS["tenure"]
+
+
+def test_tenure_is_worth_less_than_market_fit():
+    assert _C.PERSON_WEIGHTS["tenure"] < _C.PERSON_WEIGHTS["market"]
+
+
+def test_unknown_tenure_scores_nothing_and_says_nothing():
+    assert _C.person_bonus({"market_match": True})[1] == ["has been in your market"]
+
+
+def test_build_reads_tenure_off_the_person_row():
+    inv = [{"investor": "Creandum", "score": 50, "signals": {}}]
+    people = {"creandum": [{"name": "Sabina Wizander", "role": "Partner",
+                            "since": "2021-05-18", "source": "cala"}]}
+    row = _C.build(inv, people)["rows"][0]
+    assert row["signals"]["years_at_firm"] > 5
+    assert any("at the firm" in w for w in row["bonus_why"])

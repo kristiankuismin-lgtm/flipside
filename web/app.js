@@ -1496,7 +1496,7 @@ function neoMount() {
    been written. A tab with nothing in it says which edge was empty rather
    than rendering blank. */
 let FUND = null, FUNDFOR = null, FUNDTAB = 0;
-const FUND_TABS = ["Overview", "Portfolio", "Rounds", "Exits", "People", "News"];
+const FUND_TABS = ["Overview", "Portfolio", "Rounds", "Exits", "People", "Record", "News"];
 
 async function loadFund(id, name) {
   MODE = "fund"; FUNDFOR = id; FUND = null; FUNDTAB = 0;
@@ -1538,13 +1538,17 @@ function fundView() {
   <div class="tabs">${FUND_TABS.map((t, i) => {
     const empty = (t === "Portfolio" && !f.has?.portfolio)
       || (t === "Rounds" && !f.has?.rounds) || (t === "Exits" && !f.has?.exits)
-      || (t === "People" && !f.has?.people);
+      || (t === "People" && !f.has?.people)
+      || (t === "Record" && !f.depth?.coverage?.harvested);
     return `<button class="tab ${i === FUNDTAB ? "on" : ""} ${empty ? "thin" : ""}"
       data-ftab="${i}">${esc(t)}${
       t === "Portfolio" && st.investments ? ` <span>${st.investments}</span>` : ""}${
       t === "Rounds" && st.rounds ? ` <span>${st.rounds}</span>` : ""}${
       t === "Exits" && st.exits ? ` <span>${st.exits}</span>` : ""}${
-      t === "People" && st.people ? ` <span>${st.people}</span>` : ""}</button>`;
+      t === "People" && (f.depth?.staff?.length || st.people)
+        ? ` <span>${f.depth?.staff?.length || st.people}</span>` : ""}${
+      t === "Record" && f.depth?.coverage?.edge_types
+        ? ` <span>${f.depth.coverage.edge_types}</span>` : ""}</button>`;
   }).join("")}</div>`;
 
   if (f.degraded) body += `<div class="verdict grey">${esc(f.degraded)}</div>`;
@@ -1597,21 +1601,92 @@ function fundView() {
         </tr>`).join("")}</tbody></table></div>`
       : emptyTab("PARTICIPATES_IN_CORPORATE_EVENT", "nothing has come out yet, or Cala holds none");
   } else if (T === "People") {
-    body += (f.people?.length
-      ? `<div class="fslist">${f.people.map(p => `
+    // The harvested record attaches people by every edge there is - founder,
+    // general partner, board member, staff - where the old People tab asked
+    // only for WORKS_AT and showed "works here" for all of them.
+    const staff = f.depth?.staff?.length ? f.depth.staff : (f.people || []);
+    body += (staff.length
+      ? `<div class="fslist">${staff.map(p => `
           <button class="fsrow" data-fsid="${esc(p.id)}" data-fsnm="${esc(p.name)}">
             <div><div class="nm">${esc(p.name)}</div>
-            <div class="d">${esc(p.role || "works here")}</div></div>
+            <div class="d">${esc(p.role || "works here")}${
+              p.since ? ` · since ${esc(String(p.since).slice(0, 4))}` : ""}</div></div>
             <span class="go">Founder signal →</span></button>`).join("")}</div>`
       : emptyTab("WORKS_AT", "Cala holds nobody at this firm"))
       + `<div class="sub" style="margin-top:var(--s2)">Cala's people coverage on
          firms is thin. <button class="lnk" data-teamfor="${esc(f.website || f.name)}">Read
          their own team page instead →</button></div>`
       + teamPanel();
+  } else if (T === "Record") {
+    body += recordTab(f);
   } else if (T === "News") {
     body += newsTab(f.name);
   }
   return body;
+}
+
+/* The whole record, rather than the slice a feature asked for.
+   Every other tab answers a question. This one answers "what do you actually
+   have on them", including the parts that are empty - because a page that
+   shows nothing because the record is thin and a page that shows nothing
+   because we never asked look identical, and only one is our fault. */
+function recordTab(f) {
+  const d = f.depth || {}, cov = d.coverage || {};
+  if (!cov.harvested) return `<div class="emptywhy"><b>Not harvested yet.</b>
+    This profile was assembled from the edges a feature asked for. The full
+    record — every property and every relationship this entity declares — is
+    fetched by the harvester, which works through the fund list first.</div>`;
+
+  const facts = (d.facts || []).filter(x => x.key !== "website");
+  const ids = Object.entries(d.identifiers || {});
+  const edges = Object.entries(cov.by_edge || {});
+  const top = Math.max(1, ...edges.map(([, n]) => n));
+
+  return `<div class="sub" style="max-width:64ch;line-height:1.7;margin-bottom:var(--s3)">
+      ${cov.properties} properties, ${cov.sourced_properties} of them carrying a
+      source document, and ${cov.edges} relationships across ${cov.edge_types}
+      kinds. This is the entity asked for everything it declares, not for the
+      fields one screen needed.</div>
+
+    ${facts.length ? section("d-facts", "The plain record", "with the document each claim came from",
+      `<div class="tbl"><table><tbody>${facts.map(x => `<tr style="cursor:default">
+        <td class="sub nowrap">${esc(x.label)}</td>
+        <td>${esc(String(x.value).slice(0, 220))}</td>
+        <td class="nowrap">${(x.sources || []).length
+          ? x.sources.map(s => `<a class="lnk" href="${esc(s.document)}" target="_blank"
+              rel="noopener" title="${esc(s.name || s.document)}">${
+              esc(String(s.name || "source").slice(0, 34))}</a>`).join(" ")
+          : `<span class="sub">no source</span>`}</td></tr>`).join("")}
+      </tbody></table></div>`) : ""}
+
+    ${ids.length ? section("d-ids", "Registered identifiers",
+      "the only way to name a firm without ambiguity",
+      `<div class="card"><div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
+         Three bugs in this product came from matching firms by name — a Munich
+         fund placed in Tampere, a company called NORRSKEN COMPANY LIMITED
+         outranking Norrsken VC. An identifier settles those, when there is
+         one: 14 of the 10,558 entities we hold carry it, so this is a better
+         answer for this firm rather than a fix for the problem.</div>
+       ${ids.map(([k, v]) => `<span class="chip mono">${esc(k.toUpperCase())} ${esc(v)}</span>`).join(" ")}
+      </div>`) : ""}
+
+    ${(d.presence || []).length ? section("d-where", "Where they are",
+      "headquarters first",
+      `<div class="card">${d.presence.map(x =>
+        `<span class="chip">${esc(x.name)}${x.kind === "headquarters" ? " · HQ" : ""}</span>`
+      ).join(" ")}</div>`) : ""}
+
+    ${section("d-cov", "What we hold on them", `${edges.length} kinds of relationship carry something`,
+      `<div class="card">${edges.map(([k, n]) => {
+        const [dir, rel] = k.split(":");
+        return `<div class="dcov"><div class="dcovk">${esc(rel.replace(/_/g, " ").toLowerCase())}
+            <span class="sub">${esc(dir)}</span></div>
+          <div class="dcovb"><i style="width:${Math.max(2, 100 * n / top)}%"></i></div>
+          <div class="dcovn">${n}${n >= 200 ? "+" : ""}</div></div>`;
+      }).join("")}
+      ${edges.some(([, n]) => n >= 200) ? `<div class="sub" style="margin-top:var(--s2)">
+        A count of 200 is the page size, not the total — those edges have more
+        behind them than we fetched.</div>` : ""}</div>`)}`;
 }
 
 const norm_ = x => String(x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -1793,7 +1868,7 @@ function alertResultsPane() {
 /* ---------- the call list ----------
    A screen says which firms are worth approaching. It does not say who to
    write to, and a fund is not a person. Two sources, never blended: Cala
-   when it has a Person entity (verified LinkedIn, role from the graph) and
+   when it has a Person entity (role and start date from the graph) and
    the firm's own team page for the rest, which is most of them. */
 let CALLS = null, CALLSFOR = null, CALLDONE = null;
 
@@ -1879,8 +1954,8 @@ function callsView() {
   return kpis([
     ["People to call", rows.length, "all", "at funds that survived the exclusion"],
     ["Still to do", left.length, "todo", "ticked off in this browser"],
-    ["With a verified profile", CALLS.by_source?.cala || 0, "cala",
-     "a Cala Person entity with a LinkedIn"],
+    ["Named by Cala", CALLS.by_source?.cala || 0, "cala",
+     "a Person entity in the graph, with a role and often a start date"],
   ], "all", null)
   + `<div class="sub" style="margin:-6px 0 var(--s2);max-width:66ch;line-height:1.65">
       ${CALLS.funds_with_a_contact} of your firms have a name on them. The firm
@@ -1913,7 +1988,10 @@ function callRow(r) {
     <span class="av">${esc(initials(r.person))}</span>
     <div class="who">
       <div class="nm">${esc(r.person)}
-        ${r.role ? `<span class="role">${esc(r.role)}</span>` : ""}</div>
+        ${r.role ? `<span class="role">${esc(r.role)}</span>` : ""}${
+        r.ambiguous ? `<span class="role" title="Cala holds these two as one
+          record, so we cannot tell you which of them to ring">two people in
+          one record</span>` : ""}</div>
       <div class="at">${logo(r.fund)}${esc(r.fund)}
         ${r.fund_score != null ? `<span class="sc">${r.fund_score}</span>` : ""}
         <span class="src ${esc(r.source)}">${r.source === "cala" ? "Cala" : "their site"}</span>

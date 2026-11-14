@@ -43,6 +43,8 @@ STEPS = [
      "/founder-signal/af1c7427-b685-4e0c-b03a-7efb074bc3ff?name=Ilkka%20Paananen", None, 40),
     ("Fund profile from cache", "GET",
      "/entity/c0d5bf8c-3f43-4531-8ef6-8c8d1f0dcf5a?kind=fund", None, 20),
+    ("Harvested record (Creandum)", "GET",
+     "/fund/6ba00a20-2cb4-4559-8fe2-f39484a9e5f6", None, 30),
     ("Public record on a bare stub", "GET",
      f"/enrich?name={urllib.parse.quote('Andercore GmbH')}", None, 40),
 ]
@@ -72,6 +74,14 @@ def _checks(label: str, d):
         yield d.get("placed", 0) > 100, "almost nothing placed"
     elif label == "Near me (Helsinki)":
         yield d.get("count", 0) > 0, "nothing near Helsinki"
+    elif label == "Harvested record (Creandum)":
+        dep = d.get("depth") or {}
+        cov = dep.get("coverage") or {}
+        yield cov.get("harvested"), "the record tab would say 'not harvested yet'"
+        yield cov.get("edge_types", 0) >= 5, "too few relationship kinds to be worth a tab"
+        yield len(dep.get("staff") or []) >= 4, "the people this tab is for are missing"
+        yield any(s.get("since") for s in dep.get("staff") or []), \
+            "nobody has a start date, so the tenure signal has nothing to read"
     elif label == "Founder signal":
         yield d.get("score") is not None, "signal unreadable for the demo person"
     elif label == "Fund profile from cache":

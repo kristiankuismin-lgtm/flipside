@@ -5,8 +5,9 @@ tell them who to write to, and a fund is not a person. This merges the two
 sources we have and says which one each name came from, because they are
 not equally strong:
 
-  Cala        a Person entity with a verified LinkedIn and a role from the
-              graph. Authoritative, and rare - 5 people across 7 funds.
+  Cala        a Person entity with a role and often a start date, read off
+              the firm's whole record rather than one edge. Authoritative,
+              and still thin - one person at Northzone, six at Creandum.
   Their site  a name and a role quoted from the firm's own team page.
               Plentiful, and only as good as the page.
 
@@ -65,10 +66,52 @@ def _reason(inv: dict, stage: str) -> str:
 PERSON_WEIGHTS = {
     "market": 14,     # they have been in your market - the strongest of these
     "operator": 10,   # they have built or run something themselves
+    "tenure": 8,      # how long they have been at this firm
     "network": 6,     # doors they can open beyond their own cheque
     "verified": 4,    # a Cala Person entity rather than a name on a page
 }
 NETWORK_FULL = 8      # intro surface above which more stops counting
+# Years at the firm above which more stops counting. A partner of six years
+# has whatever standing the firm gives; a partner of sixteen has no more say
+# in one deal than they did at six. Someone three months in may not be able
+# to champion a cheque at all, which is what this is really measuring.
+TENURE_FULL = 6
+
+
+def years_at_firm(since, today=None) -> float | None:
+    """Years between a start date and today, or None if we have no date.
+
+    Returns None rather than 0 for an unknown start, because a partner whose
+    start date Cala does not hold is not a partner who started today.
+    """
+    import datetime as _dt
+    if not since:
+        return None
+    text = str(since)[:10]
+    try:
+        d = _dt.date.fromisoformat(text)
+    except ValueError:
+        try:
+            d = _dt.date(int(text[:4]), 1, 1)
+        except (ValueError, TypeError):
+            return None
+    now = today or _dt.date.today()
+    if d > now:
+        return None
+    return round((now - d).days / 365.25, 1)
+
+
+_TWO_PEOPLE = __import__("re").compile(r"\s(?:&|and)\s", __import__("re").I)
+
+
+def names_two_people(name: str | None) -> bool:
+    """Cala holds one Index Ventures entity called "Lauren & Vlad Loktev".
+
+    A call list exists to tell a founder who to ring, and that row cannot be
+    rung. Splitting it would invent a person, so the row stays and says what
+    it is.
+    """
+    return bool(_TWO_PEOPLE.search(name or ""))
 
 
 def person_bonus(signals: dict | None) -> tuple[float, list[str]]:
@@ -87,6 +130,10 @@ def person_bonus(signals: dict | None) -> tuple[float, list[str]]:
     elif signals.get("operator"):
         pts += PERSON_WEIGHTS["operator"] * 0.6
         why.append("has operated, year unknown")
+    yrs = signals.get("years_at_firm")
+    if yrs is not None:
+        pts += PERSON_WEIGHTS["tenure"] * min(yrs, TENURE_FULL) / TENURE_FULL
+        why.append(f"{yrs:g} year{'s' if yrs != 1 else ''} at the firm")
     n = signals.get("network") or 0
     if n:
         pts += PERSON_WEIGHTS["network"] * min(n, NETWORK_FULL) / NETWORK_FULL
@@ -114,9 +161,17 @@ def build(investors: list[dict], people_by_fund: dict[str, list[dict]],
             continue
         warm = (sig.get("warm_path") or {})
         for p in people:
+            sigs = dict(p.get("signals") or {})
+            # Tenure comes from the firm's own record, not from the person's,
+            # so it is attached here rather than in the person card.
+            yrs = years_at_firm(p.get("since"))
+            if yrs is not None:
+                sigs["years_at_firm"] = yrs
+            p = {**p, "signals": sigs or None}
             bonus, why = person_bonus(p.get("signals"))
             rows.append({
                 "person": p.get("name"), "role": p.get("role"),
+                "ambiguous": names_two_people(p.get("name")),
                 "person_id": p.get("id"),
                 "signals": p.get("signals"),
                 "bonus": bonus, "bonus_why": why,

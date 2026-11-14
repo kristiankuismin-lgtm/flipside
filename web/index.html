@@ -950,6 +950,16 @@ body.neo-on .main{padding-right:380px}
 .callrow .pwhy .via{color:var(--faint);background:var(--panel2)}
 .callrow .cscore{font:12px var(--mono);font-weight:600;color:var(--dim);
   font-variant-numeric:tabular-nums;cursor:help;margin-right:2px}
+
+/* Record tab: the coverage bars that say what we actually hold on an entity. */
+.dcov{display:grid;grid-template-columns:minmax(0,15rem) 1fr 3.5rem;gap:var(--s2);
+  align-items:center;padding:4px 0}
+.dcovk{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dcovk .sub{font-size:.78em;margin-left:.5ch}
+.dcovb{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.dcovb i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.dcovn{text-align:right;font-variant-numeric:tabular-nums;color:var(--dim)}
+@media (max-width:640px){.dcov{grid-template-columns:1fr 2.5rem}.dcovb{display:none}}
 </style>
 </head>
 <body>

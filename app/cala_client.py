@@ -8,7 +8,7 @@ Endpointit varmistettu docs.cala.ai/llms.txt -indeksista:
   GET  /v1/entities/{id}             entiteetin profiili
   GET  /v1/entities/{id}/introspection   kentat + relaatiot
 """
-import hashlib, json, os, sqlite3, time
+import hashlib, json, os, sqlite3, threading, time
 import httpx
 
 BASE = os.getenv("CALA_BASE", "https://api.cala.ai/v1")
@@ -20,8 +20,54 @@ CACHE_ONLY = os.getenv("CALA_CACHE_ONLY", "") not in ("", "0", "false")
 # Viimeisimman kutsun metatiedot: rate limit -headerit, status, kesto.
 last_meta: dict = {}
 
+# Cala's limiter allows a short burst and then refuses, and it sends no
+# ratelimit headers to read the budget from. Retrying into a closed window
+# spends attempts and learns nothing, so the client paces itself instead:
+# every 429 widens the gap between requests, every success narrows it. A batch
+# job sets CALA_MIN_INTERVAL and converges on whatever the budget actually is;
+# interactive callers leave it at 0 and are not slowed down at all.
+_pace_lock = threading.Lock()
+_pace = {"interval": float(os.getenv("CALA_MIN_INTERVAL", "0") or 0), "next": 0.0}
+PACE_MAX = 20.0
+PACE_MIN = 0.3
+
+
+def pace_state() -> dict:
+    with _pace_lock:
+        return dict(_pace)
+
+
+def _wait_turn() -> None:
+    with _pace_lock:
+        if _pace["interval"] <= 0:
+            return
+        now = time.time()
+        slot = max(now, _pace["next"])
+        _pace["next"] = slot + _pace["interval"]
+    delay = slot - time.time()
+    if delay > 0:
+        time.sleep(delay)
+
+
+def _pace_slower() -> None:
+    with _pace_lock:
+        if _pace["interval"] <= 0:
+            return
+        _pace["interval"] = min(PACE_MAX, _pace["interval"] * 1.7)
+        _pace["next"] = max(_pace["next"], time.time() + _pace["interval"])
+
+
+def _pace_faster() -> None:
+    with _pace_lock:
+        if _pace["interval"] > PACE_MIN:
+            _pace["interval"] = max(PACE_MIN, _pace["interval"] * 0.98)
+
 _conn = sqlite3.connect(DB, check_same_thread=False)
+_conn.execute("PRAGMA busy_timeout=20000")
 _conn.execute("CREATE TABLE IF NOT EXISTS cache (k TEXT PRIMARY KEY, v TEXT, ts REAL)")
+# The batch harvester runs several fetches at once; one writer at a time keeps
+# sqlite from raising "database is locked" into the middle of a long run.
+_write_lock = threading.Lock()
 
 
 class CacheMiss(RuntimeError):
@@ -50,8 +96,9 @@ def _cached(k: str, ttl: float):
 
 
 def _store(k: str, v) -> None:
-    _conn.execute("REPLACE INTO cache VALUES (?,?,?)", (k, json.dumps(v), time.time()))
-    _conn.commit()
+    with _write_lock:
+        _conn.execute("REPLACE INTO cache VALUES (?,?,?)", (k, json.dumps(v), time.time()))
+        _conn.commit()
 
 
 def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
@@ -78,6 +125,7 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
     last_err = None
 
     for i in range(retries):
+        _wait_turn()
         t0 = time.time()
         try:
             r = httpx.request(method, url, json=payload, headers=headers, timeout=timeout)
@@ -106,6 +154,7 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
             # wait: allow_live only means "may hit the network", not "give up".
             if interactive:
                 raise CalaError("Rate limit", 429, r.text[:300])
+            _pace_slower()
             wait = float(r.headers.get("retry-after", max(5.0, 4 * (2 ** i))))
             last_err = CalaError("Rate limit", 429, r.text[:500])
             time.sleep(wait)
@@ -124,6 +173,7 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
             # A 4xx does not improve on retry -> stop immediately.
             raise CalaError(f"{r.status_code} {path}", r.status_code, r.text[:1000])
 
+        _pace_faster()
         data = r.json()
         if use_cache:
             _store(k, data)

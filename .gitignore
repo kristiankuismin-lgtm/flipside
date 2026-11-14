@@ -1,7 +1,13 @@
 *.pyc
 .env
+# Any copy of the key file, however it was named. A .env.bak was swept
+# into a commit by `git add -A` once; once is the number that matters.
+.env.*
 .venv/
 __pycache__/
 cache.sqlite
 recon_report.md
 website.sqlite
+seeds.txt
+harvest.log
+server.log

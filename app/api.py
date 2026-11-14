@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel
 
-from . import metrics as M, conflict as C, warmpath as W
+from . import depth as DEPTH, metrics as M, conflict as C, warmpath as W
 from . import norm
 from .cala_client import CacheMiss, CalaError
 from .company_rounds import company_history
@@ -1195,8 +1195,16 @@ def _neo_phrase(question: str, computed: dict) -> dict | None:
 
 FUND_TABS_RELS_OUT = ["INVESTED_IN", "PARTICIPATES_IN_FUNDING_ROUND",
                       "PARTICIPATES_IN_CORPORATE_EVENT", "OPERATES_IN_INDUSTRY",
-                      "HAS_HEADQUARTERS_IN", "HAS_PRESENCE_IN"]
-FUND_TABS_RELS_IN = ["WORKS_AT", "INVESTED_IN"]
+                      "HAS_HEADQUARTERS_IN", "HAS_PRESENCE_IN",
+                      "IS_SUBSIDIARY_OF", "IS_REGISTERED_IN"]
+# Every way a person can be attached to a firm, not just WORKS_AT. Asking for
+# an edge the entity does not have costs nothing and comes back empty, so the
+# full list is strictly better than the guess it replaces.
+FUND_TABS_RELS_IN = ["INVESTED_IN"] + [e for e, _ in DEPTH.STAFF_EDGES]
+# Identifiers and the plain record, which no tab asked for and every reader
+# wants: a fund's legal name, age, size and LEI.
+FUND_PROPS_FULL = FUND_PROPS + ["registered_address", "legal_name", "aliases",
+                                "lei", "cik", "esg_policy"]
 
 
 @app.get("/fund/{entity_id}")
@@ -1211,7 +1219,7 @@ def fund_profile(entity_id: str):
     from . import cala_client as cala, cache_index, profile as PR
     degraded = None
     try:
-        e = cala.get_entity(entity_id, properties=FUND_PROPS + ["registered_address"],
+        e = cala.get_entity(entity_id, properties=FUND_PROPS_FULL,
                             outgoing=FUND_TABS_RELS_OUT, incoming=FUND_TABS_RELS_IN,
                             limit=200, allow_live=True, ttl=86400)
     except Exception as ex:
@@ -1223,6 +1231,13 @@ def fund_profile(entity_id: str):
                     "what we already hold.")
     out = PR.build(e, rounds_by_company=_rounds_by_company(), domains=_domains())
     out["degraded"] = degraded
+    # The whole record, read back from what the harvest stored: the plain
+    # facts, every way a person is attached to the firm, the portfolio from
+    # both edge directions, and an honest count of what we actually hold.
+    out["depth"] = {"facts": DEPTH.facts(e), "identifiers": DEPTH.identifiers(e),
+                    "staff": DEPTH.staff(e), "presence": DEPTH.presence(e),
+                    "portfolio_total": len(DEPTH.portfolio(e)),
+                    "coverage": DEPTH.coverage(e)}
     return out
 
 
@@ -1323,18 +1338,33 @@ def _role_from_quote(quote: str | None) -> str | None:
 def _people_for_fund(name: str) -> list[dict]:
     """Everyone we can name at this firm, best source first.
 
-    Cala first: a Person entity carries a verified LinkedIn and a role from
-    the graph. It is rare - five people across seven funds - so the firm's
-    own team page fills the rest, and each row says which it was.
+    Cala first: a Person entity carries a role and a start date from the
+    graph. Coverage is thin - one person at Northzone - so the firm's own
+    team page fills the rest, and each row says which it was.
+
+    A harvested firm is read from the whole record rather than from the one
+    WORKS_AT edge this function used to ask for, which is the difference at
+    Creandum between four people who all "work here" and six with their
+    actual titles and start dates - including the founder, who is attached
+    by FOUNDED and was invisible before.
     """
     from . import cala_client as cala, graph, team as TM, website as W
     out, seen = [], set()
+
+    harvested = DEPTH.entity(name, types=("Organization", "Company"))
+    for p in (DEPTH.staff(harvested) if harvested else []):
+        key = norm.name(p.get("name") or "")
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append({"name": p["name"], "role": p.get("role"), "linkedin": None,
+                    "source": "cala", "id": p.get("id"), "since": p.get("since")})
 
     try:
         f = graph.find_investor(name, allow_live=True, ttl=86400)
     except Exception:
         f = None
-    if f:
+    if f and not out:
         try:
             e = cala.get_entity(f["id"], properties=["name"], incoming=["WORKS_AT"],
                                 limit=40, allow_live=True, ttl=86400)

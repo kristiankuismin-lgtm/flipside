@@ -22,8 +22,14 @@ from datetime import date
 from . import cala_client as cala, norm
 from .models import Round
 
-# Investors are usually Organization; Company picks up funds and legal entities.
-INVESTOR_TYPES = ["Organization", "Company"]
+# Investors are usually Organization; Company picks up funds and legal
+# entities. The rest are the organisation-ish types Cala models separately: a
+# public funder typed GovernmentalInstitution used to return nothing from a
+# fund search, and the failure was silent - the kind this codebase keeps
+# finding. Asking for a type that matches nothing costs nothing.
+INVESTOR_TYPES = ["Organization", "Company", "GovernmentalInstitution",
+                  "NonprofitOrganization", "IntergovernmentalOrganization",
+                  "ResearchInstitution"]
 COMPANY_TYPES = ["Company", "Organization"]
 
 # Ranked best-first. Drives the reliability badge in the UI.
