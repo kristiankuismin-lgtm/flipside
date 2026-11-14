@@ -176,3 +176,21 @@ def test_a_person_named_before_a_title_survives_the_label_rule():
     got = [p["name"] for p in T.people(
         "<li>Meet Anni Harju: Voima Ventures’ New Chief Financial Officer</li>", "u")]
     assert got == ["Anni Harju"]
+
+
+# ---- is this person staff, or someone on the firm's portfolio page? ----
+def test_a_portfolio_founder_is_not_staff():
+    """balderton.com lists "Alex Kendall Co-founder and CEO, Wayve". A call
+    list that cannot tell has you phoning Wayve about a term sheet."""
+    assert T.affiliation("Alex Kendall Co-founder and CEO, Wayve", "balderton") == "Wayve"
+    assert T.affiliation("Jan Goetz Co-Founder and CEO, IQM", "maki") == "IQM"
+    assert T.affiliation("Marit Rødevand Founder & CEO at Strise", "maki") == "Strise"
+
+
+def test_the_firms_own_partners_have_no_other_affiliation():
+    assert T.affiliation("Lasse Lehtinen Co-founder & General Partner", "icebreaker") is None
+    assert T.affiliation("Sabina Wizander Partner", "creandum") is None
+
+
+def test_being_named_with_the_firm_itself_is_not_an_affiliation():
+    assert T.affiliation("Anni Harju, CFO at Voima Ventures", "voimaventures") is None

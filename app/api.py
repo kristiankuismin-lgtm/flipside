@@ -5,6 +5,7 @@ Demo ajetaan CALA_CACHE_ONLY=1, jolloin yksikaan pyynto ei odota Calaa
 sen sijaan etta se peitettaisiin nollana.
 """
 import json
+import re
 import os
 from dataclasses import asdict
 from pathlib import Path
@@ -1299,6 +1300,114 @@ def alerts(req: Req):
                      "unattended needs a scheduler and a store; neither is "
                      "here, and saying otherwise would be the only dishonest "
                      "thing in this product.")}
+
+
+_TITLE_IN_QUOTE = re.compile(
+    r"\b((?:founding|general|managing|venture)?\s*partner|co-?founder[^,]{0,24}|"
+    r"chief [a-z]+ officer|c[a-z]o|principal|associate|head of [a-z ]{3,20}|"
+    r"entrepreneur[- ]in[- ]residence|advisor|director)\b", re.I)
+
+
+def _role_from_quote(quote: str | None) -> str | None:
+    """The title as written, not the bucket we sorted it into.
+
+    "Co-founder & General Partner" is what a founder needs on a call list;
+    "founder" is what the classifier reduced it to.
+    """
+    m = _TITLE_IN_QUOTE.search(quote or "")
+    if not m:
+        return None
+    return " ".join(m.group(1).split()).strip(" ,.&")
+
+
+def _people_for_fund(name: str) -> list[dict]:
+    """Everyone we can name at this firm, best source first.
+
+    Cala first: a Person entity carries a verified LinkedIn and a role from
+    the graph. It is rare - five people across seven funds - so the firm's
+    own team page fills the rest, and each row says which it was.
+    """
+    from . import cala_client as cala, graph, team as TM, website as W
+    out, seen = [], set()
+
+    try:
+        f = graph.find_investor(name, allow_live=True, ttl=86400)
+    except Exception:
+        f = None
+    if f:
+        try:
+            e = cala.get_entity(f["id"], properties=["name"], incoming=["WORKS_AT"],
+                                limit=40, allow_live=True, ttl=86400)
+            staff = ((e.get("relationships") or {}).get("incoming") or {}).get("WORKS_AT") or []
+        except Exception:
+            staff = []
+        for pr in staff[:12]:
+            role = (pr.get("properties") or {}).get("role")
+            role = role.get("value") if isinstance(role, dict) else role
+            li = None
+            try:
+                pe = cala.get_entity(pr["id"], properties=["linkedin_url", "personal_website"],
+                                     limit=1, allow_live=True, ttl=86400)
+                pp = pe.get("properties") or {}
+                li = (pp.get("linkedin_url") or {}).get("value") if isinstance(
+                    pp.get("linkedin_url"), dict) else pp.get("linkedin_url")
+            except Exception:
+                pass
+            key = norm.name(pr.get("name") or "")
+            if not key or key in seen:
+                continue
+            seen.add(key)
+            out.append({"name": pr.get("name"), "role": role, "linkedin": li,
+                        "source": "cala", "id": pr.get("id")})
+
+    # The firm's own page, for the firms Cala has nobody at - which is most.
+    site = _domains().get((name or "").strip().lower())
+    if not site:
+        try:
+            d = W.discover(name)
+            site = (d or {}).get("site")
+        except Exception:
+            site = None
+    if site:
+        try:
+            read = TM.read_deep(site, timeout=8)
+        except Exception:
+            read = {"people": []}
+        for pr in read.get("people") or []:
+            key = norm.name(pr.get("name") or "")
+            if not key or key in seen:
+                continue
+            # A VC's site lists its portfolio's founders too. Those are that
+            # company's people, not this firm's, and calling them about a
+            # term sheet is the wrong call.
+            if pr.get("is_staff") is False:
+                continue
+            seen.add(key)
+            out.append({"name": pr.get("name"),
+                        "role": _role_from_quote(pr.get("quote")) or pr.get("role"),
+                        "quote": pr.get("quote"), "site": pr.get("source"),
+                        "source": "site"})
+    return out
+
+
+@app.post("/call-list")
+def call_list(req: Req):
+    """Who to contact, in the order to contact them.
+
+    A screen says which firms are worth approaching; it does not say who to
+    write to, and a fund is not a person.
+    """
+    from . import calllist as CL
+    scored = analyze(req)
+    want = [x for x in scored["investors"]
+            if (x.get("signals") or {}).get("conflict", {}).get("label") != "\U0001f534"][:10]
+    people = {}
+    for x in want:
+        people[norm.name(x["investor"])] = _people_for_fund(x["investor"])
+    out = CL.build(scored["investors"], people, stage=req.stage)
+    out["company"] = req.company
+    out["stage"] = req.stage
+    return out
 
 
 @app.get("/connectors")

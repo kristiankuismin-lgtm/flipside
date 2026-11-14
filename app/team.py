@@ -200,6 +200,40 @@ def _sentence_with(text: str, name: str) -> str | None:
     return text.strip() if name in text else None
 
 
+# "Alex Kendall Co-founder and CEO, Wayve" on balderton.com is a portfolio
+# founder, not a Balderton partner. A call list that cannot tell the
+# difference has you phoning Wayve's CEO about a term sheet.
+_AT_COMPANY = re.compile(
+    r"\b(?:at|of|,)\s+((?:[A-Z][\w&.'\u2019-]*)(?:\s+[A-Z][\w&.'\u2019-]*){0,3})\s*$")
+_ROLE_THEN_COMPANY = re.compile(
+    r"(?:founder|ceo|cto|coo|chief\s+\w+)\b[^,]{0,20}[,.]?\s+(?:at\s+)?"
+    r"((?:[A-Z][\w&.'\u2019-]*)(?:\s+[A-Z][\w&.'\u2019-]*){0,3})", re.I)
+
+
+def affiliation(quote: str, firm: str | None) -> str | None:
+    """The organisation a quote attaches this person to, if not the firm.
+
+    Returns the other company's name, or None when the quote says nothing
+    about one - which is the normal case for a real team page.
+    """
+    q = (quote or "").strip()
+    if not q:
+        return None
+    firm_key = re.sub(r"[^a-z0-9]", "", (firm or "").lower())
+    for rx in (_ROLE_THEN_COMPANY, _AT_COMPANY):
+        m = rx.search(q)
+        if not m:
+            continue
+        other = _trim_name(m.group(1)) or m.group(1)
+        key = re.sub(r"[^a-z0-9]", "", other.lower())
+        if len(key) < 3 or (firm_key and (key in firm_key or firm_key in key)):
+            continue
+        if TITLE_WORD.match(other.split()[0] if other.split() else ""):
+            continue
+        return other.strip()
+    return None
+
+
 def read(site: str | None, **kw) -> dict:
     """Homepage -> team page -> people. Everything cached by website.fetch."""
     home = W.fetch(site, **kw)
@@ -365,6 +399,17 @@ def read_deep(site: str | None, *, follow_bios: bool = True, **kw) -> dict:
                       "why": None if found else "no name and role in one sentence"})
 
     merged = _merge(groups)
+    firm = urlparse(base or "").netloc.split(".")[0] if base else None
+    for person in merged:
+        other = affiliation(person.get("quote"), firm)
+        if other:
+            # Named with another company: they are that company's, not this
+            # firm's. Kept and labelled rather than dropped, because on a
+            # VC site this is the portfolio and that is worth seeing.
+            person["affiliation"] = other
+            person["is_staff"] = False
+        else:
+            person["is_staff"] = True
 
     # Follow a few person pages for the sentence a listing never has room for.
     if follow_bios and merged:

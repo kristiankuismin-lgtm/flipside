@@ -886,6 +886,37 @@ body.neo-on .main{padding-right:380px}
 
 .alrow .when{font:11px var(--mono);color:var(--faint)}
 .alrow .sub{font-size:11.5px;color:var(--dim);line-height:1.6}
+
+/* --- call list --- */
+.calllist{display:flex;flex-direction:column;gap:8px}
+.callrow{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;
+  border:1px solid var(--line);border-radius:11px;background:var(--panel);
+  box-shadow:var(--sh)}
+.callrow.done{opacity:.5;background:var(--panel2)}
+.callcheck{flex:none;width:22px;height:22px;margin-top:2px;border-radius:7px;
+  border:1.5px solid var(--line2);background:var(--panel);cursor:pointer;
+  color:var(--green);font:13px/18px var(--sans);font-weight:700;padding:0}
+.callcheck:hover{border-color:var(--green)}
+.callrow.done .callcheck{background:var(--green-bg);border-color:var(--green-line)}
+.callrow .av{flex:none;width:34px;height:34px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--line);text-align:center;
+  font:11px/32px var(--mono);color:var(--faint)}
+.callrow .who{flex:1;min-width:0}
+.callrow .nm{font-size:14px;font-weight:570;color:var(--ink)}
+.callrow .role{margin-left:7px;font:11px var(--mono);color:var(--accent-ink);
+  background:var(--accent-bg);border-radius:5px;padding:2px 7px}
+.callrow .at{display:flex;align-items:center;gap:6px;margin-top:5px;
+  font-size:12.5px;color:var(--dim)}
+.callrow .at .logo{width:16px;height:16px;border-radius:4px;padding:1px}
+.callrow .at .sc{font:10.5px var(--mono);color:var(--faint)}
+.callrow .src{font:9.5px var(--mono);letter-spacing:.05em;border-radius:4px;
+  padding:2px 6px;text-transform:uppercase}
+.callrow .src.cala{background:var(--green-bg);color:var(--green)}
+.callrow .src.site{background:var(--panel2);color:var(--faint)}
+.callrow .why{margin-top:5px;font:11px var(--mono);color:var(--faint);
+  line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.callrow .warm{margin-top:4px;font-size:11.5px;color:var(--blue)}
+.callrow .acts{display:flex;gap:6px;align-items:center;flex:none}
 </style>
 </head>
 <body>
@@ -907,6 +938,7 @@ body.neo-on .main{padding-right:380px}
     <button class="navitem on" data-mode="home"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l6-4.5L14 7v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></span>Ask</button>
     <div class="navsec">Raising</div>
     <button class="navitem" data-mode="founder"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 9.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M2.5 14a5.5 5.5 0 0 1 11 0"/></svg></span>Your round<span class="ct" id="ct-f"></span></button>
+    <button class="navitem" data-mode="calls"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3.5h3l1.2 3-1.6 1.2a8 8 0 0 0 3.7 3.7L10.5 10l3 1.2v3a1 1 0 0 1-1.1 1A11.5 11.5 0 0 1 2 4.6 1 1 0 0 1 3 3.5z"/></svg></span>Call list</button>
     <div class="navsec">Evidence</div>
     <button class="navitem" data-mode="investor"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12.5l3.5-4 3 2.5L14 4"/><path d="M10.5 4H14v3.5"/></svg></span>Insider conviction<span class="ct" id="ct-i"></span></button>
     <div class="navsec">Context</div>

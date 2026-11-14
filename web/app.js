@@ -212,6 +212,12 @@ function wire() {
   };
   if ($("#plandl")) $("#plandl").onclick = () => planExport("download");
   if ($("#planprint")) $("#planprint").onclick = () => planExport("print");
+  document.querySelectorAll("[data-call]").forEach(b => b.onclick = () => {
+    if (!CALLDONE) callsLoadDone();
+    const id = b.dataset.call;
+    CALLDONE.has(id) ? CALLDONE.delete(id) : CALLDONE.add(id);
+    callsSaveDone(); render();
+  });
   document.querySelectorAll("[data-alertfor]").forEach(b => b.onclick = () => openAlerts());
   document.querySelectorAll("[data-openalerts]").forEach(b => b.onclick = () => openAlerts());
   document.querySelectorAll("[data-ftab]").forEach(b => b.onclick = () => {
@@ -2085,6 +2091,103 @@ function alertResultsPane() {
     <div class="sub" style="margin-top:14px;line-height:1.6">${esc(ALERTS.note || "")}</div>`;
 }
 
+/* ---------- the call list ----------
+   A screen says which firms are worth approaching. It does not say who to
+   write to, and a fund is not a person. Two sources, never blended: Cala
+   when it has a Person entity (verified LinkedIn, role from the graph) and
+   the firm's own team page for the rest, which is most of them. */
+let CALLS = null, CALLSFOR = null, CALLDONE = null;
+
+function callKey() { return `flipside.calls.${(F?.company || "").toLowerCase()}`; }
+
+function callsLoadDone() {
+  try { CALLDONE = new Set(JSON.parse(localStorage.getItem(callKey()) || "[]")); }
+  catch (e) { CALLDONE = new Set(); }
+}
+
+function callsSaveDone() {
+  try { localStorage.setItem(callKey(), JSON.stringify([...CALLDONE])); } catch (e) {}
+}
+
+async function loadCalls() {
+  if (!F) return;
+  CALLSFOR = F.company; CALLS = { loading: true };
+  if (!CALLDONE) callsLoadDone();
+  render();
+  try {
+    CALLS = await (await fetch("/call-list", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company: F.company, stage: F.stage,
+                             limit: F.investors?.length || 14 })
+    })).json();
+  } catch (e) { CALLS = { rows: [], error: String(e.message) }; }
+  render();
+}
+
+function callsView() {
+  if (!F) return `<div class="msg">Run a screen first — the call list is built
+    from the funds that survive it.</div>`;
+  if (!CALLS || CALLSFOR !== F.company) { loadCalls(); return `<div class="msg">
+    <span class="spin"></span>Finding who to contact at each firm…</div>`; }
+  if (CALLS.loading) return `<div class="msg" style="padding:40px">
+    <span class="spin"></span>Finding who to contact at each firm…<br>
+    <span class="sub">Cala first, then each firm's own team page.</span></div>`;
+  if (CALLS.error) return `<div class="emptywhy"><b>Could not build it.</b>
+    ${esc(CALLS.error)}</div>`;
+
+  const rows = CALLS.rows || [];
+  const done = CALLDONE || new Set();
+  const left = rows.filter(r => !done.has(r.person + "|" + r.fund));
+
+  return kpis([
+    ["People to call", rows.length, "all", "at funds that survived the exclusion"],
+    ["Still to do", left.length, "todo", "ticked off in this browser"],
+    ["With a verified profile", CALLS.by_source?.cala || 0, "cala",
+     "a Cala Person entity with a LinkedIn"],
+  ], "all", null)
+  + `<div class="sub" style="margin:-6px 0 var(--s2);max-width:64ch;line-height:1.65">
+      ${CALLS.funds_with_a_contact} of your firms have a name on them. Order is
+      the firm worth calling first, then a warm route, then Cala over a scraped
+      page, then seniority — a partner writes cheques and an analyst does not.</div>`
+  + section("cl", "Call list", `${rows.length} contacts`, rows.length
+      ? `<div class="calllist">${rows.map(callRow).join("")}</div>`
+      : `<div class="emptywhy"><b>Nobody to call.</b> Every firm that survived
+          the exclusion came back with no named contact.</div>`)
+  + ((CALLS.skipped || []).length ? section("clskip", "Not on the list",
+      `${CALLS.skipped.length} firms`, `<div class="tbl"><table><tbody>${
+        CALLS.skipped.map(sk => `<tr style="cursor:default">
+          <td>${esc(sk.fund)}</td>
+          <td>${sk.why === "backs a competitor"
+            ? badge(`backs ${esc((sk.backs || []).join(", "))}`, "red")
+            : `<span class="sub">no contact found</span>`}</td>
+        </tr>`).join("")}</tbody></table></div>`) : "");
+}
+
+function callRow(r) {
+  const id = r.person + "|" + r.fund;
+  const done = (CALLDONE || new Set()).has(id);
+  return `<div class="callrow ${done ? "done" : ""}">
+    <button class="callcheck" data-call="${esc(id)}" title="Mark as contacted">${
+      done ? "✓" : ""}</button>
+    <span class="av">${esc(initials(r.person))}</span>
+    <div class="who">
+      <div class="nm">${esc(r.person)}
+        ${r.role ? `<span class="role">${esc(r.role)}</span>` : ""}</div>
+      <div class="at">${logo(r.fund)}${esc(r.fund)}
+        ${r.fund_score != null ? `<span class="sc">${r.fund_score}</span>` : ""}
+        <span class="src ${esc(r.source)}">${r.source === "cala" ? "Cala" : "their site"}</span>
+      </div>
+      <div class="why">${esc(r.reason)}</div>
+      ${r.warm ? `<div class="warm">${esc(r.warm)} — ask for the introduction</div>` : ""}
+    </div>
+    <div class="acts">
+      ${r.linkedin ? `<a class="btn sm" href="${esc(r.linkedin)}" target="_blank"
+        rel="noopener">LinkedIn</a>` : ""}
+      <button class="btn sm" data-brief="${esc(r.fund)}">Opener</button>
+    </div>
+  </div>`;
+}
+
 function render() {
   if (KBDMODE !== MODE) { KBD = -1; KBDMODE = MODE; kbdHint(false); }
   document.querySelectorAll("[data-mode]").forEach(b =>
@@ -2100,6 +2203,9 @@ function render() {
   } else if (MODE === "map") {
     parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
+  } else if (MODE === "calls") {
+    parts = [{ t: "Raising", go: 1 }, { t: "Call list" }];
+    html = callsView();
   } else if (MODE === "fund") {
     parts = [{ t: "Funds", go: 1 }, { t: FUND?.name || ENTLOAD?.name || "Fund" }];
     html = fundView();
