@@ -1083,8 +1083,6 @@ def syndicates(req: Req):
         if len(out) >= 5:
             break
     return {"company": req.company, "stage": req.stage,
-            "stage_check": stage_note, "stage_stale": stale_note,
-            "own_rounds": own[-4:],
             "your_backers": mine, "syndicates": out}
 
 
@@ -1745,8 +1743,6 @@ def alerts(req: Req):
     # Every investor in a competitor's recent round is tomorrow's exclusion.
     would_exclude = sorted({i for c in comp for i in c["investors"]})
     return {"company": req.company, "stage": req.stage,
-            "stage_check": stage_note, "stage_stale": stale_note,
-            "own_rounds": own[-4:],
             "hits": hits, "competitor_rounds": comp,
             "would_exclude": would_exclude,
             "high": sum(1 for h in hits if h["severity"] == "high") + len(comp),
