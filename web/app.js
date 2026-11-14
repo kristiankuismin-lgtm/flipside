@@ -296,29 +296,65 @@ function searchPanel() {
   </div>`;
 }
 
+/* Who already backs your competitors, and through which competitor.
+   Drawn as a flow rather than a list because the useful fact is the middle
+   column: one competitor can pull in four funds, and that is the row a
+   founder has to plan around. */
 function conflictMap() {
   const edges = F.edges || [];
   if (!edges.length) return `<div class="msg">No fund in this list backs a named competitor —
     a computed result, not an empty state.</div>`;
-  const comps = [...new Set(edges.map(e => e.competitor))];
-  const funds = [...new Set(edges.map(e => e.investor))];
-  const H = Math.max(comps.length, funds.length, 3) * 46 + 72, W = 1000;
-  const x1 = 120, x2 = W / 2, x3 = W - 140, my = H / 2;
-  const y = (i, n) => 58 + (H - 86) * (n === 1 ? .5 : i / (n - 1));
-  const node = (x, yy, w, t, c) => `<g><rect class="mnode ${c}" x="${x - w / 2}" y="${yy - 14}"
-      width="${w}" height="28" rx="7"/><text class="mlbl ${c === "hot" ? "hot" : ""}" x="${x}"
-      y="${yy + 4}" text-anchor="middle">${esc(t.length > 24 ? t.slice(0, 23) + "…" : t)}</text></g>`;
-  return `<div class="mapbox"><svg viewBox="0 0 ${W} ${H}">
-    <text class="mhd" x="${x1}" y="28" text-anchor="middle">YOU</text>
-    <text class="mhd" x="${x2}" y="28" text-anchor="middle">COMPETITORS</text>
-    <text class="mhd" x="${x3}" y="28" text-anchor="middle">FUNDS BACKING THEM</text>
-    ${comps.map((_, i) => `<path class="medge" d="M${x1 + 56} ${my} C${x1 + 130} ${my},${x2 - 90} ${y(i, comps.length)},${x2 - 100} ${y(i, comps.length)}"/>`).join("")}
-    ${edges.map(e => { const i = comps.indexOf(e.competitor), j = funds.indexOf(e.investor);
-      return `<path class="medge hot" d="M${x2 + 100} ${y(i, comps.length)} C${x2 + 180} ${y(i, comps.length)},${x3 - 120} ${y(j, funds.length)},${x3 - 95} ${y(j, funds.length)}"/>`; }).join("")}
-    ${node(x1, my, 110, F.company, "me")}
-    ${comps.map((c, i) => node(x2, y(i, comps.length), 200, c, "")).join("")}
-    ${funds.map((f, i) => node(x3, y(i, funds.length), 190, f, "hot")).join("")}
-  </svg></div>`;
+
+  // Order both columns by how much they carry, so the heavy lines are at the
+  // top and the chart reads without tracing every curve.
+  const byComp = {}, byFund = {};
+  for (const e of edges) {
+    (byComp[e.competitor] ||= []).push(e.investor);
+    (byFund[e.investor] ||= []).push(e.competitor);
+  }
+  const comps = Object.keys(byComp).sort((a, b) => byComp[b].length - byComp[a].length);
+  const funds = Object.keys(byFund).sort((a, b) => byFund[b].length - byFund[a].length);
+
+  const ROW = 44, PAD = 54, W = 1040;
+  const H = Math.max(comps.length, funds.length, 2) * ROW + PAD * 2;
+  const x1 = 120, x2 = W / 2 - 20, x3 = W - 150;
+  const y = (i, n) => PAD + (n === 1 ? (H - PAD * 2) / 2 : i * ((H - PAD * 2 - 22) / Math.max(n - 1, 1))) + 11;
+  const my = H / 2;
+  const curve = (xa, ya, xb, yb) =>
+    `M${xa} ${ya} C${xa + (xb - xa) * .45} ${ya},${xb - (xb - xa) * .45} ${yb},${xb} ${yb}`;
+
+  const node = (x, yy, w, text, cls, sub) => `
+    <g class="cnode ${cls}">
+      <rect x="${x - w / 2}" y="${yy - 15}" width="${w}" height="30" rx="8"/>
+      <text class="cnl" x="${x}" y="${yy + (sub ? 0 : 4)}" text-anchor="middle">${
+        esc(text.length > 26 ? text.slice(0, 25) + "…" : text)}</text>
+      ${sub ? `<text class="cns" x="${x}" y="${yy + 11}" text-anchor="middle">${esc(sub)}</text>` : ""}
+    </g>`;
+
+  return `<div class="cmap"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet">
+    <text class="chd" x="${x1}" y="24" text-anchor="middle">YOU</text>
+    <text class="chd" x="${x2}" y="24" text-anchor="middle">YOUR COMPETITORS</text>
+    <text class="chd" x="${x3}" y="24" text-anchor="middle">FUNDS THAT BACK THEM</text>
+
+    ${comps.map((c, i) => `<path class="cedge" d="${
+      curve(x1 + 62, my, x2 - 108, y(i, comps.length))}"/>`).join("")}
+    ${edges.map(e => {
+      const i = comps.indexOf(e.competitor), j = funds.indexOf(e.investor);
+      return `<path class="cedge hot" d="${
+        curve(x2 + 108, y(i, comps.length), x3 - 96, y(j, funds.length))}"
+        data-ce="${esc(e.investor)}|${esc(e.competitor)}"><title>${
+        esc(e.investor)} backs ${esc(e.competitor)}</title></path>`;
+    }).join("")}
+
+    ${node(x1, my, 124, F.company, "me")}
+    ${comps.map((c, i) => node(x2, y(i, comps.length), 216, c, "comp",
+        byComp[c].length > 1 ? `${byComp[c].length} funds` : "")).join("")}
+    ${funds.map((f, i) => node(x3, y(i, funds.length), 192, f, "hot",
+        byFund[f].length > 1 ? `backs ${byFund[f].length}` : "")).join("")}
+  </svg>
+  <div class="cmapnote">${edges.length} fund–competitor link${edges.length > 1 ? "s" : ""}
+    across ${comps.length} competitor${comps.length > 1 ? "s" : ""}.
+    Hover a line to read it.</div></div>`;
 }
 
 const SIGLBL = { lead_rate: "Lead rate", follow_on: "Follow-on", next_round: "Portfolio progression",
@@ -961,6 +997,19 @@ function locateMe() {
     { enableHighAccuracy: false, timeout: 9000, maximumAge: 300000 });
 }
 
+/* Browser geolocation can be wrong by a country when it falls back to IP.
+   Typing a place is not a worse answer, it is a better one. */
+async function setPlace(q) {
+  if (!q || !q.trim()) return;
+  try {
+    const d = await (await fetch(`/place?q=${encodeURIComponent(q.trim())}`)).json();
+    if (d.lat == null) { MYLOCERR = `No place called "${esc(q)}".`; return render(); }
+    MYLOC = { lat: d.lat, lon: d.lon, manual: true, label: d.display || q.trim() };
+    MYLOCERR = null;
+    loadNear();
+  } catch (e) { MYLOCERR = String(e.message); render(); }
+}
+
 async function loadNear() {
   if (!MYLOC) return;
   NEAR = { loading: true }; render();
@@ -993,7 +1042,13 @@ function nearPanel() {
     [["fund", "Funds"], ["company", "Companies"], ["all", "Everything"]].map(([k, l]) =>
       `<button class="tgl ${NEARKIND === k ? "on" : ""}" data-nk="${k}">${l}</button>`).join("")}</div>`;
 
-  return tabs + (NEAR.cities || []).map(c => `
+  const where = `<div class="nearwhere">
+    ${MYLOC?.manual ? `Searching from <b>${esc(MYLOC.label || "")}</b>.`
+      : `From your browser's location (±${MYLOC?.acc ?? "?"}m).`}
+    <span class="nearfix">Not right?
+      <input id="nearplace" placeholder="type a city" autocomplete="off"></span></div>`;
+
+  return tabs + where + (NEAR.cities || []).map(c => `
     <div class="nearcity"><span>${esc(c.city)}</span>
       <span class="km">${c.km < 1 ? "<1" : Math.round(c.km)} km</span></div>
     ${c.items.map(r => {
@@ -1075,15 +1130,22 @@ function initMap() {
       (MYMARKER.remove(), MYMARKER = null), render()) : locateMe();
 
   if (MYLOC && ML) {
+    if (MYMARKER) { MYMARKER.remove(); MYMARKER = null; }
     const me = document.createElement("div");
     me.className = "mkr me";
     MYMARKER = new maplibregl.Marker({ element: me })
       .setLngLat([MYLOC.lon, MYLOC.lat])
       .setPopup(new maplibregl.Popup({ offset: 14, closeButton: false })
-        .setHTML(`<div class="mlpop"><b>You are here</b><br>
-          <span style="color:#777">±${MYLOC.acc}m, from your browser</span></div>`))
+        .setHTML(`<div class="mlpop"><b>${MYLOC.manual ? "Searching from" : "You are here"}</b><br>
+          <span style="color:#777">${MYLOC.manual ? esc(MYLOC.label || "")
+            : `±${MYLOC.acc}m, from your browser`}</span></div>`))
       .addTo(ML);
-    ML.flyTo({ center: [MYLOC.lon, MYLOC.lat], zoom: 7, duration: 800 });
+    // Fly once, when the location is new. Re-flying on every render made the
+    // map unusable: panning away snapped straight back.
+    if (MYLOC.flown !== true) {
+      MYLOC.flown = true;
+      ML.flyTo({ center: [MYLOC.lon, MYLOC.lat], zoom: 8, duration: 800 });
+    }
   }
   if (MYLOC || MYLOCERR) {
     const t = $("#sidet"), sb = $("#sides"), body = $("#sideb");
@@ -1093,6 +1155,8 @@ function initMap() {
       : "Your browser's location, used once and not stored";
     if (body) {
       body.innerHTML = nearPanel();
+      const np = body.querySelector("#nearplace");
+      if (np) np.onkeydown = e => { if (e.key === "Enter") setPlace(np.value); };
       body.querySelectorAll("[data-nk]").forEach(b => b.onclick = () => {
         NEARKIND = b.dataset.nk; loadNear();
       });
@@ -1156,13 +1220,19 @@ function initMap() {
     MLMARKERS.forEach(({ el }) => el.style.opacity = ".25");
     $("#sidet").textContent = "Find a person";
     $("#sides").textContent = "People are searched, not plotted";
-    $("#sideb").innerHTML = `<div class="msg" style="padding:24px;text-align:left;line-height:1.7">
-      Cala holds no address on a Person, and no participant list for Slush is
-      made of people — all 2,000 entries are companies. So there is no people
-      layer to draw.<br><br>
+    $("#sideb").innerHTML = `<div class="msg" style="padding:22px;text-align:left;line-height:1.7">
+      Cala holds no address on a Person, and the Slush participant list is
+      made of companies — all 2,000 of them. So there is no people layer to
+      draw from.<br><br>
       Type a name and we resolve it the only way the graph allows:
       <b>person → founded / works at → company → headquarters</b>, and the pin
-      says which company produced it.</div>`;
+      names the company that produced it.
+      <div class="ppsug">Try ${["Ilkka Paananen", "Niklas Zennstrom", "Miki Kuusi"]
+        .map(n => `<button class="btn sm" data-ppq="${esc(n)}">${esc(n)}</button>`).join("")}</div>
+      </div>`;
+    document.querySelectorAll("[data-ppq]").forEach(b => b.onclick = () => {
+      const q = $("#mapq"); q.value = b.dataset.ppq; peopleSearch();
+    });
   }
 }
 
@@ -1183,7 +1253,8 @@ function peopleSearch() {
       return;
     }
     $("#sidet").textContent = `People matching "${t}"`;
-    $("#sides").textContent = `${d.results.length} found · click to place on the map`;
+    $("#sides").textContent = `${d.results.length} found${
+      d.offline ? " in cached Cala data" : ""} · click to place on the map`;
     $("#sideb").innerHTML = d.results.length ? d.results.map((r, i) => `
       <div class="sideitem" data-pp="${i}" style="cursor:pointer">
         <div class="n">${esc(r.name)}</div>
@@ -1626,6 +1697,8 @@ function entityView() {
   if (isPerson && TAB === 1) return body + founderSignalTab() + "</div>";
 
   body += warn;
+  if (ENT.degraded)
+    body += `<div class="verdict grey" style="margin-bottom:14px">${esc(ENT.degraded)}</div>`;
   if (val("description"))
     body += `<p class="lede">${esc(val("description"))}
       ${src("description") ? `<a href="${esc(src("description"))}" target="_blank"
@@ -1757,8 +1830,13 @@ async function openBrief(investor) {
       }&su=${encodeURIComponent(val("#csub"))}&body=${encodeURIComponent(val("#cbody"))}`,
     "_blank", "noopener");
   w.querySelector("#cmailto").onclick = () => {
-    location.href = `mailto:${encodeURIComponent(val("#cto").trim())}?subject=${
+    // Assigning location.href to a mailto: is silently ignored in embedded
+    // and sandboxed contexts. Clicking a real anchor is not.
+    const a = document.createElement("a");
+    a.href = `mailto:${encodeURIComponent(val("#cto").trim())}?subject=${
       encodeURIComponent(val("#csub"))}&body=${encodeURIComponent(val("#cbody"))}`;
+    a.target = "_blank"; a.rel = "noopener";
+    document.body.appendChild(a); a.click(); a.remove();
   };
   w.querySelector("#ccopy").onclick = async () => {
     await navigator.clipboard.writeText(val("#cbody"));

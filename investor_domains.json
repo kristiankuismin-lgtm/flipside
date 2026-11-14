@@ -11,7 +11,7 @@
   "hq_source": "https://www.lifelineventures.com/contact-our-team"
  },
  "Inventure": {
-  "website": null,
+  "website": "inventure.vc",
   "hq": "Lapinlahdenkatu 16, Helsinki, Southern Finland FI",
   "hq_field": "registered_address",
   "description": "a Finnish investment firm headquartered in Helsinki",
@@ -19,10 +19,11 @@
   "employees": 36,
   "id": "fd3ba350-0e55-40b5-96e3-013994777fdc",
   "entity_type": "Organization",
-  "hq_source": "https://www.openvc.app/fund/Inventure"
+  "hq_source": "https://www.openvc.app/fund/Inventure",
+  "website_source": "homepage title verified"
  },
  "Maki.vc": {
-  "website": null,
+  "website": "maki.vc",
   "hq": null,
   "hq_field": null,
   "description": "a venture capital firm that provides funding to companies",
@@ -30,13 +31,14 @@
   "employees": null,
   "id": "8f0ff46d-d609-4ce0-b719-85f739b92ca3",
   "entity_type": "Organization",
-  "hq_source": null
+  "hq_source": null,
+  "website_source": "homepage title verified"
  },
  "Icebreaker.vc": {
   "website": "icebreaker.vc",
   "hq": null,
   "hq_field": null,
-  "description": "Nordic early-stage VC firm backing teams at the earliest stages with \u20ac120M Fund III.",
+  "description": "Nordic early-stage VC firm backing teams at the earliest stages with €120M Fund III.",
   "founded": null,
   "employees": null,
   "id": "70fb3317-cd8c-4c52-aa86-66502789bce3",
@@ -58,7 +60,7 @@
   "website": "felixcap.com",
   "hq": "27 Beak Street, London, England, W1F 9RU",
   "hq_field": "registered_address",
-  "description": "A London\u2011based venture capital firm.",
+  "description": "A London‑based venture capital firm.",
   "founded": null,
   "employees": 4,
   "id": "ffddbaec-8888-4d34-8888-cd30c0856db3",
@@ -80,7 +82,7 @@
   "website": "frontline.vc",
   "hq": "85 Newman Street, London, 4th Floor, W1T 3EU",
   "hq_field": "registered_address",
-  "description": "London\u2011based private\u2011equity and venture\u2011capital investment firm",
+  "description": "London‑based private‑equity and venture‑capital investment firm",
   "founded": null,
   "employees": 23,
   "id": "e8b34529-bf05-49ca-9728-d87c2bdac7bb",
@@ -132,18 +134,19 @@
   "hq_source": "https://lei.bloomberg.com/leis/view/549300LI7KBY0ROO3M90"
  },
  "Northzone": {
-  "website": null,
+  "website": "northzone.com",
   "hq": "Elsley Court 1st Floor, 20-22 Great Titchfield Street, London, United Kingdom, W1W 8BE",
   "hq_field": "registered_address",
-  "description": "a London\u2011based venture capital firm founded in 2006 that invests in fintech companies",
+  "description": "a London‑based venture capital firm founded in 2006 that invests in fintech companies",
   "founded": "2006-01-01",
   "employees": 676,
   "id": "208d7baa-10cd-4a73-825b-5bd3e827f79f",
   "entity_type": "Organization",
-  "hq_source": "https://find-and-update.company-information.service.gov.uk/company/07880610"
+  "hq_source": "https://find-and-update.company-information.service.gov.uk/company/07880610",
+  "website_source": "homepage title verified"
  },
  "EQT Ventures": {
-  "website": null,
+  "website": "eqtventures.com",
   "hq": null,
   "hq_field": null,
   "description": "A venture capital firm.",
@@ -151,13 +154,14 @@
   "employees": null,
   "id": "d6cf13e1-92ff-4567-bd72-30316f2498e5",
   "entity_type": "Organization",
-  "hq_source": null
+  "hq_source": null,
+  "website_source": "homepage title verified"
  },
  "Index Ventures": {
   "website": "indexventures.com",
   "hq": "5-8 Lower John St, London, Greater London, W1F 9DY, United Kingdom",
   "hq_field": "headquarters_address",
-  "description": "a London\u2011based venture capital firm founded in 1996 that invests in fintech and retail sectors",
+  "description": "a London‑based venture capital firm founded in 1996 that invests in fintech and retail sectors",
   "founded": "1996-01-01",
   "employees": null,
   "id": "4a7ccd5d-1310-46b0-bd42-4ff8b409acc5",
@@ -166,9 +170,9 @@
  },
  "Speedinvest": {
   "website": "speedinvest.com",
-  "hq": "Nordbergstra\u00dfe 1/1/71, Wien, AT-9, 1090, AT",
+  "hq": "Nordbergstraße 1/1/71, Wien, AT-9, 1090, AT",
   "hq_field": "headquarters_address",
-  "description": "A Vienna-based Austrian venture\u2011capital firm founded in 2011.",
+  "description": "A Vienna-based Austrian venture‑capital firm founded in 2011.",
   "founded": "2011-05-19",
   "employees": null,
   "id": "94e0ca6a-4e39-4181-bd84-11f264d0aa62",
@@ -190,11 +194,35 @@
   "website": "seedcamp.com",
   "hq": "727-729 High Road, London, England, N12 0BP",
   "hq_field": "registered_address",
-  "description": "a London\u2011based seed\u2011stage venture capital firm founded in 2007",
+  "description": "a London‑based seed‑stage venture capital firm founded in 2007",
   "founded": "2007-09-11",
   "employees": 200,
   "id": "d2d11954-6bab-5ac9-8684-a54406623104",
   "entity_type": "Organization",
   "hq_source": "https://find-and-update.company-information.service.gov.uk/company/06367351"
+ },
+ "Balderton Capital": {
+  "website": "balderton.com",
+  "website_source": "homepage title verified"
+ },
+ "Picus Capital": {
+  "website": "picuscap.com",
+  "website_source": "homepage title verified"
+ },
+ "Voima Ventures": {
+  "website": "voimaventures.com",
+  "website_source": "homepage title verified"
+ },
+ "Point Nine": {
+  "website": "pointnine.com",
+  "website_source": "homepage title verified"
+ },
+ "World Innovation Lab": {
+  "website": "wilab.com",
+  "website_source": "homepage title verified"
+ },
+ "Lightspeed Venture Partners": {
+  "website": "lsvp.com",
+  "website_source": "homepage title verified"
  }
 }

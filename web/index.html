@@ -344,6 +344,25 @@ tbody tr:hover{background:var(--panel2)}
   box-shadow:var(--sh2);width:min(620px,96vw);max-height:92vh;overflow-y:auto}
 .msg{padding:52px 20px;text-align:center;color:var(--faint);font-size:13.5px}
 
+/* --- conflict flow --- */
+.cmap{overflow-x:auto}
+.cmap svg{display:block;width:100%;min-width:720px;height:auto}
+.chd{font:10px var(--mono);letter-spacing:.11em;fill:var(--faint)}
+.cedge{fill:none;stroke:var(--line2);stroke-width:1.5}
+.cedge.hot{stroke:var(--red);stroke-width:1.75;opacity:.42}
+.cmap svg:hover .cedge.hot{opacity:.2}
+.cmap svg .cedge.hot:hover{opacity:1;stroke-width:2.5}
+.cnode rect{fill:var(--panel);stroke:var(--line2);stroke-width:1}
+.cnode.me rect{fill:var(--ink);stroke:var(--ink)}
+.cnode.comp rect{fill:var(--panel2);stroke:var(--line2)}
+.cnode.hot rect{fill:var(--red-bg);stroke:var(--red-line)}
+.cnl{font:12.5px var(--sans);font-weight:560;fill:var(--ink)}
+.cnode.me .cnl{fill:#fff}
+.cnode.hot .cnl{fill:#8c2b20}
+.cns{font:9px var(--mono);letter-spacing:.05em;fill:var(--faint)}
+.cnode.hot .cns{fill:var(--red)}
+.cmapnote{margin-top:10px;font-size:11.5px;color:var(--faint);line-height:1.55}
+
 /* --- comparative bars --- */
 .barrow .bart{position:relative}
 .barrow.unk .bart{background:repeating-linear-gradient(135deg,var(--panel2),
@@ -389,6 +408,12 @@ tbody tr:hover{background:var(--panel2)}
   background:var(--panel)}
 .neartabs .tgl{flex:1;justify-content:center}
 .mapsearch .tgl.seg{margin-left:6px;border-radius:5px;padding:3px 9px;font-size:11px}
+.ppsug{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px}
+.nearwhere{padding:9px 13px;font-size:11.5px;color:var(--dim);line-height:1.6;
+  border-bottom:1px solid var(--line);background:var(--panel)}
+.nearfix{display:block;margin-top:5px;color:var(--faint)}
+.nearfix input{margin-left:6px;border:1px solid var(--line2);border-radius:6px;
+  padding:3px 8px;font:11.5px var(--sans);width:120px}
 .nearrow{cursor:pointer}
 .nearrow:hover{background:var(--hover)}
 

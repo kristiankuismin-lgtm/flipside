@@ -80,6 +80,14 @@ def _domains() -> dict:
                 add(n, w)
         except (ValueError, AttributeError, TypeError):
             pass
+    # Everything already fetched from Cala carries a website property. The
+    # hand-built files cover 49 of 664 funds; this covers the rest.
+    try:
+        from . import cache_index
+        for n, w in cache_index.websites().items():
+            add(n, w)
+    except Exception:
+        pass
     _DOMAINS = out
     return out
 
@@ -468,11 +476,19 @@ def search(q: str, kind: str = "fund", limit: int = 8):
     if len(q) < 2:
         return {"query": q, "kind": kind, "results": []}
     types = ["Person"] if kind == "people" else ["Organization", "Company"]
+    from . import cache_index
+    offline = False
     try:
         hits = graph.search(q, types=types, limit=max(limit * 3, 20))
     except Exception as e:
-        return {"query": q, "kind": kind, "results": [],
-                "error": f"{type(e).__name__}: {str(e)[:90]}"}
+        # Live search is the fast path, not the only one. 6,400 entities are
+        # already on disk from earlier calls, and a name match over those is
+        # a real answer rather than an error message.
+        hits = cache_index.search(q, types=types, limit=max(limit * 3, 20))
+        offline = True
+        if not hits:
+            return {"query": q, "kind": kind, "results": [], "offline": True,
+                    "error": f"{type(e).__name__}: {str(e)[:90]}"}
 
     # Raw entity search ranks "LIFELINE PLC" above the Finnish VC. For a fund
     # search, prefer exact name, Organization type, and a venture-ish
@@ -480,19 +496,25 @@ def search(q: str, kind: str = "fund", limit: int = 8):
     from . import norm
     want = norm.name(q)
 
+    raw_want = q.lower()
+
     def rank(h):
         nm = norm.name(h.get("name"))
+        raw = (h.get("name") or "").strip().lower()
         desc = (h.get("description") or "")
-        return (
-            nm != want,                                   # exact name first
-            not nm.startswith(want),                      # then prefix
-            kind == "fund" and h.get("entity_type") != "Organization",
-            kind == "fund" and not graph._VC_WORDS.search(desc),
-            len(nm),
-        )
+        is_vc = (h.get("entity_type") == "Organization"
+                 and bool(graph._VC_WORDS.search(desc)))
+        if kind == "fund":
+            # norm.name() strips legal suffixes, which makes "NORRSKEN COMPANY
+            # LIMITED" an exact match for "Norrsken" and rank it above
+            # Norrsken VC. For a fund search, looking like a fund has to beat
+            # a match created by the stripper.
+            return (not is_vc, raw != raw_want, nm != want,
+                    not nm.startswith(want), len(nm))
+        return (nm != want, not nm.startswith(want), len(nm))
 
     ranked = sorted(hits, key=rank)[:limit]
-    return {"query": q, "kind": kind,
+    return {"query": q, "kind": kind, "offline": offline,
             "results": [{"id": h.get("id"), "name": h.get("name"),
                          "type": h.get("entity_type"),
                          "description": (h.get("description") or "")[:160]} for h in ranked]}
@@ -525,13 +547,28 @@ def entity_profile(entity_id: str, kind: str = "fund"):
     from . import graph
     want = PERSON_RELS if kind == "people" else FUND_RELS
     props = PERSON_PROPS if kind == "people" else FUND_PROPS
+    from . import cache_index
+    degraded = None
     try:
         intro = cala_introspect(entity_id)
         have = set((intro.get("relationships") or {}).get("outgoing") or [])
         rels = [r for r in want if r in have] or want[:4]
         e = _entity(entity_id, props, rels)
     except Exception as ex:
-        return JSONResponse({"error": f"{type(ex).__name__}: {str(ex)[:120]}"}, status_code=200)
+        # The response cache is keyed by the exact request, so asking for this
+        # entity with a different property list misses and goes live. When the
+        # network says no, a payload for the same entity is usually already on
+        # disk under another key - a degraded profile beats a dead page.
+        e = cache_index.get(entity_id)
+        if e is None:
+            return JSONResponse({"error": f"{type(ex).__name__}: {str(ex)[:120]}"},
+                                status_code=200)
+        rels = list(((e.get("relationships") or {}).get("outgoing") or {}).keys()) or want[:4]
+        degraded = ("Live lookup unavailable, so this profile is built from what "
+                    "we already hold. Some relationships may be missing."
+                    if "402" not in str(ex) and "credits" not in str(ex).lower() else
+                    "Cala credits are exhausted, so this profile is built from "
+                    "what we already hold. Some relationships may be missing.")
 
     out_props = {}
     for k in props:
@@ -575,7 +612,8 @@ def entity_profile(entity_id: str, kind: str = "fund"):
 
     return {"id": entity_id, "kind": kind, "name": e.get("name"),
             "entity_type": e.get("entity_type"), "properties": out_props,
-            "groups": groups}
+            "description": e.get("description"),
+            "degraded": degraded, "groups": groups}
 
 
 def cala_introspect(eid):
@@ -937,8 +975,54 @@ def locate_entity(entity_id: str, kind: str = "people"):
                              "source": (graph.best_source(hq_src) or {}).get("document")}]
                            if loc else [])}
     except Exception as ex:
+        # Same hop, walked over what is already on disk. The relationship that
+        # places a person is usually cached with the person.
+        out = _locate_from_cache(entity_id, kind)
+        if out is not None:
+            return out
         return JSONResponse({"error": f"{type(ex).__name__}: {str(ex)[:120]}", "places": []},
                             status_code=200)
+
+
+def _locate_from_cache(entity_id: str, kind: str):
+    from . import cache_index, geo
+    e = cache_index.get(entity_id)
+    if not e:
+        return None
+    rel = (e.get("relationships") or {}).get("outgoing") or {}
+
+    def hq_of(node):
+        props = node.get("properties") or {}
+        for k in ("headquarters_address", "registered_address"):
+            v = props.get(k)
+            v = v.get("value") if isinstance(v, dict) else v
+            if v:
+                return v
+        return None
+
+    places = []
+    if kind == "people":
+        for r in ("IS_CEO_OF", "WORKS_AT", "FOUNDED"):
+            for c in (rel.get(r) or []):
+                full = cache_index.get(c.get("id")) or c
+                hq = hq_of(full)
+                loc = geo.locate(hq)
+                if loc:
+                    places.append({"via": c.get("name"), "hq": hq, "lat": loc[0],
+                                   "lon": loc[1], "cc": loc[2], "source": None,
+                                   "rel": r})
+                if len(places) >= 3:
+                    break
+            if len(places) >= 3:
+                break
+    else:
+        hq = hq_of(e)
+        loc = geo.locate(hq)
+        if loc:
+            places = [{"via": e.get("name"), "hq": hq, "lat": loc[0], "lon": loc[1],
+                       "cc": loc[2], "source": None}]
+    return {"id": entity_id, "name": e.get("name"), "kind": kind,
+            "places": places, "offline": True}
 
 
 # Calm, desaturated monogram palette - a fallback that looks deliberate.
@@ -961,7 +1045,17 @@ def _monogram(name: str) -> Response:
 @app.get("/logo")
 def logo(domain: str = "", name: str = ""):
     """Company mark by domain, generated monogram when we have none."""
-    from . import logos
+    from . import logos, norm
+    # Almost every call site has a name and no domain - relationship edges do
+    # not carry websites - so without this lookup the whole product renders
+    # monograms. The domains are already on disk.
+    if not domain and name:
+        d = _domains()
+        hit = d.get(name.strip().lower())
+        if not hit:
+            want = norm.name(name)
+            hit = next((v for k, v in d.items() if norm.name(k) == want), None)
+        domain = hit or ""
     body, ct = logos.fetch(domain) if domain else (None, None)
     if body:
         return Response(body, media_type=ct,
