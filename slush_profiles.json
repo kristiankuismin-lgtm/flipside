@@ -3413,7 +3413,14 @@
  {
   "id": "174c6cdf-7998-55a1-b483-936297440630",
   "name": "Visby AI",
-  "error": "CalaError: Rate limit"
+  "hq": "Amsterdam, Netherlands",
+  "website": "visby.ai",
+  "description": "Track how ChatGPT, Claude, Gemini and Google AI Overviews mention your brand, find the gaps competitors win, and get prioritized GEO tasks to grow AI traffic.",
+  "founded": "2025-01-01",
+  "industries": [
+   "ADVERTISING_AND_MARKETING"
+  ],
+  "hq_source": "https://www.linkedin.com/company/visbyai/"
  },
  {
   "id": "17537647-b139-4ac0-8f5c-a5a3a120f3e8",
@@ -3666,7 +3673,14 @@
  {
   "id": "188b39e5-adef-5f56-a551-500a92af4c73",
   "name": "SisuRace",
-  "error": "CalaError: Rate limit"
+  "hq": "Helsinki, Finland",
+  "website": "ihere.co",
+  "description": "A Finnish telecommunications company headquartered in Helsinki.",
+  "founded": null,
+  "industries": [
+   "TELECOMMUNICATIONS"
+  ],
+  "hq_source": "https://ihere.co/"
  },
  {
   "id": "189d292a-f192-4a13-bc1b-b983e6ed69bb",
@@ -3741,5 +3755,555 @@
    "SOFTWARE_AND_SERVICES"
   ],
   "hq_source": "https://www.linkedin.com/company/146313924/"
+ },
+ {
+  "id": "19136725-cafd-5718-9ffb-9d36bb55438a",
+  "name": "Perivallon",
+  "hq": "Vienna, Austria",
+  "website": "perivallon.com",
+  "description": "European smart infrastructure for near-ground airspace intelligence: atmospheric, GNSS, and passive dark-drone detection across 35,000+ stations.",
+  "founded": "2024-12-17",
+  "industries": [
+   "AEROSPACE_AND_DEFENSE"
+  ],
+  "hq_source": "https://www.linkedin.com/company/perivallontech"
+ },
+ {
+  "id": "193cf0fd-4bd2-54f3-9e4f-ce1a656c312c",
+  "name": "Optivian",
+  "hq": "Helsinki, Finland",
+  "website": "optivian.ai",
+  "description": "Ollie reads every interaction across your pipeline and proactively delivers the work that wins: business cases, mutual action plans, champion enablement, meeting prep & follow-ups, plus anything el...",
+  "founded": "2024-09-27",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/optivianai/"
+ },
+ {
+  "id": "1988fbe9-438b-5ea5-9c67-bb25d09800d6",
+  "name": "Xane AI",
+  "hq": "Gurugram, India",
+  "website": "xane.ai",
+  "description": "AI-powered solutions for quality inspection, predictive maintenance and industrial automation.",
+  "founded": "2017-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/xaneai/"
+ },
+ {
+  "id": "198ac66b-ca58-56f0-8add-91d5296a90cc",
+  "name": "Cognovo Oy",
+  "hq": "Espoo, Finland",
+  "website": "cognovo.io",
+  "description": "Integration and Automation, Powered by AI.",
+  "founded": "2025-07-14",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://cognovo.io/contact-us/"
+ },
+ {
+  "id": "198df625-aaa2-567d-be47-336805f2a2b7",
+  "name": "Exolyt",
+  "hq": "Lapinlahdenkatu 16, 00180 Helsinki, Finland",
+  "website": "exolyt.com",
+  "description": "Exolyt is a TikTok analytics platform that provides actionable and up-to-date social intelligence insights on brands, audiences, influencers, competitors and industry trends powered by its various...",
+  "founded": "2020-06-02",
+  "industries": [
+   "ADVERTISING_AND_MARKETING"
+  ],
+  "hq_source": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3136121-2"
+ },
+ {
+  "id": "19c179f5-ff90-5057-9cb1-95ec4a380e76",
+  "name": "distil labs",
+  "hq": "Berlin, Germany",
+  "website": "distillabs.ai",
+  "description": "distil labs runs auto-research agents that build specialized models to power your conversational agents in hours, matching frontier APIs even on difficult conversations. You own the models and depl...",
+  "founded": "2024-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/distil-labs/"
+ },
+ {
+  "id": "19e10d24-9b99-53fd-9f96-49b6c2564ecc",
+  "name": "ContainerGrid",
+  "hq": "Munich, Germany",
+  "website": "containergrid.de",
+  "description": "ContainerGrid is the Workflow OS for the circular economy \u2014 orchestrating governed take-back, material recovery, and reverse logistics for OEMs, asset owners, and their contractor networks across E...",
+  "founded": "2021-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/containergrid/home/"
+ },
+ {
+  "id": "1a1951fe-b14f-40e6-8b7f-3c5a8879cb32",
+  "name": "MEMO BANK",
+  "hq": "50 AVENUE DES CHAMPS ELYSEES, PARIS, FR-75C, 75008, FR",
+  "website": "memo.bank",
+  "description": "Memo Bank accompagne les entreprises \u00e0 forte intensit\u00e9 transactionnelle \u00e0 automatiser leurs flux par API ou EBICS",
+  "founded": "2017-04-19",
+  "industries": [
+   "ASSET_MANAGEMENT",
+   "FINTECH",
+   "BANKING"
+  ],
+  "hq_source": "https://search.gleif.org/#/record/969500151TTK0D1U6N42"
+ },
+ {
+  "id": "1a1dfda1-4560-54a7-b5d3-d37ad3c22b92",
+  "name": "CarDelta",
+  "hq": "Barcelona, Spain",
+  "website": "cardelta.es",
+  "description": "Compra coches de segunda mano al mejor precio. Comparamos 42.000+ coches de 20 concesionarios en Madrid, Barcelona, Valencia y toda Espana. Analisis de precios, alertas de bajadas y valoracion de o...",
+  "founded": "2026-09-21",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://cardelta.es/"
+ },
+ {
+  "id": "1a4b86ba-0822-5fcf-b039-ec80fa583f44",
+  "name": "Laituri.ai Oy",
+  "hq": "Espoo, Finland",
+  "website": "laituri.ai",
+  "description": "Research-backed AI capability intelligence using realistic work simulations to assess workforce capability, guide AI transformation and benchmark organizational AI readiness.",
+  "founded": "2026-03-17",
+  "industries": [
+   "CONSULTING"
+  ],
+  "hq_source": "https://laituri.ai/"
+ },
+ {
+  "id": "1a58ddd1-e619-5c75-8933-1c488f093f6f",
+  "name": "Saavvi",
+  "hq": "Molenstraat 167, 2840 Rumst, Belgium",
+  "website": "saavvi.com",
+  "description": "AI talent intelligence platform that adds a workflow layer next to an existing ATS/HRIS, for companies with about 100 to 1,000 employees (hiring, onboarding, development).",
+  "founded": "2021-10-29",
+  "industries": [
+   "CONSULTING"
+  ],
+  "hq_source": "https://saavvi.com/about-us/"
+ },
+ {
+  "id": "1a5e3071-0f44-5dde-9f16-6dd6000fba8d",
+  "name": "Mira Life",
+  "hq": "Kyiv, Ukraine",
+  "website": "miralife.app",
+  "description": "Mira Life. \u041f\u043e\u0447\u043d\u0438 \u0437 \u0441\u0435\u0440\u0435\u0434\u0438\u043d\u0438. \u0412\u043e\u043d\u0430 \u0432\u0438\u043c\u0456\u0440\u044e\u0454 \u0442\u0432\u043e\u044e \u0441\u043f\u0440\u043e\u043c\u043e\u0436\u043d\u0456\u0441\u0442\u044c \u0447\u0435\u0440\u0435\u0437 6 \u0441\u0444\u0435\u0440, \u043f\u043e\u043a\u0430\u0437\u0443\u0454, \u0434\u0435 \u0442\u0438 \u0437\u0430\u0440\u0430\u0437, \u0456 \u0434\u043e\u043f\u043e\u043c\u0430\u0433\u0430\u0454 \u0440\u0443\u0445\u0430\u0442\u0438\u0441\u044c \u0434\u0430\u043b\u0456. [\u2026]",
+  "founded": "2025-01-01",
+  "industries": [
+   "HEALTHCARE_PROVIDERS"
+  ],
+  "hq_source": "https://www.linkedin.com/company/mira-lifeapp"
+ },
+ {
+  "id": "1a603764-2332-5ab3-ac65-7a0a4612cf1e",
+  "name": "LinqiApp",
+  "hq": "Istanbul, Turkey",
+  "website": "linqiapp.com",
+  "description": "English speaking practice app: talk with real people, then get AI feedback. 100K+ downloads on Google Play.",
+  "founded": "2025-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/linqiapp/"
+ },
+ {
+  "id": "1a6b0ab6-1597-52b2-b4df-e39f890d001e",
+  "name": "Metabite",
+  "hq": "New York & Helsinki, United States",
+  "website": "metabite.com",
+  "description": "Healthcare provider company founded in 2021 and headquartered in New York and Helsinki.",
+  "founded": "2021-01-01",
+  "industries": [
+   "HEALTHCARE_PROVIDERS"
+  ],
+  "hq_source": "https://www.linkedin.com/company/metabite-com"
+ },
+ {
+  "id": "1a7f0ed3-f330-4d45-b995-cb4ae8bec449",
+  "name": "Definic",
+  "hq": "Kosice, Slovakia",
+  "website": "definic.ai",
+  "description": "66% of IT projects fail. Not because of technology, but because you picked the wrong vendor. Definic replaces guesswork and fragmented workflows with one connected platform, from defining the probl...",
+  "founded": "2019-02-22",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://definic.ai/"
+ },
+ {
+  "id": "1a853104-1c94-5e99-8da0-6dd0d3568ba0",
+  "name": "enki",
+  "hq": "London, United Kingdom",
+  "website": "enki.work",
+  "description": "enki connects scaling UK businesses with vetted fractional finance leaders \u2014 from CFOs to Finance Managers. Shortlists in 48 hours.",
+  "founded": "2025-01-01",
+  "industries": [
+   "CONSULTING"
+  ],
+  "hq_source": "https://www.linkedin.com/company/enki-work/?viewAsMember=true"
+ },
+ {
+  "id": "1a887415-5af1-5742-8bed-63cd54f672a2",
+  "name": "Functionly",
+  "hq": "Perth, Australia",
+  "website": "functionly.com",
+  "description": "Functionly is interactive org design software for operational leaders. Plan org charts, run future scenarios, and action change plans.",
+  "founded": "2018-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/functionly/"
+ },
+ {
+  "id": "1a9308df-2227-5f18-86b7-d5fcb79e9593",
+  "name": "Juritas",
+  "hq": "Stockholm, Sweden",
+  "website": "juritas.com",
+  "description": "Juritas reads your contracts where they already live and tells Finance, Procurement and Legal what\u2019s committed, what\u2019s owed and what to act on next.",
+  "founded": "2026-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/juritas/"
+ },
+ {
+  "id": "1a985c13-50a8-5eaa-8c97-358c9e6f976d",
+  "name": "Squidler",
+  "hq": "Malm\u00f6, Sweden",
+  "website": "squidler.io",
+  "description": "An AI colleague that handles your inbox, chases what's late, keeps the books and books the meetings \u2014 for small businesses, larger organisations, or just you. Free to try, no card.",
+  "founded": "2023-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/squidler/"
+ },
+ {
+  "id": "1ab6412a-e2d8-4b29-8ffc-f661b75b45c8",
+  "name": "Karri",
+  "hq": "London, United Kingdom",
+  "website": "karri.io",
+  "description": "Karri Messenger is a data and GPS enabled screen-free device enabling communication between you and your kids, and them and their friends.",
+  "founded": "2023-01-01",
+  "industries": [
+   "HARDWARE_AND_EQUIPMENT"
+  ],
+  "hq_source": "https://www.linkedin.com/company/karri-io"
+ },
+ {
+  "id": "1ac4edbf-ded2-467e-9059-a6c6aabc2685",
+  "name": "SEASTEX LTD",
+  "hq": "Glasgow, United Kingdom",
+  "website": "seastex.com",
+  "description": "British company founded in 2021 that operates in the machinery, apparel and luxury goods, and utilities sectors.",
+  "founded": "2021-06-30",
+  "industries": [
+   "APPAREL_AND_LUXURY_GOODS",
+   "SOFTWARE_AND_SERVICES",
+   "MACHINERY",
+   "UTILITIES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/seastex"
+ },
+ {
+  "id": "1aea2779-126c-42fb-a70e-8df05945c213",
+  "name": "CORPORA.AI LIMITED",
+  "hq": "Derby, United Kingdom",
+  "website": "corpora.ai",
+  "description": "Corpora.ai finds what conventional analysis can't: the hidden connections across the world's information that lead to breakthrough discoveries, strategic insights and better decisions.",
+  "founded": "2017-03-20",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/corpora-ai/"
+ },
+ {
+  "id": "1b02690b-1441-54a1-b813-8e325a1e64a2",
+  "name": "Weightlessai",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "1b15e377-7aea-5fab-98ce-3c888fda9f95",
+  "name": "Deepgrid",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "1b2fece8-85e2-5985-84ad-d78818a68248",
+  "name": "VentureBoard",
+  "hq": "Sofia, Bulgaria",
+  "website": "vc.ventureboard.ai",
+  "description": "A 4-minute survey for founders who are raising. Finish it and get the Investor-Ready Checklist free.",
+  "founded": "2026-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/ventureboard-ai"
+ },
+ {
+  "id": "1b6a71ab-f379-5f9c-bc3c-9438223ec6e3",
+  "name": "SDS Separation",
+  "hq": "Zwijndrecht, Netherlands",
+  "website": "sds-separation.com",
+  "description": "A Dutch renewable energy company founded in 2016 and headquartered in Zwijndrecht.",
+  "founded": "2016-01-01",
+  "industries": [
+   "RENEWABLE_ENERGY"
+  ],
+  "hq_source": "https://www.linkedin.com/company/sds-separation/"
+ },
+ {
+  "id": "1b8199ef-9d3d-4360-ab2c-c2b40f0ae8e7",
+  "name": "DEEP Measures",
+  "hq": "Helsinki, Finland",
+  "website": "deepmeasures.health",
+  "description": "Helping organizations to define, validate and gain regulatory acceptance for digital measures to improve patient outcomes.",
+  "founded": "2022-01-01",
+  "industries": [
+   "BIOTECHNOLOGY",
+   "SOFTWARE_AND_SERVICES",
+   "HEALTHCARE_PROVIDERS",
+   "PHARMACEUTICALS"
+  ],
+  "hq_source": "https://www.linkedin.com/company/deepmeasures/"
+ },
+ {
+  "id": "1b86978e-4092-5d12-a8ce-91e1df68fc94",
+  "name": "Paralov",
+  "hq": "Oslo, Norway",
+  "website": "paralov.com",
+  "description": "Paralov builds Studs.gg for shipping Roblox games using AI. Join 100k+ creators on Studs.gg, meet our founders, and explore working with us.",
+  "founded": "2025-01-01",
+  "industries": [
+   "ENTERTAINMENT"
+  ],
+  "hq_source": "https://www.linkedin.com/company/paralov"
+ },
+ {
+  "id": "1baaee2e-1537-56a9-86ad-f62045fb1769",
+  "name": "DigCap",
+  "hq": "Porto Alegre, Brazil",
+  "website": "digcap.com.br",
+  "description": "A DigCap \u00e9 a primeira plataforma de intermedia\u00e7\u00e3o de cr\u00e9dito judicial online no Brasil. Receba antecipadamente seus direitos com a DigCap.",
+  "founded": "2020-01-01",
+  "industries": [
+   "LEGAL"
+  ],
+  "hq_source": "https://www.linkedin.com/company/digcap-creditos-judiciais?originalSubdomain=br"
+ },
+ {
+  "id": "1c2ad8a2-8b24-48d6-915d-2a67e92e3711",
+  "name": "ELEVEN LABS INC.",
+  "hq": "169 Madison Ave #2484, New York, US-NY, 10016, US",
+  "website": "elevenlabs.io",
+  "description": "Create lifelike speech with our AI voice generator and voice agents platform. Access 17,500+ voices in 90+ languages with secure APIs and SDKs.",
+  "founded": "2022-04-18",
+  "industries": [
+   "ENTERTAINMENT",
+   "SOFTWARE_AND_SERVICES",
+   "SOFTWARE_AND_SERVICES",
+   "INTERNET_AND_WEB_SERVICES"
+  ],
+  "hq_source": "https://search.gleif.org/#/record/254900MCM69TO5IDN844"
+ },
+ {
+  "id": "1c3d3202-7dca-46a4-8379-de271fb2cdc6",
+  "name": "Playwind Games",
+  "hq": "London, United Kingdom",
+  "website": "playwind.games",
+  "description": "Independent mobile game studio in London making social-first casual games (Pal Go, Mii World, City Boom), backed by Garena.",
+  "founded": "2020-10-28",
+  "industries": [
+   "ENTERTAINMENT"
+  ],
+  "hq_source": "https://playwind.games/"
+ },
+ {
+  "id": "1c91f87f-4536-4a60-bd5d-f0a844e7b6ab",
+  "name": "Naco Technologies",
+  "hq": "Riga, Latvia",
+  "website": "naco.tech",
+  "description": "PVD nano-coatings for electrolyzer and fuel cell components (bipolar plates, PTL/GDL, catalytic coatings) using high-speed magnetron sputtering.",
+  "founded": "2020-01-01",
+  "industries": [
+   "RENEWABLE_ENERGY",
+   "CHEMICALS",
+   "SOFTWARE_AND_SERVICES",
+   "MANUFACTURING_AUTOMOTIVE"
+  ],
+  "hq_source": "https://www.linkedin.com/company/naco-technologies"
+ },
+ {
+  "id": "1cc4c948-c553-5e7b-8a3b-8b18da46c735",
+  "name": "Smart Textiles Finland Oy",
+  "hq": "Espoo, Finland",
+  "website": "smarttextilesfinland.com",
+  "description": "Smart Textiles Finland Oy is an AI-powered, compliance-first textile sourcing and engineering partner connecting global manufacturing with European regulatory excellence.",
+  "founded": "2021-08-30",
+  "industries": [
+   "APPAREL_AND_LUXURY_GOODS"
+  ],
+  "hq_source": "https://smarttextilesfinland.com/contact/"
+ },
+ {
+  "id": "1cd389d8-ef43-4806-b83b-8456c5f4362d",
+  "name": "nunu.ai",
+  "hq": "Limmatquai 112, 8001 Z\u00fcrich, Switzerland",
+  "website": "nunu.ai",
+  "description": "nunu.ai runs AI agents that test your game or app like a human player across 60+ real iOS, Android, and PC devices. Automate QA and ship faster.",
+  "founded": "2023-10-19",
+  "industries": [
+   "ENTERTAINMENT"
+  ],
+  "hq_source": "https://www.zefix.admin.ch/en/search/entity/list/firm/1609475"
+ },
+ {
+  "id": "1cd89aca-c531-5dca-9b54-29eae518bf88",
+  "name": "SAHA",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "1cdd07da-5e6d-5f8f-b8e4-89d3202485fb",
+  "name": "Crystals Growing",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "1cec901d-20d1-4e4b-adb5-611141810031",
+  "name": "Quicksave Interactive",
+  "hq": "Helsinki, Finland",
+  "website": "playables.ai",
+  "description": "Prompt, build and scale interactive ad experiences even in minutes, with AI-powered tools. Create playable ads that audiences explore, not just watch.",
+  "founded": "2017-02-06",
+  "industries": [
+   "ENTERTAINMENT",
+   "SOFTWARE_AND_SERVICES",
+   "ADVERTISING_AND_MARKETING"
+  ],
+  "hq_source": "https://www.linkedin.com/company/playablesai/"
+ },
+ {
+  "id": "1d03ebd6-3b5f-58c7-99f4-068a2c3123c2",
+  "name": "Digi Mabble",
+  "hq": "Wavre, Belgium",
+  "website": "digimabble.com",
+  "description": "Digimabble AI designs and deploys secure, GDPR-compliant AI agents that automate business workflows, decision-making, and customer operations at scale.",
+  "founded": "2025-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/digimabble/"
+ },
+ {
+  "id": "1d0672ee-84e8-554c-96b0-498194cc3153",
+  "name": "yoona.ai",
+  "hq": "Berlin, Germany",
+  "website": "yoona.ai",
+  "description": "yoona.ai is the Enterprise AI platform for product innovation. Our agentic AI builds an Enterprise Twin of your brand \u2014 connecting PLM, e-commerce, and market data to autonomously design products,...",
+  "founded": "2020-10-07",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/yoonaai/"
+ },
+ {
+  "id": "1d09699d-4ee5-5547-ab40-ef65fdba8a31",
+  "name": "Control.dev",
+  "hq": "Helsinki, Finland",
+  "website": "control.dev",
+  "description": "Group consolidation and FP&A for multi-entity groups: every ledger in one live group, served to Claude, ChatGPT and Codex over MCP and open to the transaction.",
+  "founded": "2024-10-28",
+  "industries": [
+   "FINTECH"
+  ],
+  "hq_source": "https://www.control.dev/legal/privacy-policy/"
+ },
+ {
+  "id": "1d4cf6bb-598d-4119-976e-6297772ad9bb",
+  "name": "Autonomous Teaming Solutions ATS GmbH",
+  "hq": "Munich, Germany",
+  "website": "autonomous-teaming.ai",
+  "description": "Defence technology against AI-powered asymmetric threats such as drone swarms. Autonomous ISR and counter-UAS.",
+  "founded": "2013-02-05",
+  "industries": [
+   "AEROSPACE_AND_DEFENSE"
+  ],
+  "hq_source": "https://autonomous-teaming.ai/privacy-policy"
+ },
+ {
+  "id": "1d849ccc-2b7e-5abe-a10c-6f5de28eb07d",
+  "name": "Kvistly",
+  "hq": "Barcelona, Spain",
+  "website": "kvistly.com",
+  "description": "Create AI-powered quizzes in seconds to enhance team training, onboarding, and engagement. Boost learning with interactive quizzes, live betting, and leaderboards. Ideal for keeping remote employee...",
+  "founded": "2023-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/kvistly"
+ },
+ {
+  "id": "1d870b52-4e13-5780-8c81-464a25718e16",
+  "name": "Essential Robotics",
+  "hq": "Odense, Denmark",
+  "website": "essential-robotics.com",
+  "description": "Develops autonomous mobile robots that transport hospital beds, including to centralised washing, without adding to staff workload.",
+  "founded": "2023-11-20",
+  "industries": [
+   "HARDWARE_AND_EQUIPMENT"
+  ],
+  "hq_source": "https://www.linkedin.com/company/essential-robotics"
+ },
+ {
+  "id": "1db6ff22-2737-4d49-b1f2-3767dfb3b2e1",
+  "name": "imagi Education, Inc.",
+  "hq": "New York, United States",
+  "website": "imagilabs.com",
+  "description": "AI and computer science tools made safe for K-12 schools, with teacher training and curriculum.",
+  "founded": "2024-01-01",
+  "industries": [
+   "EDUCATION"
+  ],
+  "hq_source": "https://imagilabs.com/privacy-policy?hsLang=en"
+ },
+ {
+  "id": "1dba6153-c652-4376-a8ac-5e4b8df2c6f3",
+  "name": "SUPERVENIENT LIMITED",
+  "hq": "London, United Kingdom",
+  "website": "supervenient.ai",
+  "description": "AI that works for today",
+  "founded": "2026-05-06",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/supervenient/posts/?feedView=all"
+ },
+ {
+  "id": "1dc0a597-e1b9-5206-abf3-2e866b515ea9",
+  "name": "Planck Technologies",
+  "hq": "Lysaker, Norway",
+  "website": "planck-tech.no",
+  "description": "Planck Technologies co-designs advanced porous materials and the industrial systems they power: AI-driven screening of 100,000+ materials for CO\u2082 capture, hydrogen and methane storage, biogas upgra...",
+  "founded": "2023-01-01",
+  "industries": [
+   "RENEWABLE_ENERGY"
+  ],
+  "hq_source": "https://www.linkedin.com/company/planck-tech"
+ },
+ {
+  "id": "1dc7cb1e-7bb2-4e58-902c-c22811f1793e",
+  "name": "NIDO CONSTRUCTECH SL",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "1dfe0649-99e1-49b0-9020-01d40b03d6ff",
+  "name": "HOPE MACY LTD",
+  "error": "CalaError: Rate limit"
  }
 ]

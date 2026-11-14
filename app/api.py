@@ -289,7 +289,8 @@ def map_data():
                   "none" if n_rounds == 0 else
                   "once" if n_rounds == 1 else "multiple")
         last = (w["rounds"][-1] if w and w["rounds"] else None)
-        pts.append({"name": p["name"], "lat": lat, "lon": lon, "cc": cc,
+        pts.append({"name": p["name"], "id": p.get("id"),
+                    "lat": lat, "lon": lon, "cc": cc,
                     "precise": precise, "hq": hq, "website": p.get("website"),
                     "industries": (p.get("industries") or [])[:2],
                     "score": conv.get(p["name"].lower()),
@@ -318,7 +319,7 @@ def map_data():
                 lat, lon, precise = loc[0], loc[1], False
             else:
                 continue
-            funds.append({"name": name, "lat": lat, "lon": lon,
+            funds.append({"name": name, "id": v.get("id"), "lat": lat, "lon": lon,
                           "cc": (loc or (0, 0, "??"))[2], "precise": precise,
                           "hq": hq, "website": v.get("website"),
                           "description": (v.get("description") or "")[:200],
@@ -337,7 +338,8 @@ def map_data():
                 if v.get("lat") is None:
                     continue
                 rs = _rounds_by_company().get(nm.strip().lower())
-                portfolio.append({"name": nm, "lat": v["lat"], "lon": v["lon"],
+                portfolio.append({"name": nm, "id": v.get("entity_id"),
+                                  "lat": v["lat"], "lon": v["lon"],
                                   "cc": v.get("cc"), "precise": v.get("precise", False),
                                   "hq": v.get("hq"), "website": v.get("website"),
                                   "source": v.get("source"), "kind": "portfolio",

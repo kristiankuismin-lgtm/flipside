@@ -740,8 +740,8 @@ const FLY = {
 function sideList(points, title) {
   $("#sidet").textContent = title || "Exhibitors";
   $("#sides").textContent = `${points.length} shown`;
-  $("#sideb").innerHTML = points.length ? points.slice(0, 60).map(p => `
-    <div class="sideitem">
+  $("#sideb").innerHTML = points.length ? points.slice(0, 60).map((p, i) => `
+    <div class="sideitem" data-open-ent="${i}">
       <div class="n">${esc(p.name)}${p.score != null
         ? ` <span class="bdg ${p.score >= 70 ? "b-green" : p.score >= 55 ? "b-amber" : "b-red"}"
             style="margin-left:5px">${p.score}</span>` : ""}
@@ -760,7 +760,19 @@ function sideList(points, title) {
           ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">${
               esc(String(p.source).replace(/^https?:\/\/(www\.)?/, "").split("/")[0])}</a>`
           : esc(p.source)}</div>` : ""}
+      <button class="btn" style="margin-top:7px;padding:4px 9px;font-size:12px">Open profile →</button>
     </div>`).join("") : `<div class="msg" style="padding:26px">Nothing matches.</div>`;
+
+  // A pin is a company or a fund - clicking it should be able to open it.
+  // Open directly by entity id where we have one: the pin already came from
+  // an entity, so searching for it again is both slower and - when a batch
+  // job is eating the rate limit - wrong.
+  document.querySelectorAll("[data-open-ent]").forEach(el => el.onclick = () => {
+    const p = points[+el.dataset.openEnt];
+    if (!p) return;
+    if (p.id) return loadEntity(p.id, p.kind === "fund" ? "fund" : "fund", p.name);
+    lookupEntity(p.name, p.kind === "fund" ? "fund" : null);
+  });
 }
 
 function initMap() {

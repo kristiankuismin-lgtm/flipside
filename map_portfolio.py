@@ -69,7 +69,9 @@ def main():
                     hq, _, key = graph.first_prop(full, graph.ADDRESS_PROPS)
                     web, _ = graph.prop(full, "website")
                     src = f"Cala.{key}" if hq else None
-                    state.setdefault(n, {})["website"] = web
+                    rec0 = state.setdefault(n, {})
+                    rec0["website"] = web
+                    rec0["entity_id"] = e["id"]
                 backoff = 45.0
             except CalaError as ex:
                 if "Rate limit" in str(ex):
