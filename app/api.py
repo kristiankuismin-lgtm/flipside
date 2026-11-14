@@ -1706,6 +1706,35 @@ def _start_watch_sweep() -> None:
     _WATCH_SWEEP["thread"] = t
 
 
+@app.get("/builders")
+def builders(limit: int = 40, pages: int = 10, days: int = 180):
+    """People shipping things in public who have not founded a company.
+
+    The scout list ranks people who already founded, which is the strongest
+    predictor and the latest one. This is the cohort before that, and Cala
+    does not hold it - of the 134 people we have records for, 55 have
+    already founded and the rest are investors.
+
+    Source: Show HN. A post there is somebody deliberately publishing work
+    they made, under a handle they chose. Not a LinkedIn, not a mailbox.
+    """
+    from . import builders as BD, cache_index
+    idx = cache_index.build()
+    founders = {norm.name(e.get("name") or "") for e in idx.values()
+                if e.get("entity_type") == "Person"
+                and ((e.get("relationships") or {}).get("outgoing") or {}).get("FOUNDED")}
+
+    def already_known(handle: str, titles) -> bool:
+        # A handle is not a name, so this can only catch the obvious case:
+        # someone posting under their own name who we already hold as a
+        # founder. It is not a privacy check and does not pretend to be one.
+        return norm.name(handle) in founders
+
+    out = BD.rank(days=days, pages=pages, limit=limit, known=already_known)
+    out["source"] = "Show HN, via the Hacker News search API"
+    return out
+
+
 @app.get("/scout-signal")
 def scout_signal(name: str, id: str = ""):
     """What has happened to one watched person lately.

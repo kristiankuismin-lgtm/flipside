@@ -688,6 +688,8 @@ function applyRoleChrome() {
   document.querySelectorAll("[data-ddrop]").forEach(b => b.onclick = e => {
     e.stopPropagation(); dealSet(b.dataset.ddrop, null);
   });
+  document.querySelectorAll("[data-sctab]").forEach(b =>
+    b.onclick = () => { SCOUTTAB = b.dataset.sctab; render(); });
   document.querySelectorAll("[data-scack]").forEach(b =>
     b.onclick = () => scoutAck(b.dataset.scack));
   document.querySelectorAll("[data-scwatch]").forEach(b => b.onclick = () => {
@@ -738,6 +740,72 @@ async function loadConviction() {
    of people who never asked to be watched. The panel says so rather than
    leaving it to be assumed either way. */
 let SCOUTS = null, SCOUT_THESIS = "", SCOUTWATCH = {}, SCOUTSIG = {}, SCOUTBT = null;
+/* Two cohorts, because they are two different bets.
+   "Founded before" is the strongest predictor and the latest one: by the
+   time someone has a company every fund can see them. "Building in public"
+   is the one before that - and Cala does not hold it, so it comes from
+   somewhere else. */
+let SCOUTTAB = "founded", BUILDERS = null;
+
+async function loadBuilders() {
+  BUILDERS = { loading: true };
+  if (MODE === "scouts") render();
+  try { BUILDERS = await (await fetch("/builders?limit=40&pages=10")).json(); }
+  catch (e) { BUILDERS = { error: String(e.message), builders: [] }; }
+  if (MODE === "scouts") render();
+}
+
+function builderRow(b) {
+  const watched = !!SCOUTWATCH["hn:" + b.handle];
+  return `<div class="scrow ${watched ? "on" : ""}">
+    <button class="scwatch ${watched ? "on" : ""}"
+      data-scwatch="hn:${esc(b.handle)}|${esc(b.handle)}"
+      title="${watched ? "Stop watching" : "Watch this handle"}">${watched ? "◉" : "○"}</button>
+    <div class="scmain">
+      <div class="scnm">${esc(b.handle)}
+        ${b.github ? `<a class="chip sm" href="https://github.com/${esc(b.github)}"
+          target="_blank" rel="noopener">github/${esc(b.github)}</a>` : ""}
+        ${b.count > 2 ? badge(`${b.count} things`, "green") : ""}</div>
+      <div class="scwhy">${esc((b.why || []).join(" · "))}</div>
+      <div class="bships">${(b.shipped || []).slice(0, 3).map(sh => `
+        <div class="bship"><a href="${esc(sh.hn)}" target="_blank" rel="noopener"
+          >${esc(sh.what)}</a>
+          <span class="sub">${esc(sh.date || "")}${
+            sh.points ? ` · ${sh.points} points` : ""}</span></div>`).join("")}
+        ${b.count > 3 ? `<div class="sub">and ${b.count - 3} more</div>` : ""}</div>
+    </div>
+    <div class="scsc">${b.score}</div>
+  </div>`;
+}
+
+function buildersPane() {
+  if (!BUILDERS) { loadBuilders(); return `<div class="msg" style="padding:30px">
+    <span class="spin"></span>Reading what people have been showing…</div>`; }
+  if (BUILDERS.loading) return `<div class="msg" style="padding:30px">
+    <span class="spin"></span>Reading what people have been showing…</div>`;
+  if (BUILDERS.error) return errorPanel(BUILDERS.error, "the builder list");
+  const c = BUILDERS.coverage || {};
+  const rows = BUILDERS.builders || [];
+  const repeat = rows.filter(b => b.count > 1).length;
+
+  return kpis([
+    ["Handles shipping", rows.length, "all", "shown something in the window"],
+    ["Shipped more than once", repeat, "repeat",
+     "the habit, which is what this is looking for"],
+    ["Already founders", c.already_known ?? 0, "known", "dropped from this list"],
+  ], "all", null)
+  + `<div class="sub" style="max-width:72ch;line-height:1.75;margin:-4px 0 var(--s3)">
+      Read from ${c.posts_read} Show HN posts over ${
+        Math.round((c.window_days || 180) / 30)} months, by ${c.handles} handles.
+      A Show HN post is somebody deliberately publishing a thing they built,
+      under a handle they chose — so this names the handle and the work, and
+      leaves working out who they are to you. A handle is not a person, and
+      nothing here reads a LinkedIn, a mailbox or a private profile.</div>`
+  + (rows.length
+    ? `<div class="sclist">${rows.map(builderRow).join("")}</div>`
+    : `<div class="emptywhy"><b>Nothing came back.</b> The Hacker News search
+        did not answer, or nothing was posted in the window.</div>`);
+}
 
 /* The ranking graded against what people actually did next.
    "No backtest" is a caveat anyone can ignore. The attempt, its sample size
@@ -912,18 +980,36 @@ function scoutsView() {
       <button class="btn pri" type="submit">Rank against it</button>
     </form>`;
 
-  if (!SCOUTS) { loadScouts(SCOUT_THESIS); return head + `<div class="msg">
+  const tabs = `<div class="sctabs">
+      <button class="sctab ${SCOUTTAB === "founded" ? "on" : ""}" data-sctab="founded">
+        Founded before</button>
+      <button class="sctab ${SCOUTTAB === "building" ? "on" : ""}" data-sctab="building">
+        Building in public</button>
+    </div>
+    <p class="sub" style="max-width:74ch;line-height:1.75;margin:0 0 var(--s3)">
+      ${SCOUTTAB === "founded"
+        ? `People who have started something and are sitting in someone else's
+           seat. The strongest predictor there is, and the latest one — by the
+           time someone has a company, every fund can see them.`
+        : `The cohort before that: people putting things on the internet who
+           have not founded a company. Cala does not hold them — of the 134
+           people we have records for, 55 have already founded and most of the
+           rest are investors — so this reads Show HN instead.`}</p>`;
+
+  if (SCOUTTAB === "building") return head + tabs + buildersPane();
+
+  if (!SCOUTS) { loadScouts(SCOUT_THESIS); return head + tabs + `<div class="msg">
     <span class="spin"></span>Reading the people we have records for…</div>`; }
-  if (SCOUTS.loading) return head + `<div class="msg" style="padding:30px">
+  if (SCOUTS.loading) return head + tabs + `<div class="msg" style="padding:30px">
     <span class="spin"></span>Ranking…</div>`;
-  if (SCOUTS.error) return head + errorPanel(SCOUTS.error, "the watchlist");
+  if (SCOUTS.error) return head + tabs + errorPanel(SCOUTS.error, "the watchlist");
 
   const c = SCOUTS.coverage || {};
   const rows = SCOUTS.candidates || [];
   const onList = rows.filter(r => SCOUTWATCH[r.id]);
   const rest = rows.filter(r => !SCOUTWATCH[r.id]);
 
-  return head
+  return head + tabs
     + kpis([
       ["Candidates", c.candidates ?? 0, "all", "have founded or run something"],
       ["Match your thesis", c.matched_specifically ?? 0, "match",
@@ -3313,6 +3399,8 @@ function render() {
   document.querySelectorAll("[data-ddrop]").forEach(b => b.onclick = e => {
     e.stopPropagation(); dealSet(b.dataset.ddrop, null);
   });
+  document.querySelectorAll("[data-sctab]").forEach(b =>
+    b.onclick = () => { SCOUTTAB = b.dataset.sctab; render(); });
   document.querySelectorAll("[data-scack]").forEach(b =>
     b.onclick = () => scoutAck(b.dataset.scack));
   document.querySelectorAll("[data-scwatch]").forEach(b => b.onclick = () => {

@@ -14,3 +14,4 @@ server.log
 wikidata.sqlite
 watchlist.sqlite
 opennews.sqlite
+builders.sqlite
