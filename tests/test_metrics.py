@@ -200,3 +200,39 @@ def test_an_unknown_lead_rate_is_never_penalised():
     unknown = {"lead_rate": M.Signal("lead_rate", None, M.NO_DATA, "", 0, "Low")}
     assert M.lead_factor(unknown) == 1.0
     assert M.lead_factor({}) == 1.0
+
+
+# ---- recency on the founder side --------------------------------------------
+def test_the_founder_ranking_ages_its_evidence_too():
+    """The same defect that put a 2022 round at the top of the investor view
+    was live here: a fund whose last Series A lead was years ago scored
+    identically to one that led one in March."""
+    old = {"lead_rate": M.Signal("lead_rate", 0.8, "🟢", "", 5, "Medium",
+                                 last_date=T - timedelta(days=5 * 365))}
+    fresh = {"lead_rate": M.Signal("lead_rate", 0.8, "🟢", "", 5, "Medium",
+                                   last_date=T - timedelta(days=60))}
+    assert M.score(FIT, old) < M.score(FIT, fresh)
+
+
+def test_an_undated_signal_is_treated_as_current():
+    """Unknown age must not be punished - that penalises thin coverage twice."""
+    assert M.recency_factor(None) == 1.0
+    undated = {"lead_rate": M.Signal("lead_rate", 0.8, "🟢", "", 5, "Medium")}
+    fresh = {"lead_rate": M.Signal("lead_rate", 0.8, "🟢", "", 5, "Medium",
+                                   last_date=T)}
+    assert M.score(FIT, undated) == M.score(FIT, fresh)
+
+
+def test_funds_age_more_slowly_than_companies():
+    """A fund with an old record is still a fund; a stale round is weaker
+    evidence about a company. The two floors differ on purpose."""
+    from app import conviction as K
+    assert M.RECENCY_FLOOR > K.RECENCY_FLOOR
+    assert M.GRACE_MONTHS > K.GRACE_MONTHS
+
+
+def test_lead_rate_dates_its_own_claim():
+    rs = [r("A", 900, "Series A", ["Fund X"], ["Fund X"]),
+          r("B", 100, "Series A", ["Fund X"], ["Fund X"])]
+    s = M.lead_rate("Fund X", rs, "series a")
+    assert s.last_date == (T - timedelta(days=100))

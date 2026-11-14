@@ -203,6 +203,26 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
     depth = evidence_depth(len(rounds))
     # Ilman riittavaa otosta pisteet olisivat harhaanjohtavia: nayta se.
     score = None if depth == "insufficient" else M.score(fit, sig)
+    # Expose the breakdown rather than only the number: a score nobody can
+    # take apart is a number to be trusted on faith.
+    q, coverage = M.quality(sig)
+    months = M.last_activity(sig)
+    rf = M.recency_factor(months)
+    breakdown = {
+        "fit": round(fit["stage"] * .35 + fit["sector"] * .30
+                     + fit["geo"] * .20 + fit["check"] * .15, 3),
+        "quality": round(q, 3), "coverage": round(coverage, 3),
+        "lead_factor": M.lead_factor(sig),
+        "conflict_factor": (0 if sig.get("conflict") and sig["conflict"].label == "🔴"
+                            else .7 if sig.get("conflict") and sig["conflict"].label == "🟡"
+                            else 1),
+        "warm_bonus": round(.15 * ((sig.get("warm_path").value or 0)
+                                   if sig.get("warm_path") else 0), 3),
+        "recency": round(rf, 3),
+        "months_since_activity": months,
+        "stale": bool(months is not None and months >= M.STALE_AFTER_MONTHS),
+        "weights": M.QUALITY_WEIGHTS,
+    }
     # Portfolio highlights: the companies this firm actually led into, newest
     # first, so the card shows what they do rather than only how they behave.
     led = [r for r in sorted(rounds, key=lambda x: x.date, reverse=True)
@@ -231,7 +251,8 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
             "recent_rounds": [{"company": r.company, "stage": r.stage, "date": str(r.date),
                                "amount": r.amount_eur, "led": norm.matches(inv, r.leads)}
                               for r in sorted(rounds, key=lambda x: x.date, reverse=True)[:14]],
-            "signals": {k: asdict(v) for k, v in sig.items()}, "notes": notes}
+            "signals": {k: asdict(v) for k, v in sig.items()},
+            "breakdown": breakdown, "notes": notes}
 
 
 @app.post("/analyze")

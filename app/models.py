@@ -31,3 +31,6 @@ class Signal:
     n: int
     confidence: str     # Korkea / Keski / Matala
     evidence: list[Evidence] = field(default_factory=list)
+    # When this signal last had something to say. Ranking has to know how old
+    # its evidence is; without a date every claim looks equally current.
+    last_date: Optional[object] = None

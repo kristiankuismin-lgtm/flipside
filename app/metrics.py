@@ -57,7 +57,10 @@ def lead_rate(inv: str, inv_rounds: list[Round], stage: str | None = None) -> Si
     lab = "🟢" if v >= .4 else "🟡" if v >= .15 else "🔴"
     txt = f"Led {len(led)} of {n} {stage or ''} rounds ({v:.0%})".replace("  ", " ")
     ev = [Evidence(f"{r.company} {r.stage} {r.date}", (r.sources or [None])[0]) for r in led[:3]]
-    return Signal("lead_rate", v, lab, txt, n, _conf(n, native), ev)
+    # Date the claim: the last time it actually led at this stage, falling
+    # back to the last time we saw it in one at all.
+    last = max((r.date for r in (led or rs)), default=None)
+    return Signal("lead_rate", v, lab, txt, n, _conf(n, native), ev, last_date=last)
 
 
 # ---- M2 Follow-on ------------------------------------------------------------
@@ -262,6 +265,61 @@ def lead_factor(sig: dict[str, Signal]) -> float:
     return NON_LEAD_FACTOR if s.value == 0 else 1.0
 
 
+# Aging the founder ranking, for the same reason the investor ranking is aged:
+# a fund that last led a Series A in 2021 is weaker evidence about who will
+# lead one in 2026 than a fund that led one in March. This mirrors
+# conviction.recency_factor() deliberately - two halves of the product must
+# not disagree about how old is old.
+GRACE_MONTHS = 18        # funds move slower than companies; a year and a half
+HALFLIFE_MONTHS = 24
+RECENCY_FLOOR = 0.55     # a fund with an old record is still a fund
+STALE_AFTER_MONTHS = 30
+
+
+def months_since(d, today: date | None = None) -> int | None:
+    """Whole months between a date and today. None when there is no date."""
+    if not d:
+        return None
+    today = today or TODAY
+    if isinstance(d, str):
+        try:
+            parts = [int(x) for x in d[:7].split("-")[:2]]
+        except ValueError:
+            return None
+        if len(parts) < 2:
+            return None
+        y, m = parts
+    else:
+        y, m = d.year, d.month
+    return max(0, (today.year - y) * 12 + (today.month - m))
+
+
+def recency_factor(months: int | None) -> float:
+    """1.0 while current, halving every HALFLIFE_MONTHS past the grace
+    period, floored. Unknown age is treated as current: we do not know that
+    it is old, and guessing downward punishes thin coverage twice."""
+    if months is None:
+        return 1.0
+    over = months - GRACE_MONTHS
+    if over <= 0:
+        return 1.0
+    return max(RECENCY_FLOOR, 0.5 ** (over / HALFLIFE_MONTHS))
+
+
+def last_activity(sig: dict[str, Signal]) -> int | None:
+    """Months since this fund last did the thing we are ranking it for.
+
+    Prefers the most recent round it led at the stage, because that is the
+    claim the ranking rests on; falls back to any round we saw it in.
+    """
+    for key in ("lead_rate", "follow_on", "next_round"):
+        s = sig.get(key)
+        d = getattr(s, "last_date", None) if s else None
+        if d:
+            return months_since(d)
+    return None
+
+
 def score(fit: dict, sig: dict[str, Signal]) -> float:
     f = .35 * fit["stage"] + .30 * fit["sector"] + .20 * fit["geo"] + .15 * fit["check"]
     q, coverage = quality(sig)
@@ -272,5 +330,6 @@ def score(fit: dict, sig: dict[str, Signal]) -> float:
     # A score built on one known signal should not sit next to one built on
     # four as though they were the same claim.
     conf = 0.85 + 0.15 * coverage
+    rf = recency_factor(last_activity(sig))
     return round(100 * f * (.5 + .5 * q) * cm * lead_factor(sig)
-                 * (1 + .15 * wv) * conf, 1)
+                 * (1 + .15 * wv) * conf * rf, 1)
