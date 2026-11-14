@@ -373,18 +373,16 @@ function syndicateBlock() {
 
   return section("fsyn", "Who has been in their rounds",
     `${SYN.syndicates.length} lead${SYN.syndicates.length > 1 ? "s" : ""} with a co-investment record`,
-    `<div class="synlead">Funds that have been in rounds this lead led — a
-       different relationship from sharing a cap table, and a record of what
-       happened, not a forecast of what will.
-       <a class="lnk" href="#" data-goto="accuracy">We tested whether it
-       predicts the next round. It does not.</a></div>
-     ${anyWarm ? "" : `<div class="verdict grey">No warm route to any of these leads.
-       Nothing in the cached graph puts ${backers.length ? esc(backers.join(", ")) : "your backers"}
-       and these funds on the same cap table, so every introduction here starts cold.${elsewhere.length ? `
-       The warm ${elsewhere.length > 1 ? "routes you do have go" : "route you do have goes"}
-       to ${elsewhere.map(e => `<b>${esc(e.investor)}</b> (${esc(e.signals.warm_path.text)})`).join(", ")} —
-       ${elsewhere.length > 1 ? "funds that do not" : "a fund that does not"} lead at your stage,
-       so ${elsewhere.length > 1 ? "they are" : "it is"} a door in, not a lead.` : ""}</div>`}
+    `<div class="synlead">Who has been in rounds each lead led — a record, not a
+       forecast. <button class="lnk" data-goto="accuracy">we tested that; it does
+       not predict</button></div>
+     ${anyWarm ? "" : `<div class="quiet" title="Nothing in the cached graph puts ${
+        esc(backers.join(", ") || "your backers")} and these funds on the same cap table.${
+        elsewhere.length ? ` The warm route you do have reaches ${
+          esc(elsewhere[0].investor)}, which does not lead at your stage.` : ""}">
+       No warm route to any of these leads${elsewhere.length
+         ? ` — the one you have reaches <b>${esc(elsewhere[0].investor)}</b>, which does not lead`
+         : ""}.</div>`}
      <div class="syns">${cards}</div>`);
 }
 
@@ -448,15 +446,16 @@ function founderList() {
                    conflict: "funds backing a competitor" }[FFILTER] || FFILTER)}</b>
         — ${shown.length} of ${inv.length}.
         <button class="btn sm" id="clearf">Clear</button></div>` : "")
+    + section("fmap", "Who funds your competitors",
+        `${(F.edges || []).length} link${(F.edges || []).length === 1 ? "" : "s"} · two hops in Cala's graph`,
+        conflictMap())
     + planSection()
-    + section("ftable", "Target list", `${shown.length} of ${inv.length} screened`,
+    + section("ftable", "Who is left", `${shown.length} of ${inv.length} screened`,
       `<div class="tbl"><table>
       <thead><tr><th class="w-rank"></th><th>Investor</th><th>Verdict</th><th class="num">Score</th>
       <th class="num">Lead</th><th class="num">Follow-on</th>
       <th>Pace</th><th>Conflict</th><th>Route</th><th class="w-act"></th></tr></thead>
       <tbody>${rowsFor(shown)}</tbody></table></div>`)
-    + section("fmap", "Conflict map",
-      `${(F.edges || []).length} fund–competitor links`, conflictMap())
     + `<div class="evfoot">
         <b>Evidence and experiments.</b> Not part of the answer above, kept
         because they are how it was checked.
@@ -472,45 +471,48 @@ function founderList() {
    paragraph and a map all competing for the top of the page meant the one
    thing this product knows - who to assemble and who can introduce you - was
    below the fold. */
+/* The exclusion comes first.
+   Every other tool hands a founder a targeting list. The question nobody
+   answers is which funds they must not talk to - and that mistake costs
+   more than a missed meeting, because the deck, the metrics and the
+   customer list stay with a fund that is funding the competitor.
+   So the page opens with who is out, then who is left. */
 function heroCard(inv, red, leads, warm) {
+  const comps = [...new Set(red.flatMap(x => x.backs))];
+  const clean = inv.filter(x => x.signals.conflict.label !== "\u{1F534}" && x.score != null);
   const best = SYN?.syndicates?.[0];
-  const top = inv.find(x => x.signals.conflict.label !== "🔴" && x.score != null);
+
   const acts = [];
-  if (best) acts.push([`Open with ${best.lead}`,
-    `leads at your stage; ${best.members[0]?.name} was in ${
-      Math.round((best.members[0]?.share || 0) * 100)}% of the rounds they led`,
-    { brief: best.lead }]);
-  if (warm.length) acts.push([`Ask ${warm[0].signals.warm_path.text.replace(/^via /, "")} for an intro`,
-    `the only warm route in this list — it reaches ${warm[0].investor}`,
-    { brief: warm[0].investor }]);
-  if (red.length) acts.push([`Do not pitch ${red.map(x => x.investor).slice(0, 2).join(", ")}`,
-    `${red.length === 1 ? "it backs" : "they back"} ${
-      [...new Set(red.flatMap(x => x.backs))].slice(0, 3).join(", ")}`, { filter: "conflict" }]);
-  while (acts.length < 3 && top) {
-    acts.push([`Brief ${top.investor}`, "highest-scoring fund with no conflict",
-               { brief: top.investor }]);
-    break;
-  }
-
+  if (red.length) acts.push([`See the ${red.length} to avoid`,
+    "and the competitor each one funds", { filter: "conflict" }]);
+  if (leads.length) acts.push([`${leads.length} of the rest lead at ${F.stage}`,
+    "the others can follow, not lead", { filter: "lead" }]);
+  if (best) acts.push([`Draft the opener for ${best.lead}`,
+    "three sentences, each one a number you can check", { brief: best.lead }]);
   HEROACTS = acts.slice(0, 3);
-  const line = best
-    ? `<b>${esc(best.lead)}</b> can lead this round. <b>${
-        esc(best.members.map(m => m.name).join(" and "))}</b> have been in rounds
-       they led before.`
-    : leads.length
-      ? `<b>${leads.length}</b> of ${inv.length} funds screened actually lead at ${esc(F.stage)}.`
-      : `No fund in this list leads at ${esc(F.stage)} — that is the finding.`;
 
-  return `<div class="hero">
+  const head = red.length
+    ? `<b>${red.length} of ${inv.length}</b> funds on this list already fund
+       <b>${esc(comps.slice(0, 2).join(" or "))}</b>. Do not send them your deck.`
+    : "<b>No fund</b> on this list funds a competitor Cala can name.";
+
+  const sub = red.length
+    ? red.map(x => `<b>${esc(x.investor)}</b> &rarr; ${esc(x.backs.join(", "))}`).join(" &nbsp;·&nbsp; ")
+    : `${inv.length} screened against ${F.competitors.length} named competitors.`;
+
+  return `<div class="hero ${red.length ? "warn" : "ok"}">
     <div class="herotop">
-      <span class="herotag">${esc(F.company)} · ${esc(F.stage)} · ${
-        F.investors.length} funds screened</span>
-      <h2>${line}</h2>
-      ${warm.length ? "" : `<p class="herosub">No warm route reaches any of them,
-        so every approach here starts cold.</p>`}
+      <span class="herotag">${esc(F.company)} · ${esc(F.stage)} ·
+        ${inv.length} screened · ${F.competitors.length} competitors</span>
+      <h2>${head}</h2>
+      <p class="herosub">${sub}</p>
+      <p class="herothen"><b>${clean.length}</b> funds are left.
+        ${leads.length ? `<b>${leads.length}</b> of them lead at ${esc(F.stage)}.` : ""}
+        ${warm.length ? `<b>${warm.length}</b> can be reached through someone you know.`
+          : "None can be reached warm."}</p>
     </div>
     <div class="heroacts" style="grid-template-columns:repeat(${
-      Math.max(acts.length, 1)},1fr)">${acts.slice(0, 3).map(([t, why, go], i) => `
+      Math.max(acts.length, 1)},1fr)">${acts.map(([t, why, go], i) => `
       <button class="heroact" data-hero="${i}">
         <span class="n">${i + 1}</span>
         <span><b>${esc(t)}</b><em>${esc(why)}</em></span></button>`).join("")}</div>

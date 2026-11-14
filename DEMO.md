@@ -1,7 +1,7 @@
 # Flipside — 3-minute demo
 
-**One line:** investors run diligence on founders; Flipside runs it on them —
-and then tells you who to put in the round, who can introduce you, and what to say.
+**One line:** every tool tells a founder who to pitch; Flipside tells them who
+*not* to — the funds already funding their competitor — and then what is left.
 
 **Demo company:** Gosta Labs (Finnish clinical AI, €7.5M seed Nov 2025 led by
 Voima Ventures; Terveystalo and Reaktor on the cap table). Raising Series A.

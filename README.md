@@ -1,6 +1,10 @@
 # Flipside
 
-**Investors run diligence on you before they invest. Flipside runs it on them.**
+**Every tool tells a founder who to pitch. None tells them who not to.**
+
+You send your deck, your metrics and your customer pipeline to a fund that is
+already funding your competitor. They keep it. They are allowed to. Flipside
+answers the question first — *who is out* — and only then *who is left*.
 
 One funding graph, read three ways. Built on [Cala](https://cala.ai) for
 Junction 2026.
@@ -11,13 +15,17 @@ Junction 2026.
 | **Investor** | When this company raised again, did the people already on the cap table come back — and was that unusual for them? | writing a cheque |
 | **Third** | Who looks like a founder before they are one? | looking early |
 
-The product opens on one sentence and three buttons:
+The product opens on the exclusion:
 
-> **Build the round around Atomico, with World Innovation Lab and Lightspeed
-> Venture Partners following them in.**
-> 1. Open with Atomico — World Innovation Lab joins 25% of the rounds they lead
-> 2. Ask Voima Ventures for an intro — it reaches Icebreaker.vc
-> 3. Do not pitch Byfounders, Nordic Makers — they back Corti, Tandem Health
+> **3 of 14 funds on this list already fund Corti or Tandem Health.
+> Do not send them your deck.**
+> Byfounders → Corti · Nordic Makers → Corti · Northzone → Tandem Health
+>
+> *10 funds are left. 3 of them lead at Series A. 1 can be reached through
+> someone you know.*
+
+That is two hops in a graph — `you → competes with → company → raised → investor` —
+and it is the one claim here that cannot be looked up, only computed.
 
 ---
 
