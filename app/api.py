@@ -986,7 +986,7 @@ def enrich(name: str, entity_id: str = "", cc: str = ""):
 
 
 @app.get("/contradictions")
-def contradictions(company: str = ""):
+def contradictions(company: str = "", investor: str = ""):
     """Where our sources disagree with each other.
 
     A product built on a graph inherits the graph's disagreements. Vanta's
@@ -999,7 +999,14 @@ def contradictions(company: str = ""):
     if company:
         key = norm.name(company) or company.strip().lower()
         rbc = {k: v for k, v in rbc.items() if k == key}
-    return CX.summarise(rbc)
+    if investor:
+        # The question a founder asks is not "does this company's record
+        # disagree" but "do the rounds behind this fund's numbers disagree".
+        rbc = {k: v for k, v in rbc.items()
+               if any(norm.matches(investor, r.get("investors") or [])
+                      for r in (v or []))}
+    return {**CX.summarise(rbc), "investor": investor or None,
+            "company": company or None}
 
 
 @app.get("/progress")

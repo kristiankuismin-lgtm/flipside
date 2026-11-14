@@ -9,6 +9,23 @@ const initials = s => (s || "?").replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/)
 let MODE = "home", F = null, I = null, SEL = null, TAB = 0;
 let SYN = null;                        // /syndicates, filled after the screen
 let HEALTH = null;                     // what the product is standing on
+let FCONTRA = {};                      // investor -> disagreements in their rounds
+
+/* A fund whose rounds disagree with themselves looks clean in the table
+   unless we say so, and the founder is about to repeat those numbers to
+   the fund itself. Fetched per screen, once, after the list is up. */
+async function loadFounderContradictions() {
+  const names = (F?.investors || []).map(x => x.investor);
+  for (const n of names) {
+    if (FCONTRA[n] !== undefined) continue;
+    FCONTRA[n] = null;
+    try {
+      const d = await (await fetch(`/contradictions?investor=${encodeURIComponent(n)}`)).json();
+      FCONTRA[n] = d;
+    } catch (e) { FCONTRA[n] = { hard: 0, items: [] }; }
+  }
+  if (MODE === "founder") render();
+}
 
 async function loadHealth() {
   try { HEALTH = await (await fetch("/health")).json(); } catch (e) { return; }
@@ -268,8 +285,9 @@ async function runFounder() {
   });
   stopProgress();
   F = await r.json(); PENDING_CO = PENDING_STAGE = null; SEL = null; SYN = null;
-  planLoad(); render();
+  planLoad(); FCONTRA = {}; render();
   loadSyndicates(F.company, F.stage);
+  loadFounderContradictions();
 }
 
 /* The screen answers "who". A round needs "who, with whom, through whom".
@@ -379,7 +397,11 @@ function founderList() {
       <td>${x.backs?.length
         ? `<button class="figure" data-ev="${esc(x.investor)}|conflict">${
             badge(x.backs.join(", "), "red")}</button>`
-        : badge("clear", "grey")}</td>
+        : badge("clear", "grey")}${
+        FCONTRA[x.investor]?.hard
+          ? ` <button class="figure" data-ev="${esc(x.investor)}|disagree"
+                title="Sources disagree on some of the rounds behind these numbers">${
+                badge(`${FCONTRA[x.investor].hard} disputed`, "amber")}</button>` : ""}</td>
       <td>${s.warm_path.label !== "⚪"
         ? `<button class="figure" data-ev="${esc(x.investor)}|warm_path">${
             badge(s.warm_path.text.replace(/^via /, ""), "blue")}</button>` : ""}</td>
@@ -1009,6 +1031,10 @@ function scoreMath(x) {
     ["Conflict", b.conflict_factor, b.conflict_factor === 0
       ? "backs a competitor — the score is zero by construction" : "clear"],
     ["Warm route", 1 + b.warm_bonus, b.warm_bonus ? "a shared cap table reaches them" : "none found"],
+    ["Disputed rounds", (FCONTRA[x.investor]?.hard ?? 0) || "none",
+      (FCONTRA[x.investor]?.hard ?? 0)
+        ? "our sources disagree on some rounds behind this — not scored, but worth knowing"
+        : "no disagreement found in the rounds behind this"],
     ["Recency", b.recency, b.months_since_activity == null
       ? "no date on the evidence — treated as current"
       : `last active ${b.months_since_activity} months ago${b.stale ? " (stale)" : ""}`],
@@ -1042,6 +1068,33 @@ function openEvidence(investor, key) {
   }
 
   const ev = (sg?.evidence || []).filter(e => e && (e.text || e.source));
+  const cx = FCONTRA[investor];
+
+  if (key === "disagree") {
+    const items = (cx?.items || []).filter(i => !i.soft);
+    w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+      <div class="sidehd"><h3>Sources disagree — ${esc(investor)}</h3>
+        <div class="s">${items.length} conflicts in the rounds behind these numbers</div></div>
+      <div style="padding:15px">
+        <div class="sub" style="margin-bottom:11px;line-height:1.6;max-width:62ch">
+          Two records of the same round differing on date, amount or lead. We do
+          not pick a winner. Before you repeat one of these figures to
+          ${esc(investor)}, know that our own sources do not agree on it.</div>
+        <div class="tbl"><table><thead><tr><th>Company</th><th>Field</th>
+          <th>One says</th><th>Another says</th></tr></thead><tbody>
+          ${items.map(i => `<tr><td>${esc(i.company)}</td>
+            <td>${badge(i.field, i.field === "amount" ? "red" : "amber")}</td>
+            <td class="nowrap">${esc(i.a || "—")}</td>
+            <td class="nowrap">${esc(i.b || "—")}</td></tr>`).join("")}
+        </tbody></table></div>
+        <div style="display:flex;margin-top:14px">
+          <button class="btn" id="evclose" style="margin-left:auto">Close</button></div>
+      </div></div>`;
+    document.body.appendChild(w);
+    const cl = () => w.remove();
+    w.onclick = cl; w.querySelector("#evclose").onclick = cl;
+    return;
+  }
   const body = key === "score" ? scoreMath(x) : `
     ${sg ? `<div class="evclaim"><b>${esc(sg.text || "—")}</b>
       <span class="sub">${sg.n} observation${sg.n === 1 ? "" : "s"} ·
@@ -2808,7 +2861,10 @@ function founderSignalBody() {
     ["Founder signal", f.score, "mono"],
     ["Confidence", f.confidence],
     ["Connections read", f.evidence_edges, "mono"],
-    ["Ships code publicly", gh ? (f.github_signal?.label || "yes") : "unknown"],
+    ["Ships code publicly", gh ? (f.github_signal?.label || "yes")
+      : /rate limit/i.test(f.github_error || "")
+        ? `<span class="unchecked" title="GitHub rate-limited this lookup. Set GITHUB_TOKEN to raise the limit from 60 to 5000 requests an hour.">not checked</span>`
+        : `<span class="unchecked" title="No GitHub account matched this name with enough confidence">no match</span>`],
   ])
   + `<div class="verdict ${f.score >= 55 ? "green" : "grey"}">
       <b>${f.score >= 55 ? "Looks like someone who starts things."
@@ -2835,11 +2891,22 @@ function founderSignalBody() {
             <span class="bdg b-grey" style="margin-left:6px">${r.stars}★</span></div>
           <div class="d">${esc(r.description || r.lang || "")}</div></div>`).join("")
           || `<div class="sub">No public repositories.</div>`}</div></div>`)
-    : section("fs-gh", "GitHub", "", `<div class="card"><div class="sub">${
-        esc(f.github_error || "No GitHub account matched this name with enough confidence to attribute.")}
-        </div><div style="font-size:12.8px;color:var(--dim);margin-top:7px">
-        A same-name account is not evidence — we decline rather than credit someone
-        else's work.</div></div>`))
+    : section("fs-gh", "GitHub",
+        /rate limit/i.test(f.github_error || "") ? "not checked" : "no confident match",
+        `<div class="emptywhy">
+          ${/rate limit/i.test(f.github_error || "")
+            ? `<b>GitHub rate-limited this lookup.</b>
+               Unauthenticated search allows about ten queries a minute. Put a
+               token in <code>.env</code> and the limit goes from 60 an hour to
+               5,000:<br>
+               <code style="display:inline-block;margin-top:6px">GITHUB_TOKEN=ghp_…</code>
+               <span class="sub">Any read-only personal access token works; it needs
+               no scopes at all. Until then this component is counted as unknown,
+               not as zero — it does not drag the score down.</span>`
+            : `<b>No GitHub account matched this name with enough confidence.</b>
+               A same-name account is not evidence. We decline rather than credit
+               someone else's work to this person.`}
+        </div>`))
   + section("fs-ev", "Everything this reads", "straight from Cala's Person graph",
       `<div class="hl">${(f.groups || []).map(g => `<div class="hlc">
         <div class="hlhd"><div style="min-width:0"><div class="nm">${esc(g.label)}</div>
