@@ -1512,10 +1512,52 @@ function founderEntity() {
       body += `<div class="msg">No portfolio detail cached for this firm yet.</div>`;
   }
   if (TAB === 2) {
-    body += Object.entries(s).map(([k, sig]) => `<div class="card" style="margin-bottom:9px">
-      <h4>${esc(SIGLBL[k] || k)}</h4>
-      <div class="sub">n=${sig.n} · confidence ${esc(sig.confidence)}</div>
-      <div>${sig.label} ${esc(sig.text)}</div>${evidence(sig.evidence)}</div>`).join("");
+    // Four tall cards, each with a percentage and nothing to compare it to.
+    // 25% is not a number a founder can act on until they know what the
+    // other thirteen funds on their own list do, so every rate is drawn
+    // against the median of exactly those funds - and the ones that are
+    // rates are separated from the ones that are not.
+    const peers = (F.investors || []).filter(i => i.investor !== x.investor);
+    const med = key => {
+      const vs = peers.map(i => i.signals?.[key]?.value)
+        .filter(v => typeof v === "number").sort((a, b) => a - b);
+      return vs.length ? vs[Math.floor(vs.length / 2)] : null;
+    };
+    // Only the signals that are actually rates belong on a 0-100% axis.
+    // dry_powder is a ratio against the fund's own prior pace - 1.6 means
+    // 60% faster than usual - and drawing it as "162%" of a percentage bar
+    // was a number that meant nothing.
+    const RATE = new Set(["lead_rate", "follow_on", "next_round", "conflict"]);
+    const rates = Object.entries(s).filter(([k, g]) =>
+      RATE.has(k) && typeof g.value === "number");
+    const rest = Object.entries(s).filter(([k]) => !RATE.has(k));
+
+    body += section("sg-rates", "How they compare",
+      `against the ${peers.length} other funds on your list`,
+      `<div class="card">${bars(rates.map(([k, g]) => {
+        const m = med(k);
+        return [SIGLBL[k] || k, g.value, g.label === "\u{1F7E2}" ? "g"
+                : g.label === "\u{1F534}" ? "r" : "a",
+                pct(g.value), m];
+      }), 1)}
+      <div class="sub" style="margin-top:var(--s2);line-height:1.7">
+        The tick is the median of the other ${peers.length} funds on this
+        screen — a bar to the right of it beats this list, not an absolute
+        standard. ${rates.map(([k, g]) =>
+          `${esc(SIGLBL[k] || k)} is ${g.n} round${g.n === 1 ? "" : "s"}`).join(", ")}.
+      </div></div>`)
+      + (rest.length ? section("sg-rest", "What else the record says", "",
+        `<div class="tbl"><table><tbody>${rest.map(([k, g]) => `
+          <tr style="cursor:default"><td class="sub nowrap">${esc(SIGLBL[k] || k)}</td>
+          <td>${g.label} ${esc(g.text)}</td>
+          <td class="sub nowrap">n=${g.n} · ${esc(g.confidence)}</td></tr>`).join("")}
+        </tbody></table></div>`) : "")
+      + section("sg-ev", "The rounds behind these",
+        `${Object.values(s).reduce((a, g) => a + (g.evidence?.length || 0), 0)} cited`,
+        Object.entries(s).filter(([, g]) => g.evidence?.length).map(([k, g]) =>
+          `<div class="card" style="margin-bottom:9px"><h4>${esc(SIGLBL[k] || k)}</h4>
+           ${evidence(g.evidence)}</div>`).join("")
+        || `<div class="emptywhy">No round is cited for any of these.</div>`);
   }
   if (TAB === 3) {
     if (x.backs?.length) body += evidenceBlock(x.investor, x.backs[0]);
