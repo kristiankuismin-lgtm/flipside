@@ -1442,59 +1442,99 @@ def person_card(entity_id: str, company: str = ""):
         comps, _ = _safe(C.competitors, p.get("query") or company)
         words = OB._sector_words(comps or [], p.get("desc", ""))
     card = PS.build(e, sector_words=words)
-
-    # A company name does not say what the company does: Kry is healthtech
-    # and "Kry International AB" contains no word a sector match could find.
-    # Fetch what the few companies they are closest to actually are.
-    if words:
-        for grp in ("operated", "founded"):
-            for o in card["operator"][grp][:4]:
-                if not o.get("id"):
-                    continue
-                try:
-                    oe = cala.get_entity(o["id"], properties=["name", "description"],
-                                         limit=1, allow_live=True, ttl=7 * 86400)
-                except Exception:
-                    continue
-                d = (oe.get("description")
-                     or ((oe.get("properties") or {}).get("description") or {}).get("value"))
-                o["what"] = (d or "")[:160]
-                hit = PS.markets_in(o["what"]) & set(card["domain"]["wanted"])
-                if hit:
-                    o["markets"] = sorted(hit)
-                    card["domain"]["matched"] = sorted(
-                        set(card["domain"]["matched"]) | hit)
-                    card["domain"]["via"].append(
-                        {"name": o["name"], "what": o["what"], "markets": sorted(hit)})
-
-    if words and card["network"]["companies"]:
-        from . import cala_client as _c
-        for n in card["network"]["companies"][:6]:
-            if not n.get("id"):
-                continue
-            try:
-                ce = _c.get_entity(n["id"], properties=["name", "description"],
-                                   limit=1, allow_live=True, ttl=7 * 86400)
-            except Exception:
-                continue
-            d = (ce.get("description")
-                 or ((ce.get("properties") or {}).get("description") or {}).get("value"))
-            n["what"] = (d or "")[:160]
-        want = set(card["domain"]["wanted"])
-        via = []
-        for n in card["network"]["companies"]:
-            hit = PS.markets_in(n.get("what") or "") & want
-            if hit:
-                n["markets"] = sorted(hit)
-                via.append({"name": n["name"], "what": n.get("what"),
-                            "markets": sorted(hit)})
-        card["domain"]["matched"] = sorted(
-            set(card["domain"]["matched"]) | {m for v in via for m in v["markets"]})
-        card["domain"]["via"] = via[:4]
-
+    card = PS.enrich_markets(card, lambda eid: _entity_description(eid))
     card["confidence"] = PS.confidence(card)
     card["degraded"] = degraded
     return card
+
+
+def _entity_description(entity_id: str) -> str | None:
+    """One company's description, cached a week. Used to tell what a name is."""
+    from . import cala_client as cala
+    e = cala.get_entity(entity_id, properties=["name", "description"], limit=1,
+                        allow_live=True, ttl=7 * 86400)
+    return (e.get("description")
+            or ((e.get("properties") or {}).get("description") or {}).get("value"))
+
+
+def _person_signals(name: str, firm: str, words: set) -> dict | None:
+    """The few things about a person that change who to call first.
+
+    Resolving a name to a Person entity is two calls, so this is kept off
+    the call list's own load and run afterwards, and everything is cached.
+    """
+    from . import cala_client as cala, graph, norm, person as PS
+    try:
+        hits = graph.search(name, types=["Person"], limit=4, interactive=False,
+                            allow_live=True, ttl=7 * 86400)
+    except Exception:
+        return None
+    want = norm.name(name)
+    hit = next((h for h in hits if norm.name(h.get("name")) == want), None)
+    if hit is None:
+        return None
+    try:
+        e = cala.get_entity(hit["id"], properties=PERSON_CARD_PROPS,
+                            outgoing=PERSON_CARD_RELS, limit=30,
+                            allow_live=True, ttl=7 * 86400)
+    except Exception:
+        return None
+    card = PS.enrich_markets(PS.build(e, sector_words=words), _entity_description)
+
+    # A name alone is not a match. Require the entity to be connected to the
+    # firm we found them at, or the card could be a different Sabina.
+    firm_key = norm.name(firm)
+    linked = any(norm.name(w.get("name")) == firm_key for w in card["works_at"]) \
+        or any(norm.name(n["name"]) == firm_key for n in card["network"]["companies"]) \
+        or any(norm.name(o["name"]) == firm_key for o in card["operator"]["operated"])
+
+    op = card["operator"]
+    return {"id": hit["id"], "linked_to_firm": linked,
+            "market_match": card["domain"]["matched"],
+            "market_via": [v["name"] for v in (card["domain"].get("via") or [])][:2],
+            "years_building": op.get("years_building"),
+            "operator": bool(op.get("founded") or op.get("operated")),
+            "built": [f["name"] for f in op.get("founded", [])][:2],
+            "network": card["network"]["count"],
+            "linkedin": card.get("linkedin"),
+            "verified": True,
+            "confidence": PS.confidence(card)["label"]}
+
+
+@app.post("/call-list/people")
+def call_list_people(req: Req):
+    """Resolve the call list's contacts to Cala people and re-rank.
+
+    Run after the list is already on screen: resolving fifteen names is
+    thirty calls cold and nothing warm.
+    """
+    from . import calllist as CL, norm, outreach as OB
+    scored = analyze(req)
+    p = PRESETS.get(req.company.strip().lower(), {})
+    comps, _ = _safe(C.competitors, p.get("query") or req.company)
+    words = OB._sector_words(comps or [], p.get("desc", ""))
+
+    people = {}
+    for x in scored["investors"]:
+        if (x.get("signals") or {}).get("conflict", {}).get("label") == "\U0001f534":
+            continue
+        fund = x["investor"]
+        found = _people_for_fund(fund)
+        for pr in found[:6]:
+            sig = _person_signals(pr["name"], fund, words)
+            # A name match that is not connected to this firm is a different
+            # person with the same name. Keep the contact, drop the card.
+            if sig and sig.get("linked_to_firm"):
+                pr["signals"] = sig
+                pr.setdefault("id", sig["id"])
+                pr["linkedin"] = pr.get("linkedin") or sig.get("linkedin")
+        people[norm.name(fund)] = found
+
+    out = CL.build(scored["investors"], people, stage=req.stage)
+    out["company"], out["stage"] = req.company, req.stage
+    out["enriched"] = sum(1 for r in out["rows"] if r.get("signals"))
+    out["market_words"] = sorted(words)[:10]
+    return out
 
 
 @app.get("/connectors")

@@ -917,6 +917,39 @@ body.neo-on .main{padding-right:380px}
   line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .callrow .warm{margin-top:4px;font-size:11.5px;color:var(--blue)}
 .callrow .acts{display:flex;gap:6px;align-items:center;flex:none}
+
+/* --- person card --- */
+.pcstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px}
+.pcstat{display:flex;flex-direction:column;gap:3px;padding:11px 13px;
+  border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+.pcstat .k{font:9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint)}
+.pcstat .v{font:19px/1.1 var(--mono);font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.pcstat .v.hit{color:var(--green)}
+.pcstat .s{font:10px var(--mono);color:var(--faint);line-height:1.4}
+.pcblock{margin-top:var(--s2)}
+.pch{display:flex;align-items:baseline;gap:8px;font:10px var(--mono);
+  letter-spacing:.07em;text-transform:uppercase;color:var(--faint);
+  margin-bottom:7px}
+.pch span{color:var(--line2)}
+.pclist{display:flex;flex-direction:column;gap:6px}
+.pcrow{padding:9px 12px;border:1px solid var(--line);border-radius:9px;
+  background:var(--panel);font-size:13px;line-height:1.5}
+.pcrow b{font-weight:560;color:var(--ink)}
+.pcrow .tag{margin-left:7px;font:9.5px var(--mono);color:var(--faint);
+  background:var(--panel2);border-radius:4px;padding:2px 6px;text-transform:uppercase}
+.pcrow .mk{margin-left:6px;font:9.5px var(--mono);color:var(--green);
+  background:var(--green-bg);border-radius:4px;padding:2px 6px}
+.pcrow .yr{margin-left:6px;font:10.5px var(--mono);color:var(--faint)}
+.pcrow .what{margin-top:4px;font-size:11.5px;color:var(--faint);line-height:1.55}
+/* the reasons a person moved up the call list */
+.callrow .pwhy{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.callrow .pwhy span{font:10.5px var(--mono);color:var(--green);
+  background:var(--green-bg);border-radius:5px;padding:2px 7px}
+.callrow .pwhy .via{color:var(--faint);background:var(--panel2)}
+.callrow .cscore{font:12px var(--mono);font-weight:600;color:var(--dim);
+  font-variant-numeric:tabular-nums;cursor:help;margin-right:2px}
 </style>
 </head>
 <body>

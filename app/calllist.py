@@ -58,6 +58,44 @@ def _reason(inv: dict, stage: str) -> str:
     return " · ".join(bits) or f"on your {stage} list"
 
 
+# What moves a person up the list, and by how much. Weights are small on
+# purpose: the fund still decides most of it, because a brilliant partner at
+# a fund that cannot lead your round is still the wrong call. These break
+# ties between people at firms worth calling.
+PERSON_WEIGHTS = {
+    "market": 14,     # they have been in your market - the strongest of these
+    "operator": 10,   # they have built or run something themselves
+    "network": 6,     # doors they can open beyond their own cheque
+    "verified": 4,    # a Cala Person entity rather than a name on a page
+}
+NETWORK_FULL = 8      # intro surface above which more stops counting
+
+
+def person_bonus(signals: dict | None) -> tuple[float, list[str]]:
+    """Points and the reasons for them. Returns (0, []) when we know nothing,
+    which is different from knowing the person has none of these."""
+    if not signals:
+        return 0.0, []
+    pts, why = 0.0, []
+    if signals.get("market_match"):
+        pts += PERSON_WEIGHTS["market"]
+        why.append("has been in your market")
+    if signals.get("years_building"):
+        yrs = signals["years_building"]
+        pts += PERSON_WEIGHTS["operator"]
+        why.append(f"operating {yrs} year{'s' if yrs != 1 else ''}")
+    elif signals.get("operator"):
+        pts += PERSON_WEIGHTS["operator"] * 0.6
+        why.append("has operated, year unknown")
+    n = signals.get("network") or 0
+    if n:
+        pts += PERSON_WEIGHTS["network"] * min(n, NETWORK_FULL) / NETWORK_FULL
+        why.append(f"can reach {n} compan{'ies' if n != 1 else 'y'}")
+    if signals.get("verified"):
+        pts += PERSON_WEIGHTS["verified"]
+    return round(pts, 1), why
+
+
 def build(investors: list[dict], people_by_fund: dict[str, list[dict]],
           *, stage: str = "", limit: int = 40) -> dict:
     """One row per person, best firm first, best contact within it first."""
@@ -76,8 +114,12 @@ def build(investors: list[dict], people_by_fund: dict[str, list[dict]],
             continue
         warm = (sig.get("warm_path") or {})
         for p in people:
+            bonus, why = person_bonus(p.get("signals"))
             rows.append({
                 "person": p.get("name"), "role": p.get("role"),
+                "person_id": p.get("id"),
+                "signals": p.get("signals"),
+                "bonus": bonus, "bonus_why": why,
                 "linkedin": p.get("linkedin"), "site": p.get("site"),
                 "source": p.get("source", "site"),
                 "quote": p.get("quote"),
@@ -87,13 +129,16 @@ def build(investors: list[dict], people_by_fund: dict[str, list[dict]],
                 "seniority": seniority(p.get("role")),
             })
 
-    rows.sort(key=lambda r: (
-        -(r["fund_score"] or 0),            # the firm worth calling
-        r["warm"] is None,                  # a warm route first
-        SOURCE_RANK.get(r["source"], 9),    # Cala before a scraped page
-        -r["seniority"],                    # a partner before an analyst
-        r["person"] or "",
-    ))
+    # One number per row so the order can be explained in a sentence: the
+    # firm carries most of it, the person breaks the tie.
+    for r in rows:
+        r["call_score"] = round(
+            (r["fund_score"] or 0)
+            + (12 if r["warm"] else 0)       # an introduction beats a title
+            + r["seniority"] * 0.12          # a partner over an analyst
+            + r["bonus"], 1)
+    rows.sort(key=lambda r: (-r["call_score"], SOURCE_RANK.get(r["source"], 9),
+                             r["person"] or ""))
     return {"rows": rows[:limit], "total": len(rows),
             "funds_with_a_contact": len({r["fund"] for r in rows}),
             "skipped": skipped,

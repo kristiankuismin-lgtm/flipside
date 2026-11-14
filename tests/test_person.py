@@ -92,3 +92,26 @@ def test_confidence_scores_our_evidence_not_the_person():
         WORKS_AT=[item("The Fund", role="Partner")],
         INVESTED_IN=[item("Clinical Thing")]), sector_words={"clinical"}))
     assert full["label"] == "High" and full["known"] == 5
+
+
+def test_enrich_markets_matches_through_a_fetched_description():
+    """"Kry International AB" says nothing; its description says health."""
+    c = P.build(E(IS_CSO_OF=[item("Kry International AB")]),
+                sector_words={"clinical", "doctors"})
+    assert c["domain"]["matched"] == []
+    c = P.enrich_markets(c, lambda _id: "Swedish digital health care provider")
+    assert c["domain"]["matched"] == ["health"]
+    assert c["domain"]["via"][0]["name"] == "Kry International AB"
+
+
+def test_enrich_markets_is_a_no_op_when_no_market_was_asked_for():
+    c = P.build(E(INVESTED_IN=[item("Anything")]))
+    before = dict(c["domain"])
+    assert P.enrich_markets(c, lambda _id: "health care")["domain"] == before
+
+
+def test_a_company_that_cannot_be_fetched_is_skipped_not_fatal():
+    c = P.build(E(INVESTED_IN=[item("Broken")]), sector_words={"clinical"})
+    def boom(_id):
+        raise RuntimeError("no")
+    assert P.enrich_markets(c, boom)["domain"]["matched"] == []

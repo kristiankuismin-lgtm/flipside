@@ -61,3 +61,60 @@ def test_every_row_says_why_the_firm_is_on_the_list():
 def test_sources_are_counted_so_coverage_is_visible():
     out = C.build([inv("Atomico", 72)], PEOPLE)
     assert out["by_source"] == {"cala": 1, "site": 1}
+
+
+# ---- what the person adds, once we know anything about them ----
+def test_knowing_nothing_adds_nothing_and_is_not_a_penalty():
+    assert C.person_bonus(None) == (0.0, [])
+    assert C.person_bonus({}) == (0.0, [])
+
+
+def test_being_in_your_market_is_the_strongest_person_signal():
+    market, _ = C.person_bonus({"market_match": ["health"]})
+    operator, _ = C.person_bonus({"years_building": 10})
+    network, _ = C.person_bonus({"network": 8})
+    assert market > operator > network
+
+
+def test_an_operator_without_a_year_still_counts_but_counts_less():
+    dated, _ = C.person_bonus({"years_building": 12})
+    undated, _ = C.person_bonus({"operator": True})
+    assert 0 < undated < dated
+
+
+def test_the_intro_surface_saturates():
+    small, _ = C.person_bonus({"network": 2})
+    full, _ = C.person_bonus({"network": C.NETWORK_FULL})
+    huge, _ = C.person_bonus({"network": 200})
+    assert small < full == huge
+
+
+def test_every_bonus_carries_its_reason():
+    _, why = C.person_bonus({"market_match": ["health"], "years_building": 9,
+                             "network": 4})
+    assert any("market" in w for w in why)
+    assert any("9 year" in w for w in why)
+    assert any("4 compan" in w for w in why)
+
+
+def test_the_fund_still_decides_most_of_the_order():
+    """A brilliant partner at a fund that cannot lead is still the wrong call."""
+    great_person_weak_fund = {"atomico": [
+        {"name": "Star", "role": "Partner", "source": "cala",
+         "signals": {"market_match": ["health"], "years_building": 20,
+                     "network": 20, "verified": True}}]}
+    plain_person_strong_fund = {"northzone": [
+        {"name": "Plain", "role": "Partner", "source": "site"}]}
+    out = C.build([inv("Atomico", 30), inv("Northzone", 90)],
+                  {**great_person_weak_fund, **plain_person_strong_fund})
+    assert out["rows"][0]["person"] == "Plain"
+
+
+def test_a_person_signal_breaks_a_tie_between_equal_firms():
+    people = {"atomico": [
+        {"name": "Knows Health", "role": "Partner", "source": "cala",
+         "signals": {"market_match": ["health"]}},
+        {"name": "Knows Nothing", "role": "Partner", "source": "cala"}]}
+    out = C.build([inv("Atomico", 70)], people)
+    assert out["rows"][0]["person"] == "Knows Health"
+    assert "market" in " ".join(out["rows"][0]["bonus_why"])

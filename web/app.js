@@ -211,6 +211,9 @@ function wire() {
   };
   if ($("#plandl")) $("#plandl").onclick = () => planExport("download");
   if ($("#planprint")) $("#planprint").onclick = () => planExport("print");
+  document.querySelectorAll("[data-person]").forEach(b => b.onclick = e => {
+    e.stopPropagation(); openPerson(b.dataset.person, b.dataset.pname);
+  });
   document.querySelectorAll("[data-call]").forEach(b => b.onclick = () => {
     if (!CALLDONE) callsLoadDone();
     const id = b.dataset.call;
@@ -1818,6 +1821,27 @@ async function loadCalls() {
     })).json();
   } catch (e) { CALLS = { rows: [], error: String(e.message) }; }
   render();
+  enrichCalls();
+}
+
+/* Resolving fifteen names to Cala people is thirty calls cold. Run it after
+   the list is already on screen and re-rank when it lands, rather than
+   making the founder wait for an order that is only a little better. */
+let CALLENRICH = null;
+
+async function enrichCalls() {
+  if (!F || CALLENRICH === F.company) return;
+  CALLENRICH = F.company;
+  const want = F.company;
+  try {
+    const d = await (await fetch("/call-list/people", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company: F.company, stage: F.stage,
+                             limit: F.investors?.length || 14 })
+    })).json();
+    if (F?.company !== want || d.error) return;
+    CALLS = d; render();
+  } catch (e) { /* the list already works without it */ }
 }
 
 /* Alerts as a destination, not only a modal: the forward half of the
@@ -1858,10 +1882,13 @@ function callsView() {
     ["With a verified profile", CALLS.by_source?.cala || 0, "cala",
      "a Cala Person entity with a LinkedIn"],
   ], "all", null)
-  + `<div class="sub" style="margin:-6px 0 var(--s2);max-width:64ch;line-height:1.65">
-      ${CALLS.funds_with_a_contact} of your firms have a name on them. Order is
-      the firm worth calling first, then a warm route, then Cala over a scraped
-      page, then seniority — a partner writes cheques and an analyst does not.</div>`
+  + `<div class="sub" style="margin:-6px 0 var(--s2);max-width:66ch;line-height:1.65">
+      ${CALLS.funds_with_a_contact} of your firms have a name on them. The firm
+      decides most of the order — a brilliant partner at a fund that cannot lead
+      your round is still the wrong call. After that: an introduction, then
+      seniority, then what we know about the person.
+      ${CALLS.enriched ? `<b>${CALLS.enriched}</b> of ${CALLS.rows.length} resolved
+        to a Cala person.` : `<span class="sub">Resolving people…</span>`}</div>`
   + section("cl", "Call list", `${rows.length} contacts`, rows.length
       ? `<div class="calllist">${rows.map(callRow).join("")}</div>`
       : `<div class="emptywhy"><b>Nobody to call.</b> Every firm that survived
@@ -1878,6 +1905,7 @@ function callsView() {
 
 function callRow(r) {
   const id = r.person + "|" + r.fund;
+  const sg = r.signals || {};
   const done = (CALLDONE || new Set()).has(id);
   return `<div class="callrow ${done ? "done" : ""}">
     <button class="callcheck" data-call="${esc(id)}" title="Mark as contacted">${
@@ -1892,13 +1920,134 @@ function callRow(r) {
       </div>
       <div class="why">${esc(r.reason)}</div>
       ${r.warm ? `<div class="warm">${esc(r.warm)} — ask for the introduction</div>` : ""}
+      ${(r.bonus_why || []).length ? `<div class="pwhy">${r.bonus_why.map(w =>
+        `<span>${esc(w)}</span>`).join("")}${sg.market_via?.length
+          ? `<span class="via">via ${esc(sg.market_via[0])}</span>` : ""}</div>` : ""}
     </div>
     <div class="acts">
+      <span class="cscore" title="fund score, plus an introduction, seniority and
+        what we know about the person">${r.call_score ?? ""}</span>
+      ${r.person_id ? `<button class="btn sm" data-person="${esc(r.person_id)}"
+        data-pname="${esc(r.person)}">Card</button>` : ""}
       ${r.linkedin ? `<a class="btn sm" href="${esc(r.linkedin)}" target="_blank"
         rel="noopener">LinkedIn</a>` : ""}
       <button class="btn sm" data-brief="${esc(r.fund)}">Opener</button>
     </div>
   </div>`;
+}
+
+/* ---------- the person card ----------
+   A founder about to call someone is asking three things a title cannot
+   answer: have you been where I am, will you understand what I build, and
+   who can you introduce me to. Everything here is an edge on the Person
+   entity, and the one thing Cala has no edge for is said out loud. */
+async function openPerson(id, name) {
+  const w = document.createElement("div");
+  w.className = "scrim on";
+  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd"><h3>${esc(name || "Person")}</h3>
+      <div class="s">Reading their record…</div></div>
+    <div style="padding:34px"><span class="spin"></span></div></div>`;
+  document.body.appendChild(w);
+  const close = () => w.remove();
+  w.onclick = close;
+
+  let c;
+  try {
+    c = await (await fetch(`/person/${id}?company=${
+      encodeURIComponent(F?.company || "")}`)).json();
+  } catch (e) { c = { error: String(e.message) }; }
+
+  if (c.error) {
+    w.innerHTML = `<div class="composebox" onclick="event.stopPropagation()">
+      <div class="sidehd"><h3>${esc(name || "")}</h3></div>
+      <div class="msg">${esc(c.error)}</div></div>`;
+    w.onclick = close;
+    return;
+  }
+
+  const op = c.operator || {}, net = c.network || {}, dom = c.domain || {};
+  const conf = c.confidence || {};
+  const role = (c.works_at || [])[0];
+
+  const block = (title, body, sub) => body
+    ? `<div class="pcblock"><div class="pch">${esc(title)}${
+        sub ? `<span>${esc(sub)}</span>` : ""}</div>${body}</div>` : "";
+
+  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd">
+      <h3>${esc(c.name)}</h3>
+      <div class="s">${role ? `${esc(role.role || "works at")} · ${esc(role.name)}` : ""}
+        ${c.nationality?.length ? ` · ${esc(c.nationality.join(", "))}` : ""}</div>
+    </div>
+    <div style="padding:15px">
+      <div class="pcstats">
+        <div class="pcstat"><span class="k">Operating for</span>
+          <span class="v">${op.years_building ?? "—"}</span>
+          <span class="s">${op.building_since
+            ? `years, since ${op.building_since}`
+            : "no dated role on record"}</span></div>
+        <div class="pcstat"><span class="k">Can introduce</span>
+          <span class="v">${net.count ?? 0}</span>
+          <span class="s">${net.boards || 0} boards · ${net.personal_cheques || 0} cheques</span></div>
+        <div class="pcstat"><span class="k">Your market</span>
+          <span class="v ${dom.matched?.length ? "hit" : ""}">${
+            dom.matched?.length ? "yes" : "no"}</span>
+          <span class="s">${esc((dom.matched || []).join(", ") || (dom.wanted || []).join(", ") || "not checked")}</span></div>
+        <div class="pcstat"><span class="k">We know</span>
+          <span class="v">${esc(conf.label || "—")}</span>
+          <span class="s">${conf.known ?? 0} of ${conf.of ?? 5} signals</span></div>
+      </div>
+
+      ${c.description ? `<p class="lede" style="margin:var(--s2) 0">${esc(c.description)}</p>` : ""}
+
+      ${block("Has built", (op.founded || []).length || (op.operated || []).length
+        ? `<div class="pclist">${[
+            ...(op.founded || []).map(f => ({ ...f, tag: "founded" })),
+            ...(op.operated || []).map(o => ({ ...o, tag: o.role })),
+          ].map(x => `<div class="pcrow"><b>${esc(x.name)}</b>
+            <span class="tag">${esc(x.tag)}</span>
+            ${x.year ? `<span class="yr">${x.year}</span>` : ""}
+            ${x.what ? `<div class="what">${esc(x.what)}</div>` : ""}</div>`).join("")}</div>`
+        : "")}
+
+      ${block("Can introduce you to", (net.companies || []).length
+        ? `<div class="pclist">${net.companies.slice(0, 12).map(n =>
+            `<div class="pcrow"><b>${esc(n.name)}</b>
+              <span class="tag">${n.via === "board" ? "board seat" : "their cheque"}</span>
+              ${n.markets?.length ? `<span class="mk">${esc(n.markets.join(", "))}</span>` : ""}
+              ${n.what ? `<div class="what">${esc(n.what)}</div>` : ""}</div>`).join("")}
+           ${net.companies.length > 12 ? `<div class="sub">and ${
+             net.companies.length - 12} more</div>` : ""}</div>`
+        : "", `${net.count || 0} doors`)}
+
+      ${(dom.via || []).length ? block("Why this is your market",
+        `<div class="pclist">${dom.via.map(v => `<div class="pcrow">
+           <b>${esc(v.name)}</b><span class="mk">${esc((v.markets || []).join(", "))}</span>
+           <div class="what">${esc(v.what || "")}</div></div>`).join("")}</div>`) : ""}
+
+      ${block("Education", (dom.education || []).length
+        ? `<div class="sub">${esc(dom.education.join(" · "))}</div>` : "")}
+
+      ${block("Recognition", (c.recognition || []).length
+        ? `<div class="sub">${c.recognition.map(a =>
+            `${esc(a.name)}${a.year ? ` (${a.year})` : ""}`).join(" · ")}</div>` : "")}
+
+      <div class="emptywhy" style="margin-top:var(--s2)">
+        <b>We did not check their record.</b> ${esc(c.unchecked?.legal || "")}
+        <span class="sub">Looked for: ${esc((c.unchecked?.edges_we_looked_for || []).join(", "))}</span>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:14px">
+        ${c.linkedin ? `<a class="btn pri" href="${esc(c.linkedin)}" target="_blank"
+          rel="noopener">Open LinkedIn</a>` : ""}
+        ${c.website ? `<a class="btn" href="${esc(c.website)}" target="_blank"
+          rel="noopener">Their site</a>` : ""}
+        <button class="btn" id="pcclose" style="margin-left:auto">Close</button>
+      </div>
+    </div></div>`;
+  w.onclick = close;
+  w.querySelector("#pcclose").onclick = close;
 }
 
 function render() {

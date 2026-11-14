@@ -188,3 +188,50 @@ def confidence(card: dict) -> dict:
     n = sum(have.values())
     return {"signals": have, "known": n, "of": len(have),
             "label": "High" if n >= 4 else "Medium" if n >= 2 else "Low"}
+
+
+def enrich_markets(card: dict, fetch) -> dict:
+    """Fill in which market each connected company is in, and re-match.
+
+    A company name does not say what the company does: Kry is healthtech and
+    "Kry International AB" contains no word a market vocabulary can find. So
+    the description has to be fetched for the handful of companies a person
+    is closest to.
+
+    `fetch(entity_id) -> description or None` is passed in so this stays a
+    pure function over whatever the caller can reach, and so both the card
+    endpoint and the call-list enrichment use the same code rather than two
+    copies that drift.
+    """
+    want = set(card.get("domain", {}).get("wanted") or [])
+    if not want:
+        return card
+    via, matched = [], set(card["domain"].get("matched") or [])
+
+    groups = [(card["network"]["companies"], 6),
+              (card["operator"]["operated"], 4),
+              (card["operator"]["founded"], 4)]
+    seen = set()
+    for items, cap in groups:
+        for it in items[:cap]:
+            eid = it.get("id")
+            if not eid or eid in seen:
+                continue
+            seen.add(eid)
+            try:
+                what = fetch(eid)
+            except Exception:
+                continue
+            if not what:
+                continue
+            it["what"] = what[:160]
+            hit = markets_in(it["what"]) & want
+            if hit:
+                it["markets"] = sorted(hit)
+                matched |= hit
+                via.append({"name": it.get("name"), "what": it["what"],
+                            "markets": sorted(hit)})
+
+    card["domain"]["matched"] = sorted(matched)
+    card["domain"]["via"] = via[:4]
+    return card
