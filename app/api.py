@@ -537,6 +537,50 @@ def map_data():
                     dom[k] = {**dom.get(k, {}), **v}
         except ValueError:
             pass
+
+    # Third source: the harvest. A fetched entity carries registered_address
+    # and headquarters_address as sourced properties, and HAS_HEADQUARTERS_IN
+    # as an edge. None of it was ever read here, so funds with a perfectly
+    # good address in Cala - Index Ventures, Icebreaker.vc - were simply
+    # absent from the map, which reads as "we do not cover them".
+    from_cala = overruled = 0
+    for name, v in dom.items():
+        e = DEPTH.entity(name, types=("Organization", "Company"))
+        if not e:
+            continue
+        props = {f["key"]: f["value"] for f in DEPTH.facts(e)}
+        hq_addr = props.get("headquarters_address")
+        addr = hq_addr or props.get("registered_address")
+        if not addr:
+            # No street, but the graph may still name the country.
+            where = [x["name"] for x in DEPTH.presence(e)
+                     if x["kind"] == "headquarters"]
+            addr = where[0] if where else None
+        if not addr:
+            continue
+        if not v.get("hq"):
+            v["hq"] = str(addr)
+            v["hq_source"] = "cala"
+            v.setdefault("description", e.get("description") or "")
+            from_cala += 1
+        elif addr and str(addr).strip() != str(v["hq"]).strip():
+            # Our address for Index Ventures was TENANCY 10, MARINA HOUSE,
+            # MAHE, EDEN ISLAND - the Seychelles - because the name-to-LEI
+            # join lands on namesakes abroad. Cala holds a headquarters
+            # address with the documents it was read from, which is better
+            # evidence than a registry string matched on a name. The old one
+            # is kept as evidence rather than deleted.
+            v["hq_registry"] = v["hq"]
+            v["hq"] = str(addr)
+            v["hq_source"] = "cala"
+            v["hq_note"] = ("The address we had came from a name-to-identifier "
+                            "join, which lands on namesakes abroad - it put "
+                            "Index Ventures in the Seychelles and Accel in "
+                            "France. Cala holds an address for this firm with "
+                            "the documents it was read from, so that one is "
+                            "used and the registry string is kept as evidence.")
+            overruled += 1
+
     if True:
         for name, v in dom.items():
             hq = v.get("hq")
@@ -617,7 +661,9 @@ def map_data():
             "placed": len(pts), "exact": exact, "unplaced": unplaced,
             "walked": len(walked), "status": dict(status_counts),
             "disputed_funds": disputed_funds,
-            "points": pts, "funds": funds, "portfolio": portfolio}
+            "points": pts, "funds": funds, "portfolio": portfolio,
+            "funds_from_cala": from_cala,
+            "funds_corrected_by_cala": overruled}
 
 
 @app.get("/")

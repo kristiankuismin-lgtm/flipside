@@ -509,6 +509,10 @@ function paintReachMap() {
   }
   const el = $("#reachmap");
   if (!el || !REACHMAP?.points?.length || typeof maplibregl === "undefined") return;
+  // render() replaces #view wholesale, so the element this map was built
+  // against is detached after any re-render and the map draws into nothing.
+  // A live map whose container is no longer in the document is not a map.
+  if (RMAP && RMAP.getContainer() !== el) { RMAP.remove(); RMAP = null; RMARKERS = []; }
   if (!RMAP) {
     RMAP = new maplibregl.Map({
       container: el, style: "https://tiles.openfreemap.org/styles/positron",

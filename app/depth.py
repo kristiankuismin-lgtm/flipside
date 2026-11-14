@@ -66,6 +66,37 @@ def _edges(e: dict, direction: str, name: str) -> list[dict]:
     return [x for x in (block.get(name) or []) if isinstance(x, dict)]
 
 
+_BY_NAME: dict[str, dict] = {}
+_BY_NAME_FOR: int | None = None
+
+
+def _name_index() -> dict[str, dict]:
+    """normalised name -> richest payload, rebuilt only when the cache grows.
+
+    A linear scan per lookup is fine once and ruinous in a loop: placing 664
+    funds on the map did 664 passes over eleven thousand entities and turned
+    a one-second demo into an eight-second one.
+    """
+    global _BY_NAME, _BY_NAME_FOR
+    idx = cache_index.build()
+    if _BY_NAME_FOR == len(idx) and _BY_NAME:
+        return _BY_NAME
+    out: dict[str, dict] = {}
+    for e in idx.values():
+        key = norm.name(e.get("name") or "")
+        if not key:
+            continue
+        # Keyed by type as well as by name: "Ilkka Paananen" is both a Person
+        # and an Organization in Cala, and a caller asking for one must not
+        # be handed the other just because it had the longer payload.
+        for k in (key, f"{key}\x00{e.get('entity_type')}"):
+            cur = out.get(k)
+            if cur is None or len(str(e)) > len(str(cur)):
+                out[k] = e
+    _BY_NAME, _BY_NAME_FOR = out, len(idx)
+    return out
+
+
 def entity(name_or_id: str, types=None) -> dict | None:
     """The richest payload we hold, by id or by name."""
     idx = cache_index.build()
@@ -74,15 +105,11 @@ def entity(name_or_id: str, types=None) -> dict | None:
     want = norm.name(name_or_id or "")
     if not want:
         return None
-    best = None
-    for e in idx.values():
-        if types and e.get("entity_type") not in types:
-            continue
-        if norm.name(e.get("name") or "") != want:
-            continue
-        if best is None or len(str(e)) > len(str(best)):
-            best = e
-    return best
+    by = _name_index()
+    if types:
+        hits = [h for h in (by.get(f"{want}\x00{t}") for t in types) if h]
+        return max(hits, key=lambda h: len(str(h))) if hits else None
+    return by.get(want)
 
 
 def facts(e: dict) -> list[dict]:

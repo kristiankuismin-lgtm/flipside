@@ -146,3 +146,34 @@ def test_presence_puts_headquarters_first_and_dedupes():
     p = depth.presence(e)
     assert [(x["name"], x["kind"]) for x in p] == [
         ("Sweden", "headquarters"), ("Germany", "presence")]
+
+
+# ------------------------------------------------------- name lookup
+def test_a_name_lookup_respects_the_type_asked_for(monkeypatch):
+    """Cala holds "Ilkka Paananen" as a Person and as an Organization. A
+    caller asking for the organisation must not be handed the person just
+    because the person's payload is longer."""
+    person = {"id": "p1", "name": "Ilkka Paananen", "entity_type": "Person",
+              "properties": {"a": 1, "b": 2, "c": 3}, "relationships": {}}
+    org = {"id": "o1", "name": "Ilkka Paananen", "entity_type": "Organization",
+           "properties": {}, "relationships": {}}
+    monkeypatch.setattr(depth.cache_index, "build",
+                        lambda *a, **k: {"p1": person, "o1": org})
+    depth._BY_NAME_FOR = None
+    assert depth.entity("Ilkka Paananen", types=("Organization",))["id"] == "o1"
+    assert depth.entity("Ilkka Paananen", types=("Person",))["id"] == "p1"
+    depth._BY_NAME_FOR = None
+
+
+def test_a_name_lookup_with_no_type_takes_the_richest(monkeypatch):
+    thin = {"id": "a", "name": "Creandum", "entity_type": "Company",
+            "properties": {}, "relationships": {}}
+    full = {"id": "b", "name": "Creandum", "entity_type": "Organization",
+            "properties": {"website": {"value": "creandum.com"}},
+            "relationships": {"incoming": {"WORKS_AT": [{"id": "x", "name": "A",
+                                                         "entity_type": "Person"}]}}}
+    monkeypatch.setattr(depth.cache_index, "build",
+                        lambda *a, **k: {"a": thin, "b": full})
+    depth._BY_NAME_FOR = None
+    assert depth.entity("Creandum")["id"] == "b"
+    depth._BY_NAME_FOR = None
