@@ -1292,6 +1292,10 @@ function mapView() {
                 : "Filter by name, sector or city"}">
               <button class="tgl seg ${MAPMODE === "pp" ? "on" : ""}" data-mm="pp"
                 title="Search people instead of filtering the map">People</button></span>
+            ${PLAN.length ? `<span class="grp">
+              <button class="tgl ${PLANONLY ? "on" : ""}" id="planonly"
+                title="Show only the funds in your Slush plan">★ My plan (${PLAN.length})</button>
+            </span>` : ""}
             <span class="grp" style="margin-left:auto">
               <button class="tgl ${MYLOC ? "on" : ""}" id="nearme" title="Find what is around you">
                 <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor"
@@ -1329,6 +1333,10 @@ let LAYERS = { ex: false, pf: true, fu: true };
    an IP-geolocation service, which would mean telling a third party where the
    user is in order to find out where the user is. */
 let MYLOC = null, MYLOCERR = null, NEAR = null, NEARKIND = "fund";
+/* When a plan exists the map's job changes: it stops being an atlas of the
+   ecosystem and becomes where your meetings are. Defaults on, because a
+   founder with a plan is asking the second question, not the first. */
+let PLANONLY = true;
 let REGION = "eu";          // which region button is active
 const LAYER_META = {
   ex: ["Slush exhibitors", "circle"],
@@ -1529,11 +1537,22 @@ function initMap() {
   // A precisely geocoded entity sits on its real address and is never moved.
   // Only city-centroid fallbacks are spread, and they are drawn hollow so the
   // map never implies a precision it does not have.
-  const layer = [
+  let layer = [
     ...(LAYERS.ex ? MAP.points : []),
     ...(LAYERS.pf ? (MAP.portfolio || []) : []),
     ...(LAYERS.fu ? (MAP.funds || []) : []),
   ];
+  // A plan turns the map into a route card. Matching is loose because the
+  // corpus spells fund names several ways.
+  const planKeys = new Set(PLAN.map(n => n.toLowerCase().replace(/[^a-z0-9]/g, "")));
+  if (PLANONLY && planKeys.size) {
+    const hit = layer.filter(p =>
+      planKeys.has((p.name || "").toLowerCase().replace(/[^a-z0-9]/g, "")));
+    // Never hand back an empty map: if nothing in the plan is placeable, say
+    // so in the side panel rather than showing a blank continent.
+    if (hit.length) layer = hit;
+    else PLANONLY = false;
+  }
   const seen = {};
   for (const p of layer) {
     let lat = p.lat, lon = p.lon;
@@ -1569,11 +1588,15 @@ function initMap() {
     d.onclick = () => sideList([p], p.name);
     MLMARKERS.push({ marker: m, el: d, p });
   }
-  sideList(layer, "Everything on the map");
+  sideList(layer, PLANONLY && planKeys.size
+    ? `Your plan on the map (${layer.length} of ${PLAN.length} placeable)`
+    : "Everything on the map");
   const pn = $("#precisenote");
   if (pn && MAP.exact != null)
     pn.innerHTML = `<i style="background:transparent;border:2px dashed #9b958c"></i>city only (${MAP.placed - MAP.exact})`;
 
+  const po = $("#planonly");
+  if (po) po.onclick = () => { PLANONLY = !PLANONLY; render(); };
   const nm = $("#nearme");
   if (nm) nm.onclick = () => MYLOC ? (MYLOC = null, NEAR = null, MYMARKER &&
       (MYMARKER.remove(), MYMARKER = null), render()) : locateMe();
