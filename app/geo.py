@@ -166,3 +166,95 @@ def contradicts(address: str | None, resolved_cc: str | None) -> str | None:
         if re.search(rf"\b{re.escape(city)}\b", text) and cc != resolved_cc:
             return cc
     return None
+
+
+# A fund's own description is an independent witness to where it sits, and it
+# disagrees with the registry address more often than it should: the GLEIF
+# name->LEI join lands on a namesake in another country. "HV Capital, German
+# venture capital firm headquartered in Munich" carries a Finnish LEI and a
+# Tampere address, because a different HV Capital is registered in Tampere.
+# Trusting the address there puts a Munich fund on the wrong map.
+NATIONALITY = {
+    "finnish": "FI", "swedish": "SE", "norwegian": "NO", "danish": "DK",
+    "estonian": "EE", "latvian": "LV", "lithuanian": "LT", "icelandic": "IS",
+    "british": "GB", "english": "GB", "scottish": "GB", "irish": "IE",
+    "french": "FR", "german": "DE", "dutch": "NL", "belgian": "BE",
+    "swiss": "CH", "austrian": "AT", "spanish": "ES", "portuguese": "PT",
+    "italian": "IT", "polish": "PL", "czech": "CZ", "hungarian": "HU",
+    "slovak": "SK", "romanian": "RO", "bulgarian": "BG", "croatian": "HR",
+    "slovenian": "SI", "serbian": "RS", "greek": "GR", "turkish": "TR",
+    "ukrainian": "UA", "israeli": "IL", "american": "US", "canadian": "CA",
+    "singaporean": "SG", "japanese": "JP", "indian": "IN", "australian": "AU",
+    "brazilian": "BR", "luxembourgish": "LU",
+}
+# Territories whose names embed a nationality word. Without these,
+# "British Virgin Islands-registered ... headquartered in Road Town" matches
+# "british" and lands a Caribbean fund in London.
+TERRITORIES = {
+    "british virgin islands": (18.43, -64.62, "VG"),
+    "british indian ocean territory": (-7.31, 72.42, "IO"),
+    "american samoa": (-14.28, -170.70, "AS"),
+    "french polynesia": (-17.54, -149.57, "PF"),
+    "french guiana": (4.92, -52.33, "GF"),
+    "dutch caribbean": (12.15, -68.93, "BQ"),
+}
+
+_IN_PLACE = re.compile(
+    r"\b(?:headquartered|based|located|hq)\s+in\s+([A-Z][\w.'-]*(?:[ -][A-Z][\w.'-]*){0,2})")
+
+
+def claimed_place(description: str | None) -> dict | None:
+    """Where a description says the firm is.
+
+    Returns {lat, lon, cc, label} or None. The label matters as much as the
+    coordinate: when we overrule a registry address we have to be able to
+    show what we replaced it with.
+
+    Resolution order, most specific first: a territory whose name embeds a
+    nationality word, then a named city, then the country, then a bare
+    nationality adjective. A city we do not have coordinates for still
+    supplies the label, so "headquartered in Menlo Park" reads as Menlo Park
+    even though the pin sits on the country.
+    """
+    if not description:
+        return None
+    low = description.lower()
+
+    for phrase, (lat, lon, cc) in TERRITORIES.items():
+        if phrase in low:
+            return {"lat": lat, "lon": lon, "cc": cc, "label": phrase.title()}
+
+    named = None
+    for m in _IN_PLACE.finditer(description):
+        place = m.group(1).strip()
+        key = place.lower()
+        if key in CITIES:
+            lat, lon, cc = CITIES[key]
+            return {"lat": lat, "lon": lon, "cc": cc, "label": place}
+        if key in COUNTRIES:
+            lat, lon, cc = COUNTRIES[key]
+            return {"lat": lat, "lon": lon, "cc": cc, "label": place}
+        named = named or place          # a real place we have no point for
+
+    for word, cc in NATIONALITY.items():
+        if re.search(rf"\b{word}\b", low):
+            for country, v in COUNTRIES.items():
+                if v[2] == cc:
+                    return {"lat": v[0], "lon": v[1], "cc": cc,
+                            "label": named or country.title(),
+                            "approx_label": bool(named)}
+    return None
+
+
+def disputed(description: str | None, resolved_cc: str | None) -> str | None:
+    """The country the description claims, when it disagrees with the address.
+
+    None means no disagreement was detected, which is not the same as
+    agreement: most descriptions say nothing about location at all.
+    """
+    if not resolved_cc:
+        return None
+    claim = claimed_place(description)
+    if claim and claim["cc"] != resolved_cc:
+        return claim["cc"]
+    return None

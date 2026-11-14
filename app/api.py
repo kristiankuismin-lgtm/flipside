@@ -349,6 +349,7 @@ def map_data():
     # Second layer: the funds themselves. The map is about where capital and
     # companies sit, not only who booked a stand at Slush.
     funds = []
+    disputed_funds: list[str] = []
     dom = {}
     # The hand-typed list first, then every investor the cached rounds name -
     # 664 firms that actually appear in this ecosystem rather than 30 someone
@@ -376,9 +377,37 @@ def map_data():
                 lat, lon, precise = loc[0], loc[1], False
             else:
                 continue
+            cc = (loc or (0, 0, "??"))[2]
+            # The registry address and the firm's own description disagree
+            # often enough to matter: the GLEIF name->LEI join lands on a
+            # namesake abroad. Believe the description, lose the precision,
+            # and say so - a Munich fund pinned to Tampere is worse than a
+            # Munich fund pinned to Munich without a street.
+            note, hq_registry, why = None, None, None
+            alt = geo.claimed_place(v.get("description"))
+            if loc is None and alt:
+                # We never had a country for this address - the description is
+                # the only location we have, not a second opinion overruling
+                # a first one. Different situation, different sentence.
+                why = "unresolved"
+                note = (f"The registry address could not be resolved to a "
+                        f"country. Placed from the firm's own description "
+                        f"({alt['label']}).")
+            elif geo.disputed(v.get("description"), cc) and alt:
+                why = "disputed"
+                note = (f"Registry address resolves to {cc}; the firm describes "
+                        f"itself as based in {alt['label']}. The name-to-LEI "
+                        f"join lands on namesakes abroad, so the description "
+                        f"wins and the registry string is kept as evidence.")
+            if why:
+                lat, lon, cc, precise = alt["lat"], alt["lon"], alt["cc"], False
+                hq_registry, hq = hq, alt["label"]
+                disputed_funds.append({"name": name, "why": why})
             funds.append({"name": name, "id": v.get("id"), "lat": lat, "lon": lon,
-                          "cc": (loc or (0, 0, "??"))[2], "precise": precise,
-                          "hq": hq, "website": v.get("website"),
+                          "cc": cc, "precise": precise, "hq_note": note,
+                          "hq_why": why,
+                          "hq": hq, "hq_registry": hq_registry,
+                          "website": v.get("website"),
                           "description": (v.get("description") or "")[:200],
                           "founded": v.get("founded"), "employees": v.get("employees"),
                           "rounds_seen": v.get("seen"),
@@ -414,6 +443,7 @@ def map_data():
             "total_exhibitors": len(profs), "profiles_fetched": len(ok),
             "placed": len(pts), "exact": exact, "unplaced": unplaced,
             "walked": len(walked), "status": dict(status_counts),
+            "disputed_funds": disputed_funds,
             "points": pts, "funds": funds, "portfolio": portfolio}
 
 
@@ -710,6 +740,52 @@ def outreach(req: Req):
                  competitors=scored.get("competitors") or [])
     b["syndicate"] = syn
     return b
+
+
+@app.get("/near")
+def near(lat: float, lon: float, radius_km: float = 300, limit: int = 40,
+         kind: str = "fund", company: str = "", stage: str = "series a"):
+    """What is within reach of where the founder is standing.
+
+    The coordinate comes from the browser's own geolocation, with the user's
+    consent, and is used for this one request - we never send it anywhere and
+    never store it. No IP lookup service sees the founder's address.
+
+    When a company is named, each nearby fund is annotated with whether it
+    leads at that stage, so "near me" becomes "near me and worth the walk".
+    """
+    from . import near as N
+    data = map_data()
+    if isinstance(data, JSONResponse):
+        return data
+    kinds = None if kind == "all" else {"fund": {"fund"},
+                                        "company": {"portfolio", "exhibitor"},
+                                        }.get(kind, {"fund"})
+    pts = [{**p, "kind": p.get("kind", "exhibitor")}
+           for p in (data["points"] + data["funds"] + data["portfolio"])]
+    hits = N.rank(pts, lat, lon, radius_km=radius_km, limit=limit, kinds=kinds)
+
+    # Join the screen onto the map, when one has been run for this company.
+    if company:
+        try:
+            scored = analyze(Req(company=company, stage=stage, limit=30))
+            by = {norm.name(x["investor"]): x for x in scored["investors"]}
+            for h in hits:
+                x = by.get(norm.name(h["name"]))
+                if not x:
+                    continue
+                sg = x["signals"]
+                h["screen"] = {"score": x["score"],
+                               "lead": sg["lead_rate"].get("text"),
+                               "lead_label": sg["lead_rate"]["label"],
+                               "conflict": sg["conflict"]["label"] == "\U0001f534",
+                               "backs": x.get("backs") or []}
+        except Exception:
+            pass          # the map still answers without the screen
+
+    return {"lat": lat, "lon": lon, "radius_km": radius_km, "kind": kind,
+            "count": len(hits), "results": hits,
+            "cities": N.group_by_city(hits)[:12]}
 
 
 @app.get("/connectors")

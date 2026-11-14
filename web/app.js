@@ -745,7 +745,13 @@ function mapView() {
               <input id="mapq" autocomplete="off" placeholder="${
                 MAPMODE === "pp" ? "Find a founder or investor"
                 : "Filter by name, sector or city"}"></span>
-            <span class="grp" style="margin-left:auto"><span class="lbl">Zoom</span>
+            <span class="grp" style="margin-left:auto">
+              <button class="tgl ${MYLOC ? "on" : ""}" id="nearme" title="Find what is around you">
+                <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor"
+                  stroke-width="1.6"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2"/></svg>
+                Near me</button>
+            </span>
+            <span class="grp"><span class="lbl">Zoom</span>
               ${Object.entries({ eu: "Europe", nordics: "Nordics", world: "World" }).map(([k, lbl]) =>
                 `<button class="tgl ${REGION === k ? "on" : ""}" data-fly="${k}">${lbl}</button>`).join("")}
             </span>
@@ -778,6 +784,11 @@ let ML = null, MLMARKERS = [], MAPMODE = "co", PPMARKER = null, PPTIMER = null, 
 /* Layers are shown together and toggled, not swapped: the question "where is
    the ecosystem" is not answered by looking at one slice at a time. */
 let LAYERS = { ex: true, pf: true, fu: true };
+/* Where the founder is standing. The browser asks for consent and the
+   coordinate is used for one request: we never store it and never hand it to
+   an IP-geolocation service, which would mean telling a third party where the
+   user is in order to find out where the user is. */
+let MYLOC = null, MYLOCERR = null, NEAR = null, NEARKIND = "fund";
 let REGION = "eu";          // which region button is active
 const LAYER_META = {
   ex: ["Slush exhibitors", "circle"],
@@ -860,6 +871,87 @@ function sideList(points, title) {
   });
 }
 
+/* ---------- near me ----------
+   The browser's own geolocation, with the user's consent. The coordinate
+   goes to our /near endpoint for one request and is never stored. We do not
+   use an IP lookup: that would mean handing a third party the user's address
+   in order to tell the user their address. */
+let MYMARKER = null;
+
+function locateMe() {
+  if (!navigator.geolocation) {
+    MYLOCERR = "This browser has no geolocation. Type a city in the filter box instead.";
+    return render();
+  }
+  MYLOCERR = "locating";
+  render();
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      MYLOC = { lat: pos.coords.latitude, lon: pos.coords.longitude,
+                acc: Math.round(pos.coords.accuracy || 0) };
+      MYLOCERR = null;
+      loadNear();
+    },
+    err => {
+      MYLOC = null;
+      MYLOCERR = err.code === 1
+        ? "Location permission denied. Typing a city in the filter box does the same job."
+        : `Could not get a location (${esc(err.message || "unknown")}). Try the filter box.`;
+      render();
+    },
+    { enableHighAccuracy: false, timeout: 9000, maximumAge: 300000 });
+}
+
+async function loadNear() {
+  if (!MYLOC) return;
+  NEAR = { loading: true }; render();
+  const qs = new URLSearchParams({ lat: MYLOC.lat, lon: MYLOC.lon,
+    radius_km: 400, limit: 60, kind: NEARKIND });
+  if (F?.company) { qs.set("company", F.company); qs.set("stage", F.stage || "series a"); }
+  try { NEAR = await (await fetch(`/near?${qs}`)).json(); }
+  catch (e) { NEAR = { error: String(e.message) }; }
+  render();
+}
+
+function nearPanel() {
+  if (MYLOCERR === "locating")
+    return `<div class="msg" style="padding:26px"><span class="spin"></span>Asking your browser where you are…</div>`;
+  if (MYLOCERR)
+    return `<div class="msg" style="padding:24px">${esc(MYLOCERR)}</div>`;
+  if (!NEAR) return "";
+  if (NEAR.loading)
+    return `<div class="msg" style="padding:26px"><span class="spin"></span>Measuring distances…</div>`;
+  if (NEAR.error) return `<div class="msg" style="padding:24px">${esc(NEAR.error)}</div>`;
+  if (!NEAR.count) return `<div class="msg" style="padding:24px">
+    Nothing in the graph within ${NEAR.radius_km}km of you. That is a statement
+    about coverage here, not about the ecosystem.</div>`;
+
+  // A city-centroid pin is not "0.4km away". Showing the city instead of a
+  // distance is the honest rendering of what we actually know.
+  const dist = r => r.approx ? "in " + (r.city || "this city")
+                             : `${r.km < 1 ? "<1" : r.km} km`;
+  const tabs = `<div class="neartabs">${
+    [["fund", "Funds"], ["company", "Companies"], ["all", "Everything"]].map(([k, l]) =>
+      `<button class="tgl ${NEARKIND === k ? "on" : ""}" data-nk="${k}">${l}</button>`).join("")}</div>`;
+
+  return tabs + (NEAR.cities || []).map(c => `
+    <div class="nearcity"><span>${esc(c.city)}</span>
+      <span class="km">${c.km < 1 ? "<1" : Math.round(c.km)} km</span></div>
+    ${c.items.map(r => {
+      const sc = r.screen;
+      return `<div class="sideitem nearrow" data-near="${esc(r.name)}">
+        <div class="n">${esc(r.name)}
+          ${r.kind === "fund" ? badge("fund", "accent") : ""}
+          ${sc?.conflict ? badge("backs a competitor", "red")
+            : sc?.lead_label === "🟢" ? badge("leads your stage", "green") : ""}</div>
+        <div class="d">${esc(dist({ ...r, city: c.city }))}${
+          r.hq ? ` · ${esc(String(r.hq).slice(0, 44))}` : ""}</div>
+        ${sc?.lead ? `<div class="d">${esc(sc.lead)}</div>` : ""}
+        ${r.hq_note ? `<div class="d" style="color:var(--amber)">${esc(r.hq_note)}</div>` : ""}
+      </div>`;
+    }).join("")}`).join("");
+}
+
 function initMap() {
   const el = document.getElementById("mlmap");
   if (!el || !window.maplibregl || !MAP?.points) return;
@@ -918,6 +1010,40 @@ function initMap() {
   const pn = $("#precisenote");
   if (pn && MAP.exact != null)
     pn.innerHTML = `<i style="background:transparent;border:2px dashed #9b958c"></i>city only (${MAP.placed - MAP.exact})`;
+
+  const nm = $("#nearme");
+  if (nm) nm.onclick = () => MYLOC ? (MYLOC = null, NEAR = null, MYMARKER &&
+      (MYMARKER.remove(), MYMARKER = null), render()) : locateMe();
+
+  if (MYLOC && ML) {
+    const me = document.createElement("div");
+    me.className = "mkr me";
+    MYMARKER = new maplibregl.Marker({ element: me })
+      .setLngLat([MYLOC.lon, MYLOC.lat])
+      .setPopup(new maplibregl.Popup({ offset: 14, closeButton: false })
+        .setHTML(`<div class="mlpop"><b>You are here</b><br>
+          <span style="color:#777">±${MYLOC.acc}m, from your browser</span></div>`))
+      .addTo(ML);
+    ML.flyTo({ center: [MYLOC.lon, MYLOC.lat], zoom: 7, duration: 800 });
+  }
+  if (MYLOC || MYLOCERR) {
+    const t = $("#sidet"), sb = $("#sides"), body = $("#sideb");
+    if (t) t.textContent = "Near you";
+    if (sb) sb.textContent = NEAR?.count
+      ? `${NEAR.count} within ${NEAR.radius_km}km, nearest first`
+      : "Your browser's location, used once and not stored";
+    if (body) {
+      body.innerHTML = nearPanel();
+      body.querySelectorAll("[data-nk]").forEach(b => b.onclick = () => {
+        NEARKIND = b.dataset.nk; loadNear();
+      });
+      body.querySelectorAll("[data-near]").forEach(el => el.onclick = () => {
+        const hit = MLMARKERS.find(m => m.p.name === el.dataset.near);
+        if (hit) { ML.flyTo({ center: hit.marker.getLngLat(), zoom: 11, duration: 700 });
+                   hit.marker.togglePopup(); }
+      });
+    }
+  }
 
   document.querySelectorAll("[data-fly]").forEach(b => b.onclick = () => {
     REGION = b.dataset.fly;
