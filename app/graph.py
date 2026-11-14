@@ -35,9 +35,12 @@ _FUNDING_REL = re.compile(r"fund|invest", re.I)
 
 # ---------------------------------------------------------------- entities
 def search(name: str, types=None, limit: int = 10, **kw) -> list[dict]:
-    kw.setdefault("allow_live", True)      # interactive: never serve a dead box
+    kw.setdefault("allow_live", True)      # may hit the network
     kw.setdefault("ttl", 86400)
-    kw.setdefault("timeout", 8)      # a search box must never hang
+    # Interactive callers (the search box) fail fast; batch jobs override these
+    # and wait out a rate limit instead of abandoning the row.
+    kw.setdefault("interactive", True)
+    kw.setdefault("timeout", 8)
     kw.setdefault("retries", 1)
     return cala.entities_search(name, entity_types=types or INVESTOR_TYPES,
                                 limit=limit, **kw)

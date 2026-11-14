@@ -478,6 +478,18 @@ def _entity(eid, props, rels):
                            allow_live=True, ttl=86400)
 
 
+@app.get("/evidence")
+def evidence(investor: str, company: str, kind: str = "conflict"):
+    """Who says so. Returns the cited claims behind a flag we raised."""
+    from . import sourcing as SR
+    try:
+        fn = SR.conflict_evidence if kind == "conflict" else SR.lead_evidence
+        return fn(investor, company, allow_live=True, ttl=7 * 86400)
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:110]}",
+                             "claims": [], "docs": []}, status_code=200)
+
+
 @app.get("/registry")
 def registry(name: str, rounds: str = ""):
     """The public paper trail behind a company name.

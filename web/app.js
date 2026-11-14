@@ -319,6 +319,7 @@ function founderEntity() {
       <div>${sig.label} ${esc(sig.text)}</div>${evidence(sig.evidence)}</div>`).join("");
   }
   if (TAB === 3) {
+    if (x.backs?.length) body += evidenceBlock(x.investor, x.backs[0]);
     body += x.backs?.length
       ? `<div class="verdict red"><b>Backs ${x.backs.length} of your competitors.</b></div>
          <div class="hl">${x.backs.map(b => `<div class="hlc red"><div class="hlhd">${logo(b)}
@@ -1400,4 +1401,42 @@ function publicRecordTab(name, rounds) {
       <li><b>PRH</b> and <b>Brreg</b> — Finnish and Norwegian company registers.</li>
     </ul><div class="sub" style="margin:9px 0 0">All primary registers with documented
     endpoints. None of this is scraped.</div></div>`);
+}
+
+
+/* ================= WHO SAYS SO ================= */
+/* A conflict flag is a serious thing to put in front of a founder, so it
+   should not rest on our arithmetic alone. /knowledge/search returns the
+   individual claims behind an answer, each pointing at the document it came
+   from - and the strongest of those is usually the fund's own portfolio page. */
+const EV = {};
+
+function evidenceBlock(investor, competitor) {
+  const key = investor + "|" + competitor;
+  const d = EV[key];
+  if (d === undefined) {
+    EV[key] = null;
+    fetch(`/evidence?investor=${encodeURIComponent(investor)}&company=${encodeURIComponent(competitor)}`)
+      .then(r => r.json()).then(j => { EV[key] = j; render(); })
+      .catch(e => { EV[key] = { error: String(e.message) }; render(); });
+  }
+  if (!d) return section("ev-load", "Who says so", "",
+    `<div class="card"><div class="sub"><span class="spin"></span>Asking Cala for the
+     documents behind this…</div></div>`);
+  if (d.error) return section("ev-err", "Who says so", "",
+    `<div class="card"><div class="sub">${esc(d.error)}</div></div>`);
+
+  return section("ev", "Who says so", `${(d.docs || []).length} sources`,
+    `<div class="card">
+      <div style="font-size:13.5px;line-height:1.6">${esc((d.answer || "")
+        .replace(/\*\*/g, "").slice(0, 420))}</div>
+      ${(d.claims || []).filter(c => c.docs.length).map(c => `<div class="ev">
+        <div>${esc(c.text)}</div>
+        ${c.docs.map(x => `<div><span class="srank">${esc(x.rank)}</span>
+          <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name.slice(0, 70))}</a></div>`).join("")}
+      </div>`).join("")}
+      <div class="sub" style="margin:12px 0 0">Ranked by who published it:
+        a regulator's filing, then one of the parties speaking for itself,
+        then commentary about them.</div>
+    </div>`);
 }

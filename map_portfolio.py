@@ -59,7 +59,7 @@ def main():
 
         if not hq:
             try:
-                e = graph.find_company(n)
+                e = graph.find_company(n, interactive=False, retries=3, timeout=45)
                 if e:
                     props = graph.pick_props(e["id"], ["name", "website", "description"]
                                              + graph.ADDRESS_PROPS,

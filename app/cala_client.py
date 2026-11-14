@@ -55,7 +55,8 @@ def _store(k: str, v) -> None:
 
 
 def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
-             retries=4, use_cache=True, allow_live=False, timeout=90):
+             retries=4, use_cache=True, allow_live=False, timeout=90,
+             interactive=False):
     global last_meta
     if not KEY:
         raise CalaError("CALA_API_KEY puuttuu. Hae avain console.cala.ai -> API keys.")
@@ -82,7 +83,7 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
             r = httpx.request(method, url, json=payload, headers=headers, timeout=timeout)
         except httpx.HTTPError as e:
             last_err = CalaError(f"Network error: {e}")
-            if allow_live:
+            if interactive:
                 raise last_err
             time.sleep(2 ** i)
             continue
@@ -100,9 +101,10 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
         if r.status_code == 429:
             # Cala's limiter is a budget over time, not a concurrency cap: a
             # short retry just spends the next token. Back off properly - but
-            # an interactive caller (allow_live) must fail fast instead of
-            # leaving a spinner running for a minute.
-            if allow_live:
+            # an INTERACTIVE caller must fail fast rather than leave a spinner
+            # running for a minute. Batch jobs are not interactive and should
+            # wait: allow_live only means "may hit the network", not "give up".
+            if interactive:
                 raise CalaError("Rate limit", 429, r.text[:300])
             wait = float(r.headers.get("retry-after", max(5.0, 4 * (2 ** i))))
             last_err = CalaError("Rate limit", 429, r.text[:500])
