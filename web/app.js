@@ -627,11 +627,11 @@ function mapView() {
   const scored = MAP.points.filter(p => p.score != null).length;
   const st = MAP.status || {};
   return stats(5, [
-    ["Companies placed", MAP.placed],
+    ["Slush exhibitors placed", MAP.placed],
+    ["Funded companies placed", (MAP.portfolio || []).length],
     ["Funds placed", (MAP.funds || []).length],
     ["Exact street coordinates", MAP.exact],
     ["Checked for funding", MAP.walked || 0],
-    ["Have raised", (st.once || 0) + (st.multiple || 0)],
   ])
   + section("gmap", "Where the floor comes from",
       `${MAP.placed} placed · ${MAP.unplaced} addresses we could not resolve`,
@@ -645,6 +645,7 @@ function mapView() {
           </div>
           <div class="mapctl" style="top:auto;bottom:11px;left:auto;right:11px">
             <button class="btn ${MAPMODE === "co" ? "pri" : ""}" data-mm="co">Companies</button>
+            <button class="btn ${MAPMODE === "pf" ? "pri" : ""}" data-mm="pf">Funded</button>
             <button class="btn ${MAPMODE === "fu" ? "pri" : ""}" data-mm="fu">Funds</button>
             <button class="btn ${MAPMODE === "pp" ? "pri" : ""}" data-mm="pp">People</button>
           </div>
@@ -652,7 +653,8 @@ function mapView() {
             <input id="mapq" autocomplete="off" placeholder="${
               MAPMODE === "pp" ? "Find a founder or investor"
               : MAPMODE === "fu" ? "Filter funds, or type a city"
-              : "Filter companies, or type a city"}"></div>
+              : MAPMODE === "pf" ? "Filter funded companies, or type a city"
+              : "Filter exhibitors, or type a city"}"></div>
           <div class="maplegend">
             ${Object.entries(STATUS).map(([k, [c, lbl]]) =>
               `<span class="sw"><i style="background:${c}"></i>${lbl}${
@@ -729,8 +731,11 @@ function sideList(points, title) {
         p.employees ? ` · ${esc(p.employees)} people` : ""}</div>` : ""}
       ${p.website ? `<div class="d"><a href="${esc(p.website)}" target="_blank"
          rel="noopener">${esc(String(p.website).replace(/^https?:\/\//, ""))}</a></div>` : ""}
-      ${p.source ? `<div class="d"><span class="srank">SOURCE</span><a href="${esc(p.source)}"
-         target="_blank" rel="noopener">slush.org</a></div>` : ""}
+      ${p.source ? `<div class="d"><span class="srank">SOURCE</span>${
+        String(p.source).startsWith("http")
+          ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">${
+              esc(String(p.source).replace(/^https?:\/\/(www\.)?/, "").split("/")[0])}</a>`
+          : esc(p.source)}</div>` : ""}
     </div>`).join("") : `<div class="msg" style="padding:26px">Nothing matches.</div>`;
 }
 
@@ -748,7 +753,9 @@ function initMap() {
   // A precisely geocoded entity sits on its real address and is never moved.
   // Only city-centroid fallbacks are spread, and they are drawn hollow so the
   // map never implies a precision it does not have.
-  const layer = MAPMODE === "fu" ? (MAP.funds || []) : MAP.points;
+  const layer = MAPMODE === "fu" ? (MAP.funds || [])
+              : MAPMODE === "pf" ? (MAP.portfolio || [])
+              : MAP.points;
   const seen = {};
   for (const p of layer) {
     let lat = p.lat, lon = p.lon;
@@ -763,6 +770,7 @@ function initMap() {
     d.className = "mkr";
     const isFund = p.kind === "fund";
     const col = isFund ? "#c2614f" : statusColor(p);
+    const isPortfolio = p.kind === "portfolio";
     const sz = isFund ? 15 : (p.score != null ? 13 : 10);
     d.style.cssText = p.precise
       ? `width:${sz}px;height:${sz}px;background:${col}${isFund ? ";box-shadow:0 0 0 5px rgba(194,97,79,.18)" : ""}`
@@ -782,7 +790,8 @@ function initMap() {
     d.onclick = () => sideList([p], p.name);
     MLMARKERS.push({ marker: m, el: d, p });
   }
-  sideList(layer, MAPMODE === "fu" ? "Funds" : "Companies");
+  sideList(layer, MAPMODE === "fu" ? "Funds"
+                : MAPMODE === "pf" ? "Funded companies" : "Slush exhibitors");
   const pn = $("#precisenote");
   if (pn && MAP.exact != null)
     pn.innerHTML = `<i style="background:transparent;border:2px dashed #9b958c"></i>city only (${MAP.placed - MAP.exact})`;
@@ -798,7 +807,8 @@ function initMap() {
   if (!q) return;
   q.oninput = MAPMODE === "pp" ? peopleSearch : () => {
     const t = q.value.trim().toLowerCase();
-    const active = MAPMODE === "fu" ? (MAP.funds || []) : MAP.points;
+    const active = MAPMODE === "fu" ? (MAP.funds || [])
+                 : MAPMODE === "pf" ? (MAP.portfolio || []) : MAP.points;
     const shown = [];
     for (const { el, p } of MLMARKERS) {
       const hit = !t || p.name.toLowerCase().includes(t) ||
@@ -807,7 +817,8 @@ function initMap() {
       el.style.display = hit ? "" : "none";
       if (hit) shown.push(p);
     }
-    sideList(shown, t ? `Matching "${q.value.trim()}"` : (MAPMODE === "fu" ? "Funds" : "Companies"));
+    sideList(shown, t ? `Matching "${q.value.trim()}"`
+      : MAPMODE === "fu" ? "Funds" : MAPMODE === "pf" ? "Funded companies" : "Slush exhibitors");
     clearTimeout(PLTIMER);
     if (!t) { fitTo(active); return; }
     if (shown.length) {

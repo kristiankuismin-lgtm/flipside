@@ -51,6 +51,29 @@ LABEL = {"FOUNDED": "founded a company before",
 
 MIN_EDGES = 2          # below this we decline to score
 
+# Role seniority from the role string Cala carries on WORKS_AT. Running
+# something is a different signal from being employed somewhere.
+import re
+SENIOR = re.compile(r"\b(founder|co-?founder|ceo|cto|coo|cfo|chair|president|"
+                    r"partner|head of|vp|vice president|director|lead)\b", re.I)
+
+# Second-order weighting. An edge to a company that went on to raise is worth
+# more than an edge to one that never did - "early at a company that became
+# something" is the signal people actually mean by pedigree.
+TRACTION_BONUS = {"multi": 1.0, "once": 0.55, "none": 0.15, "unknown": 0.35}
+
+
+def company_traction(name: str, rounds_by_company: dict | None) -> str:
+    """multi | once | none | unknown, from the funding data we already hold."""
+    if not rounds_by_company:
+        return "unknown"
+    key = name.strip().lower()
+    rs = rounds_by_company.get(key)
+    if rs is None:
+        return "unknown"
+    n = len(rs)
+    return "multi" if n >= 2 else "once" if n == 1 else "none"
+
 
 @dataclass
 class FounderSignal:
@@ -66,9 +89,29 @@ def _counts(groups: list[dict]) -> dict[str, int]:
     return {g["rel"]: len(g.get("items") or []) for g in (groups or [])}
 
 
-def assess(name: str, groups: list[dict], gh: dict | None = None) -> FounderSignal:
-    """groups: the relationship groups from the entity endpoint."""
+def _quality(items: list[dict], rounds_by_company: dict | None) -> tuple[float, list[str]]:
+    """Average traction of the companies behind a set of edges, 0-1."""
+    if not items:
+        return 0.0, []
+    vals, notes = [], []
+    for it in items:
+        t = company_traction(it.get("name", ""), rounds_by_company)
+        vals.append(TRACTION_BONUS[t])
+        if t == "multi":
+            notes.append(f"{it.get('name')} raised more than once")
+    return sum(vals) / len(vals), notes[:2]
+
+
+def assess(name: str, groups: list[dict], gh: dict | None = None,
+           rounds_by_company: dict | None = None) -> FounderSignal:
+    """groups: the relationship groups from the entity endpoint.
+
+    rounds_by_company maps a lowercased company name to its known rounds. When
+    given, edges are weighted by what those companies went on to do rather than
+    counted flat.
+    """
     c = _counts(groups)
+    by_rel = {g["rel"]: (g.get("items") or []) for g in (groups or [])}
     edges = sum(c.values())
     gh_val = (gh or {}).get("value")
 
@@ -80,6 +123,7 @@ def assess(name: str, groups: list[dict], gh: dict | None = None) -> FounderSign
 
     total = 0.0
     comps = []
+    quality_notes = []
     for rel, (w, sat) in WEIGHTS.items():
         n = c.get(rel, 0)
         if not n or w == 0:
@@ -88,9 +132,26 @@ def assess(name: str, groups: list[dict], gh: dict | None = None) -> FounderSign
                               "n": n, "contribution": 0.0, "counted": False})
             continue
         part = min(1.0, n / sat)
-        total += w * part
+
+        # Second-order: what did those companies actually do?
+        qmul, notes = 1.0, []
+        if rel in ("FOUNDED", "IS_CEO_OF", "WORKS_AT", "INVESTED_IN") and rounds_by_company:
+            q, notes = _quality(by_rel.get(rel, []), rounds_by_company)
+            qmul = 0.6 + 0.8 * q          # 0.6x for nothing, up to 1.4x
+            quality_notes += notes
+
+        # Seniority: WORKS_AT carries a role string worth reading.
+        smul = 1.0
+        if rel == "WORKS_AT":
+            roles = [str((i.get("role") or "")) for i in by_rel.get(rel, [])]
+            if any(SENIOR.search(r) for r in roles):
+                smul = 1.25
+
+        contrib = w * part * qmul * smul
+        total += contrib
         comps.append({"rel": rel, "label": LABEL.get(rel, rel.title()), "n": n,
-                      "contribution": round(100 * w * part, 1), "counted": True})
+                      "contribution": round(100 * contrib, 1), "counted": True,
+                      "weighted": qmul != 1.0 or smul != 1.0})
 
     if gh_val is not None:
         total += GITHUB_WEIGHT * gh_val
@@ -112,6 +173,11 @@ def assess(name: str, groups: list[dict], gh: dict | None = None) -> FounderSign
                        f"{'y' if c['INVESTED_IN'] == 1 else 'ies'}")
     if gh_val is not None:
         reasons += (gh or {}).get("why", [])[:2]
+    reasons += quality_notes
+    senior_roles = [str(i.get("role") or "") for i in by_rel.get("WORKS_AT", [])]
+    hit = next((r for r in senior_roles if SENIOR.search(r)), None)
+    if hit:
+        reasons.append(f"senior operating role: {hit}")
     if c.get("FEATURED_IN"):
         reasons.append(f"{c['FEATURED_IN']} press mention(s) — noted, not scored")
 

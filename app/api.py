@@ -49,6 +49,32 @@ class Req(BaseModel):
     my_investors: list[str] | None = None
 
 
+_ROUNDS_BY_CO = None
+
+
+def _rounds_by_company() -> dict:
+    """company (lowercased) -> its known rounds, for second-order weighting."""
+    global _ROUNDS_BY_CO
+    if _ROUNDS_BY_CO is not None:
+        return _ROUNDS_BY_CO
+    out = {}
+    if CONVICTION.exists():
+        try:
+            for c in json.loads(CONVICTION.read_text()).get("companies") or []:
+                out[c["company"].strip().lower()] = c.get("rounds") or []
+        except ValueError:
+            pass
+    w = ROOT / "exhibitor_rounds.json"
+    if w.exists():
+        try:
+            for v in json.loads(w.read_text()).values():
+                out.setdefault(v["name"].strip().lower(), v.get("rounds") or [])
+        except ValueError:
+            pass
+    _ROUNDS_BY_CO = out
+    return out
+
+
 def _investor_meta() -> dict:
     """Firmographics resolved from Cala's Organization entities."""
     f = ROOT / "investor_domains.json"
@@ -299,13 +325,35 @@ def map_data():
                           "founded": v.get("founded"), "employees": v.get("employees"),
                           "source": v.get("hq_source"), "kind": "fund"})
 
+    # Third layer: the funded universe. Slush 2026 is the only event in Cala
+    # with a participant list, so "more events" was a dead end - but the
+    # portfolio companies behind the founder screen have all raised, which
+    # makes them a better map than a floor of pre-funding exhibitors.
+    portfolio = []
+    ppath = ROOT / "portfolio_places.json"
+    if ppath.exists():
+        try:
+            for nm, v in json.loads(ppath.read_text()).items():
+                if v.get("lat") is None:
+                    continue
+                rs = _rounds_by_company().get(nm.strip().lower())
+                portfolio.append({"name": nm, "lat": v["lat"], "lon": v["lon"],
+                                  "cc": v.get("cc"), "precise": v.get("precise", False),
+                                  "hq": v.get("hq"), "website": v.get("website"),
+                                  "source": v.get("source"), "kind": "portfolio",
+                                  "rounds": len(rs) if rs is not None else None,
+                                  "status": ("multiple" if rs and len(rs) >= 2
+                                             else "once" if rs else "unknown")})
+        except ValueError:
+            pass
+
     from collections import Counter
     status_counts = Counter(p["status"] for p in pts)
     return {"event": "Slush 2026", "event_date": "2026-11-18",
             "total_exhibitors": len(profs), "profiles_fetched": len(ok),
             "placed": len(pts), "exact": exact, "unplaced": unplaced,
             "walked": len(walked), "status": dict(status_counts),
-            "points": pts, "funds": funds}
+            "points": pts, "funds": funds, "portfolio": portfolio}
 
 
 @app.get("/")
@@ -481,11 +529,13 @@ def founder_signal(entity_id: str, name: str = "", github: str = ""):
         gh_err = f"{type(e).__name__}"
 
     sig = GH.signal(gh_profile)
-    out = FS.assess(nm, groups, gh=sig if gh_profile else None)
+    out = FS.assess(nm, groups, gh=sig if gh_profile else None,
+                    rounds_by_company=_rounds_by_company())
     return {"name": nm, "id": entity_id, "score": out.score,
             "confidence": out.confidence, "reasons": out.reasons,
             "components": out.components, "evidence_edges": out.evidence_edges,
             "github": gh_profile, "github_signal": sig, "github_error": gh_err,
+            "known_companies": len(_rounds_by_company()),
             "groups": [{"rel": g["rel"], "label": g["label"],
                         "items": [i["name"] for i in g["items"][:6]]} for g in groups]}
 

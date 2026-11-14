@@ -57,3 +57,52 @@ def test_confidence_reflects_visibility_not_score():
     thick = FS.assess("B", g(FOUNDED=1, WORKS_AT=2, STUDIED_AT=1, IS_MEMBER_OF=1,
                              SPOKE_AT=2), gh={"value": 0.3, "why": []})
     assert thick.confidence == "High" and thin.confidence in {"Low", "Medium"}
+
+
+# --- second-order weighting ---------------------------------------------------
+def gi(rel, names, roles=None):
+    return [{"rel": rel, "items": [{"name": n, "role": (roles or {}).get(n)} for n in names]}]
+
+
+ROUNDS = {
+    "rocketco": [{}, {}, {}],      # raised three times
+    "okayco": [{}],                # raised once
+    "deadco": [],                  # never raised
+}
+
+
+def test_founding_something_that_raised_beats_founding_something_that_did_not():
+    hot = FS.assess("A", gi("FOUNDED", ["RocketCo"]) + g(STUDIED_AT=1),
+                    rounds_by_company=ROUNDS)
+    cold = FS.assess("B", gi("FOUNDED", ["DeadCo"]) + g(STUDIED_AT=1),
+                     rounds_by_company=ROUNDS)
+    assert hot.score > cold.score
+    assert any("RocketCo raised more than once" in r for r in hot.reasons)
+
+
+def test_unknown_companies_sit_between_raised_and_never_raised():
+    base = g(STUDIED_AT=1)
+    hot = FS.assess("A", gi("FOUNDED", ["RocketCo"]) + base, rounds_by_company=ROUNDS).score
+    unk = FS.assess("B", gi("FOUNDED", ["WhoKnows"]) + base, rounds_by_company=ROUNDS).score
+    cold = FS.assess("C", gi("FOUNDED", ["DeadCo"]) + base, rounds_by_company=ROUNDS).score
+    assert cold < unk < hot
+
+
+def test_senior_role_text_counts_for_more_than_any_job():
+    boss = FS.assess("A", gi("WORKS_AT", ["X"], {"X": "CEO and co-founder"}) + g(STUDIED_AT=1))
+    staff = FS.assess("B", gi("WORKS_AT", ["X"], {"X": "Software Engineer"}) + g(STUDIED_AT=1))
+    assert boss.score > staff.score
+    assert any("senior operating role" in r for r in boss.reasons)
+
+
+def test_weighting_is_flagged_so_the_ui_can_say_so():
+    s = FS.assess("A", gi("FOUNDED", ["RocketCo"]) + g(STUDIED_AT=1), rounds_by_company=ROUNDS)
+    founded = [c for c in s.components if c["rel"] == "FOUNDED"][0]
+    assert founded.get("weighted") is True
+
+
+def test_without_round_data_scoring_is_unchanged():
+    """No funding corpus must not silently penalise everyone."""
+    a = FS.assess("A", gi("FOUNDED", ["RocketCo"]) + g(STUDIED_AT=1))
+    b = FS.assess("B", gi("FOUNDED", ["DeadCo"]) + g(STUDIED_AT=1))
+    assert a.score == b.score
