@@ -430,6 +430,36 @@ def _entity(eid, props, rels):
                            allow_live=True, ttl=86400)
 
 
+@app.get("/registry")
+def registry(name: str, rounds: str = ""):
+    """The public paper trail behind a company name.
+
+    These are primary registers, not a search engine: GLEIF for the legal
+    entity, PRH and Brreg for Nordic incorporation, SEC Form D for US private
+    placements. Form D matters most - a filing with no matching round in Cala
+    means a company is raising and has not announced it.
+    """
+    from . import datasets as D
+    n = (name or "").strip()
+    if len(n) < 3:
+        return {"name": n, "error": "name too short"}
+    known = [x for x in rounds.split(",") if x.strip()]
+    out = {"name": n}
+    for key, fn in (("gleif", D.gleif), ("prh", D.prh), ("brreg", D.brreg)):
+        try:
+            out[key] = fn(n)
+        except Exception as e:
+            out[key] = None
+            out.setdefault("errors", {})[key] = type(e).__name__
+    try:
+        out["form_d"] = D.form_d(n)[:5]
+        out["silent_round"] = D.silent_round(n, known)
+    except Exception as e:
+        out["form_d"], out["silent_round"] = [], None
+        out.setdefault("errors", {})["sec"] = type(e).__name__
+    return out
+
+
 @app.get("/founder-signal/{entity_id}")
 def founder_signal(entity_id: str, name: str = "", github: str = ""):
     """The third reading: does this person look like a founder before they are one?"""

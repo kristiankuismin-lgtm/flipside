@@ -35,6 +35,9 @@ a:hover{text-decoration:underline}
 .brand .sq{width:23px;height:23px;border-radius:6px;background:var(--accent);
   display:grid;place-items:center;font:700 12px var(--sans);color:#fff}
 .brand b{font-size:15px;font-weight:650;letter-spacing:-.015em}
+.navsearch{position:relative;padding:4px 10px 8px}
+.navsearch .qsin{width:100%}
+.navsearch .qspop{left:10px;right:auto;width:360px;top:calc(100% - 2px)}
 .navsec{padding:14px 12px 5px;font:10px var(--mono);letter-spacing:.11em;
   text-transform:uppercase;color:var(--faint)}
 .navitem{display:flex;align-items:center;gap:9px;padding:7px 11px;margin:1px 8px;
@@ -319,13 +322,24 @@ tbody tr:hover{background:var(--panel2)}
 <div class="app">
   <aside class="nav">
     <div class="brand"><span class="sq">F</span><b>Flipside</b></div>
+    <div class="navsearch">
+      <div class="qsin"><span class="mag">⌕</span>
+        <input id="qsq" placeholder="Search funds and people" autocomplete="off">
+        <kbd>/</kbd></div>
+      <div class="qspop" id="qspop">
+        <div class="qstabs">
+          <button class="qstab on" data-k="fund">Funds</button>
+          <button class="qstab" data-k="people">People</button>
+        </div>
+        <div class="qsres" id="qsres"></div>
+      </div>
+    </div>
     <button class="navitem on" data-mode="home"><span class="ic">✦</span>Ask</button>
     <div class="navsec">Perspective</div>
     <button class="navitem" data-mode="founder"><span class="ic">◧</span>Founder<span class="ct" id="ct-f"></span></button>
     <button class="navitem" data-mode="investor"><span class="ic">◨</span>Investor<span class="ct" id="ct-i"></span></button>
     <div class="navsec">Evidence</div>
     <button class="navitem" data-mode="map"><span class="ic">◉</span>Slush map<span class="ct" id="ct-m"></span></button>
-    <button class="navitem" data-mode="accuracy"><span class="ic">◈</span>Accuracy<span class="ct" id="ct-a"></span></button>
     <div class="navsec">Context</div>
     <div class="navitem" style="cursor:default"><span class="ic">◆</span>Slush 2026<span class="ct">18 Nov</span></div>
     <div class="navfoot">Slush 2026 · 18 Nov</div>
@@ -335,19 +349,7 @@ tbody tr:hover{background:var(--panel2)}
       <span class="crumb" id="crumb"></span>
       <span class="grow"></span>
       <span id="baracts"></span>
-      <div class="qs">
-        <div class="qsin"><span class="mag">⌕</span>
-          <input id="qsq" placeholder="Search funds and people" autocomplete="off">
-          <kbd>/</kbd></div>
-        <div class="qspop" id="qspop">
-          <div class="qstabs">
-            <button class="qstab on" data-k="fund">Funds</button>
-            <button class="qstab" data-k="people">People</button>
-          </div>
-          <div class="qsres" id="qsres"></div>
-        </div>
       </div>
-    </div>
     <div class="wrap" id="view"></div>
   </main>
 </div>

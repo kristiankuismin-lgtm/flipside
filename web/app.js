@@ -426,7 +426,7 @@ function investorEntity() {
   const c = (I.companies || []).find(x => x.company === SEL);
   if (!c) { SEL = null; return investorList(); }
   const [sl, sc] = STRUCT[c.structure] || STRUCT.unknown;
-  const tabs = ["Overview", "Insiders", "Rounds", "Evidence"];
+  const tabs = ["Overview", "Insiders", "Rounds", "Public record", "Evidence"];
   const latest = c.rounds.at(-1);
   let body = entityHeader(c.company, "",
     `${c.rounds.length} rounds · latest ${esc(latest.stage)} ${esc(latest.date)}
@@ -502,6 +502,9 @@ function investorEntity() {
       </tbody></table></div>`;
   }
   if (TAB === 3) {
+    body += publicRecordTab(c.company, c.rounds.map(r => r.date));
+  }
+  if (TAB === 4) {
     body += `<p class="lede">Conviction is arithmetic over Cala's funding graph: who was on the cap
       table before the latest round, who appears on it again, and how that compares with what each
       of those investors usually does. No part of the score is generated text.</p>`
@@ -583,9 +586,6 @@ document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => {
 fetch("/health").then(r => r.json()).then(h => {
   $("#ct-f").textContent = h.pool + " funds";
   $("#ct-i").textContent = h.conviction_n ? h.conviction_n + " cos" : "";
-  fetch("/backtest").then(r => r.json()).then(b => {
-    if (b.samples) $("#ct-a").textContent = "+" + b.spread_pp + "pp";
-  }).catch(() => {});
   fetch("/map").then(r => r.json()).then(m => {
     if (m.placed) $("#ct-m").textContent = m.placed + " placed";
   }).catch(() => {});
@@ -991,7 +991,7 @@ const CHIPS = [
   ["◧", "Screen my investor list", "gosta labs"],
   ["◨", "Who are insiders doubling down on?", "conviction"],
   ["◉", "Map the Slush 2026 floor", "map"],
-  ["◈", "How accurate is this, really?", "accuracy"],
+  ["◆", "Who is raising without announcing it?", "silent"],
 ];
 
 function homeView() {
@@ -1015,7 +1015,7 @@ function routeAsk(text) {
   const low = q.toLowerCase();
   if (/\b(map|slush floor|where|location|geograph)/.test(low)) { MODE = "map"; SEL = null; return MAP ? render() : loadMap(); }
   if (/\b(accur|backtest|valid|proof|evidence|work\b)/.test(low)) { MODE = "accuracy"; SEL = null; return BT ? render() : loadBacktest(); }
-  if (/\b(conviction|insider|double|doubling|orphan|deal ?flow)/.test(low)) { MODE = "investor"; SEL = null; return I ? render() : loadInvestor(); }
+  if (/\b(conviction|insider|double|doubling|orphan|deal ?flow|silent|unannounced|raising)/.test(low)) { MODE = "investor"; SEL = null; return I ? render() : loadInvestor(); }
   MODE = "founder"; SEL = null;
   PENDING_CO = q;                     // picked up by runFounder
   render();
@@ -1074,7 +1074,7 @@ function wireQuickSearch() {
     qsSearch();
   });
   document.addEventListener("click", e => {
-    if (!e.target.closest(".qs")) pop.classList.remove("on");
+    if (!e.target.closest(".navsearch")) pop.classList.remove("on");
   });
   addEventListener("keydown", e => {
     if (e.key === "/" && document.activeElement.tagName !== "INPUT"
@@ -1319,4 +1319,74 @@ function founderSignalTab() {
         <div class="hlhd"><div style="min-width:0"><div class="nm">${esc(g.label)}</div>
           <div class="sb">${g.items.length} on record</div></div></div>
         <div class="sub" style="margin:0">${esc(g.items.join(", "))}</div></div>`).join("")}</div>`);
+}
+
+
+/* ================= PUBLIC RECORD ================= */
+/* Primary registers, not a search engine. The one that earns its place is
+   SEC Form D: a US private placement must be filed within 15 days of first
+   sale, so a filing with no matching round in Cala means someone is raising
+   and has not announced it. */
+let REG = null, REGFOR = null;
+
+async function loadRegistry(name, rounds) {
+  REGFOR = name; REG = null; render();
+  try {
+    REG = await (await fetch(`/registry?name=${encodeURIComponent(name)}` +
+      `&rounds=${encodeURIComponent((rounds || []).join(","))}`)).json();
+  } catch (e) { REG = { error: String(e.message) }; }
+  render();
+}
+
+function publicRecordTab(name, rounds) {
+  if (REGFOR !== name) { loadRegistry(name, rounds); return `<div class="msg">
+    <span class="spin"></span>Checking public registers…</div>`; }
+  if (!REG) return `<div class="msg"><span class="spin"></span>Checking public registers…</div>`;
+  if (REG.error) return `<div class="msg">${esc(REG.error)}</div>`;
+
+  const sr = REG.silent_round, g = REG.gleif, pr = REG.prh, br = REG.brreg;
+  let out = "";
+
+  if (sr) out += `<div class="verdict red">
+    <b>Filed a Form D on ${esc(sr.filed)} with no matching round in Cala.</b>
+    A US private placement must be filed within 15 days of first sale, so this
+    company is raising and has not announced it.
+    <a href="${esc(sr.url)}" target="_blank" rel="noopener">SEC filing</a></div>`;
+  else out += `<div class="verdict grey">No unannounced US filing found.
+    ${(REG.form_d || []).length ? "Every Form D on record matches a round we already know about."
+      : "No Form D on record — this company may not raise in the US at all."}</div>`;
+
+  const reg = [
+    g && ["GLEIF", `${g.name} · ${g.status || ""}`, g.address, g.url, "LEI " + g.lei],
+    pr && ["PRH (Finland)", pr.name, `registered ${pr.registered}`, pr.url, pr.business_id],
+    br && ["Brreg (Norway)", br.name, `registered ${br.registered}`, br.url, br.orgnr],
+  ].filter(Boolean);
+
+  if (reg.length) out += section("pr-reg", "Registered entity", "",
+    `<div class="hl">${reg.map(([src, nm, sub, url, id]) => `<div class="hlc">
+      <div class="hlhd"><div style="min-width:0"><div class="nm">${esc(nm || "")}</div>
+        <div class="sb">${esc(src)}</div></div>${badge(esc(id || ""), "blue")}</div>
+      <div class="sub" style="margin:0">${esc(sub || "")}
+        ${url ? ` · <a href="${esc(url)}" target="_blank" rel="noopener">record</a>` : ""}</div>
+    </div>`).join("")}</div>`);
+  else out += section("pr-reg", "Registered entity", "",
+    `<div class="card"><div class="sub">No register entry matched this name closely enough
+      to attribute. A near-miss is worse than nothing — GLEIF's name search once returned a
+      Swedish company for "Abridge".</div></div>`);
+
+  if ((REG.form_d || []).length) out += section("pr-sec", "SEC Form D filings",
+    `${REG.form_d.length} on record`,
+    `<div class="tbl"><table><thead><tr><th>Filed</th><th>Filer</th></tr></thead><tbody>
+      ${REG.form_d.map(f => `<tr style="cursor:default">
+        <td class="num" style="text-align:left">${esc(f.filed || "")}</td>
+        <td style="font-size:12.8px">${esc((f.names || []).join(" · "))}</td></tr>`).join("")}
+    </tbody></table></div>`);
+
+  return out + section("pr-src", "Where this comes from", "",
+    `<div class="card"><ul class="reasons">
+      <li><b>SEC EDGAR Form D</b> — US private placements, public within days of filing.</li>
+      <li><b>GLEIF</b> — Legal Entity Identifiers, the registered entity behind a trading name.</li>
+      <li><b>PRH</b> and <b>Brreg</b> — Finnish and Norwegian company registers.</li>
+    </ul><div class="sub" style="margin:9px 0 0">All primary registers with documented
+    endpoints. None of this is scraped.</div></div>`);
 }
