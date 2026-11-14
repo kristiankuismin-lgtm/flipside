@@ -150,8 +150,29 @@ def entities_search(name: str, entity_types=None, limit: int = 20, **kw) -> list
     return r.get("entities") or []
 
 
-def lookup(name: str, **kw) -> dict:
-    return _request("POST", "/entities/lookup", {"input": name}, **kw)
+# /entities/lookup resolves an entity by a REGISTERED IDENTIFIER, not by name.
+# This is the most precise entrance to the graph there is: names collide
+# ("Abridge" matches a Swedish company in Alvsjo), identifiers do not.
+LOOKUP_SCHEMES = ("lei", "cik", "companies_house_uk_company_number", "siren", "rssd_id")
+
+
+def lookup(scheme: str, value: str, **kw) -> dict | None:
+    """Resolve by LEI / CIK / Companies House number / SIREN / RSSD ID.
+
+    Returns the entity stub {id, name, entity_type, description} or None.
+    """
+    if scheme not in LOOKUP_SCHEMES:
+        raise ValueError(f"unsupported scheme {scheme!r}; use one of {LOOKUP_SCHEMES}")
+    v = str(value or "").strip()
+    if not v:
+        return None
+    try:
+        r = _request("POST", "/entities/lookup", {"id": {scheme: v}}, **kw)
+    except CalaError as e:
+        if e.status in (404, 422):
+            return None
+        raise
+    return r or None
 
 
 def get_entity(entity_id: str, properties=None, incoming=None, outgoing=None,

@@ -505,6 +505,15 @@ def registry(name: str, rounds: str = ""):
     except Exception as e:
         out["form_d"], out["silent_round"] = [], None
         out.setdefault("errors", {})["sec"] = type(e).__name__
+
+    # The point of all this: a registered identifier is an exact key into
+    # Cala's graph. Names collide, identifiers do not.
+    from . import resolve as RS
+    try:
+        out["cala"] = RS.resolve(n, allow_live=True, ttl=7 * 86400)
+    except Exception as e:
+        out["cala"] = None
+        out.setdefault("errors", {})["cala"] = type(e).__name__
     return out
 
 
