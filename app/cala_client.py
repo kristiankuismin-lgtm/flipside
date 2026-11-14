@@ -93,7 +93,7 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
             "path": path,
             "status": r.status_code,
             "elapsed_s": round(time.time() - t0, 2),
-            # Rate limit -headerit talteen: mentorikysymys #5.
+            # Keep the rate-limit headers: mentor question #5.
             "ratelimit": {h: v for h, v in r.headers.items()
                           if "ratelimit" in h.lower() or "retry-after" in h.lower()},
         }
@@ -111,8 +111,17 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
             time.sleep(wait)
             continue
 
+        if r.status_code == 402:
+            # Out of credits, not a bug and not a rate limit. Retrying spends
+            # nothing and fixes nothing, and the distinction matters: a 429
+            # clears by waiting, a 402 clears only by topping up.
+            raise CalaError(
+                "Cala credits exhausted. Everything already cached still "
+                "works; new lookups need a top-up at console.cala.ai.",
+                402, r.text[:300])
+
         if r.status_code >= 400:
-            # 4xx ei parane uudelleenyrittamalla -> keskeyta heti.
+            # A 4xx does not improve on retry -> stop immediately.
             raise CalaError(f"{r.status_code} {path}", r.status_code, r.text[:1000])
 
         data = r.json()
@@ -120,7 +129,7 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
             _store(k, data)
         return data
 
-    raise last_err or CalaError("Tuntematon virhe")
+    raise last_err or CalaError("Unknown error")
 
 
 def search(question: str, **kw) -> dict:
@@ -179,10 +188,10 @@ def lookup(scheme: str, value: str, **kw) -> dict | None:
 
 def get_entity(entity_id: str, properties=None, incoming=None, outgoing=None,
                limit: int = 200, offset: int = 0, **kw) -> dict:
-    """POST /v1/entities/{id}. Tyhja body = oletuskentat ilman relaatioita.
+    """POST /v1/entities/{id}. An empty body gives default fields, no relations.
 
-    Ominaisuudet palautuvat muodossa {"value": x, "sources": [{document, name, date}]},
-    joten tama on ainoa reitti rivitason lahteistykseen.
+    Properties come back as {"value": x, "sources": [{document, name, date}]},
+    which makes this the only route to per-claim sourcing.
     """
     body: dict = {}
     if properties:
@@ -199,7 +208,8 @@ def get_entity(entity_id: str, properties=None, incoming=None, outgoing=None,
 
 
 def introspect(entity_id: str, **kw) -> dict:
-    """Entiteetin kentat ja relaatiot. Nain selviaa onko lead-investor mallinnettu."""
+    """An entity's fields and relationships - how we learn whether lead
+    investor is modelled at all, rather than guessing a schema."""
     return _request("GET", f"/entities/{entity_id}/introspection", None, **kw)
 
 

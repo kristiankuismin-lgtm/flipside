@@ -788,6 +788,25 @@ def near(lat: float, lon: float, radius_km: float = 300, limit: int = 40,
             "cities": N.group_by_city(hits)[:12]}
 
 
+@app.get("/website")
+def website(site: str, name: str = ""):
+    """What the company says about itself, on its own site.
+
+    Cala is primary and a registry is authoritative, but neither notices that
+    a seed company put up a pricing page last month. One GET of the homepage,
+    cached for a week, nothing behind a login, and no third-party profile or
+    social site - their terms forbid it and it would not be the company's own
+    words anyway.
+    """
+    from . import website as W
+    try:
+        return W.profile(site, timeout=8)
+    except Exception as e:
+        return JSONResponse({"ok": False, "site": site, "signals": [],
+                             "error": f"{type(e).__name__}: {str(e)[:110]}"},
+                            status_code=200)
+
+
 @app.get("/connectors")
 def connectors(limit: int = 12):
     """Funds whose handoffs spread widest - the bridges in this network."""

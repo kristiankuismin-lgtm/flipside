@@ -1502,23 +1502,85 @@ let ENT = null, ENTLOAD = null;
 async function loadEntity(id, kind, name) {
   MODE = "entity"; SEL = null; TAB = 0;
   ENTLOAD = { id, kind, name };
-  ENT = null; render();
+  ENT = null; SITE = null; render();
   try {
     ENT = await (await fetch(`/entity/${id}?kind=${kind}`)).json();
   } catch (e) { ENT = { error: String(e.message) }; }
   render();
+  loadSite(ENT?.properties?.website?.value);
+}
+
+/* The company's own homepage, fetched after the profile is already up.
+   It is the only source here that updates between funding announcements. */
+let SITE = null;
+
+async function loadSite(url) {
+  if (!url) { SITE = null; return; }
+  const want = ENT?.id;
+  SITE = { loading: true }; render();
+  try {
+    const r = await fetch(`/website?site=${encodeURIComponent(url)}`);
+    const j = await r.json();
+    if (ENT?.id !== want) return;
+    SITE = j;
+  } catch (e) { SITE = { ok: false, error: String(e.message) }; }
+  render();
+}
+
+function siteSection() {
+  if (!SITE) return "";
+  if (SITE.loading) return section("e-site", "From their own site", "",
+    `<div class="msg" style="padding:20px"><span class="spin"></span>Reading the homepage…</div>`);
+  if (!SITE.ok) return section("e-site", "From their own site", "",
+    `<div class="msg" style="padding:18px">Their site did not answer${
+      SITE.error ? ` (${esc(SITE.error)})` : ""}. Unknown is not zero.</div>`);
+
+  const host = String(SITE.site || "").replace(/^https?:\/\//, "");
+  return section("e-site", "From their own site",
+    SITE.signals.length ? `${SITE.signals.length} public signals` : "nothing to report",
+    `<div class="card">
+      ${SITE.title ? `<div class="sitetitle">${esc(SITE.title)}</div>` : ""}
+      ${SITE.tagline ? `<p class="lede" style="margin:6px 0 0">${esc(SITE.tagline)}</p>` : ""}
+      ${SITE.signals.length ? `<div class="sitesigs">${SITE.signals.map(sg => `
+        <a class="sitesig" href="${esc(sg.url)}" target="_blank" rel="noopener">
+          <b>${esc(sg.text)}</b><span>${esc(sg.why)}</span></a>`).join("")}</div>`
+        : `<div class="sub" style="margin-top:9px">No careers, pricing, docs or
+             customers page linked from the homepage. For a pre-seed company that
+             is normal, not a red flag.</div>`}
+      <div class="sub" style="margin-top:10px">Read from
+        <a href="${esc(SITE.site)}" target="_blank" rel="noopener">${esc(host)}</a>,
+        cached for a week. Their words, not ours.</div>
+    </div>`);
 }
 
 const RANKCLS = { FILING: "b-green", PRIMARY: "b-blue", PRESS: "b-amber", AGGREGATOR: "b-grey" };
 const rankChip = r => r ? `<span class="bdg ${RANKCLS[r] || "b-grey"}"
   style="font-size:9.5px;letter-spacing:.05em">${esc(r)}</span>` : "";
 
+/* Out of credits is not the same failure as a bug or a rate limit, and the
+   user can only act on one of them. Say which one it is. */
+function errorPanel(msg, what) {
+  const txt = String(msg || "");
+  if (/credits exhausted|402/i.test(txt)) {
+    return `<div class="verdict grey" style="margin:18px 0;text-align:left">
+      <b>Cala credits are exhausted.</b> Live lookups return
+      <code>402 Insufficient balance</code>, so ${esc(what || "this profile")}
+      cannot be opened right now.<br><br>
+      Everything already cached still works: the founder screen, the round
+      architect, outreach briefs, the map and near-me all read from local
+      data. Top up at
+      <a href="https://console.cala.ai" target="_blank" rel="noopener">console.cala.ai</a>
+      and this page works again with no other change.</div>`;
+  }
+  return `<div class="msg">Could not open ${esc(what || "this")}.<br>
+    <span style="color:var(--dim)">${esc(txt)}</span></div>`;
+}
+
 function entityView() {
   if (!ENT) return `<div class="msg"><span class="spin"></span>Opening ${esc(ENTLOAD?.name || "profile")}…</div>`;
   const warn = LOOKUP_PARTIAL
     ? `<div class="verdict grey" style="margin-bottom:14px">${esc(LOOKUP_PARTIAL)}</div>` : "";
-  if (ENT.error) return `<div class="msg">Could not open this profile.<br>
-    <span style="color:var(--dim)">${esc(ENT.error)}</span></div>`;
+  if (ENT.error) return errorPanel(ENT.error, ENTLOAD?.name);
 
   const P = ENT.properties || {};
   const isPerson = ENT.kind === "people";
@@ -1570,6 +1632,7 @@ function entityView() {
         rel="noopener" style="font-size:12px"> source</a>` : ""}</p>`;
 
   body += stats(5, statRow.map(([k, v]) => [k, v, "mono"]));
+  if (!isPerson) body += siteSection();
   body += exitsBlock(ENT.id, ENT.name, ENT.kind);
   if (!isPerson) body += pipelineBlock(ENT.name);
   if (OPEN["bio"] === undefined) OPEN["bio"] = false;   // long: collapsed first

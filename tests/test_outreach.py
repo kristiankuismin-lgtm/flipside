@@ -90,3 +90,15 @@ def test_evidence_depth_labels_are_the_ones_the_scorer_checks():
     assert api.evidence_depth(api.MIN_ROUNDS_TO_RANK - 1) == "insufficient"
     src = (api.__file__ and open(api.__file__).read()) or ""
     assert 'depth == "insufficient"' in src
+
+
+def test_out_of_credits_is_not_a_rate_limit():
+    """402 clears by topping up; 429 clears by waiting. Collapsing the two
+    sends the user to wait out a limit that will never lift."""
+    import inspect
+
+    from app import cala_client
+    src = inspect.getsource(cala_client._request)
+    assert "402" in src and "credits exhausted" in src.lower()
+    # and it must be raised before the generic 4xx branch swallows it
+    assert src.index("r.status_code == 402") < src.index("r.status_code >= 400")
