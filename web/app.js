@@ -600,7 +600,70 @@ function nearMeOnReach() {
    honesty about what was not tested are the ones already built. */
 let ROLE = (() => { try { return localStorage.getItem("flipside.role") || "founder"; }
                     catch { return "founder"; } })();
-let CONV = null;
+let CONV = null, MOVES = null;
+
+/* The earliest a deal exists.
+   A founder leaving to start something is what an investor wants to hear
+   first, and by the time it is a funding round it is not early any more.
+   The graph can say it: FOUNDED carries a start date and a company with no
+   rounds has not raised.
+
+   It currently finds almost nothing, and the panel says so with the
+   denominator rather than presenting two rows as a finding. That is not a
+   placeholder - the detector is right and the record is thin, and those are
+   different problems with different fixes. */
+async function loadMoves() {
+  MOVES = { loading: true };
+  try { MOVES = await (await fetch("/moves")).json(); }
+  catch (e) { MOVES = { error: String(e.message), moves: [] }; }
+  if (MODE === "investor") render();
+}
+
+function movesBlock() {
+  if (!MOVES) { loadMoves(); return ""; }
+  if (MOVES.loading) return section("mv", "Who just changed seats", "",
+    `<div class="msg" style="padding:24px"><span class="spin"></span>Reading
+      the people we have records for…</div>`);
+  if (MOVES.error) return section("mv", "Who just changed seats", "",
+    `<div class="emptywhy"><b>Could not read it.</b> ${esc(MOVES.error)}</div>`);
+
+  const c = MOVES.coverage || {};
+  const v = MOVES.new_ventures || [];
+  const seats = (MOVES.moves || []).filter(m => m.kind === "new_seat");
+  const cov = `<div class="sub" style="line-height:1.7;max-width:70ch;margin-top:var(--s2)">
+      Read from ${c.people_with_edges} people whose records we have fetched, of
+      ${c.people_in_cache} we hold a name for. Only
+      <b>${c.people_with_a_dated_role}</b> of those carry a dated role, and a
+      founding with no date has no "just" in it — so this sees a fraction of
+      what it is looking for, and the fraction is the number above.
+      It widens as the harvester reaches more people.</div>`;
+
+  return section("mv", "Who just changed seats",
+    `${v.length} new venture${v.length === 1 ? "" : "s"} · ${seats.length} seat
+     change${seats.length === 1 ? "" : "s"} · last ${MOVES.window_months} months`,
+    (v.length
+      ? `<div class="mvlist">${v.map(m => `<div class="mvrow new">
+          <div><b>${esc(m.person)}</b> founded <b>${esc(m.company)}</b>
+            ${m.stealth ? badge("in stealth", "amber") : ""}
+            <div class="sub">${m.months_ago} months ago · ${esc(m.why)}</div></div>
+          ${m.person_id ? `<button class="btn sm" data-person="${esc(m.person_id)}"
+            data-pname="${esc(m.person)}">Card</button>` : ""}
+        </div>`).join("")}</div>`
+      : `<div class="emptywhy"><b>Nobody in our records has founded anything in
+          the last ${MOVES.window_months} months.</b> A computed result, not an
+          empty state — and with ${c.people_with_a_dated_role} dated roles to
+          read, it is as much a statement about the record as about the
+          people.</div>`)
+    + (seats.length ? `<div class="mvlist" style="margin-top:var(--s2)">
+        ${seats.map(m => `<div class="mvrow">
+          <div><b>${esc(m.person)}</b> → <b>${esc(m.company)}</b>
+            <div class="sub">${m.months_ago} months ago · ${esc(m.role || "")}
+              ${m.why ? "· " + esc(m.why) : ""}</div></div>
+          ${m.person_id ? `<button class="btn sm" data-person="${esc(m.person_id)}"
+            data-pname="${esc(m.person)}">Card</button>` : ""}
+        </div>`).join("")}</div>` : "")
+    + cov);
+}
 
 function applyRoleChrome() {
   // An investor opening the map wants the companies; a founder wants the
@@ -671,6 +734,7 @@ function investorView() {
       ["Insiders came back", healthy.length, "healthy", "the round structure reads healthy"],
       ["Previous lead returned", back.length, "lead", "the strongest version of it"],
     ], IFILTER, null)}
+    ${movesBlock()}
     ${section("convlist", "Backed again by the people who already knew them",
       `${cs.length} companies`, `<div class="convlist">${
         cs.slice(0, 60).map((c, i) => `<button class="convrow" data-conv="${esc(c.company)}">

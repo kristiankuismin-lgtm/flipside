@@ -1518,6 +1518,33 @@ def news(name: str, year: str = ""):
                             "summary": r.get("content"), "error": None}, name)
 
 
+@app.get("/moves")
+def moves_endpoint(limit: int = 40):
+    """Who has just changed seats, from the people we have actually read.
+
+    The earliest signal there is: a founder leaving to start something is
+    what an investor wants first, and by the time it is a funding round it
+    is not early any more.
+
+    The coverage figures travel with the answer. Reading two moves out of a
+    hundred and thirty people is not a finding, and a list of two rows with
+    no denominator would read like one.
+    """
+    from . import cache_index, moves as MV
+    idx = cache_index.build()
+    people = [e for e in idx.values() if e.get("entity_type") == "Person"]
+    def _co(key):
+        return idx.get(key) or DEPTH.entity(key, types=("Company", "Organization"))
+
+    out = MV.scan(people, rounds_by_company=_rounds_by_company(),
+                  company_lookup=_co)
+    out["moves"] = out["moves"][:limit]
+    out["new_ventures"] = out["new_ventures"][:limit]
+    out["coverage"]["people_in_cache"] = len(people)
+    out["window_months"] = MV.RECENT_MONTHS
+    return out
+
+
 @app.get("/alert-rules")
 def alert_rules():
     from . import alerts as AL

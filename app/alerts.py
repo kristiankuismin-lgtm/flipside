@@ -34,6 +34,11 @@ RULES = {
         "why": "evidence they still lead, not just participate",
         "severity": "low",
     },
+    "founder_moved": {
+        "label": "Someone who has built before starts something new",
+        "why": "the earliest a deal exists - by the round it is not early",
+        "severity": "high",
+    },
     "stale": {
         "label": "A fund on my list goes quiet",
         "why": "no recorded activity for a long time",
