@@ -949,6 +949,23 @@ def enrich(name: str, entity_id: str = "", cc: str = ""):
     return out
 
 
+@app.get("/contradictions")
+def contradictions(company: str = ""):
+    """Where our sources disagree with each other.
+
+    A product built on a graph inherits the graph's disagreements. Vanta's
+    Series B is on record at both 101.2M and 36.8M euro, with different
+    leads and dates four months apart. Picking one silently and printing it
+    as fact is the easy option and the wrong one.
+    """
+    from . import contradictions as CX, norm
+    rbc = _rounds_by_company()
+    if company:
+        key = norm.name(company) or company.strip().lower()
+        rbc = {k: v for k, v in rbc.items() if k == key}
+    return CX.summarise(rbc)
+
+
 @app.get("/connectors")
 def connectors(limit: int = 12):
     """Funds whose handoffs spread widest - the bridges in this network."""

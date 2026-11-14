@@ -655,10 +655,52 @@ const GMAIL_ICON = `<svg width="15" height="12" viewBox="0 0 48 36" aria-hidden=
 const STRUCT = { "pre-emption": ["Pre-emption", "green"], "healthy": ["Healthy up-round", "blue"],
   "bridge": ["Bridge / extension", "red"], "unknown": ["Structure unknown", "grey"] };
 
+let CONTRA = null;        // where sources disagree with each other
+
 async function loadInvestor() {
   $("#view").innerHTML = `<div class="msg"><span class="spin"></span>Scoring insider conviction…</div>`;
   I = await (await fetch("/conviction")).json();
   SEL = null; render();
+  if (!CONTRA) loadContradictions();
+}
+
+async function loadContradictions() {
+  try { CONTRA = await (await fetch("/contradictions")).json(); }
+  catch (e) { CONTRA = { count: 0, items: [], error: String(e.message) }; }
+  render();
+}
+
+/* Companies where two records of the same round disagree. Keyed loosely,
+   because the corpus spells company names a dozen ways. */
+function contraFor(company) {
+  const k = (company || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  return (CONTRA?.items || []).filter(i =>
+    (i.company || "").toLowerCase().replace(/[^a-z0-9]/g, "") === k);
+}
+
+function contraSection() {
+  if (!CONTRA || !CONTRA.count) return "";
+  const hard = (CONTRA.items || []).filter(i => !i.soft);
+  if (!hard.length) return "";
+  return section("icontra", "Sources disagree",
+    `${CONTRA.hard} conflicts across ${CONTRA.companies} companies`,
+    `<div class="sub" style="margin-bottom:12px;max-width:62ch;line-height:1.6">
+       Two records of the same round, differing on date, amount or lead. We do
+       not pick a winner — both readings are shown, because a number you are
+       about to repeat to the person it is about should come with its doubt.</div>
+     <div class="tbl"><table>
+       <thead><tr><th>Company</th><th>Field</th><th>One source says</th>
+       <th>Another says</th><th>Sources</th></tr></thead>
+       <tbody>${hard.slice(0, 40).map(i => `<tr>
+         <td><div class="ent">${logo(i.company)}<div class="nm">${esc(i.company)}</div></div></td>
+         <td>${badge(i.field, i.field === "amount" ? "red" : "amber")}</td>
+         <td class="nowrap">${esc(i.a || "—")}</td>
+         <td class="nowrap">${esc(i.b || "—")}</td>
+         <td>${(i.sources || []).slice(0, 2).map(u =>
+           `<a href="${esc(u)}" target="_blank" rel="noopener" class="srcx">${
+             esc(String(u).replace(/^https?:\/\/(www\.)?/, "").slice(0, 26))}</a>`).join(" ")
+           || `<span class="sub">no document URL</span>`}</td>
+       </tr>`).join("")}</tbody></table></div>`);
 }
 
 function investorList() {
@@ -689,6 +731,7 @@ function investorList() {
       c.previous_lead_returned === false ? badge("lead walked", "red") : "",
       c.confidence === "Low" ? badge("thin evidence", "grey") : "",
       c.at_slush ? badge("Slush 2026", "accent") : "",
+      contraFor(c.company).some(i => !i.soft) ? badge("sources disagree", "red") : "",
     ].filter(Boolean).join(" ");
     return `<tr data-open="${esc(c.company)}" class="${c.stale ? "stalerow" : ""}">
       <td class="rank">${i + 1}</td>
@@ -723,6 +766,7 @@ function investorList() {
         ${badge(c.score, "green")}</div>
         <div class="hlm"><div><div class="k">Insiders back</div><div class="v">${c.insiders.filter(x => x.returned).length}/${c.n_insiders}</div></div>
         <div><div class="k">Last round</div><div class="v">${esc(String(c.last_round || "—").slice(0, 7))}</div></div></div></div>`).join("")}</div>`) : "")
+  + contraSection()
   + section("itbl", "Conviction ranking",
       I.recency ? `evidence older than ${I.recency.grace_months} months is discounted,
         halving every ${I.recency.halflife_months}` : "", `<div class="tbl"><table>
