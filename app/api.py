@@ -48,6 +48,7 @@ class Req(BaseModel):
     investors: list[str] | None = None
     my_investors: list[str] | None = None
     investor: str | None = None        # /outreach: which fund to write to
+    question: str | None = None        # /ask-neo
 
 
 _DOMAINS = None
@@ -1110,6 +1111,83 @@ def team(site: str = "", name: str = ""):
     except Exception as e:
         return {"ok": False, "site": url, "people": [],
                 "why": f"{type(e).__name__}: {str(e)[:90]}"}
+
+
+@app.post("/ask-neo")
+def ask_neo(req: Req):
+    """Answer a question about what is in Flipside, from what is in Flipside.
+
+    The answer is computed by app/neo.py from the same functions that drew
+    the screen, so it cannot state a figure the product does not show. When
+    ANTHROPIC_API_KEY is present the model is handed those facts and asked
+    only to phrase them, and numbercheck rejects any number the facts do not
+    contain. Rules decide, the model only writes.
+    """
+    from . import neo as NEO
+    q = (req.question or "").strip()
+    ctx = _neo_context(req)
+    out = NEO.answer(q, ctx)
+    out["model"] = None
+
+    phrased = _neo_phrase(q, out)
+    if phrased:
+        out["prose"], out["model"] = phrased["text"], phrased["model"]
+    return out
+
+
+def _neo_context(req: Req) -> dict:
+    """Everything Neo is allowed to know: the current screen and the corpus."""
+    ctx: dict = {"company": req.company, "stage": req.stage}
+    try:
+        scored = analyze(req)
+        ctx.update({k: scored.get(k) for k in
+                    ("investors", "competitors", "edges", "fetched_at")})
+    except Exception:
+        ctx["investors"] = []
+    for key, fn in (("syndicates", lambda: syndicates(req).get("syndicates")),
+                    ("backtest", backtest),
+                    ("health", health),
+                    ("contradictions", lambda: contradictions())):
+        try:
+            ctx[key] = fn()
+        except Exception:
+            ctx[key] = None
+    return ctx
+
+
+def _neo_phrase(question: str, computed: dict) -> dict | None:
+    """Optional: let a model phrase the computed facts, never add to them."""
+    import os
+    key = os.getenv("ANTHROPIC_API_KEY")
+    if not key:
+        return None
+    from . import numbercheck as NC
+    allowed = " ".join([computed.get("headline", "")] + list(computed.get("bullets") or []))
+    prompt = (
+        "Rewrite these findings as two short sentences for a founder. Use only "
+        "the facts given. Do not add numbers, names or claims that are not "
+        "below. Plain English, no preamble.\n\n"
+        f"Question: {question}\n\nFindings:\n- "
+        + "\n- ".join([computed.get("headline", "")] + list(computed.get("bullets") or [])))
+    try:
+        import httpx
+        r = httpx.post("https://api.anthropic.com/v1/messages",
+                       headers={"x-api-key": key, "anthropic-version": "2023-06-01",
+                                "content-type": "application/json"},
+                       json={"model": "claude-sonnet-5", "max_tokens": 300,
+                             "messages": [{"role": "user", "content": prompt}]},
+                       timeout=20)
+        if r.status_code != 200:
+            return None
+        text = "".join(b.get("text", "") for b in r.json().get("content") or [])
+    except Exception:
+        return None
+    ok, invented = NC.check_against_text(text, allowed)
+    if not ok:
+        # The model reached past its facts. Drop the prose and keep the
+        # computed answer rather than printing a number nothing supports.
+        return None
+    return {"text": text.strip(), "model": "claude-sonnet-5"}
 
 
 @app.get("/connectors")

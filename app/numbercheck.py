@@ -58,6 +58,18 @@ def check(text: str, signals: dict) -> tuple[bool, list[str]]:
     return (not invented), invented
 
 
+def check_against_text(text: str, source: str) -> tuple[bool, list[str]]:
+    """Same rule, when the ground truth is prose rather than signal objects.
+
+    Ask Neo computes its findings as sentences, so the numbers a model may
+    use are the numbers already in those sentences.
+    """
+    ok = set(_nums(source or ""))
+    invented = [n for n in _nums(text)
+                if n not in ok and not _ALLOW_BARE.match(n)]
+    return (not invented), invented
+
+
 def enforce(text: str, signals: dict, fallback: str = "") -> str:
     """Palauta teksti vain jos se lapaisee. Muuten fallback."""
     passed, _ = check(text, signals)

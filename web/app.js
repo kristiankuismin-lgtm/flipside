@@ -1607,6 +1607,118 @@ async function openSyndicateEvidence(lead, other, kind) {
   w.querySelector("#synclose").onclick = close;
 }
 
+/* ---------- Ask Neo ----------
+   A panel that knows what is on screen. Every answer is computed server-side
+   from the same functions that drew the product, so it cannot state a figure
+   the product does not show. When a model key is set it phrases those facts
+   and numbercheck rejects anything it adds. */
+let NEO_OPEN = false, NEO_LOG = [], NEO_BUSY = false;
+
+function neoToggle(on) {
+  NEO_OPEN = on === undefined ? !NEO_OPEN : on;
+  document.body.classList.toggle("neo-on", NEO_OPEN);
+  neoPaint();
+  if (NEO_OPEN) setTimeout(() => $("#neoq")?.focus(), 60);
+}
+
+async function neoAsk(q) {
+  const text = (q || "").trim();
+  if (!text || NEO_BUSY) return;
+  NEO_LOG.push({ who: "you", text });
+  NEO_BUSY = true; neoPaint();
+  let d;
+  try {
+    d = await (await fetch("/ask-neo", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question: text, company: F?.company || "Gosta Labs",
+                             stage: F?.stage || "series a",
+                             limit: F?.investors?.length || 14 })
+    })).json();
+  } catch (e) { d = { headline: "I could not reach the server.", bullets: [], followups: [] }; }
+  NEO_LOG.push({ who: "neo", ...d });
+  NEO_BUSY = false; neoPaint();
+}
+
+function neoPaint() {
+  const el = $("#neobody");
+  if (!el) return;
+  el.innerHTML = NEO_LOG.length
+    ? NEO_LOG.map(m => m.who === "you"
+        ? `<div class="neoq">${esc(m.text)}</div>`
+        : `<div class="neoa">
+             ${m.prose ? `<p class="prose">${esc(m.prose)}</p>` : ""}
+             <p class="head">${esc(m.headline || "")}</p>
+             ${(m.bullets || []).length
+               ? `<ul>${m.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}
+             ${m.open ? `<button class="btn sm" data-neoopen="${esc(m.open.kind)}|${
+                 esc(m.open.name)}">Show me</button>` : ""}
+             <div class="neosrc">${m.model
+               ? `phrased by ${esc(m.model)} from computed figures`
+               : "computed from this screen — no model involved"}</div>
+           </div>`).join("")
+    : `<div class="neointro">
+         <p>I can see everything on this screen: the ${
+           F?.investors?.length || 0} funds screened, their conflicts and routes,
+           the syndicates, the backtest and what is cached.</p>
+         <p class="sub">Every answer is computed from those figures, not
+           generated. If I cannot compute it, I will say so.</p>
+       </div>`;
+  const last = NEO_LOG[NEO_LOG.length - 1];
+  const chips = (last && last.followups) || ["Who should I meet first?",
+    "Who backs a competitor?", "Who can introduce me?", "Does this actually work?"];
+  const c = $("#neochips");
+  if (c) c.innerHTML = chips.map(x =>
+    `<button class="chip sm" data-neoq="${esc(x)}">${esc(x)}</button>`).join("");
+  if (NEO_BUSY) el.insertAdjacentHTML("beforeend",
+    `<div class="neoa"><span class="spin"></span> reading the screen…</div>`);
+  el.scrollTop = el.scrollHeight;
+  neoWire();
+}
+
+function neoWire() {
+  document.querySelectorAll("[data-neoq]").forEach(b =>
+    b.onclick = () => neoAsk(b.dataset.neoq));
+  document.querySelectorAll("[data-neoopen]").forEach(b => b.onclick = () => {
+    const [kind, name] = b.dataset.neoopen.split("|");
+    if (kind === "investor") { MODE = "founder"; SEL = name; TAB = 0; return render(); }
+    if (kind === "filter") { MODE = "founder"; SEL = null; FFILTER = name; return render(); }
+    if (kind === "view") { MODE = name; SEL = null; return render(); }
+  });
+}
+
+function neoMount() {
+  if ($("#neo")) return;
+  const el = document.createElement("aside");
+  el.id = "neo"; el.className = "neo";
+  el.innerHTML = `
+    <div class="neohd"><span class="sq">N</span>
+      <div><b>Ask Neo</b><span class="sub">knows what is on this screen</span></div>
+      <button class="btn sm" id="neoclose" style="margin-left:auto">Close</button></div>
+    <div class="neobody" id="neobody"></div>
+    <div class="neochips" id="neochips"></div>
+    <div class="neoin">
+      <input id="neoq" placeholder="Ask anything about this screen" autocomplete="off">
+      <button class="btn pri sm" id="neosend">Ask</button>
+    </div>`;
+  document.body.appendChild(el);
+
+  const tab = document.createElement("button");
+  tab.id = "neotab"; tab.className = "neotab";
+  tab.innerHTML = `<span class="sq">N</span>Ask Neo`;
+  tab.onclick = () => neoToggle();
+  document.body.appendChild(tab);
+
+  el.querySelector("#neoclose").onclick = () => neoToggle(false);
+  el.querySelector("#neosend").onclick = () => {
+    const i = $("#neoq"); neoAsk(i.value); i.value = "";
+  };
+  el.querySelector("#neoq").onkeydown = e => {
+    if (e.key === "Enter") { neoAsk(e.target.value); e.target.value = ""; }
+    if (e.key === "Escape") neoToggle(false);
+  };
+  neoPaint();
+}
+
 function render() {
   if (KBDMODE !== MODE) { KBD = -1; KBDMODE = MODE; kbdHint(false); }
   document.querySelectorAll("[data-mode]").forEach(b =>
@@ -1643,6 +1755,7 @@ function render() {
   $("#view").innerHTML = html;
   wire();
   kbdInit();
+  if (NEO_OPEN && !NEO_LOG.length) neoPaint();
   if (KBD >= 0 && KBD >= kbdRows().length) { KBD = -1; kbdHint(false); }
   if (KBD >= 0) kbdPaint();
   if (MODE === "map" && MAP?.points) setTimeout(initMap, 30);
@@ -2594,6 +2707,7 @@ function wireQuickSearch() {
 
 wireQuickSearch();
 loadHealth();
+neoMount();
 render();
 
 /* ================= ENTITY CARD (person / fund) ================= */
