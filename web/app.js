@@ -325,7 +325,7 @@ async function runFounder() {
   });
   stopProgress();
   F = await r.json(); PENDING_CO = PENDING_STAGE = null; SEL = null; SYN = null;
-  planLoad(); FCONTRA = {}; render();
+  planLoad(); dealLoad(); FCONTRA = {}; render();
   loadSyndicates(F.company, F.stage);
   loadFounderContradictions();
 }
@@ -603,6 +603,19 @@ let ROLE = (() => { try { return localStorage.getItem("flipside.role") || "found
 let CONV = null;
 
 function applyRoleChrome() {
+  document.querySelectorAll("[data-deal]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const n = b.dataset.deal;
+    dealSet(n, DEALS[n] ? null : "todo");
+  });
+  document.querySelectorAll("[data-dmove]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const [n, st] = b.dataset.dmove.split("|");
+    dealSet(n, st);
+  });
+  document.querySelectorAll("[data-ddrop]").forEach(b => b.onclick = e => {
+    e.stopPropagation(); dealSet(b.dataset.ddrop, null);
+  });
   document.querySelectorAll("[data-role]").forEach(b =>
     b.classList.toggle("on", b.dataset.role === ROLE));
   const f = $("#navfounder"), i = $("#navinvestor");
@@ -746,7 +759,7 @@ function founderList() {
       <td>${s.warm_path.label !== "⚪"
         ? `<button class="figure" data-ev="${esc(x.investor)}|warm_path">${
             badge(s.warm_path.text.replace(/^via /, ""), "blue")}</button>` : ""}</td>
-      <td class="tdact">${planButton(x.investor)}<button class="btn sm"
+      <td class="tdact">${dealButton(x.investor)}<button class="btn sm"
         data-brief="${esc(x.investor)}" style="margin-left:5px">Brief</button></td>
     </tr>`;
   }).join("");
@@ -1311,6 +1324,123 @@ function planButton(name) {
   return `<button class="btn sm ${on ? "pri" : ""}" data-plan="${esc(name)}"
     title="${on ? "Remove from your Slush plan" : "Add to your Slush plan"}">${
     on ? "✓ In plan" : "+ Plan"}</button>`;
+}
+
+/* ========================================================= THE PIPELINE
+   A ranking tells a founder who to approach. A raise is six weeks of
+   remembering who you already approached, what they said, and which ones
+   have gone quiet - and that is the part a spreadsheet gets used for.
+
+   Five columns because a raise has five states, not because a kanban has
+   to have five. Moving a fund is two clicks, not a drag: a drag that drops
+   a fund in the wrong column during a demo is worse than a button.
+
+   It lives in this browser, like the plan and the call list ticks. Nothing
+   here is sent anywhere, and the page says so rather than implying a
+   backend that does not exist.
+
+   What it knows that a spreadsheet does not: a fund you put in Diligence
+   three weeks ago may since have backed a competitor. The screen already
+   computes that; this is where it matters. */
+const STAGES = [
+  ["todo", "To contact", "ranked, not yet approached"],
+  ["sent", "Approached", "you have written or been introduced"],
+  ["met", "Met", "a conversation has happened"],
+  ["dd", "Diligence", "they are doing work on you"],
+  ["done", "Decided", "a term sheet, or a no"],
+];
+const STAGE_LABEL = Object.fromEntries(STAGES.map(([k, l]) => [k, l]));
+let DEALS = {};
+
+function dealKey() { return `flipside.deals.${(F?.company || "").toLowerCase()}`; }
+
+function dealLoad() {
+  DEALS = {};
+  try {
+    const raw = JSON.parse(localStorage.getItem(dealKey()) || "{}");
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) DEALS = raw;
+  } catch (e) { DEALS = {}; }
+  // The older "plan" was a flat list of names with no stage. Anything in it
+  // belongs in the first column rather than being silently dropped.
+  for (const n of (Array.isArray(PLAN) ? PLAN : [])) {
+    if (!DEALS[n]) DEALS[n] = { stage: "todo", at: Date.now(), note: "" };
+  }
+}
+
+function dealSave() {
+  try { localStorage.setItem(dealKey(), JSON.stringify(DEALS)); } catch (e) { /* private */ }
+}
+
+function dealSet(name, stage) {
+  if (!stage) delete DEALS[name];
+  else DEALS[name] = { ...(DEALS[name] || {}), stage, at: Date.now() };
+  dealSave(); render();
+}
+
+function dealCount() { return Object.keys(DEALS).length; }
+
+function dealButton(name) {
+  const cur = DEALS[name]?.stage;
+  return `<button class="btn sm ${cur ? "pri" : ""}" data-deal="${esc(name)}"
+    title="${cur ? `In your pipeline · ${STAGE_LABEL[cur]}` : "Add to your pipeline"}">${
+    cur ? "✓ " + esc(STAGE_LABEL[cur]) : "+ Pipeline"}</button>`;
+}
+
+/* Who you would ring at this firm, if the call list has been built. */
+function dealContact(fund) {
+  const r = (CALLS?.rows || []).find(x => x.fund === fund);
+  return r ? { person: r.person, role: r.role, linkedin: r.linkedin } : null;
+}
+
+function dealsView() {
+  if (!F) return `<div class="msg">Run a screen first — the pipeline is the
+    funds that survived it.</div>`;
+  const names = Object.keys(DEALS);
+  if (!names.length) return `<div class="msg" style="padding:40px">
+    Nothing in the pipeline yet.<br>
+    <span class="sub">Add funds from the ranking or the call list. It is kept
+    in this browser only — nothing is sent anywhere.</span>
+    <div style="margin-top:14px"><button class="btn" data-goto="founder">Back to
+      the ranking</button></div></div>`;
+
+  const byFund = Object.fromEntries((F.investors || []).map(x => [x.investor, x]));
+  const card = name => {
+    const x = byFund[name], p = DEALS[name], c = dealContact(name);
+    const blocked = x && x.signals.conflict.label === "\u{1F534}";
+    const idx = STAGES.findIndex(s => s[0] === p.stage);
+    return `<div class="dcard ${blocked ? "bad" : ""}">
+      <div class="dch">${logo(name)}<b>${esc(name)}</b>
+        ${x?.score != null ? `<span class="sc">${x.score}</span>` : ""}</div>
+      ${blocked ? `<div class="dwarn">Backs ${esc((x.backs || []).join(", "))}
+        — this is the one the screen told you to drop.</div>` : ""}
+      ${c ? `<div class="dcc">${esc(c.person)}<span class="sub">${
+        esc(c.role || "")}</span></div>`
+        : `<div class="dcc sub">no contact resolved yet</div>`}
+      ${x?.signals?.warm_path?.label !== "⚪" && x?.signals?.warm_path?.text
+        ? `<div class="dcw">${esc(x.signals.warm_path.text)}</div>` : ""}
+      <div class="dcacts">
+        <button class="btn sm" data-dmove="${esc(name)}|${STAGES[Math.max(0, idx - 1)][0]}"
+          ${idx <= 0 ? "disabled" : ""} title="Move back">←</button>
+        <button class="btn sm" data-dmove="${esc(name)}|${STAGES[Math.min(STAGES.length - 1, idx + 1)][0]}"
+          ${idx >= STAGES.length - 1 ? "disabled" : ""} title="Move on">→</button>
+        <button class="btn sm" data-ddrop="${esc(name)}" title="Remove">×</button>
+      </div></div>`;
+  };
+
+  return `<div class="runline">
+      <div class="rl1"><b>${esc(F.company)}</b>
+        <span class="sub">· ${names.length} fund${names.length === 1 ? "" : "s"} in play</span></div>
+      <div class="rl2"><span class="sub">kept in this browser only</span>
+        <button class="lnk" data-goto="founder">Back to the ranking</button></div>
+    </div>
+    <div class="deals">${STAGES.map(([k, label, hint]) => {
+      const col = names.filter(n => (DEALS[n].stage || "todo") === k);
+      return `<div class="dcol">
+        <div class="dcolh"><b>${esc(label)}</b><span class="n">${col.length}</span>
+          <div class="sub">${esc(hint)}</div></div>
+        ${col.map(card).join("") || `<div class="dempty sub">—</div>`}
+      </div>`;
+    }).join("")}</div>`;
 }
 
 function planSection() {
@@ -2355,6 +2485,7 @@ function callRow(r) {
       ${r.linkedin ? `<a class="btn sm" href="${esc(r.linkedin)}" target="_blank"
         rel="noopener">LinkedIn</a>` : ""}
       <button class="btn sm" data-brief="${esc(r.fund)}">Opener</button>
+      ${dealButton(r.fund)}
     </div>
   </div>`;
 }
@@ -2532,6 +2663,10 @@ function render() {
     parts = [{ t: "Your raise", go: 1 }, { t: F?.company || "", go: 1 },
              { t: "Who to call" }];
     html = reachView();
+  } else if (MODE === "deals") {
+    parts = [{ t: "Your raise", go: 1 }, { t: F?.company || "", go: 1 },
+             { t: "Pipeline" }];
+    html = dealsView();
   } else if (MODE === "calls") {
     parts = [{ t: "Your raise", go: 1 }, { t: "Call list" }];
     html = callsView();
@@ -2556,6 +2691,8 @@ function render() {
   $("#baracts").innerHTML = MODE === "founder" && !SEL && F
     ? `<button class="btn" id="go2">Re-run</button>` : "";
   document.body.classList.toggle("has-picks", PICKED.size > 0 && MODE === "founder");
+  const ctd = $("#ct-d");
+  if (ctd) ctd.textContent = dealCount() ? `${dealCount()} in play` : "";
   $("#view").innerHTML = html;
   wire();
   kbdInit();
@@ -2599,6 +2736,19 @@ function render() {
   if (MODE === "reach") { paintReachMap(); }
   const nm = $("#nearme");
   if (nm) nm.onclick = () => nearMeOnReach();
+  document.querySelectorAll("[data-deal]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const n = b.dataset.deal;
+    dealSet(n, DEALS[n] ? null : "todo");
+  });
+  document.querySelectorAll("[data-dmove]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const [n, st] = b.dataset.dmove.split("|");
+    dealSet(n, st);
+  });
+  document.querySelectorAll("[data-ddrop]").forEach(b => b.onclick = e => {
+    e.stopPropagation(); dealSet(b.dataset.ddrop, null);
+  });
   document.querySelectorAll("[data-role]").forEach(b =>
     b.onclick = () => setRole(b.dataset.role));
   document.querySelectorAll("[data-conv]").forEach(b =>
@@ -3524,7 +3674,7 @@ async function runIntake() {
   F.profile = p;
   PENDING_CO = PENDING_STAGE = null; SEL = null; SYN = null;
   INTAKE.state = "done";
-  MODE = "founder"; planLoad(); FCONTRA = {}; render();
+  MODE = "founder"; planLoad(); dealLoad(); FCONTRA = {}; render();
   loadSyndicates(F.company, F.stage);
   loadFounderContradictions();
 }
