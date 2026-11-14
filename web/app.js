@@ -1934,6 +1934,58 @@ function neoNums(text) {
   return esc(text).replace(/(\d[\d.,]*\s?(?:%|pp|\/\d+)?)/g, '<b class="n">$1</b>');
 }
 
+/* What Neo can actually do, by role.
+   Every one of these runs something that exists. A panel full of actions
+   that turn out to be decoration is worse than a smaller panel: the second
+   time a founder taps one and nothing happens, they stop reading the rest. */
+function neoActions() {
+  const acts = ROLE === "investor"
+    ? [["\u25CF", "Who just changed seats", "goto:investor"],
+       ["\u25D1", "Who got backed again", "goto:investor"],
+       ["\u25A6", "Where the companies are", "goto:map"],
+       ["\u25C8", "Does this predict?", "goto:accuracy"]]
+    : [["\u2709", "Draft an opener", "brief"],
+       ["\u260E", "Who do I call first", "goto:calls"],
+       ["\u25A6", "Where they are", "goto:map"],
+       ["\u2630", "What changed", "goto:deals"],
+       ["\uFF0B", "Add my deck", "deck"]];
+  return `<div class="neoacts">${acts.map(([ic, label, go]) =>
+    `<button class="neoact" data-neoact="${esc(go)}"><i>${ic}</i>${esc(label)}</button>`)
+    .join("")}</div>`;
+}
+
+function neoIntro() {
+  const prompts = ROLE === "investor"
+    ? ["Which companies had their previous lead come back?",
+       "Who founded something in the last 18 months?",
+       "How much of the graph have we actually read?",
+       "Does insider conviction predict the next round?"]
+    : F
+      ? [`Who should I meet first about ${F.company}?`,
+         "Which of these back a competitor?",
+         "Who can introduce me, and through whom?",
+         "Which of them actually lead at my stage?"]
+      : ["What can you tell me before I run a screen?",
+         "How much of Cala's graph is cached?",
+         "What have you tested, and what failed?"];
+  const ctx = ROLE === "investor"
+    ? `the <b>${CONV?.companies?.length || 0}</b> companies scored, the moves
+       we can see and what the backtest found`
+    : F ? `the <b>${F?.investors?.length || 0}</b> funds screened, their
+       conflicts and routes, the syndicates and the backtest`
+      : `what is cached, what has been tested and what has not`;
+
+  return `<div class="neointro">
+      <h3>Ask me anything about <em>${ROLE === "investor" ? "your pipeline"
+        : F ? esc(F.company) : "this screen"}</em>.</h3>
+      ${neoActions()}
+      <p class="sub">I can see ${ctx}.</p>
+      <div class="neoprompts">${prompts.map(q =>
+        `<button class="neoprompt" data-neoq="${esc(q)}">${esc(q)}
+           <span>\u2192</span></button>`).join("")}</div>
+    </div>`;
+}
+
 function neoPaint() {
   const el = $("#neobody");
   if (!el) return;
@@ -1953,14 +2005,7 @@ function neoPaint() {
                  esc(m.open.name)}">${esc(OPENLBL[m.open.kind] || "Show me")}
                  <span>&rarr;</span></button>` : ""}
            </div>`).join("")
-    : `<div class="neointro">
-         <div class="sq">N</div>
-         <p>I can see this screen — the <b>${F?.investors?.length || 0}</b> funds
-            screened, their conflicts and routes, the syndicates, the backtest
-            and what is cached.</p>
-         <p class="sub">Answers are computed from those figures, not generated.
-            If I cannot compute it, I say so.</p>
-       </div>`;
+    : neoIntro();
   const last = NEO_LOG[NEO_LOG.length - 1];
   const chips = (last && last.followups) || ["Who should I meet first?",
     "Who backs a competitor?", "Who can introduce me?", "Does this actually work?"];
@@ -1976,6 +2021,29 @@ function neoPaint() {
 function neoWire() {
   document.querySelectorAll("[data-neoq]").forEach(b =>
     b.onclick = () => neoAsk(b.dataset.neoq));
+  document.querySelectorAll("[data-neoact]").forEach(b => b.onclick = () => {
+    const go = b.dataset.neoact;
+    if (go.startsWith("goto:")) {
+      const m = go.slice(5);
+      neoToggle(false);
+      MODE = m; SEL = null;
+      if (m === "map" && !MAP) return loadMap();
+      if (m === "investor" && !CONV) return loadConviction();
+      return render();
+    }
+    if (go === "brief") {
+      const top = (F?.investors || []).find(x =>
+        x.signals.conflict.label !== "\u{1F534}" && x.score != null);
+      if (!top) return neoAsk("Who should I write to first?");
+      neoToggle(false);
+      return openBrief(top.investor);
+    }
+    if (go === "deck") {
+      neoToggle(false);
+      MODE = "home"; render();
+      return $("#askfiles")?.click();
+    }
+  });
   document.querySelectorAll("[data-neoopen]").forEach(b => b.onclick = () => {
     const [kind, name] = b.dataset.neoopen.split("|");
     if (kind === "investor") { MODE = "founder"; SEL = name; TAB = 0; return render(); }
@@ -1990,14 +2058,17 @@ function neoMount() {
   el.id = "neo"; el.className = "neo";
   el.innerHTML = `
     <div class="neohd"><span class="sq">N</span>
-      <div><b>Ask Neo</b><span class="sub">knows what is on this screen</span></div>
-      <button class="btn sm" id="neoclose" style="margin-left:auto">Close</button></div>
+      <div><b>Neo</b><span class="sub">reads this screen</span></div>
+      <button class="neox" id="neonew" title="Start again">+</button>
+      <button class="neox" id="neoclose" title="Close">\u00d7</button></div>
     <div class="neobody" id="neobody"></div>
     <div class="neochips" id="neochips"></div>
     <div class="neoin">
       <input id="neoq" placeholder="Ask anything about this screen" autocomplete="off">
-      <button class="btn pri sm" id="neosend">Ask</button>
-    </div>`;
+      <button class="neosend" id="neosend" title="Ask">\u2191</button>
+    </div>
+    <div class="neofoot">Answers are computed from the figures on this screen,
+      not generated. If a number is not there, Neo says so.</div>`;
   document.body.appendChild(el);
 
   const tab = document.createElement("button");
@@ -2007,6 +2078,7 @@ function neoMount() {
   document.body.appendChild(tab);
 
   el.querySelector("#neoclose").onclick = () => neoToggle(false);
+  el.querySelector("#neonew").onclick = () => { NEO_LOG = []; neoPaint(); };
   el.querySelector("#neosend").onclick = () => {
     const i = $("#neoq"); neoAsk(i.value); i.value = "";
   };
