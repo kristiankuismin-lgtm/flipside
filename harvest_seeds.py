@@ -39,7 +39,20 @@ def main() -> int:
     funds = [i for n in api._investor_pool() for i in by_name.get(norm.name(n), [])]
     tier("funds we rank", funds)
 
-    # 2. Funding rounds, for their amounts.
+    # 2. The portfolio companies of the funds we rank. Their own records
+    # carry HAS_HEADQUARTERS_IN and OPERATES_IN_INDUSTRY, which is what the
+    # sector and geography donuts on a fund profile are counted from - and
+    # with none of them read, those two charts can only say so.
+    port = []
+    for fid in funds:
+        block = (idx.get(fid, {}).get("relationships") or {})
+        for d in ("outgoing", "incoming"):
+            for x in ((block.get(d) or {}).get("INVESTED_IN") or []):
+                if isinstance(x, dict) and x.get("id"):
+                    port.append(x["id"])
+    tier("portfolio of the funds we rank", port)
+
+    # 3. Funding rounds, for their amounts.
     #
     # The product has been telling people that pre-emption detection is
     # starved because only 58 of 837 round records carry an amount. That
