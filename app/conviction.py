@@ -71,6 +71,47 @@ class Conviction:
     confidence: str = "Low"
     previous_lead_returned: bool | None = None
     n_insiders: int = 0
+    last_round: str | None = None       # date of the round this scores
+    months_since: int | None = None
+    recency: float = 1.0                # the decay applied to score_fresh
+    score_fresh: float | None = None    # before decay, so the UI can show both
+    stale: bool = False
+
+
+# Conviction is evidence about *now*: these insiders chose to put more money
+# in. A round from 2022 is still a fact, but it is weaker evidence about this
+# week than a round from last month, and without a decay the ranking is led by
+# companies that have been quiet for three years.
+GRACE_MONTHS = 12        # inside a year, a round is simply current
+HALFLIFE_MONTHS = 18     # after that, halve every 18 months
+RECENCY_FLOOR = 0.40     # old evidence is discounted, never erased
+STALE_AFTER_MONTHS = 24  # what the UI labels "stale"
+
+
+def months_between(earlier: str | None, later: str | None) -> int | None:
+    """Whole months between two ISO dates. None when either is missing."""
+    if not earlier or not later:
+        return None
+    try:
+        a = [int(x) for x in str(earlier)[:7].split("-")[:2]]
+        b = [int(x) for x in str(later)[:7].split("-")[:2]]
+    except ValueError:
+        return None
+    if len(a) < 2 or len(b) < 2:
+        return None
+    return max(0, (b[0] - a[0]) * 12 + (b[1] - a[1]))
+
+
+def recency_factor(months: int | None) -> float:
+    """1.0 while current, halving every HALFLIFE_MONTHS after the grace
+    period, never below the floor. Unknown age is treated as current rather
+    than punished - we do not know that it is old."""
+    if months is None:
+        return 1.0
+    over = months - GRACE_MONTHS
+    if over <= 0:
+        return 1.0
+    return max(RECENCY_FLOOR, 0.5 ** (over / HALFLIFE_MONTHS))
 
 
 def classify_structure(prev: Round, latest: Round) -> str:
@@ -107,7 +148,8 @@ def assess(company: str, rounds: list[Round],
            baselines: dict[str, float] | None = None,
            kinds: dict[str, str] | None = None,
            slowing: set[str] | None = None,
-           pool_mean: float | None = None) -> Conviction:
+           pool_mean: float | None = None,
+           today: str | None = None) -> Conviction:
     """Score one company's latest round by who came back.
 
     rounds must be chronological. Needs at least two rounds.
@@ -197,14 +239,27 @@ def assess(company: str, rounds: list[Round],
     elif structure == BRIDGE:
         reasons.append("bridge/extension rather than a priced up-round")
 
-    score = 100 * (0.45 * part + 0.25 * lift_norm + 0.20 * lead_c + 0.10 * struct_c)
+    fresh = 100 * (0.45 * part + 0.25 * lift_norm + 0.20 * lead_c + 0.10 * struct_c)
+
+    # Age the evidence. Ankorstore's last round was 2022; it should not lead a
+    # ranking of who is converting insider conviction today.
+    now = today or TODAY
+    months = months_between(latest.date, now)
+    rf = recency_factor(months)
+    score = fresh * rf
+    if months is not None and months > GRACE_MONTHS:
+        reasons.append(f"last round {months} months ago — evidence discounted "
+                       f"{round((1 - rf) * 100)}%")
 
     slow = [i.name for i in ins if i.fund_slowing and not i.returned]
     if slow:
         reasons.append(f"absence discounted for {', '.join(slow[:2])} — fund has slowed")
 
     return Conviction(company, round(max(0.0, min(100.0, score)), 1), structure, ins,
-                      reasons, _conf(len(ins), len(lifts)), lead_returned, len(ins))
+                      reasons, _conf(len(ins), len(lifts)), lead_returned, len(ins),
+                      last_round=latest.date, months_since=months, recency=round(rf, 3),
+                      score_fresh=round(max(0.0, min(100.0, fresh)), 1),
+                      stale=bool(months is not None and months >= STALE_AFTER_MONTHS))
 
 
 def is_orphan(company: str, rounds: list[Round], headcount_growth: float | None,

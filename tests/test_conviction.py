@@ -114,3 +114,45 @@ def test_confidence_reflects_sample_and_known_habits():
           r("J", 200, "Series A", ["A", "B"], ["A"])]
     assert K.assess("J", rs).confidence in {"Medium", "High"}
     assert K.assess("J", rs, baselines={"a": .3, "b": .4}).confidence == "High"
+
+
+# ---- recency: conviction is evidence about now ----
+def test_recency_is_flat_inside_the_grace_year_then_decays():
+    assert K.recency_factor(0) == 1.0
+    assert K.recency_factor(12) == 1.0
+    assert K.recency_factor(30) < K.recency_factor(18) < 1.0
+    assert K.recency_factor(600) == K.RECENCY_FLOOR     # discounted, not erased
+
+
+def test_unknown_age_is_not_punished():
+    """We do not know the round is old, so we must not act as if we do."""
+    assert K.recency_factor(None) == 1.0
+
+
+def test_months_between_handles_partial_and_missing_dates():
+    assert K.months_between("2022-01", "2026-11") == 58
+    assert K.months_between("2026-09-15", "2026-11-02") == 2
+    assert K.months_between(None, "2026-11") is None
+    assert K.months_between("2026-11", "2022-01") == 0     # never negative
+
+
+def _pair(co, old_days, new_days):
+    return [r(co, old_days, "Series B", ["Ins A", "Ins B"], ["Ins A"]),
+            r(co, new_days, "Series C", ["Ins A", "Ins B"], ["Ins A"])]
+
+
+def test_a_stale_round_cannot_outrank_the_same_round_today():
+    """The complaint that produced this: a 2022 Series C ranked #1 today."""
+    old = K.assess("Old Co", _pair("Old Co", 2500, 1700))
+    new = K.assess("New Co", _pair("New Co", 800, 60))
+    assert old.score_fresh == new.score_fresh          # identical evidence
+    assert old.score < new.score                       # but not identical weight
+    assert old.stale is True and new.stale is False
+    assert any("discounted" in x for x in old.reasons)
+
+
+def test_the_undecayed_score_is_kept_for_display():
+    c = K.assess("Old Co", _pair("Old Co", 2500, 1700))
+    assert c.score_fresh > c.score
+    assert c.months_since and c.months_since > 24
+    assert 0 < c.recency < 1

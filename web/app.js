@@ -8,6 +8,16 @@ const initials = s => (s || "?").replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/)
 
 let MODE = "home", F = null, I = null, SEL = null, TAB = 0;
 let SYN = null;                        // /syndicates, filled after the screen
+let IFILTER = "all";                   // which KPI card is active
+
+/* A number nobody can act on is decoration. Each card is a filter, and the
+   active one says so. */
+function kpis(cards, active, onPick) {
+  return `<div class="kpis">${cards.map(([k, v, key, why]) => `
+    <button class="kpi ${active === key ? "on" : ""}" data-kpi="${esc(key)}">
+      <span class="k">${esc(k)}</span><span class="v">${v}</span>
+      <span class="why">${esc(why || "")}</span></button>`).join("")}</div>`;
+}
 const OPEN = {};                       // collapsed section memory
 
 /* ---------- small builders ---------- */
@@ -133,6 +143,11 @@ function wire() {
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
     TAB = +b.dataset.tab; render();
   });
+  document.querySelectorAll("[data-kpi]").forEach(b => b.onclick = () => {
+    IFILTER = IFILTER === b.dataset.kpi ? "all" : b.dataset.kpi; render();
+  });
+  const cf = $("#clearf");
+  if (cf) cf.onclick = () => { IFILTER = "all"; render(); };
   document.querySelectorAll("[data-brief]").forEach(b => b.onclick = e => {
     e.stopPropagation();           // the row underneath opens the fund profile
     openBrief(b.dataset.brief);
@@ -554,46 +569,71 @@ async function loadInvestor() {
 function investorList() {
   if (!I) return `<div class="msg"><span class="spin"></span>Loading…</div>`;
   if (I.error) return `<div class="msg">${esc(I.error)}</div>`;
-  const cs = I.companies || [];
-  const pre = cs.filter(c => c.structure === "pre-emption");
-  const bridge = cs.filter(c => c.structure === "bridge");
+  const all = I.companies || [];
+  const pre = all.filter(c => c.structure === "pre-emption");
+  const bridge = all.filter(c => c.structure === "bridge");
+  const strong = all.filter(c => (c.score ?? 0) >= 70);
   const orphans = I.orphans || [];
-  const atSlush = cs.filter(c => c.at_slush);
+  // Six KPI cards that only sat there have become three that filter the list.
+  const cs = IFILTER === "strong" ? strong : IFILTER === "bridge" ? bridge : all;
+
+  // Columns that read the same on every row are not columns. "Round
+  // structure" was healthy on 35 of the top 40 and "Previous lead" returned
+  // on 30 - so those move to a single Flags cell that is empty when there is
+  // nothing to say, and the space goes to recency, which does vary.
+  const ago = c => c.months_since == null ? "—"
+    : c.months_since < 1 ? "this month"
+    : c.months_since < 24 ? `${c.months_since} mo`
+    : `${(c.months_since / 12).toFixed(1)} yr`;
 
   const rows = cs.map((c, i) => {
-    const [sl, sc] = STRUCT[c.structure] || STRUCT.unknown;
     const back = c.insiders.filter(x => x.returned).length;
-    return `<tr data-open="${esc(c.company)}">
+    const flags = [
+      c.structure === "bridge" ? badge("bridge", "amber") : "",
+      c.structure === "preemption" ? badge("pre-empted", "green") : "",
+      c.previous_lead_returned === false ? badge("lead walked", "red") : "",
+      c.confidence === "Low" ? badge("thin evidence", "grey") : "",
+    ].filter(Boolean).join(" ");
+    return `<tr data-open="${esc(c.company)}" class="${c.stale ? "stalerow" : ""}">
       <td class="rank">${i + 1}</td>
       <td><div class="ent">${logo(c.company)}<div><div class="nm">${esc(c.company)}</div>
         <div class="sb">${c.rounds.length} rounds · ${c.n_insiders} insiders</div></div></div></td>
-      <td class="num" style="color:${c.score >= 70 ? "var(--green)" : c.score < 40 ? "var(--red)" : "var(--ink)"}">${c.score}</td>
-      <td>${badge(sl, sc)}</td>
+      <td class="num" style="color:${c.score >= 70 ? "var(--green)" : c.score < 40 ? "var(--red)" : "var(--ink)"}">${c.score}
+        ${c.recency < 0.995 ? `<span class="decay" title="aged from ${c.score_fresh}">↓${
+          Math.round((1 - c.recency) * 100)}%</span>` : ""}</td>
+      <td class="num">${esc(ago(c))}</td>
+      <td class="nowrap">${esc(String(c.last_round || "—").slice(0, 7))}
+        ${c.stale ? badge("stale", "amber") : ""}</td>
       <td class="num">${back}/${c.n_insiders}</td>
-      <td>${c.previous_lead_returned === true ? badge("returned", "green")
-        : c.previous_lead_returned === false ? badge("walked away", "red") : badge("—", "grey")}</td>
-      <td>${badge(c.confidence, c.confidence === "High" ? "green" : c.confidence === "Medium" ? "amber" : "grey")}</td>
+      <td>${flags}</td>
       <td>${c.at_slush ? badge("Slush 2026", "accent") : ""}</td>
     </tr>`;
   }).join("");
 
-  return stats(6, [
-    ["Companies scored", cs.length],
-    ["Pre-emptions", `<span style="color:var(--green)">${pre.length}</span>`],
-    ["Bridges", `<span style="color:var(--red)">${bridge.length}</span>`],
-    ["Lead walked away", `<span style="color:var(--amber)">${cs.filter(c => c.previous_lead_returned === false).length}</span>`],
-    ["Exhibiting at Slush", atSlush.length],
-    ["Pool follow-on rate", pct(I.pool_baseline)],
-  ])
-  + (pre.length ? section("ipre", "Pre-emptions", "",
+  return kpis([
+    ["Companies scored", cs.length, "all",
+     "every company with two rounds and a prior investor to compare"],
+    ["Insiders doubling down", strong.length, "strong",
+     "conviction 70+ after ageing the evidence"],
+    ["Bridges", bridge.length, "bridge",
+     "an extension rather than a priced up-round"],
+  ], IFILTER, k => { IFILTER = IFILTER === k ? "all" : k; render(); })
+  + (IFILTER !== "all" ? `<div class="filterline">Showing
+      <b>${esc({ strong: "insiders doubling down", bridge: "bridges" }[IFILTER] || IFILTER)}</b>
+      — ${cs.length} of ${all.length}.
+      <button class="btn sm" id="clearf">Clear</button></div>` : "")
+  + (pre.length && IFILTER === "all" ? section("ipre", "Pre-emptions", "",
       `<div class="hl">${pre.slice(0, 6).map(c => `<div class="hlc green"><div class="hlhd">${logo(c.company)}
         <div><div class="nm">${esc(c.company)}</div><div class="sb">${c.rounds.at(-1).stage}</div></div>
         ${badge(c.score, "green")}</div>
         <div class="hlm"><div><div class="k">Insiders back</div><div class="v">${c.insiders.filter(x => x.returned).length}/${c.n_insiders}</div></div>
-        <div><div class="k">Previous lead</div><div class="v">${c.previous_lead_returned ? "returned" : "—"}</div></div></div></div>`).join("")}</div>`) : "")
-  + section("itbl", "Conviction ranking", "", `<div class="tbl"><table>
-      <thead><tr><th></th><th>Company</th><th style="text-align:right">Conviction</th><th>Round structure</th>
-      <th style="text-align:right">Insiders back</th><th>Previous lead</th><th>Confidence</th><th></th></tr></thead>
+        <div><div class="k">Last round</div><div class="v">${esc(String(c.last_round || "—").slice(0, 7))}</div></div></div></div>`).join("")}</div>`) : "")
+  + section("itbl", "Conviction ranking",
+      I.recency ? `evidence older than ${I.recency.grace_months} months is discounted,
+        halving every ${I.recency.halflife_months}` : "", `<div class="tbl"><table>
+      <thead><tr><th></th><th>Company</th><th style="text-align:right">Conviction</th>
+      <th style="text-align:right">Age</th><th>Last round</th>
+      <th style="text-align:right">Insiders back</th><th>Flags</th><th></th></tr></thead>
       <tbody>${rows}</tbody></table></div>`)
   + (orphans.length ? section("iorph", "Well-performing orphans",
       "growing, but their lead's fund has stopped deploying",

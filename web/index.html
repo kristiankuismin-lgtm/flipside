@@ -408,6 +408,24 @@ tbody tr:hover{background:var(--panel2)}
   background:var(--panel)}
 .neartabs .tgl{flex:1;justify-content:center}
 .mapsearch .tgl.seg{margin-left:6px;border-radius:5px;padding:3px 9px;font-size:11px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.kpi{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;
+  padding:14px 16px;border:1px solid var(--line);border-radius:11px;background:var(--panel);
+  box-shadow:var(--sh);cursor:pointer;font:inherit}
+.kpi:hover{border-color:var(--line2);background:var(--hover)}
+.kpi.on{border-color:var(--accent);background:var(--accent-bg)}
+.kpi .k{font:10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+.kpi .v{font:25px/1.1 var(--mono);font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.kpi.on .v{color:var(--accent-ink)}
+.kpi .why{font-size:11px;color:var(--faint);line-height:1.45}
+.filterline{display:flex;align-items:center;gap:9px;margin:-6px 0 16px;
+  font-size:12.5px;color:var(--dim)}
+@media(max-width:820px){.kpis{grid-template-columns:1fr}}
+.stalerow .nm{color:var(--dim)}
+.stalerow .logo{opacity:.55}
+.decay{font:9.5px var(--mono);color:var(--amber);margin-left:4px}
+.nowrap{white-space:nowrap;font:11.5px var(--mono);color:var(--dim)}
 .ppsug{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px}
 .nearwhere{padding:9px 13px;font-size:11.5px;color:var(--dim);line-height:1.6;
   border-bottom:1px solid var(--line);background:var(--panel)}

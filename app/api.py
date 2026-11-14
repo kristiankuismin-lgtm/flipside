@@ -1092,4 +1092,36 @@ def conviction():
     if not CONVICTION.exists():
         return JSONResponse({"error": "Conviction data not built yet. "
                              "Run precompute_conviction_corpus.py."}, status_code=200)
-    return json.loads(CONVICTION.read_text())
+    d = json.loads(CONVICTION.read_text())
+    return _age_conviction(d)
+
+
+def _age_conviction(d: dict) -> dict:
+    """Apply recency decay to a precomputed corpus, at serve time.
+
+    The corpus stores each company's rounds, so the age of the evidence is
+    already on disk and nothing has to be refetched. Without this, a company
+    whose last round closed in 2022 leads a ranking of who is converting
+    insider conviction today.
+    """
+    from . import conviction as CV
+    today = CV.TODAY.isoformat()
+    out = []
+    for c in d.get("companies") or []:
+        rounds = c.get("rounds") or []
+        last = max((r.get("date") for r in rounds if r.get("date")), default=None)
+        months = CV.months_between(last, today)
+        rf = CV.recency_factor(months)
+        fresh = c.get("score_fresh", c.get("score"))
+        c = {**c, "last_round": last, "months_since": months,
+             "recency": round(rf, 3), "score_fresh": fresh,
+             "stale": bool(months is not None and months >= CV.STALE_AFTER_MONTHS)}
+        if fresh is not None:
+            c["score"] = round(fresh * rf, 1)
+        out.append(c)
+    out.sort(key=lambda c: (c.get("score") is None, -(c.get("score") or 0)))
+    return {**d, "companies": out,
+            "recency": {"grace_months": CV.GRACE_MONTHS,
+                        "halflife_months": CV.HALFLIFE_MONTHS,
+                        "floor": CV.RECENCY_FLOOR,
+                        "stale_after_months": CV.STALE_AFTER_MONTHS}}
