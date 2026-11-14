@@ -49,6 +49,8 @@ class Req(BaseModel):
     my_investors: list[str] | None = None
     investor: str | None = None        # /outreach: which fund to write to
     question: str | None = None        # /ask-neo
+    rules: list[str] | None = None     # /alerts
+    seen_conflicts: list[str] | None = None
 
 
 _DOMAINS = None
@@ -1260,6 +1262,43 @@ def news(name: str, year: str = ""):
         items.append({"claim": text, "documents": docs[:3]})
     return {"name": name, "items": items, "summary": r.get("content"),
             "error": None}
+
+
+@app.get("/alert-rules")
+def alert_rules():
+    from . import alerts as AL
+    return {"rules": [{"id": k, **v} for k, v in AL.RULES.items()]}
+
+
+@app.post("/alerts")
+def alerts(req: Req):
+    """What these rules catch on this screen, right now.
+
+    Not a promise about email. The rules run against the live screen and
+    show what they find, plus what running them unattended would take -
+    which is a scheduler and somewhere to put the result, and neither
+    exists on a hackathon weekend.
+    """
+    from . import alerts as AL
+    scored = analyze(req)
+    hits = AL.evaluate(scored["investors"],
+                       enabled=set(req.rules) if req.rules is not None else None,
+                       stage=req.stage,
+                       known_conflicts=set(req.seen_conflicts or []))
+    comp = []
+    if req.rules is None or "competitor_raised" in (req.rules or []):
+        comp = AL.competitor_rounds(scored.get("competitors") or [],
+                                    _rounds_by_company())
+    # Every investor in a competitor's recent round is tomorrow's exclusion.
+    would_exclude = sorted({i for c in comp for i in c["investors"]})
+    return {"company": req.company, "stage": req.stage,
+            "hits": hits, "competitor_rounds": comp,
+            "would_exclude": would_exclude,
+            "high": sum(1 for h in hits if h["severity"] == "high") + len(comp),
+            "note": ("These ran once, against this screen. Running them "
+                     "unattended needs a scheduler and a store; neither is "
+                     "here, and saying otherwise would be the only dishonest "
+                     "thing in this product.")}
 
 
 @app.get("/connectors")

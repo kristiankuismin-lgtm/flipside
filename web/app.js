@@ -201,6 +201,7 @@ function wire() {
   document.querySelectorAll("[data-hero]").forEach(b => b.onclick = () => {
     const go = (HEROACTS[+b.dataset.hero] || [])[2] || {};
     if (go.brief) return openBrief(go.brief);
+    if (go.alerts) return openAlerts();
     if (go.filter) { FFILTER = go.filter; render(); }
   });
   document.querySelectorAll("[data-plan]").forEach(b => b.onclick = e => {
@@ -211,6 +212,8 @@ function wire() {
   };
   if ($("#plandl")) $("#plandl").onclick = () => planExport("download");
   if ($("#planprint")) $("#planprint").onclick = () => planExport("print");
+  document.querySelectorAll("[data-alertfor]").forEach(b => b.onclick = () => openAlerts());
+  document.querySelectorAll("[data-openalerts]").forEach(b => b.onclick = () => openAlerts());
   document.querySelectorAll("[data-ftab]").forEach(b => b.onclick = () => {
     FUNDTAB = +b.dataset.ftab; render();
   });
@@ -492,6 +495,8 @@ function heroCard(inv, red, leads, warm) {
   const acts = [];
   if (red.length) acts.push([`See the ${red.length} to avoid`,
     "and the competitor each one funds", { filter: "conflict" }]);
+  acts.push(["Watch for the next one",
+    "every investor in a competitor's next round joins this list", { alerts: 1 }]);
   if (leads.length) acts.push([`${leads.length} of the rest lead at ${F.stage}`,
     "the others can follow, not lead", { filter: "lead" }]);
   if (best) acts.push([`Draft the opener for ${best.lead}`,
@@ -1960,6 +1965,124 @@ function emptyTab(rel, why) {
   return `<div class="emptywhy"><b>Nothing here.</b> ${esc(why)}.
     <span class="sub">The edge we asked for was <code>${esc(rel)}</code>, and it
     came back empty — which is a fact about the graph, not a failure to load.</span></div>`;
+}
+
+/* ---------- alerts ----------
+   The forward half of the exclusion. A conflict you already know about is
+   a fact; a competitor raising next month is the one that changes who you
+   can pitch, and every investor in that round is tomorrow's exclusion. */
+let ALERTS = null, ALERTRULES = null, ALERTON = null, ALERTSTEP = 0;
+
+async function loadAlertRules() {
+  if (ALERTRULES) return ALERTRULES;
+  try { ALERTRULES = (await (await fetch("/alert-rules")).json()).rules; }
+  catch (e) { ALERTRULES = []; }
+  if (!ALERTON) ALERTON = new Set(ALERTRULES.map(r => r.id));
+  return ALERTRULES;
+}
+
+async function runAlerts() {
+  ALERTS = { loading: true }; renderAlerts();
+  try {
+    ALERTS = await (await fetch("/alerts", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company: F?.company || "Gosta Labs",
+                             stage: F?.stage || "series a",
+                             limit: F?.investors?.length || 14,
+                             rules: [...(ALERTON || [])] })
+    })).json();
+  } catch (e) { ALERTS = { hits: [], error: String(e.message) }; }
+  renderAlerts();
+}
+
+async function openAlerts() {
+  await loadAlertRules();
+  ALERTSTEP = 0;
+  const w = document.createElement("div");
+  w.className = "scrim on"; w.id = "alertscrim";
+  document.body.appendChild(w);
+  w.onclick = e => { if (e.target === w) w.remove(); };
+  renderAlerts();
+  if (!ALERTS) runAlerts();
+}
+
+function renderAlerts() {
+  const w = $("#alertscrim");
+  if (!w) return;
+  const steps = ["What to watch", "What it catches now"];
+  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd"><h3>Watch this list</h3>
+      <div class="s">${esc(F?.company || "")} · ${esc(F?.stage || "")}</div></div>
+    <div class="alsteps">${steps.map((t, i) =>
+      `<button class="alstep ${i === ALERTSTEP ? "on" : ""}" data-alstep="${i}">${esc(t)}</button>`).join("")}</div>
+    <div style="padding:15px">${ALERTSTEP === 0 ? alertRulesPane() : alertResultsPane()}
+      <div style="display:flex;gap:8px;margin-top:14px">
+        ${ALERTSTEP === 0
+          ? `<button class="btn pri" id="alnext">See what it catches →</button>`
+          : `<button class="btn" id="alback">← Change the rules</button>`}
+        <button class="btn" id="alclose" style="margin-left:auto">Close</button>
+      </div></div></div>`;
+  w.querySelector("#alclose").onclick = () => w.remove();
+  const nx = w.querySelector("#alnext");
+  if (nx) nx.onclick = () => { ALERTSTEP = 1; renderAlerts(); runAlerts(); };
+  const bk = w.querySelector("#alback");
+  if (bk) bk.onclick = () => { ALERTSTEP = 0; renderAlerts(); };
+  w.querySelectorAll("[data-alstep]").forEach(b => b.onclick = () => {
+    ALERTSTEP = +b.dataset.alstep; renderAlerts();
+    if (ALERTSTEP === 1 && !ALERTS) runAlerts();
+  });
+  w.querySelectorAll("[data-alrule]").forEach(b => b.onclick = () => {
+    const id = b.dataset.alrule;
+    ALERTON.has(id) ? ALERTON.delete(id) : ALERTON.add(id);
+    ALERTS = null; renderAlerts();
+  });
+}
+
+function alertRulesPane() {
+  return `<div class="sub" style="margin-bottom:12px;line-height:1.65;max-width:60ch">
+      Rules run against this screen. The one that matters is the first:
+      a competitor raising is what turns a fund you could pitch into one
+      you cannot.</div>
+    <div class="alrules">${(ALERTRULES || []).map(r => `
+      <button class="alrule ${ALERTON?.has(r.id) ? "on" : ""}" data-alrule="${esc(r.id)}">
+        <span class="sev ${esc(r.severity)}"></span>
+        <span><b>${esc(r.label)}</b><em>${esc(r.why)}</em></span>
+        <span class="tick">${ALERTON?.has(r.id) ? "✓" : ""}</span>
+      </button>`).join("")}</div>`;
+}
+
+function alertResultsPane() {
+  if (!ALERTS) return `<div class="msg" style="padding:24px">
+    <span class="spin"></span>Running the rules…</div>`;
+  if (ALERTS.loading) return `<div class="msg" style="padding:24px">
+    <span class="spin"></span>Running the rules against ${esc(F?.company || "")}…</div>`;
+  if (ALERTS.error) return `<div class="emptywhy"><b>Could not run.</b> ${esc(ALERTS.error)}</div>`;
+
+  const comp = ALERTS.competitor_rounds || [];
+  const ex = ALERTS.would_exclude || [];
+  const hits = ALERTS.hits || [];
+
+  return `${comp.length ? `
+    <div class="alhead">${comp.length} competitor round${comp.length === 1 ? "" : "s"}
+      in the last 18 months</div>
+    ${comp.map(c => `<div class="alrow high">
+      <div><b>${esc(c.competitor)}</b> raised ${esc(c.stage || "a round")}
+        · <span class="when">${esc(c.date)}, ${c.months_ago} months ago</span></div>
+      <div class="sub">${esc(c.investors.join(" · "))}</div>
+    </div>`).join("")}
+    ${ex.length ? `<div class="alexclude">
+      <b>${ex.length} funds are now un-pitchable</b> because they are in one of
+      those rounds.<div class="sub">${esc(ex.join(" · "))}</div></div>` : ""}` : ""}
+    ${hits.length ? `<div class="alhead">${hits.length} on your current list</div>
+      ${hits.map(h => `<div class="alrow ${esc(h.severity)}">
+        <div><b>${esc(h.investor)}</b> — ${esc(h.detail)}</div>
+        <span class="bdg b-${h.severity === "high" ? "red" : h.severity === "medium"
+          ? "amber" : "grey"}">${esc(h.rule.replace(/_/g, " "))}</span>
+      </div>`).join("")}` : ""}
+    ${!comp.length && !hits.length ? `<div class="emptywhy">
+      <b>Nothing fires.</b> No competitor has raised in the window and no fund
+      on the list changed state.</div>` : ""}
+    <div class="sub" style="margin-top:14px;line-height:1.6">${esc(ALERTS.note || "")}</div>`;
 }
 
 function render() {
