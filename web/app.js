@@ -176,6 +176,9 @@ function wire() {
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
     TAB = +b.dataset.tab; render();
   });
+  document.querySelectorAll("[data-goto]").forEach(b => b.onclick = () => {
+    MODE = b.dataset.goto; SEL = null; render();
+  });
   document.querySelectorAll("[data-askgo]").forEach(b => b.onclick = () => {
     const v = b.dataset.askgo;
     if (v === "clear") { ASKWHY = null; return render(); }
@@ -770,6 +773,7 @@ async function loadInvestor() {
   I = await (await fetch("/conviction")).json();
   SEL = null; render();
   if (!CONTRA) loadContradictions();
+  if (!BT) loadBacktest();
 }
 
 async function loadContradictions() {
@@ -891,6 +895,12 @@ function investorList() {
         <div class="hlm"><div><div class="k">Insiders back</div><div class="v">${c.insiders.filter(x => x.returned).length}/${c.n_insiders}</div></div>
         <div><div class="k">Last round</div><div class="v">${esc(String(c.last_round || "—").slice(0, 7))}</div></div></div></div>`).join("")}</div>`) : "")
   + contraSection()
+  + `<div class="validated">
+      <b>Measured, not asserted.</b> On ${BT?.samples || 498} companies this signal
+      lifts stage progression by ${BT ? BT.high_insider_return.lift_pp : 10.2} points
+      where ranking by "whoever invests most" lifts it by ${
+        BT ? BT.naive_most_active.lift_pp : 2.8}.
+      <button class="lnk" data-goto="accuracy">See the backtest →</button></div>`
   + section("itbl", "Conviction ranking",
       I.recency ? `evidence older than ${I.recency.grace_months} months is discounted,
         halving every ${I.recency.halflife_months}` : "", `<div class="tbl"><table>
@@ -1325,6 +1335,8 @@ function kbdInit() {
     if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
 
     if (e.key === "/") { e.preventDefault(); $("#qsq")?.focus(); return; }
+    // The tab advertises this shortcut, so it has to exist.
+    if (e.key === "n" || e.key === "N") { e.preventDefault(); neoToggle(); return; }
 
     const rows = kbdRows();
     if (!rows.length) return;
@@ -1639,38 +1651,46 @@ async function neoAsk(q) {
   NEO_BUSY = false; neoPaint();
 }
 
+/* Figures in mono so an answer reads like the product it is describing. */
+function neoNums(text) {
+  return esc(text).replace(/(\d[\d.,]*\s?(?:%|pp|\/\d+)?)/g, '<b class="n">$1</b>');
+}
+
 function neoPaint() {
   const el = $("#neobody");
   if (!el) return;
+  const OPENLBL = { investor: "Open the profile", filter: "Filter the list",
+                    view: "Open the evidence" };
   el.innerHTML = NEO_LOG.length
     ? NEO_LOG.map(m => m.who === "you"
         ? `<div class="neoq">${esc(m.text)}</div>`
         : `<div class="neoa">
+             <div class="neotop"><span class="tag">${esc((m.topic || "answer").replace(/_/g, " "))}</span>
+               <span class="src">${m.model ? esc(m.model) : "computed"}</span></div>
              ${m.prose ? `<p class="prose">${esc(m.prose)}</p>` : ""}
-             <p class="head">${esc(m.headline || "")}</p>
+             <p class="head">${neoNums(m.headline || "")}</p>
              ${(m.bullets || []).length
-               ? `<ul>${m.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}
-             ${m.open ? `<button class="btn sm" data-neoopen="${esc(m.open.kind)}|${
-                 esc(m.open.name)}">Show me</button>` : ""}
-             <div class="neosrc">${m.model
-               ? `phrased by ${esc(m.model)} from computed figures`
-               : "computed from this screen — no model involved"}</div>
+               ? `<ul>${m.bullets.map(b => `<li>${neoNums(b)}</li>`).join("")}</ul>` : ""}
+             ${m.open ? `<button class="neogo" data-neoopen="${esc(m.open.kind)}|${
+                 esc(m.open.name)}">${esc(OPENLBL[m.open.kind] || "Show me")}
+                 <span>&rarr;</span></button>` : ""}
            </div>`).join("")
     : `<div class="neointro">
-         <p>I can see everything on this screen: the ${
-           F?.investors?.length || 0} funds screened, their conflicts and routes,
-           the syndicates, the backtest and what is cached.</p>
-         <p class="sub">Every answer is computed from those figures, not
-           generated. If I cannot compute it, I will say so.</p>
+         <div class="sq">N</div>
+         <p>I can see this screen — the <b>${F?.investors?.length || 0}</b> funds
+            screened, their conflicts and routes, the syndicates, the backtest
+            and what is cached.</p>
+         <p class="sub">Answers are computed from those figures, not generated.
+            If I cannot compute it, I say so.</p>
        </div>`;
   const last = NEO_LOG[NEO_LOG.length - 1];
   const chips = (last && last.followups) || ["Who should I meet first?",
     "Who backs a competitor?", "Who can introduce me?", "Does this actually work?"];
   const c = $("#neochips");
   if (c) c.innerHTML = chips.map(x =>
-    `<button class="chip sm" data-neoq="${esc(x)}">${esc(x)}</button>`).join("");
+    `<button class="neochip" data-neoq="${esc(x)}">${esc(x)}</button>`).join("");
   if (NEO_BUSY) el.insertAdjacentHTML("beforeend",
-    `<div class="neoa"><span class="spin"></span> reading the screen…</div>`);
+    `<div class="neoa thinking"><span class="spin"></span>reading the screen…</div>`);
   el.scrollTop = el.scrollHeight;
   neoWire();
 }
@@ -1704,7 +1724,7 @@ function neoMount() {
 
   const tab = document.createElement("button");
   tab.id = "neotab"; tab.className = "neotab";
-  tab.innerHTML = `<span class="sq">N</span>Ask Neo`;
+  tab.innerHTML = `<span class="sq">N</span>Ask Neo<span class="kbd">N</span>`;
   tab.onclick = () => neoToggle();
   document.body.appendChild(tab);
 
@@ -1738,7 +1758,7 @@ function render() {
     parts = [{ t: "Signals" }, { t: "Founder signal" }];
     html = signalView();
   } else if (MODE === "accuracy") {
-    parts = [{ t: "Signals" }, { t: "Does the signal work?" }];
+    parts = [{ t: "Signals", go: 1 }, { t: "Does the signal work?" }];
     html = accuracyView();
   } else if (MODE === "founder") {
     parts = SEL ? [{ t: "Founder", go: 1 }, { t: F?.company || "", go: 1 }, { t: SEL }]

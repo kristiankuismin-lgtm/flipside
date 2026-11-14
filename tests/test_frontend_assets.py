@@ -48,6 +48,10 @@ def test_every_view_mode_has_a_way_in():
     exactly how the backtest sat finished and invisible."""
     modes = set(re.findall(r'MODE === "([a-z]+)"', JS))
     nav = set(re.findall(r'data-mode="([a-z]+)"', CSS))
+    # A sidebar row is not the only front door: data-goto navigates from
+    # inside a view, which is where the backtest belongs - next to the
+    # ranking it validates rather than as a peer of it.
+    inline = set(re.findall(r'data-goto="([a-z]+)"', JS))
     # "entity" is reached by opening a profile; "pp" is a map sub-mode.
-    unreachable = modes - nav - {"entity", "pp"}
+    unreachable = modes - nav - inline - {"entity", "pp"}
     assert not unreachable, f"no nav entry for: {sorted(unreachable)}"
