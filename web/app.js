@@ -1375,6 +1375,53 @@ async function fsSearch(q) {
   render();
 }
 
+/* The other half of the people problem: Cala has relationships for one of
+   the 227 people we hold, and a company's own team page has the rest. The
+   rule is borrowed from BlueWatch - a claim is kept only when its quote is
+   literally on the page, and the page is the organisation's own. */
+let TEAM = null;
+
+async function loadTeam(q) {
+  if (!q || !q.trim()) return;
+  TEAM = { loading: true, q }; render();
+  try {
+    TEAM = await (await fetch(`/team?name=${encodeURIComponent(q.trim())}`)).json();
+    TEAM.q = q.trim();
+  } catch (e) { TEAM = { ok: false, people: [], why: String(e.message), q }; }
+  render();
+}
+
+function teamPanel() {
+  if (!TEAM) return "";
+  if (TEAM.loading) return `<div class="msg" style="padding:20px">
+    <span class="spin"></span>Reading ${esc(TEAM.q)}'s own pages…</div>`;
+
+  const host = String(TEAM.site || "").replace(/^https?:\/\//, "");
+  if (!TEAM.people?.length) return `<div class="emptywhy" style="margin-top:var(--s2)">
+    <b>Nothing we could quote.</b> ${esc(TEAM.why || "")}
+    ${TEAM.team_url ? `<br>Read <a href="${esc(TEAM.team_url)}" target="_blank"
+      rel="noopener">${esc(String(TEAM.team_url).replace(/^https?:\/\//, ""))}</a>.` : ""}
+    <span class="sub">A name without a role in the same sentence is not a claim
+      the page made, so it is dropped rather than guessed at.</span></div>`;
+
+  return `<div class="teamwrap">
+    <div class="teamhd">${TEAM.people.length} people
+      <a href="${esc(TEAM.team_url)}" target="_blank" rel="noopener">${esc(host)}</a>
+      names on its own page</div>
+    ${TEAM.people.map(p => `<div class="teamrow">
+      <span class="av">${esc(initials(p.name))}</span>
+      <div style="min-width:0;flex:1">
+        <div class="nm">${esc(p.name)} ${badge(p.role, p.role === "founder" ? "green" : "grey")}</div>
+        <div class="q">“${esc(p.quote)}”</div></div>
+      <button class="btn sm" data-fsname="${esc(p.name)}">Signal →</button>
+    </div>`).join("")}
+    <div class="teamfoot">Every line is quoted from the page, which is the
+      company speaking about itself. Names and roles only — contact details are
+      dropped even where the page shows them, and no profile aggregator or
+      social network is read.</div>
+  </div>`;
+}
+
 function signalView() {
   const picked = FSIG && FSIGFOR;
   return `<div class="fswrap">
@@ -1398,10 +1445,13 @@ function signalView() {
       </div>
     </div>
     <div class="fssearch">
-      <input id="fsq" placeholder="A person by name" value="${esc(FSQ)}" autocomplete="off">
+      <input id="fsq" placeholder="A person by name, or a company to read its team page"
+        value="${esc(FSQ)}" autocomplete="off">
       <div class="fschips">${FS_SUGGEST.map(n =>
-        `<button class="chip sm" data-fsname="${esc(n)}">${esc(n)}</button>`).join("")}</div>
+        `<button class="chip sm" data-fsname="${esc(n)}">${esc(n)}</button>`).join("")}
+        <button class="chip sm" data-fsteam="${esc(FSQ)}">Read a team page →</button></div>
     </div>
+    ${teamPanel()}
     ${fsResults()}
     ${picked ? `<div class="fsresult">${founderSignalPanel()}</div>` : ""}
   </div>`;
@@ -1601,6 +1651,10 @@ function render() {
     fsq.oninput = () => { clearTimeout(FSTIMER);
       FSTIMER = setTimeout(() => fsSearch(fsq.value), 280); };
   }
+  document.querySelectorAll("[data-fsteam]").forEach(b => b.onclick = () => {
+    const i = $("#fsq");
+    loadTeam((i && i.value) || b.dataset.fsteam);
+  });
   document.querySelectorAll("[data-fsname]").forEach(b => b.onclick = () => {
     const i = $("#fsq"); if (i) i.value = b.dataset.fsname;
     fsSearch(b.dataset.fsname);

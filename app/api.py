@@ -1081,6 +1081,37 @@ def syndicate_evidence(lead: str, member: str = "", via: str = ""):
             "joined": sum(1 for r in rows if r["joined"])}
 
 
+@app.get("/team")
+def team(site: str = "", name: str = ""):
+    """People a company names on its own page, each with the sentence.
+
+    Cala carries relationships for one of the 227 people we hold, so the
+    founder signal has almost nothing to read. This is the other half: the
+    organisation speaking about itself, on its own domain, with every claim
+    quoted back. Names and roles only - contact details are discarded even
+    when the page shows them.
+    """
+    from . import team as TM, website as W
+    url = site
+    if not url and name:
+        d = _domains().get(name.strip().lower())
+        if not d:
+            try:
+                found = W.discover(name)
+            except Exception:
+                found = None
+            d = (found or {}).get("site")
+        url = d
+    if not url:
+        return {"ok": False, "site": None, "people": [],
+                "why": "no website on record for this name"}
+    try:
+        return TM.read(url, timeout=9)
+    except Exception as e:
+        return {"ok": False, "site": url, "people": [],
+                "why": f"{type(e).__name__}: {str(e)[:90]}"}
+
+
 @app.get("/connectors")
 def connectors(limit: int = 12):
     """Funds whose handoffs spread widest - the bridges in this network."""

@@ -583,6 +583,115 @@ tbody tr.kbd{background:var(--accent-bg)!important;
 @keyframes sp{to{transform:rotate(360deg)}}
 @media(max-width:900px){.app{grid-template-columns:1fr}.nav{display:none}
   .two,.three{grid-template-columns:1fr}.qsin{width:160px}}
+
+/* ====================================================================
+   Six features' styles landed here together after an audit found they
+   had silently never been inserted: each edit anchored on a string an
+   earlier edit had already rewritten, so the replace was a no-op and the
+   markup rendered unstyled. Appended rather than threaded back in, so
+   nothing below depends on text above it staying still.
+   ==================================================================== */
+
+/* progress: the work, shown while it runs */
+.pgwrap{max-width:640px;margin:var(--s5) auto;padding:var(--s3);
+  border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  box-shadow:var(--sh)}
+.pghd{display:flex;align-items:center;gap:10px;font-size:14.5px;color:var(--ink);
+  margin-bottom:var(--s2)}
+.pgsteps{display:flex;flex-direction:column;gap:2px;max-height:300px;overflow-y:auto}
+.pgstep{display:flex;align-items:baseline;gap:10px;padding:5px 0;font-size:12.5px;
+  color:var(--dim);line-height:1.5}
+.pgstep .tick{flex:none;width:14px;color:var(--green);font-size:11px}
+.pgstep.now{color:var(--ink);font-weight:550}
+.pgstep.now .tick::after{content:"\203A";color:var(--accent);font-weight:700}
+.pgstep .tx{flex:1;min-width:0}
+.pgstep .el{flex:none;font:10.5px var(--mono);color:var(--faint);
+  font-variant-numeric:tabular-nums}
+
+/* the plan */
+.planwrap{border:1px solid var(--line);border-radius:11px;overflow:hidden;
+  background:var(--panel);box-shadow:var(--sh)}
+.planlist{display:flex;flex-direction:column}
+.planrow{display:flex;align-items:center;gap:11px;padding:11px 14px;
+  border-bottom:1px solid var(--line)}
+.planrow:last-child{border-bottom:0}
+.planrow .n{flex:none;width:20px;height:20px;border-radius:50%;
+  background:var(--accent-bg);color:var(--accent-ink);
+  font:10.5px/20px var(--mono);text-align:center;font-weight:600}
+.planrow .nm{font-weight:560;font-size:13.5px}
+.planrow .sb{font:10.5px var(--mono);color:var(--faint);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.planfoot{display:flex;align-items:center;gap:9px;padding:11px 14px;
+  background:var(--panel2);border-top:1px solid var(--line);font-size:12px}
+
+/* ask: which side of the graph, and what we are standing on */
+.lens{display:flex;gap:6px;justify-content:center;margin:0 0 var(--s2)}
+.lensbtn{padding:6px 13px;border:1px solid var(--line);border-radius:999px;
+  background:var(--panel);color:var(--dim);font:12.5px var(--sans);cursor:pointer}
+.lensbtn:hover{border-color:var(--line2);background:var(--hover)}
+.lensbtn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.lenshint{font-size:11.5px;color:var(--faint);margin-right:auto;padding-left:4px}
+.dm{font:10px var(--mono);letter-spacing:.04em;cursor:help}
+.dm.cached{color:var(--blue)}
+.dm.live{color:var(--green)}
+
+/* honest absence */
+.emptywhy{padding:var(--s2);border:1px dashed var(--line2);border-radius:10px;
+  background:var(--panel2);font-size:13px;line-height:1.65;color:var(--dim);
+  max-width:66ch}
+.emptywhy b{color:var(--ink);display:block;margin-bottom:5px}
+.emptywhy .sub{display:block;margin-top:8px;font-size:11.5px;color:var(--faint)}
+.unchecked{color:var(--line2);font-weight:400;cursor:help}
+.srcx{display:inline-block;font:10.5px var(--mono);color:var(--blue);
+  text-decoration:none;margin-right:6px}
+.srcx:hover{text-decoration:underline}
+tbody tr.dim td{opacity:.5}
+.reasons{margin:9px 0 0;padding-left:18px;font-size:12.5px;color:var(--dim);
+  line-height:1.7}
+
+/* the third reading */
+.fswrap{max-width:860px;margin:0 auto}
+.fshd h2{margin:0 0 6px;font-size:21px;font-weight:600;letter-spacing:-.012em}
+.fshd p{margin:0 0 var(--s2);font-size:13.5px;line-height:1.7;color:var(--dim);
+  max-width:62ch}
+.fssearch input{width:100%;max-width:520px;padding:11px 14px;
+  border:1px solid var(--line2);border-radius:10px;font:14px var(--sans);
+  background:var(--panel)}
+.fssearch input:focus{outline:0;border-color:var(--accent)}
+.fschips{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--s1)}
+.chip.sm{padding:4px 11px;font-size:12px}
+.fslist{display:flex;flex-direction:column;margin-top:var(--s2);
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  background:var(--panel)}
+.fsrow{display:flex;align-items:center;gap:12px;padding:11px 14px;text-align:left;
+  background:none;border:0;border-bottom:1px solid var(--line);cursor:pointer;
+  font:inherit;width:100%}
+.fsrow:last-child{border-bottom:0}
+.fsrow:hover{background:var(--hover)}
+.fsrow>div{flex:1;min-width:0}
+.fsrow .nm{font-weight:560;font-size:13.5px}
+.fsrow .d{font-size:11.5px;color:var(--faint);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fsrow .go{font-size:11.5px;color:var(--accent-ink);white-space:nowrap}
+.fsresult{margin-top:var(--s3)}
+
+/* people a company names on its own page */
+.teamwrap{margin-top:var(--s2);border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);overflow:hidden}
+.teamhd{padding:10px 14px;background:var(--panel2);
+  border-bottom:1px solid var(--line);font-size:12px;color:var(--dim)}
+.teamrow{display:flex;gap:11px;align-items:flex-start;padding:11px 14px;
+  border-bottom:1px solid var(--line)}
+.teamrow:last-of-type{border-bottom:0}
+.teamrow .av{flex:none;width:28px;height:28px;border-radius:8px;
+  background:var(--panel2);border:1px solid var(--line);
+  font:10.5px/26px var(--mono);text-align:center;color:var(--faint)}
+.teamrow .nm{font-weight:560;font-size:13.5px}
+.teamrow .q{font-size:11.5px;color:var(--faint);line-height:1.5;margin-top:3px;
+  font-style:italic}
+.teamfoot{padding:10px 14px;background:var(--panel2);
+  border-top:1px solid var(--line);font-size:11px;color:var(--faint);
+  line-height:1.6}
 </style>
 </head>
 <body>
