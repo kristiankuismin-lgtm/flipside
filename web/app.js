@@ -654,10 +654,9 @@ function mapView() {
               : MAPMODE === "fu" ? "Filter funds, or type a city"
               : "Filter companies, or type a city"}"></div>
           <div class="maplegend">
-            <span class="sw"><i style="background:#2d7a4f"></i>conviction ≥70</span>
-            <span class="sw"><i style="background:#90610a"></i>55–70</span>
-            <span class="sw"><i style="background:#b03628"></i>&lt;55</span>
-            <span class="sw"><i style="background:#9b958c"></i>not enough rounds</span>
+            ${Object.entries(STATUS).map(([k, [c, lbl]]) =>
+              `<span class="sw"><i style="background:${c}"></i>${lbl}${
+                MAP.status?.[k] ? ` (${MAP.status[k]})` : ""}</span>`).join("")}
             <span class="sw"><i style="background:#c2614f"></i>fund</span>
             <span class="sw" id="precisenote"></span>
           </div>
