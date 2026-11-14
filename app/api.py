@@ -268,32 +268,50 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
 
 @app.post("/analyze")
 def analyze(req: Req):
+    from . import progress as PG
+    key = PG.key_for(req.company, req.stage)
+    PG.start(key, req.company)
+
     p = PRESETS.get(req.company.strip().lower(), {})
     cq = p.get("query") or req.company
     desc = req.description or p.get("desc", "")
 
+    PG.step(key, f"Resolving {req.company} in Cala's graph")
     comps, cerr = _safe(C.competitors, cq)
+    PG.step(key, f"Found {len(comps or [])} named competitors",
+            ", ".join(c.get("name", "") for c in (comps or [])[:4]))
     pool = req.investors or _investor_pool()[: req.limit]
     mine = req.my_investors or p.get("my_investors", [])
+    PG.step(key, f"Screening {len(pool)} funds")
 
     # Yhteinen yhtiohistoria-indeksi lampimia reitteja varten. Kootaan kerran
     # kaikkien sijoittajien portfolioyhtioista - vain cachesta.
     all_rounds = []
-    for i in pool:
+    for n, i in enumerate(pool, 1):
         rs, _ = _safe(investor_rounds, i)
         for r in sorted(rs or [], key=lambda x: x.date)[:10]:
             h, _ = _safe(company_history, r.company)
             if h:
                 all_rounds.extend(h)
+        if n % 3 == 0 or n == len(pool):
+            PG.step(key, f"Read {n} of {len(pool)} fund histories",
+                    f"{len(all_rounds)} rounds so far")
     histories = W.index_histories(all_rounds)
+    PG.step(key, f"Indexed {len(all_rounds)} rounds for warm routes")
 
-    out = [analyze_one(i, req.company, desc, req.stage, comps, histories, mine)
-           for i in pool]
+    out = []
+    for n, i in enumerate(pool, 1):
+        out.append(analyze_one(i, req.company, desc, req.stage, comps, histories, mine))
+        if n % 4 == 0 or n == len(pool):
+            PG.step(key, f"Scored {n} of {len(pool)} funds")
     # Unranked (insufficient evidence) always last, never mixed in.
     out.sort(key=lambda x: (x["score"] is None, -(x["score"] or 0), x["investor"]))
     # Kilpailija <-> rahasto -kaaret konfliktikarttaa varten.
     edges = [{"investor": x["investor"], "competitor": c}
              for x in out for c in x.get("backs") or []]
+    warm = sum(1 for x in out if x["signals"]["warm_path"]["label"] != "\u26aa")
+    PG.done(key, f"{len(edges)} conflicts, {warm} warm route"
+                 f"{'' if warm == 1 else 's'}")
     from datetime import datetime, timezone
     return {"company": req.company, "stage": req.stage,
             # Every claim in the UI is datable: a number with no retrieval
@@ -964,6 +982,13 @@ def contradictions(company: str = ""):
         key = norm.name(company) or company.strip().lower()
         rbc = {k: v for k, v in rbc.items() if k == key}
     return CX.summarise(rbc)
+
+
+@app.get("/progress")
+def progress(company: str, stage: str = ""):
+    """What the screen is doing right now. Polled while /analyze runs."""
+    from . import progress as PG
+    return PG.get(PG.key_for(company, stage))
 
 
 @app.get("/connectors")

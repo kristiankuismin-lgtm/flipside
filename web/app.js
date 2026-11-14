@@ -200,15 +200,57 @@ function entityHeader(name, sub, meta, tabs, acts, domain) {
 }
 
 /* ================= FOUNDER ================= */
+/* A minute and a half behind one spinner says nothing about how much Cala
+   data is being read. Poll the run log and show the work. */
+let PGTIMER = null;
+
+function stopProgress() { clearInterval(PGTIMER); PGTIMER = null; }
+
+function startProgress(company, stage) {
+  stopProgress();
+  const paint = steps => {
+    const el = $("#pgsteps");
+    if (!el) return;
+    el.innerHTML = steps.map((x, i) => `
+      <div class="pgstep ${i === steps.length - 1 ? "now" : "done"}">
+        <span class="tick">${i === steps.length - 1 ? "" : "✓"}</span>
+        <span class="tx">${esc(x.text)}${
+          x.detail ? ` <span class="sub">${esc(x.detail)}</span>` : ""}</span>
+        <span class="el">${x.t}s</span></div>`).join("");
+    el.scrollTop = el.scrollHeight;
+  };
+  PGTIMER = setInterval(async () => {
+    try {
+      const r = await fetch(`/progress?company=${encodeURIComponent(company)
+        }&stage=${encodeURIComponent(stage || "")}`);
+      const d = await r.json();
+      if (d.steps?.length) paint(d.steps);
+      if (d.done) stopProgress();
+    } catch (e) { /* the run is what matters, not its narration */ }
+  }, 600);
+}
+
 async function runFounder() {
-  $("#view").innerHTML = `<div class="msg"><span class="spin"></span>Reading Cala's graph…</div>`;
+  const co = PENDING_CO || $("#co")?.value || F?.company || "Gosta Labs";
+  const st = PENDING_STAGE || $("#st")?.value || "series a";
+  $("#view").innerHTML = `<div class="pgwrap">
+    <div class="pghd"><span class="spin"></span>Reading Cala's graph for
+      <b>${esc(co)}</b></div>
+    <div class="pgsteps" id="pgsteps"><div class="pgstep now">
+      <span class="tick"></span><span class="tx">Starting…</span></div></div>
+    <div class="sub" style="margin-top:12px">Every step below is a walk over
+      Cala's graph — competitors, fund histories, portfolio progressions and
+      warm routes.</div>
+  </div>`;
+  startProgress(co, st);
   const r = await fetch("/analyze", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      company: PENDING_CO || $("#co")?.value || F?.company || "Gosta Labs",
-      stage: PENDING_STAGE || $("#st")?.value || "series a",
+      company: co,
+      stage: st,
       limit: +($("#n")?.value || 14) })
   });
+  stopProgress();
   F = await r.json(); PENDING_CO = PENDING_STAGE = null; SEL = null; SYN = null;
   planLoad(); render();
   loadSyndicates(F.company, F.stage);
