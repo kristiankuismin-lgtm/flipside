@@ -596,6 +596,41 @@ def registry(name: str, rounds: str = ""):
     return out
 
 
+@app.get("/exits")
+def exits(entity_id: str, name: str = "", kind: str = "fund", limit: int = 12):
+    """Did money ever come out?
+
+    For a company: was it acquired, by whom, when. For a fund: how many of
+    its portfolio companies exited - reported with the denominator, because
+    "3 exits" is meaningless without "out of how many we could check".
+    """
+    from . import exits as X
+    kw = dict(allow_live=True, ttl=7 * 86400)
+    try:
+        if kind != "fund":
+            xs = X.company_exits(entity_id, name, **kw)
+            return {"name": name, "kind": kind, "checked": 1,
+                    "exits": [x.__dict__ for x in xs]}
+
+        e = _entity(entity_id, ["name"], ["INVESTED_IN"])
+        from . import graph
+        port = [c for c in graph.rels(e, "outgoing", "INVESTED_IN") if c.get("id")][:limit]
+        results, unknown = [], 0
+        for c in port:
+            try:
+                results.append((c["name"], X.company_exits(c["id"], c["name"], **kw)))
+            except Exception:
+                unknown += 1
+        rec = X.summarise(results, unknown)
+        return {"name": name, "kind": kind, "checked": rec.checked,
+                "unknown": rec.unknown, "rate": rec.rate,
+                "portfolio_seen": len(port),
+                "exits": [x.__dict__ for x in rec.exits]}
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:110]}",
+                             "exits": [], "checked": 0}, status_code=200)
+
+
 @app.get("/bio")
 def bio(name: str, kind: str = "people"):
     """A sourced narrative. Cheap depth: one search, every claim cited."""

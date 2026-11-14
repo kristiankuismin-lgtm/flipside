@@ -1270,8 +1270,8 @@ function entityView() {
        ["Boards", counts.IS_MEMBER_OF || 0]]
     : [["Investments", counts.INVESTED_IN || 0],
        ["Rounds on record", counts.PARTICIPATES_IN_FUNDING_ROUND || 0],
+       ["Exits found", EXITS[ENT.id]?.exits?.length ?? "…"],
        ["Industries", counts.OPERATES_IN_INDUSTRY || 0],
-       ["Events", counts.PARTICIPATES_IN_EVENT || 0],
        ["Employees", val("employee_count") ?? "—"]];
 
   let body = `<div class="ehd"><div class="ehdtop">
@@ -1288,13 +1288,16 @@ function entityView() {
 
   if (isPerson && TAB === 1) return body + founderSignalTab() + "</div>";
 
-  body += warn + bioBlock(ENT.name, ENT.kind);
+  body += warn;
   if (val("description"))
     body += `<p class="lede">${esc(val("description"))}
       ${src("description") ? `<a href="${esc(src("description"))}" target="_blank"
         rel="noopener" style="font-size:12px"> source</a>` : ""}</p>`;
 
   body += stats(5, statRow.map(([k, v]) => [k, v, "mono"]));
+  body += exitsBlock(ENT.id, ENT.name, ENT.kind);
+  if (OPEN["bio"] === undefined) OPEN["bio"] = false;   // long: collapsed first
+  body += bioBlock(ENT.name, ENT.kind);
 
   for (const g of ENT.groups || []) {
     body += section("ent-" + g.rel, g.label, `${g.items.length} on record`,
@@ -1611,4 +1614,48 @@ function bioBlock(name, kind) {
             <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name.slice(0, 66))}</a></div>`).join("")}
         </div>`).join("")}</div>
     </div>`);
+}
+
+
+/* ================= EXITS ================= */
+/* Conviction asks whether money comes back in. This asks whether it ever
+   comes out - the outcome an investor is actually underwriting. */
+const EXITS = {};
+
+function exitsBlock(id, name, kind) {
+  if (!id) return "";
+  const d = EXITS[id];
+  if (d === undefined) {
+    EXITS[id] = null;
+    fetch(`/exits?entity_id=${encodeURIComponent(id)}&name=${encodeURIComponent(name)}&kind=${
+      kind === "people" ? "company" : "fund"}`)
+      .then(r => r.json()).then(j => { EXITS[id] = j; render(); })
+      .catch(e => { EXITS[id] = { error: String(e.message), exits: [] }; render(); });
+  }
+  if (!d) return section("ex-l", "Exits", "",
+    `<div class="card"><div class="sub"><span class="spin"></span>Checking the
+     portfolio for completed acquisitions…</div></div>`);
+  if (d.error) return "";
+
+  const xs = d.exits || [];
+  if (!xs.length) return section("ex", "Exits",
+    d.checked ? `none found across ${d.checked} checked` : "",
+    `<div class="card"><div class="sub">No completed acquisition on record for
+      ${d.checked ? `the ${d.checked} portfolio companies we could check` : "this company"}.
+      ${d.unknown ? `${d.unknown} could not be checked. ` : ""}An empty result here is
+      a young portfolio as often as a weak one — it is not a score.</div></div>`);
+
+  return section("ex", "Exits",
+    d.rate != null ? `${xs.length} of ${d.checked} checked (${pct(d.rate)})`
+                   : `${xs.length} on record`,
+    `<div class="hl tight">${xs.map(x => `<div class="hlc green">
+      <div class="hlhd">${logo(x.company)}
+        <div style="min-width:0"><div class="nm">${esc(x.company)}</div>
+          <div class="sb">${esc(String(x.date || "").slice(0, 7))}</div></div>
+        ${badge("exit", "green")}</div>
+      ${x.acquirer ? `<div class="facts"><span>acquired by <b>${esc(x.acquirer)}</b></span></div>` : ""}
+      ${x.description ? `<div class="with">${esc(x.description)}</div>` : ""}
+      ${x.source ? `<a class="srcline" href="${esc(x.source)}" target="_blank"
+        rel="noopener">${esc(String(x.source).replace(/^https?:\/\/(www\.)?/, "").split("/")[0])}</a>` : ""}
+    </div>`).join("")}</div>`);
 }
