@@ -72,3 +72,59 @@ def test_exits_come_back_newest_first():
         ("b", [X.Exit("b", "C", date(2024, 2, 1), "MNA_COMPLETED")]),
     ])
     assert [x.company for x in r.exits] == ["b", "a"]
+
+
+# --------------------------------- a financing round is not an exit
+from app import profile as _PR
+
+
+def _fund(events):
+    return {"id": "f", "name": "Testfund", "entity_type": "Organization",
+            "properties": {}, "relationships": {"outgoing": {
+                "PARTICIPATES_IN_CORPORATE_EVENT": events}, "incoming": {}}}
+
+
+def _ev(name, **props):
+    return {"id": name.lower(), "name": name, "entity_type": "CorporateEvent",
+            "properties": props}
+
+
+def test_financing_events_are_not_counted_as_exits():
+    """Creandum's 69 corporate events are all financings. Counting the edge
+    put 69 exits on its headline card when it has none on record."""
+    f = _PR.build(_fund([_ev("FINANCING_RAISED_OR_FACILITY_ENTERED", role="INVESTOR")] * 3))
+    assert f["stats"]["exits"] == 0
+    assert f["stats"]["financing_events"] == 3
+    assert f["has"]["exits"] is False
+
+
+def test_a_completed_acquisition_is_an_exit():
+    f = _PR.build(_fund([_ev("MNA_COMPLETED", role="ACQUIRER")]))
+    assert f["stats"]["exits"] == 1
+    assert f["has"]["exits"] is True
+
+
+def test_the_two_are_separated_in_the_same_list():
+    f = _PR.build(_fund([_ev("FINANCING_RAISED_OR_FACILITY_ENTERED"),
+                         _ev("MNA_COMPLETED")]))
+    assert f["stats"]["exits"] == 1 and f["stats"]["financing_events"] == 1
+
+
+def test_headquarters_falls_back_to_where_they_operate():
+    """Creandum has no HAS_HEADQUARTERS_IN and three presence countries; a
+    blank read as "we do not cover them"."""
+    e = {"id": "f", "name": "T", "entity_type": "Organization", "properties": {},
+         "relationships": {"outgoing": {"HAS_PRESENCE_IN": [
+             {"id": "se", "name": "Sweden", "entity_type": "Country"}]}, "incoming": {}}}
+    f = _PR.build(e)
+    assert f["country"] == "Sweden" and f["country_is_presence"] is True
+
+
+def test_a_real_headquarters_is_not_labelled_as_presence():
+    e = {"id": "f", "name": "T", "entity_type": "Organization", "properties": {},
+         "relationships": {"outgoing": {
+             "HAS_HEADQUARTERS_IN": [{"id": "fi", "name": "Finland", "entity_type": "Country"}],
+             "HAS_PRESENCE_IN": [{"id": "se", "name": "Sweden", "entity_type": "Country"}],
+         }, "incoming": {}}}
+    f = _PR.build(e)
+    assert f["country"] == "Finland" and f["country_is_presence"] is False

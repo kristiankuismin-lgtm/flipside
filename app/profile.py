@@ -78,16 +78,74 @@ def build(e: dict, *, rounds_by_company: dict | None = None,
         })
     port.sort(key=lambda c: (-(c["rounds"] or 0), c["name"] or ""))
 
-    exits = [{"id": x.get("id"), "name": x.get("name"),
-              "role": _role(x, "role"), "type": _role(x, "event_type")}
-             for x in events]
+    # ---------------------------------------------------------- the shape
+    # of a portfolio: where it is, what it is in, what size the cheques are.
+    #
+    # Every one of these is read off the rounds and the companies we already
+    # hold rather than asked for separately, and every one of them counts
+    # only what it can see - a sector mix over 9 of 40 companies is a sector
+    # mix over 9 companies and says so, because a donut that silently covers
+    # a quarter of the portfolio is worse than no donut.
+    from . import depth as _depth
+    countries, sectors = Counter(), Counter()
+    placed = typed = 0
+    for c in port:
+        ce = _depth.entity(c["name"], types=("Company", "Organization"))
+        if not ce:
+            continue
+        where = [w["name"] for w in _depth.presence(ce) if w["kind"] == "headquarters"]
+        if where:
+            countries[where[0]] += 1
+            placed += 1
+        inds = _depth.industries(ce)
+        if inds:
+            sectors[inds[0]] += 1
+            typed += 1
+
+    # Cheque sizes, from the rounds this fund was actually in.
+    amounts, dated = [], []
+    for c in port:
+        for r in (rbc.get(norm.name(c["name"] or "")) or []):
+            if not any(norm.name(i) == norm.name(e.get("name") or "")
+                       for i in (r.get("investors") or [])):
+                continue
+            dated.append({"company": c["name"], "stage": r.get("stage"),
+                          "date": r.get("date"), "amount": r.get("amount"),
+                          "lead": norm.name(e.get("name") or "") in
+                                  {norm.name(x) for x in (r.get("leads") or [])},
+                          "investors": (r.get("investors") or [])[:6]})
+            if r.get("amount"):
+                amounts.append(float(r["amount"]))
+    dated.sort(key=lambda r: str(r.get("date") or ""), reverse=True)
+    by_year = Counter(str(r["date"])[:4] for r in dated if r.get("date"))
+
+    # PARTICIPATES_IN_CORPORATE_EVENT is not a list of exits. In the whole
+    # cache it is 2,153 FINANCING_RAISED_OR_FACILITY_ENTERED, one
+    # MNA_COMPLETED and one COMPANY_LIFECYCLE_EVENT - so counting the edge
+    # and calling it "Exits and M&A" put 69 exits on Creandum's headline
+    # card when it has none on record. An exit is a sale or a listing.
+    EXIT_EVENTS = ("MNA", "ACQUISITION", "ACQUIRED", "MERGER", "IPO",
+                   "LISTING", "DIVEST", "SALE", "BUYOUT")
+    exits, financings = [], []
+    for x in events:
+        row = {"id": x.get("id"), "name": x.get("name"),
+               "role": _role(x, "role"), "type": _role(x, "event_type"),
+               "date": _role(x, "event_date")}
+        label = (row["name"] or "") + " " + (row["type"] or "")
+        (exits if any(w in label.upper() for w in EXIT_EVENTS)
+         else financings).append(row)
 
     return {
         "id": e.get("id"), "name": e.get("name"),
         "description": e.get("description") or _val(props, "description"),
         "website": _val(props, "website"),
         "address": _val(props, "registered_address") or _val(props, "headquarters_address"),
-        "country": (hq[0].get("name") if hq else None),
+        # HAS_HEADQUARTERS_IN is often absent where HAS_PRESENCE_IN is not.
+        # Creandum has no headquarters edge and three presence countries, and
+        # a blank on the headline card read as "we do not cover them".
+        "country": (hq[0].get("name") if hq
+                    else (presence[0].get("name") if presence else None)),
+        "country_is_presence": not hq and bool(presence),
         "presence": [p.get("name") for p in presence],
         "industries": [i.get("name") for i in industries],
         "stats": {
@@ -96,13 +154,31 @@ def build(e: dict, *, rounds_by_company: dict | None = None,
             "led": led,
             "lead_rate": round(led / len(rounds), 3) if rounds else None,
             "exits": len(exits),
+            "financing_events": len(financings),
             "people": len(staff),
             "backers": len(backers),
         },
         "stage_mix": stages.most_common(8),
+        # Each mix carries the denominator it was computed over, because a
+        # share of nine companies and a share of forty are different claims.
+        "country_mix": {"rows": countries.most_common(8), "of": placed,
+                        "total": len(port)},
+        "sector_mix": {"rows": sectors.most_common(8), "of": typed,
+                       "total": len(port)},
+        "cheques": {
+            "n": len(amounts),
+            "of": len(dated),
+            "avg": round(sum(amounts) / len(amounts)) if amounts else None,
+            "median": round(sorted(amounts)[len(amounts) // 2]) if amounts else None,
+            "min": round(min(amounts)) if amounts else None,
+            "max": round(max(amounts)) if amounts else None,
+        },
+        "deals": dated[:60],
+        "deals_by_year": sorted(by_year.items()),
         "portfolio": port,
         "round_rows": round_rows,
         "exits": exits,
+        "financing_events": len(financings),
         "people": [{"id": p.get("id"), "name": p.get("name"),
                     "role": _role(p, "role")} for p in staff],
         # Which tabs have something in them, so the UI never renders an

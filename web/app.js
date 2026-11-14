@@ -1970,6 +1970,38 @@ async function loadFund(id, name) {
   render();
 }
 
+/* Money, the way a term sheet says it. 4_500_000 is "4.5M"; 707_000 is
+   "707k"; nothing is an em dash, never a zero. */
+function money(v, cur = "EUR") {
+  if (v == null) return "—";
+  const n = Number(v);
+  if (!isFinite(n)) return "—";
+  const s = n >= 1e9 ? (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B"
+    : n >= 1e6 ? (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M"
+    : n >= 1e3 ? Math.round(n / 1e3) + "k" : String(Math.round(n));
+  return s + (cur === "EUR" ? "" : " " + cur);
+}
+
+const SLICE = ["#c2614f", "#d98f7d", "#e8bcae", "#8a6f5c", "#b9a893",
+               "#9e4634", "#cdbfae", "#7d8a86"];
+
+/* A share over a subset is a different claim from a share over the whole.
+   Each mix carries the denominator it was actually computed on, and when
+   that is nothing we say which read is missing rather than drawing an
+   empty ring. */
+function mixChart(title, mix, unit) {
+  const rows = (mix?.rows || []);
+  if (!rows.length) {
+    return chart(title, `0 of ${mix?.total ?? 0} ${unit}`,
+      `<div class="emptywhy" style="margin:0"><b>Not read yet.</b>
+        ${mix?.total ? `We hold ${mix.total} ${unit} for this firm but have not
+        fetched their own records, so there is nothing to count. The harvester
+        works through funds first.` : `No ${unit} on this entity.`}</div>`);
+  }
+  return chart(title, `${mix.of} of ${mix.total} ${unit} read`,
+    donut(rows.map(([k, v], i) => ({ k, v, c: SLICE[i % SLICE.length] }))));
+}
+
 function fundStat(k, v, sub) {
   return `<div class="fstat"><div class="k">${esc(k)}</div>
     <div class="v">${v}</div>${sub ? `<div class="s">${esc(sub)}</div>` : ""}</div>`;
@@ -2018,34 +2050,78 @@ function fundView() {
 
   const T = FUND_TABS[FUNDTAB];
   if (T === "Overview") {
+    const ch = f.cheques || {};
     body += (f.description ? `<p class="lede">${esc(f.description)}</p>` : "")
       + `<div class="fstats">
           ${fundStat("Investments", st.investments ?? "—")}
           ${fundStat("Rounds on record", st.rounds ?? "—")}
           ${fundStat("Led", st.led ?? "—", st.lead_rate != null ? pct(st.lead_rate) + " of rounds" : "")}
-          ${fundStat("Exits and M&A", st.exits ?? "—")}
-          ${fundStat("Headquarters", esc(f.country || "—"))}
+          ${fundStat("Exits and M&A", st.exits ?? "—",
+                     st.financing_events ? `${st.financing_events} financing events, not counted here` : "")}
+          ${fundStat("Typical cheque", ch.n ? money(ch.median) : "—",
+                     ch.n ? `median of ${ch.n} with an amount` : "no amounts on record")}
+          ${fundStat("Headquarters", esc(f.country || "—"),
+                     f.country_is_presence ? "where they operate; no HQ edge" : "")}
         </div>`
-      + (f.stage_mix?.length ? section("fo-stage", "Where they come in",
-          "share of the rounds we hold", `<div class="card">${bars(
-            f.stage_mix.map(([stage, n]) => [stage, n, "g", n]),
-            Math.max(...f.stage_mix.map(x => x[1])))}</div>`) : "")
+      + (f.deals_by_year?.length || f.stage_mix?.length || (f.sector_mix?.total)
+        ? section("fo-focus", "What they invest in",
+            "read off the rounds we hold, not off their website",
+            `<div class="three">
+              ${f.stage_mix?.length ? chart("Stage", `${f.stage_mix.reduce((a, x) => a + x[1], 0)} rounds`,
+                donut(f.stage_mix.map(([k, v], i) =>
+                  ({ k, v, c: SLICE[i % SLICE.length] })))) : ""}
+              ${mixChart("Sector", f.sector_mix, "portfolio companies")}
+              ${mixChart("Where", f.country_mix, "portfolio companies")}
+            </div>`) : "")
+      + (f.deals_by_year?.length ? section("fo-pace", "When they invested",
+          `${f.deals?.length || 0} dated rounds we can attribute to them`,
+          `<div class="card">${bars(
+            f.deals_by_year.map(([y, n]) => [y, n, "g", n]),
+            Math.max(...f.deals_by_year.map(x => x[1])))}</div>`) : "")
       + (f.portfolio?.length ? section("fo-top", "Portfolio highlights",
           `${f.portfolio.length} companies`, `<div class="three">${
             f.portfolio.slice(0, 6).map(portCard).join("")}</div>`) : "");
   } else if (T === "Portfolio") {
-    body += f.portfolio?.length
-      ? `<div class="tbl"><table><thead><tr><th>Company</th>
-          <th class="num">Rounds</th><th>Last round</th><th>Alongside</th>
-        </tr></thead><tbody>${f.portfolio.map(c => `<tr data-open-co="${esc(c.name)}">
-          <td><div class="ent">${logo(c.name, c.website)}<div class="nm">${esc(c.name)}</div></div></td>
-          <td class="num">${c.rounds || "—"}</td>
-          <td class="nowrap">${c.last_stage ? `${esc(c.last_stage)} ${
-            esc(String(c.last_date || "").slice(0, 7))}` : "—"}</td>
-          <td class="sub">${esc((c.investors || []).filter(i =>
-            norm_(i) !== norm_(f.name)).slice(0, 3).join(", "))}</td>
-        </tr>`).join("")}</tbody></table></div>`
-      : emptyTab("INVESTED_IN", "no investments on this entity");
+    const ch = f.cheques || {};
+    body += `<div class="fstats">
+        ${fundStat("Portfolio companies", f.portfolio?.length ?? 0)}
+        ${fundStat("Rounds we can attribute", f.deals?.length ?? 0,
+                   `${ch.n || 0} carry an amount`)}
+        ${fundStat("Smallest", ch.n ? money(ch.min) : "—")}
+        ${fundStat("Median", ch.n ? money(ch.median) : "—")}
+        ${fundStat("Largest", ch.n ? money(ch.max) : "—")}
+      </div>`
+      + (f.deals?.length ? section("fp-deals", "Deals",
+          `${f.deals.length} rounds, newest first`,
+          `<div class="tbl"><table><thead><tr><th>Company</th><th>Stage</th>
+            <th class="nowrap">Date</th><th class="num">Amount</th>
+            <th>Alongside</th></tr></thead><tbody>${f.deals.map(d => `
+            <tr data-open-co="${esc(d.company)}">
+              <td><div class="ent">${logo(d.company)}<div class="nm">${esc(d.company)}</div></div></td>
+              <td>${esc(d.stage || "—")}${d.lead ? " " + badge("lead", "green") : ""}</td>
+              <td class="nowrap sub">${esc(String(d.date || "").slice(0, 10) || "—")}</td>
+              <td class="num">${d.amount ? money(d.amount) : `<span class="sub">—</span>`}</td>
+              <td class="sub">${esc((d.investors || []).filter(i =>
+                norm_(i) !== norm_(f.name)).slice(0, 3).join(", "))}</td>
+            </tr>`).join("")}</tbody></table></div>
+           ${ch.n < (ch.of || 0) ? `<div class="sub" style="margin-top:var(--s2)">
+             ${ch.of - ch.n} of these rounds are recorded without an amount. A
+             dash is a round Cala holds with no figure, not a round of nothing.
+           </div>` : ""}`)
+        : "")
+      + (f.portfolio?.length
+        ? section("fp-cos", "Companies", `${f.portfolio.length}`,
+          `<div class="tbl"><table><thead><tr><th>Company</th>
+            <th class="num">Rounds</th><th>Last round</th><th>Alongside</th>
+          </tr></thead><tbody>${f.portfolio.map(c => `<tr data-open-co="${esc(c.name)}">
+            <td><div class="ent">${logo(c.name, c.website)}<div class="nm">${esc(c.name)}</div></div></td>
+            <td class="num">${c.rounds || "—"}</td>
+            <td class="nowrap">${c.last_stage ? `${esc(c.last_stage)} ${
+              esc(String(c.last_date || "").slice(0, 7))}` : "—"}</td>
+            <td class="sub">${esc((c.investors || []).filter(i =>
+              norm_(i) !== norm_(f.name)).slice(0, 3).join(", "))}</td>
+          </tr>`).join("")}</tbody></table></div>`)
+        : emptyTab("INVESTED_IN", "no investments on this entity"));
   } else if (T === "Rounds") {
     body += f.round_rows?.length
       ? `<div class="tbl"><table><thead><tr><th>Stage</th><th>Role</th>
@@ -2062,7 +2138,10 @@ function fundView() {
           <td>${esc(x.name || "Corporate event")}</td>
           <td>${x.role ? badge(String(x.role).toLowerCase(), "blue") : "—"}</td>
         </tr>`).join("")}</tbody></table></div>`
-      : emptyTab("PARTICIPATES_IN_CORPORATE_EVENT", "nothing has come out yet, or Cala holds none");
+      : emptyTab("PARTICIPATES_IN_CORPORATE_EVENT",
+          `no sale or listing on this entity${f.financing_events
+            ? ` — the ${f.financing_events} corporate events it does have are
+                financing rounds, which are on the Rounds tab` : ""}`);
   } else if (T === "People") {
     // The harvested record attaches people by every edge there is - founder,
     // general partner, board member, staff - where the old People tab asked
