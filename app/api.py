@@ -1410,6 +1410,93 @@ def call_list(req: Req):
     return out
 
 
+PERSON_CARD_PROPS = ["name", "description", "linkedin_url", "personal_website",
+                     "birth_date", "place_of_birth", "aliases"]
+# Surveyed across ten VC people, commonest first, so a thin record costs
+# nothing and a full one is complete.
+PERSON_CARD_RELS = ["WORKS_AT", "IS_MEMBER_OF", "STUDIED_AT", "INVESTED_IN",
+                    "FOUNDED", "IS_CEO_OF", "IS_COO_OF", "IS_CSO_OF",
+                    "IS_CFO_OF", "IS_BOARD_MEMBER_OF", "RECEIVED_AWARD",
+                    "SPOKE_AT", "HAS_NATIONALITY"]
+
+
+@app.get("/person/{entity_id}")
+def person_card(entity_id: str, company: str = ""):
+    """Who this is, what they have built, and who they can introduce you to."""
+    from . import cala_client as cala, cache_index, outreach as OB, person as PS
+    degraded = None
+    try:
+        e = cala.get_entity(entity_id, properties=PERSON_CARD_PROPS,
+                            outgoing=PERSON_CARD_RELS, limit=40,
+                            allow_live=True, ttl=86400)
+    except Exception as ex:
+        e = cache_index.get(entity_id)
+        if e is None:
+            return JSONResponse({"error": f"{type(ex).__name__}: {str(ex)[:120]}"},
+                                status_code=200)
+        degraded = "Built from what we already hold; the live lookup failed."
+
+    words: set[str] = set()
+    if company:
+        p = PRESETS.get(company.strip().lower(), {})
+        comps, _ = _safe(C.competitors, p.get("query") or company)
+        words = OB._sector_words(comps or [], p.get("desc", ""))
+    card = PS.build(e, sector_words=words)
+
+    # A company name does not say what the company does: Kry is healthtech
+    # and "Kry International AB" contains no word a sector match could find.
+    # Fetch what the few companies they are closest to actually are.
+    if words:
+        for grp in ("operated", "founded"):
+            for o in card["operator"][grp][:4]:
+                if not o.get("id"):
+                    continue
+                try:
+                    oe = cala.get_entity(o["id"], properties=["name", "description"],
+                                         limit=1, allow_live=True, ttl=7 * 86400)
+                except Exception:
+                    continue
+                d = (oe.get("description")
+                     or ((oe.get("properties") or {}).get("description") or {}).get("value"))
+                o["what"] = (d or "")[:160]
+                hit = PS.markets_in(o["what"]) & set(card["domain"]["wanted"])
+                if hit:
+                    o["markets"] = sorted(hit)
+                    card["domain"]["matched"] = sorted(
+                        set(card["domain"]["matched"]) | hit)
+                    card["domain"]["via"].append(
+                        {"name": o["name"], "what": o["what"], "markets": sorted(hit)})
+
+    if words and card["network"]["companies"]:
+        from . import cala_client as _c
+        for n in card["network"]["companies"][:6]:
+            if not n.get("id"):
+                continue
+            try:
+                ce = _c.get_entity(n["id"], properties=["name", "description"],
+                                   limit=1, allow_live=True, ttl=7 * 86400)
+            except Exception:
+                continue
+            d = (ce.get("description")
+                 or ((ce.get("properties") or {}).get("description") or {}).get("value"))
+            n["what"] = (d or "")[:160]
+        want = set(card["domain"]["wanted"])
+        via = []
+        for n in card["network"]["companies"]:
+            hit = PS.markets_in(n.get("what") or "") & want
+            if hit:
+                n["markets"] = sorted(hit)
+                via.append({"name": n["name"], "what": n.get("what"),
+                            "markets": sorted(hit)})
+        card["domain"]["matched"] = sorted(
+            set(card["domain"]["matched"]) | {m for v in via for m in v["markets"]})
+        card["domain"]["via"] = via[:4]
+
+    card["confidence"] = PS.confidence(card)
+    card["degraded"] = degraded
+    return card
+
+
 @app.get("/connectors")
 def connectors(limit: int = 12):
     """Funds whose handoffs spread widest - the bridges in this network."""
