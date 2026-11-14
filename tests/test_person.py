@@ -166,3 +166,72 @@ def test_titles_are_ordered_strongest_first():
     card = P.build(_p(IS_VICEPRESIDENT_OF=[_co("B")],
                        IS_GENERAL_PARTNER_OF=[_co("A")]))
     assert [t["title"] for t in card["titles"]] == ["General Partner", "Vice President"]
+
+
+# ------------------------- one company, one row; founding is not a seat
+def _E(**rels):
+    return {"id": "p", "name": "P", "properties": {},
+            "relationships": {"outgoing": rels}}
+
+
+def _it(n, **props):
+    return {"id": n.lower(), "name": n, "entity_type": "Company", "properties": props}
+
+
+def test_a_company_founded_and_run_is_one_row():
+    """Gustav Soderstrom's card listed Kenet Works twice."""
+    c = P.build(_E(FOUNDED=[_it("Kenet Works")],
+                   IS_CEO_OF=[_it("Kenet Works", valid_since="2003-01-01")]))
+    assert [x["name"] for x in c["operator"]["founded"]] == ["Kenet Works"]
+    assert c["operator"]["operated"] == []
+    assert c["operator"]["founded"][0]["roles"] == ["ceo"]
+
+
+def test_a_role_at_a_company_they_did_not_found_is_not_under_founded():
+    """He became co-CEO of a twenty-year-old Spotify. He did not build it."""
+    c = P.build(_E(FOUNDED=[_it("13th Lab")],
+                   IS_CEO_OF=[_it("Spotify AB", valid_since="2026-01-01")]))
+    assert [x["name"] for x in c["operator"]["founded"]] == ["13th Lab"]
+    assert [x["name"] for x in c["operator"]["operated"]] == ["Spotify AB"]
+
+
+def test_a_company_whose_whole_name_is_a_legal_suffix_still_gets_a_row():
+    """norm.name("Co") is empty, and the row vanished with the key."""
+    c = P.build(_E(FOUNDED=[_it("Co")]))
+    assert [x["name"] for x in c["operator"]["founded"]] == ["Co"]
+
+
+def test_the_timeline_is_newest_first_and_only_dated_roles():
+    c = P.build(_E(FOUNDED=[_it("Early", valid_since="2003-01-01")],
+                   IS_CEO_OF=[_it("Later", valid_since="2019-01-01"),
+                              _it("Undated")]))
+    assert [x["name"] for x in c["timeline"]] == ["Later", "Early"]
+
+
+def test_not_checked_is_not_the_same_as_no():
+    """The card showed "no" under the words "not checked"."""
+    unchecked = P.build(_E(FOUNDED=[_it("Health Clinic Co")]))
+    assert unchecked["domain"]["checked"] is False
+    checked = P.build(_E(FOUNDED=[_it("A gaming studio")]), sector_words={"clinical"})
+    assert checked["domain"]["checked"] is True and checked["domain"]["matched"] == []
+
+
+def test_the_headline_role_is_one_they_founded_not_one_they_left():
+    """Josefin Landgard, co-founder of KRY, was introduced as "Head of
+    Client Relations + Marketing, Videoplaza" because works_at comes back in
+    id order."""
+    c = P.build(_E(
+        FOUNDED=[_it("MANTLE", valid_since="2020-01-01")],
+        WORKS_AT=[_it("Videoplaza", role="Head of Client Relations + Marketing"),
+                  _it("MANTLE", role="Founder & CEO")]))
+    assert c["headline_role"]["name"] == "MANTLE"
+
+
+def test_seniority_decides_when_they_founded_none_of_them():
+    c = P.build(_E(WORKS_AT=[_it("Acme", role="Analyst"),
+                             _it("Bigco", role="Chief Executive Officer")]))
+    assert c["headline_role"]["name"] == "Bigco"
+
+
+def test_a_person_with_no_roles_has_no_headline():
+    assert P.build(_E(FOUNDED=[_it("Thing")]))["headline_role"] is None

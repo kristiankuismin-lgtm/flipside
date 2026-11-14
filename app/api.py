@@ -467,8 +467,11 @@ async def intake_endpoint(text: str = Form(""),
                         "with, so 'clinical documentation' and 'digital health "
                         "care provider' can be seen to be the same market.")
     if not prof.get("name"):
-        PG.step(key, "No company name found", "tell us the name or the website",
-                layer="you")
+        PG.step(key, "No company name found",
+                "we need one thing to look up", layer="you",
+                because="Everything after this is read off your company's "
+                        "record in Cala. Without a name or a website there is "
+                        "nothing to resolve, so the screen cannot start.")
 
     prof["run_key"] = key
     prof["steps"] = PG.get(key)["steps"]
@@ -1871,6 +1874,31 @@ def call_list(req: Req):
     return out
 
 
+def _reachable_through(card: dict) -> list[dict]:
+    """Who already knows this person, from the cap tables of what they built.
+
+    The card could say a great deal about someone and nothing about how to
+    reach them. An investor in a company they founded has met them, sat in
+    their rounds and can make the introduction - and we hold those rounds.
+    """
+    rbc = _rounds_by_company()
+    out: dict[str, dict] = {}
+    for co in (card.get("operator") or {}).get("founded", []):
+        for r in rbc.get(norm.name(co.get("name") or "")) or []:
+            leads = {norm.name(x) for x in (r.get("leads") or [])}
+            for inv in r.get("investors") or []:
+                k = norm.name(inv)
+                if not k:
+                    continue
+                row = out.setdefault(k, {"name": inv, "through": [], "led": False})
+                if co["name"] not in row["through"]:
+                    row["through"].append(co["name"])
+                row["led"] = row["led"] or k in leads
+    rows = sorted(out.values(), key=lambda x: (not x["led"], -len(x["through"]),
+                                               x["name"]))
+    return rows[:12]
+
+
 PERSON_CARD_PROPS = ["name", "description", "linkedin_url", "personal_website",
                      "birth_date", "place_of_birth", "aliases"]
 # Surveyed across ten VC people, commonest first, so a thin record costs
@@ -1913,6 +1941,7 @@ def person_card(entity_id: str, company: str = ""):
     card = PS.build(e, sector_words=words)
     card = PS.enrich_markets(card, lambda eid: _entity_description(eid))
     card["confidence"] = PS.confidence(card)
+    card["reachable_through"] = _reachable_through(card)
     card["degraded"] = degraded
     return card
 

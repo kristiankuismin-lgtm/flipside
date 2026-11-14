@@ -23,6 +23,8 @@ from __future__ import annotations
 
 from datetime import date
 
+from . import norm
+
 OPERATOR_ROLES = ["IS_CEO_OF", "IS_COO_OF", "IS_CSO_OF", "IS_CFO_OF"]
 
 # Literal word matching cannot see that a founder writing "clinical
@@ -58,6 +60,11 @@ def markets_in(text: str) -> set[str]:
     low = f" {(text or '').lower()} "
     return {m for m, words in MARKETS.items() if any(w in low for w in words)}
 NETWORK_EDGES = ["IS_MEMBER_OF", "IS_BOARD_MEMBER_OF", "INVESTED_IN"]
+
+# Words that mark a role as the one worth printing under someone's name.
+SENIOR = __import__("re").compile(
+    r"founder|chief|ceo|cto|coo|cfo|president|partner|managing|head of|"
+    r"director|chair", __import__("re").I)
 
 # Titles a person holds at a firm, strongest first. A scraped team page says
 # "Partner"; these say it in the graph, with a start date. One of the harvest's
@@ -114,15 +121,64 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
     years += [y for y in (_year(it) for _r, it in operated) if y]
     building_since = min(years) if years else None
 
+    # One company, one row.
+    #
+    # Gustav Soderstrom's card listed "Kenet Works" twice - once as FOUNDED
+    # and once as CEO - and put "Spotify AB, CEO, 2026" under "has built",
+    # which is a promotion at a twenty-year-old company, not something he
+    # built. Founding and holding a role are different claims and the card
+    # now keeps them apart: companies they started, and seats they have held
+    # at companies they did not.
+    by_co: dict[str, dict] = {}
+
+    def _co(item, *, founder=False, role=None, year=None):
+        raw = (item.get("name") or "").strip()
+        # norm.name strips legal suffixes, and a company called "Co" is
+        # nothing but one - the key vanished and the row with it. The raw
+        # name is the fallback, so a key can never be empty for a company
+        # that has a name at all.
+        key = norm.name(raw) or raw.lower()
+        if not key:
+            return
+        row = by_co.setdefault(key, {
+            "name": item.get("name"), "id": item.get("id"),
+            "founder": False, "roles": [], "year": None})
+        row["founder"] = row["founder"] or founder
+        if role and role not in [r["role"] for r in row["roles"]]:
+            row["roles"].append({"role": role, "year": year})
+        if year and (row["year"] is None or year < row["year"]):
+            row["year"] = year
+
+    for f in founded:
+        _co(f, founder=True, role="founder", year=_year(f))
+    for r, it in operated:
+        _co(it, role=r.replace("IS_", "").replace("_OF", "").lower(), year=_year(it))
+
+    started = [c for c in by_co.values() if c["founder"]]
+    held = [c for c in by_co.values() if not c["founder"]]
+    started.sort(key=lambda c: (c["year"] is None, c["year"] or 0))
+    held.sort(key=lambda c: (c["year"] is None, -(c["year"] or 0)))
+
     operator = {
-        "founded": [{"name": f.get("name"), "id": f.get("id"), "year": _year(f)}
-                    for f in founded],
-        "operated": [{"name": it.get("name"), "id": it.get("id"),
-                      "role": r.replace("IS_", "").replace("_OF", "").lower(),
-                      "year": _year(it)} for r, it in operated],
+        "founded": [{"name": c["name"], "id": c["id"], "year": c["year"],
+                     "roles": [r["role"] for r in c["roles"] if r["role"] != "founder"]}
+                    for c in started],
+        "operated": [{"name": c["name"], "id": c["id"], "year": c["year"],
+                      "role": (c["roles"] or [{}])[0].get("role")}
+                     for c in held],
         "building_since": building_since,
         "years_building": (today.year - building_since) if building_since else None,
     }
+
+    # A career in order, from the roles that carry a date. It is the thing a
+    # list of companies cannot show: how long each one lasted and what came
+    # after what.
+    timeline = sorted(
+        ({"name": c["name"], "id": c["id"], "year": c["year"],
+          "founder": c["founder"],
+          "role": "founder" if c["founder"] else (c["roles"] or [{}])[0].get("role")}
+         for c in by_co.values() if c["year"]),
+        key=lambda x: -x["year"])
 
     # Network: what they can do for you that is not money. A board seat and
     # a personal cheque are both doors.
@@ -176,13 +232,38 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
     ]))
     want_markets = markets_in(" ".join(words)) if words else set()
     theirs = markets_in(own_text)
+    # "no" and "we did not look" are different answers, and the card showed
+    # "no" under the words "not checked".
     domain = {"markets": sorted(theirs), "wanted": sorted(want_markets),
               "matched": sorted(theirs & want_markets),
+              "checked": bool(want_markets),
               "education": [s.get("name") for s in studied],
               "via": []}
 
+    # The line under their name. works_at comes back in id order, so the
+    # first row was whichever entity happened to sort first - Josefin
+    # Landgard, co-founder of KRY, was introduced as "Head of Client
+    # Relations + Marketing, Videoplaza", a job she left a decade ago.
+    founded_names = {norm.name(c["name"] or "") for c in started}
+
+    def _rank(w):
+        role = (w.get("role") or "").lower()
+        return (
+            norm.name(w.get("name") or "") not in founded_names,   # theirs first
+            not SENIOR.search(role),                               # then seniority
+            -(by_co.get(norm.name(w.get("name") or ""), {}).get("year") or 0),
+        )
+
+    best = sorted(works, key=lambda w: _rank(
+        {"name": w.get("name"), "role": _val(w.get("properties"), "role")}))
+    headline = None
+    if best:
+        headline = {"name": best[0].get("name"),
+                    "role": _val(best[0].get("properties"), "role")}
+
     return {
         "id": e.get("id"), "name": e.get("name"),
+        "headline_role": headline,
         "description": e.get("description") or _val(props, "description"),
         "linkedin": _val(props, "linkedin_url"),
         "website": _val(props, "personal_website"),
@@ -194,6 +275,7 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
                     "since": _val(it.get("properties"), "valid_since")}
                    for label, it in titled],
         "operator": operator,
+        "timeline": timeline,
         "network": network,
         "angel": angel,
         "domain": domain,

@@ -690,6 +690,8 @@ function applyRoleChrome() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  const nf = $("#needform");
+  if (nf) nf.onsubmit = e => { e.preventDefault(); intakeContinue($("#needq").value); };
   const scf = $("#scform");
   if (scf) scf.onsubmit = e => { e.preventDefault(); loadScouts($("#scq").value); };
   document.querySelectorAll("[data-role]").forEach(b =>
@@ -3028,7 +3030,7 @@ async function openPerson(id, name) {
   const op = c.operator || {}, net = c.network || {}, dom = c.domain || {},
         ang = c.angel || {};
   const conf = c.confidence || {};
-  const role = (c.works_at || [])[0];
+  const role = c.headline_role || (c.works_at || [])[0];
 
   const block = (title, body, sub) => body
     ? `<div class="pcblock"><div class="pch">${esc(title)}${
@@ -3059,8 +3061,11 @@ async function openPerson(id, name) {
             : "no personal cheque on record"}</span></div>
         <div class="pcstat"><span class="k">Your market</span>
           <span class="v ${dom.matched?.length ? "hit" : ""}">${
-            dom.matched?.length ? "yes" : "no"}</span>
-          <span class="s">${esc((dom.matched || []).join(", ") || (dom.wanted || []).join(", ") || "not checked")}</span></div>
+            !dom.checked ? "—" : dom.matched?.length ? "yes" : "no"}</span>
+          <span class="s">${!dom.checked
+            ? "no market to check against"
+            : esc((dom.matched || []).join(", ")
+                  || `none of ${(dom.wanted || []).join(", ")}`)}</span></div>
         <div class="pcstat"><span class="k">We know</span>
           <span class="v">${esc(conf.label || "—")}</span>
           <span class="s">${conf.known ?? 0} of ${conf.of ?? 5} signals</span></div>
@@ -3091,15 +3096,49 @@ async function openPerson(id, name) {
                  ang.company_count} compan${ang.company_count === 1 ? "y" : "ies"}`
              : "")}
 
-      ${block("Has built", (op.founded || []).length || (op.operated || []).length
-        ? `<div class="pclist">${[
-            ...(op.founded || []).map(f => ({ ...f, tag: "founded" })),
-            ...(op.operated || []).map(o => ({ ...o, tag: o.role })),
-          ].map(x => `<div class="pcrow"><b>${esc(x.name)}</b>
-            <span class="tag">${esc(x.tag)}</span>
+      ${block("Started", (op.founded || []).length
+        ? `<div class="pclist">${op.founded.map(x => `<div class="pcrow">
+            <b>${esc(x.name)}</b><span class="tag">founder</span>
+            ${(x.roles || []).map(r => `<span class="tag">${esc(r)}</span>`).join("")}
             ${x.year ? `<span class="yr">${x.year}</span>` : ""}
             ${x.what ? `<div class="what">${esc(x.what)}</div>` : ""}</div>`).join("")}</div>`
+        : "", `${(op.founded || []).length} compan${
+          (op.founded || []).length === 1 ? "y" : "ies"}`)}
+
+      ${block("Seats held", (op.operated || []).length
+        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
+             Companies they ran without starting — a promotion at a firm that
+             already existed is not something they built.</div>
+           <div class="pclist">${op.operated.map(x => `<div class="pcrow">
+            <b>${esc(x.name)}</b><span class="tag">${esc(x.role || "role")}</span>
+            ${x.year ? `<span class="yr">${x.year}</span>` : ""}</div>`).join("")}</div>`
         : "")}
+
+      ${block("Career, in order", (c.timeline || []).length
+        ? `<div class="ptl">${c.timeline.map((t, i) => `<div class="ptlrow">
+            <span class="y">${t.year}</span>
+            <span class="d ${t.founder ? "f" : ""}"></span>
+            <span class="n"><b>${esc(t.name)}</b>
+              <span class="sub">${esc(t.role || "")}</span>${
+              i < c.timeline.length - 1 && c.timeline[i + 1].year
+                ? `<span class="sub"> · ${t.year - c.timeline[i + 1].year} year${
+                    t.year - c.timeline[i + 1].year === 1 ? "" : "s"} later</span>` : ""}</span>
+          </div>`).join("")}</div>
+          <div class="sub" style="margin-top:6px">Only the roles that carry a
+            date. ${(op.founded || []).length + (op.operated || []).length
+              - c.timeline.length} more have none.</div>`
+        : "")}
+
+      ${block("Who can introduce you to them", (c.reachable_through || []).length
+        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
+             These investors sat in the rounds of what they built. They have
+             met them, and an introduction from one is not a cold email.</div>
+           <div class="pclist">${c.reachable_through.map(r => `<div class="pcrow">
+            <b>${esc(r.name)}</b>
+            ${r.led ? badge("led the round", "green") : ""}
+            <span class="mk">via ${esc(r.through.join(", "))}</span></div>`).join("")}</div>`
+        : "", `${(c.reachable_through || []).length} route${
+          (c.reachable_through || []).length === 1 ? "" : "s"}`)}
 
       ${block("Can introduce you to", (net.companies || []).length
         ? `<div class="pclist">${net.companies.slice(0, 12).map(n =>
@@ -3262,6 +3301,8 @@ function render() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  const nf = $("#needform");
+  if (nf) nf.onsubmit = e => { e.preventDefault(); intakeContinue($("#needq").value); };
   const scf = $("#scform");
   if (scf) scf.onsubmit = e => { e.preventDefault(); loadScouts($("#scq").value); };
   document.querySelectorAll("[data-role]").forEach(b =>
@@ -4191,15 +4232,47 @@ function reasoningPanel(steps, done) {
 
 function intakeView() {
   const p = INTAKE.profile;
+  // A brief with no company name has nowhere to go, and the page used to say
+  // "Done" and stop - which is a dead end wearing a full stop. Ask for the
+  // one thing missing, here, with everything else already read.
+  const stuck = INTAKE.state === "done" && p && !p.name;
   return `<div class="intakewrap">
     <div class="pghd">${INTAKE.state === "done" ? "" : `<span class="spin"></span>`}
       ${INTAKE.state === "reading" ? "Reading what you brought"
         : INTAKE.state === "screening"
           ? `Reading Cala's graph for <b>${esc(p?.name || "your company")}</b>`
-          : "Done"}</div>
+          : stuck ? "One thing missing" : "Done"}</div>
+    ${stuck ? `<div class="needname">
+        <p><b>We could not find a company name.</b> Everything below is read
+          off your company's record in Cala, so without a name or a website
+          there is nothing to look up${p.round_size
+            ? ` — the ${(p.round_size / 1e6).toFixed(1).replace(/\.0$/, "")}M
+                ${esc(p.round_currency || "EUR")} we did read is kept` : ""}.</p>
+        <form class="needform" id="needform">
+          <input id="needq" autocomplete="off" autofocus
+            placeholder="Company name or website — e.g. Gosta Labs, or gostalabs.com">
+          <button class="btn pri" type="submit">Screen it</button>
+        </form>
+        <button class="lnk" data-goto="home">Start the brief again</button>
+      </div>` : ""}
     ${p ? profileCard(p) : ""}
     ${reasoningPanel(INTAKE.steps, INTAKE.state === "done")}
   </div>`;
+}
+
+/* Continue a brief that only lacked a name. Everything else was already
+   read, so this does not re-upload the deck or re-parse anything. */
+async function intakeContinue(answer) {
+  const v = (answer || "").trim();
+  if (!v || !INTAKE.profile) return;
+  const looksLikeHost = /\.[a-z]{2,}$/i.test(v) && !/\s/.test(v);
+  const p = INTAKE.profile;
+  p.name = looksLikeHost ? v.split(".")[0].replace(/^./, c => c.toUpperCase()) : v;
+  if (looksLikeHost && !p.website) p.website = v.toLowerCase();
+  p.sources = { ...(p.sources || {}),
+                name: { file: "what you wrote", where: "the question above", quote: v } };
+  INTAKE.state = "screening"; render();
+  await screenFromProfile(p);
 }
 
 async function runIntake() {
@@ -4235,9 +4308,13 @@ async function runIntake() {
   // screening an empty name and returning an empty list.
   if (!p.name) { INTAKE.state = "done"; return render(); }
 
+  await screenFromProfile(p);
+}
+
+async function screenFromProfile(p) {
   PENDING_CO = p.name;
   PENDING_STAGE = p.stage || "series a";
-  startReasoning(p.run_key);
+  if (p.run_key) startReasoning(p.run_key);
   const r = await fetch("/analyze", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
