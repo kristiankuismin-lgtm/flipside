@@ -80,3 +80,37 @@ def test_observations_lists_what_introspection_advertises(monkeypatch):
                         lambda e, **k: {"numerical_observations": {"employee_count": [1, 2]}})
     o = R.observations("e1")
     assert o["available"] == ["employee_count"] and o["series"]["employee_count"] == [1, 2]
+
+
+# ------------------------------- who in the fund universe is not a fund
+import importlib.util as _ilu
+from pathlib import Path as _P
+
+_spec = _ilu.spec_from_file_location(
+    "classify_universe", _P(__file__).resolve().parents[1] / "classify_universe.py")
+_CU = _ilu.module_from_spec(_spec)
+_spec.loader.exec_module(_CU)
+
+
+def test_a_string_that_names_nobody_is_not_an_entity():
+    """A round record names whoever was in the round, including
+    "Undisclosed angel investors"."""
+    for s in ("Not publicly disclosed", "Undisclosed angel investors",
+              "Undisclosed US West Coast asset manager"):
+        assert _CU.classify(s) == "not an entity"
+
+
+def test_an_individual_angel_is_a_person_not_a_fund():
+    assert _CU.classify("Peter Thiel") == "person"
+    assert _CU.classify("Taavet Hinrikus") == "person"
+
+
+def test_a_firm_is_a_firm():
+    for s in ("Lifeline Ventures", "Creandum", "Index Ventures",
+              "European Investment Bank"):
+        assert _CU.classify(s) == "fund"
+
+
+def test_a_firm_named_after_a_person_is_still_a_firm():
+    """"Y Combinator" broke the first version of this rule."""
+    assert _CU.classify("Y Combinator") == "fund"

@@ -47,7 +47,26 @@ FUNDISH = re.compile(
 # A name is a person when it opens with a given name and carries no fund word.
 # A bounded list beats a shape rule: "Y Combinator" and "Follower One" are two
 # capitalised words too, and a shape rule throws them out with the angels.
+#
+# The list started Anglophone, which is the wrong shape for a European cap
+# table: Taavet, Guillaume, Verena and Sten all read as firms. Where Cala
+# holds a Person entity that covered for it; where it does not - Mario Gotze
+# in a German round - a footballer was filed as a venture fund.
 GIVEN = set("""
+taavet guillaume verena sten leena stani sharmadean rio mario xavier elad
+lachy sebastien sebastian mathias matthias lukas lucas jonas jens lars nils
+bjorn bjørn erik eirik fredrik frederik henrik hendrik anders andres ander
+mikko mika jussi juha pekka antti ville tuomas teemu olli esa seppo kari
+sami joonas aleksi lasse riku timo harri marko jari jarkko petri
+emil emilie ingrid astrid sigrid annika agnes malin ida linnea elin maja
+pia sanna satu riitta tiina heli minna laura hanna noora venla aino
+sofia sofie signe freja alma thea nora vilde ragnhild solveig
+giulia francesca chiara valentina alessandro lorenzo matteo stefano
+pierre jean-baptiste thibault arnaud benoit cedric fabien gaetan herve
+jerome ludovic olivier romain sylvain yann bastien clement corentin
+alven alvaro javier jorge jaime inigo ignacio joan jordi pau marc
+klaas joost bram sander wouter maarten thijs rutger jeroen
+tomasz piotr pawel bartosz lukasz krzysztof wojciech grzegorz
 ilkka niklas christian jane john james robert michael william david richard
 thomas charles daniel matthew anthony mark steven paul andrew joshua kevin
 brian george timothy ronald jason edward jeffrey ryan jacob gary nicholas

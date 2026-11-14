@@ -169,3 +169,20 @@ def test_name_spelling_does_not_hide_a_round():
     rbc = {"A": [{"date": "2025-01", "stage": "Series A",
                   "investors": ["EQT Ventures AB", "Follower Oy"], "leads": ["EQT Ventures"]}]}
     assert P.follow_rounds(rbc, "EQT Ventures", "Follower")[0]["joined"] is True
+
+
+# ------------------------- the given-name list is not only Anglophone
+def test_european_given_names_are_recognised_as_people():
+    """The list started Anglophone, which is the wrong shape for a European
+    cap table: Taavet, Guillaume, Verena and Sten all read as firms, and
+    Mario Gotze was filed as a venture fund."""
+    for n in ("Taavet Hinrikus", "Guillaume Pousaz", "Sten Tamkivi",
+              "Mario Götze", "Verena Pausder", "Mikko Virtanen"):
+        assert P.looks_like_a_fund(n) is False, n
+
+
+def test_widening_the_list_did_not_swallow_the_firms_it_protects():
+    """"Y Combinator" and "Follower One" are two capitalised words too."""
+    for n in ("Y Combinator", "Follower One", "Lifeline Ventures",
+              "Index Ventures", "Northzone"):
+        assert P.looks_like_a_fund(n) is True, n

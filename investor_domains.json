@@ -68,15 +68,9 @@
   "hq_source": "https://find-and-update.company-information.service.gov.uk/company/OC394386"
  },
  "Dawn Capital": {
-  "website": null,
-  "hq": "London",
-  "hq_field": "registered_address",
-  "description": "European venture capital firm based in London that invests in technology startups.",
-  "founded": null,
-  "employees": 48,
-  "id": "c3fc864e-098c-49b1-8375-fca6acdf1bcf",
-  "entity_type": "Organization",
-  "hq_source": "https://www.thesaasnews.com/news/onum-secures-28-million-in-series-a"
+  "website": "dawncapital.com",
+  "source": "verified (full)",
+  "title": "Dawn Capital"
  },
  "Frontline Ventures": {
   "website": "frontline.vc",
@@ -224,5 +218,2893 @@
  "Lightspeed Venture Partners": {
   "website": "lsvp.com",
   "website_source": "homepage title verified"
+ },
+ "General Catalyst": {
+  "website": "generalcatalyst.com",
+  "source": "verified",
+  "title": "General Catalyst"
+ },
+ "Y Combinator": {
+  "website": "ycombinator.com",
+  "source": "verified",
+  "title": "Y Combinator"
+ },
+ "HV Capital": {
+  "website": "hvcapital.com",
+  "source": "verified",
+  "title": "HV Capital"
+ },
+ "Bessemer Venture Partners": {
+  "website": "bvp.com",
+  "source": "cala"
+ },
+ "Project A Ventures": {
+  "description": "an operational venture capital firm backed by Otto GmbH & Co KG",
+  "website": "project-a.com",
+  "source": "wikidata",
+  "wikidata": "Q46526384"
+ },
+ "Lakestar": {
+  "website": "lakestar.com",
+  "source": "verified",
+  "title": "Lakestar | Investing in Europe's Future"
+ },
+ "Andreessen Horowitz": {
+  "description": "An American venture capital firm headquartered in Menlo Park, California, founded in 2009.",
+  "website": "a16z.com",
+  "source": "wikidata",
+  "hq": "Menlo Park",
+  "hq_source": "wikidata",
+  "hq_precision": "city",
+  "founded": "2009-07-06",
+  "wikidata": "Q4034010"
+ },
+ "Coatue Management": {
+  "website": "coatue.com",
+  "source": "cala"
+ },
+ "Elad Gil": {
+  "website": "eladgil.com",
+  "source": "verified (full)",
+  "title": "Elad Gil"
+ },
+ "Heartcore Capital": {
+  "website": "heartcore.com",
+  "source": "verified (stem)",
+  "title": "Heartcore"
+ },
+ "Spark Capital": {
+  "website": "sparkcapital.com",
+  "source": "verified (full)",
+  "title": "Spark Capital"
+ },
+ "Coatue": {
+  "website": "coatue.com",
+  "source": "verified (full)",
+  "title": "Homepage | Coatue"
+ },
+ "Partech": {
+  "website": "partech.com",
+  "source": "verified (full)",
+  "title": "Hospitality Management Platform & Solutions | PAR Technology"
+ },
+ "Tiger Global Management": {
+  "website": "tigerglobal.com",
+  "source": "verified (full)",
+  "title": "Tiger Global Management, LLC"
+ },
+ "Temasek": {
+  "website": "temasek.co",
+  "source": "verified (full)",
+  "title": "Web Hosting Servies by TemasekTech @ Hong Kong Datacenter | Cloud Hosting | Shared Hosting | Cloud Server | VPS Hosting "
+ },
+ "BlackRock": {
+  "website": "blackrock.com",
+  "source": "verified (full)",
+  "title": "Financial planning and investment management | BlackRock"
+ },
+ "Alven": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Eurazeo": {
+  "website": "eurazeo.com",
+  "source": "verified (full)",
+  "title": "Eurazeo, acteur majeur de la gestion d'actifs sur les marchés privés, engagé et reconnu au niveau mondial."
+ },
+ "Founders Fund AS": {
+  "website": "foundersfund.com",
+  "source": "verified (full)",
+  "title": "Founders Fund"
+ },
+ "Insight Partners": {
+  "website": "insightpartners.com",
+  "source": "verified (full)",
+  "title": "Insight Partners | We Scale Ambition at Every Stage"
+ },
+ "Project A": {
+  "website": "projecta.com",
+  "source": "verified (full)",
+  "title": "Project A | Custom Software Development, Web Design & Ecommerce in Ashland Oregon"
+ },
+ "Fabric Ventures": {
+  "website": null,
+  "source": "rejected fabric.com: reads as a namesake, not an investor"
+ },
+ "Firstminute Capital": {
+  "website": "firstminutecapital.com",
+  "source": "verified (full)",
+  "title": "The Home of Magnetic Ambition | Early Stage Investment Fund"
+ },
+ "Headline": {
+  "website": "headline.com",
+  "source": "verified (full)",
+  "title": "Headline | Global Venture Capital Helping Founders Win, Bigger"
+ },
+ "Microsoft": {
+  "website": "microsoft.com",
+  "source": "verified (full)",
+  "title": "Microsoft – tekoäly, pilvi, tuottavuus, tietojenkäsittely, pelaaminen ja sovellukset"
+ },
+ "Altimeter Capital": {
+  "website": "altimetercapital.com",
+  "source": "verified (stem)",
+  "title": "Home : Altimeter"
+ },
+ "Khosla Ventures": {
+  "website": "khoslaventures.com",
+  "source": "verified (full)",
+  "title": "Khosla Ventures"
+ },
+ "Business Finland": {
+  "website": "businessfinland.com",
+  "source": "verified (full)",
+  "title": "Businessfinland.com"
+ },
+ "Bpifrance": {
+  "website": "bpifrance.com",
+  "source": "verified (full)",
+  "title": "Homepage - Bpifrance.com"
+ },
+ "Cathay Innovation": {
+  "website": "cathayinnovation.com",
+  "source": "verified (full)",
+  "title": "Cathay Innovation"
+ },
+ "Redalpine": {
+  "website": "redalpine.com",
+  "source": "verified (full)",
+  "title": "redalpine | empowering game changers | venture capital"
+ },
+ "Angel investors": {
+  "website": "angelinvestors.com",
+  "source": "verified (full)",
+  "title": "AngelInvestors.com — Angel Investors Explained | Guide"
+ },
+ "J.P. Morgan": {
+  "website": "jpmorgan.com",
+  "source": "verified (full)",
+  "title": "J.P. Morgan Finland | About us"
+ },
+ "VNV Global": {
+  "website": "vnv-global.com",
+  "source": "verified (full)",
+  "title": "VNV Global"
+ },
+ "Not publicly disclosed": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Canapi Ventures": {
+  "website": "canapi.com",
+  "source": "verified (full)",
+  "title": "Canapi Ventures"
+ },
+ "Thrive Capital": {
+  "website": "thrivecap.com",
+  "source": "cala"
+ },
+ "DST Global": {
+  "website": "dst-global.com",
+  "source": "verified (full)",
+  "title": "DST Global"
+ },
+ "Barclays": {
+  "website": "barclays.com",
+  "source": "verified (full)",
+  "title": "Barclays Group corporate website | Barclays"
+ },
+ "Notion Capital": {
+  "website": "notioncapital.com",
+  "source": "verified (full)",
+  "title": "Notion Capital - Europe's Leading Early-Stage Business Software Investor"
+ },
+ "Stripes": {
+  "website": "stripes.com",
+  "source": "verified (full)",
+  "title": "Stars and Stripes | The U.S. military's independent news source."
+ },
+ "SVB Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "GGV Capital": {
+  "website": "ggvc.com",
+  "source": "cala"
+ },
+ "Makers Fund": {
+  "website": "makersfund.com",
+  "source": "verified (full)",
+  "title": "Makers Fund - Funding the next generation of creators and innovators."
+ },
+ "IVP": {
+  "website": "ivp.com",
+  "source": "cala"
+ },
+ "Exor": {
+  "description": "A French real estate company headquartered in Marseille.",
+  "website": "exor.com",
+  "source": "wikidata",
+  "founded": "1927-07-27",
+  "wikidata": "Q1384140"
+ },
+ "D1 Capital Partners": {
+  "website": "d1capital.com",
+  "source": "cala"
+ },
+ "FinTech Collective": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "OpenAI Startup Fund": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "ABN AMRO Ventures": {
+  "website": null,
+  "source": "rejected abnamro.com: reads as a namesake, not an investor"
+ },
+ "Aglaé Ventures": {
+  "website": "aglaeventures.com",
+  "source": "cala"
+ },
+ "Credo Ventures": {
+  "website": "credoventures.com",
+  "source": "cala"
+ },
+ "Molten Ventures": {
+  "website": "moltenventures.com",
+  "source": "verified (full)",
+  "title": "Molten Ventures | European Venture Capital"
+ },
+ "Kinnevik": {
+  "website": "kinnevik.com",
+  "source": "verified (full)",
+  "title": "Kinnevik"
+ },
+ "Karma Ventures": {
+  "website": "karma.vc",
+  "source": "cala"
+ },
+ "Antler": {
+  "website": "antler.com",
+  "source": "verified (full)",
+  "title": "Antler® Luggage Store | Free Delivery & Returns – Antler USA"
+ },
+ "Citi Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Conviction": {
+  "website": "conviction.com",
+  "source": "verified (full)",
+  "title": "Conviction Partners"
+ },
+ "Blackbird Ventures": {
+  "website": "blackbirdventures.com",
+  "source": "verified (full)",
+  "title": "Blackbird Ventures, LLC"
+ },
+ "Peter Thiel": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Georgian": {
+  "website": "georgian.com",
+  "source": "verified (full)",
+  "title": "georgian.com"
+ },
+ "British Patient Capital": {
+  "hq": "STEEL CITY HOUSE, WEST STREET, SHEFFIELD, GB-SHF, S1 2GQ, GB",
+  "hq_source": "cala",
+  "description": "A UK-based asset management and venture capital firm headquartered in Sheffield, founded in 2018.",
+  "website": "britishpatientcapital.co.uk",
+  "source": "cala"
+ },
+ "Citi": {
+  "hq": "c/o The Corporation Trust Company, Corporation Trust Center, 1209 Orange St, Wilmington, DE 19801, United States",
+  "hq_source": "cala",
+  "description": "American banking, financial insurance and asset management firm based in Wilmington, Delaware, founded in 1998.",
+  "website": "citi.com",
+  "source": "cala"
+ },
+ "The Raine Group": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "State Street": {
+  "website": "statestreet.com",
+  "source": "cala"
+ },
+ "Bain Capital Ventures": {
+  "website": "baincapitalventures.com",
+  "source": "verified (full)",
+  "title": "Bain Capital Ventures"
+ },
+ "Next Gear Ventures": {
+  "website": null,
+  "source": "rejected nextgear.ai: reads as a namesake, not an investor"
+ },
+ "Alliance Venture": {
+  "website": "allianceventure.com",
+  "source": "verified (full)",
+  "title": "Alliance Venture Capital – We invest in Nordic founders with global ambitions"
+ },
+ "Amino Collective": {
+  "website": "aminocollective.com",
+  "source": "verified (full)",
+  "title": "Amino Collective"
+ },
+ "468 Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Bayern Kapital": {
+  "hq": "Ländgasse 135A, 84028 Landshut, Germany",
+  "hq_source": "cala",
+  "description": "Bavaria's state-backed venture capital firm supporting innovative technology startups.",
+  "website": "bayernkapital.de",
+  "source": "cala"
+ },
+ "Discovery Ventures": {
+  "website": "discovery-ventures.com",
+  "source": "verified (full)",
+  "title": "Discovery Ventures -- Home"
+ },
+ "Mario Götze": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "XAnge": {
+  "hq": "5 Rue Feydeau, 75002 Paris, France",
+  "hq_source": "cala",
+  "description": "a French venture capital firm based in Paris",
+  "website": "xange.vc",
+  "source": "cala"
+ },
+ "Tesi": {
+  "hq": "Porkkalankatu 1, FI-00180 Helsinki, Finland",
+  "hq_source": "cala",
+  "description": "A Finnish public investment company based in Helsinki that provides private equity and venture capital to technology firms.",
+  "website": "tesi.fi",
+  "source": "cala"
+ },
+ "Stena Sessan": {
+  "website": "stenasessan.com",
+  "source": "verified (full)",
+  "title": "Stena Sessan"
+ },
+ "HCVC (Hardware Club)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Kraken Ventures": {
+  "website": "kraken.com",
+  "source": "verified (stem)",
+  "title": "Kraken | Ota rahasi hallintaan – kryptot, osakkeet ja paljon muuta"
+ },
+ "Salesforce Ventures": {
+  "website": "salesforceventures.com",
+  "source": "verified (full)",
+  "title": "Salesforce Ventures | For The Most Enterprising Founders"
+ },
+ "Kreos Capital": {
+  "website": "kreoscapital.com",
+  "source": "verified (full)",
+  "title": "Kreos Capital | BlackRock"
+ },
+ "RTP Global": {
+  "website": "rtp-global.com",
+  "source": "verified (full)",
+  "title": "RTP Global — Realize True Potential"
+ },
+ "Village Global": {
+  "website": "villageglobal.com",
+  "source": "verified (full)",
+  "title": "Village Global VC | Early-Stage Venture Capital with Top Entrepreneurs"
+ },
+ "Sound Ventures": {
+  "website": "soundventures.com",
+  "source": "verified (full)",
+  "title": "Sound Ventures | Venture Capital Firm"
+ },
+ "Chr. Augustinus Fabrikker": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Fidelity Investments": {
+  "website": "fidelity.com",
+  "source": "verified (stem)",
+  "title": "Fidelity International Usage Agreement"
+ },
+ "GIC": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "K Fund": {
+  "hq": "Paseo de las Castellanas 42, 9º, 28046 Madrid, Spain",
+  "hq_source": "cala",
+  "description": "A Madrid‑based Spanish venture capital firm that invests in software, services, and fintech companies.",
+  "website": "kfund.vc",
+  "source": "cala"
+ },
+ "Ribbit Capital": {
+  "website": "ribbit.com",
+  "source": "verified (stem)",
+  "title": "RIBBIT"
+ },
+ "Alstin Capital": {
+  "hq": "Maximilianstraße 34, 80539 München, Germany",
+  "hq_source": "cala",
+  "description": "A German private equity and venture capital firm based in Munich.",
+  "website": "alstin.capital",
+  "source": "cala"
+ },
+ "Tencent": {
+  "website": "tencent.ai",
+  "source": "verified (full)",
+  "title": "Tencent Hy"
+ },
+ "Yabeo Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Norwest Venture Partners": {
+  "website": "norwest.com",
+  "source": "verified (stem)",
+  "title": "Norwest | Venture Capital & Growth Equity Firm"
+ },
+ "HSBC": {
+  "hq": "8 Canada Square, London E14 5HQ, United Kingdom",
+  "hq_source": "cala",
+  "description": "A multinational banking and financial services organization headquartered in London, United Kingdom, founded in 1865.",
+  "website": "hsbc.com",
+  "source": "cala"
+ },
+ "Vito Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Day One Capital": {
+  "website": "dayonecapital.com",
+  "source": "verified (full)",
+  "title": "Day One Capital | Venture Capital for CEE Founders"
+ },
+ "Acton Capital": {
+  "website": "actoncapital.com",
+  "source": "verified (full)",
+  "title": "Acton Capital - Growth. Driven by Reason."
+ },
+ "La Famiglia": {
+  "website": "lafamiglia.com",
+  "source": "verified (full)",
+  "title": "Italian Fine Dining in Old City Philadelphia | La Famiglia Ristorante"
+ },
+ "Jump Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "OurCrowd": {
+  "website": "ourcrowd.com",
+  "source": "verified (full)",
+  "title": "Access Exclusive Private Market Investments | OurCrowd"
+ },
+ "Ascension Ventures": {
+  "website": "ascensionventures.com",
+  "source": "verified (stem)",
+  "title": "Ascension | Pre-seed & Seed Venture Capital"
+ },
+ "ISAI": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Cusp Capital": {
+  "website": "cuspcapital.com",
+  "source": "verified (full)",
+  "title": "Cusp Capital | Investing on the cusp"
+ },
+ "Entrée Capital": {
+  "website": "entrecapital.com",
+  "source": "verified (full)",
+  "title": "Business Loans for People With Felony Convictions | Entre Capital"
+ },
+ "H14": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Taavet Hinrikus": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Acequia Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Charlie Songhurst": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Verena Pausder": {
+  "website": "verenapausder.com",
+  "source": "verified (full)",
+  "title": "Verena Pausder"
+ },
+ "Isomer Capital": {
+  "website": "isomercapital.com",
+  "source": "verified (full)",
+  "title": "Home - Isomer Capital : Isomer Capital"
+ },
+ "Wamda Capital": {
+  "website": "wamdacapital.com",
+  "source": "verified (full)",
+  "title": "Wamda Capital"
+ },
+ "Passion Capital": {
+  "website": "passioncapital.com",
+  "source": "verified (full)",
+  "title": "Home - Passion Capital"
+ },
+ "Burda Principal Investments": {
+  "website": "burdaprincipalinvestments.com",
+  "source": "verified (full)",
+  "title": "Growth stage investing - Burda Principal Investments"
+ },
+ "Tapestry VC": {
+  "website": null,
+  "source": "rejected tapestry.com: reads as a namesake, not an investor"
+ },
+ "Vorwerk Ventures": {
+  "website": "vorwerkventures.com",
+  "source": "verified (full)",
+  "title": "Home - Vorwerk Ventures"
+ },
+ "Cassius": {
+  "website": "cassius.com",
+  "source": "verified (full)",
+  "title": "cassius.com"
+ },
+ "Hummingbird Ventures": {
+  "website": "hummingbirdventures.com",
+  "source": "verified (full)",
+  "title": "Hummingbird Ventures | Asset & Investment Management Private Office"
+ },
+ "Paradigm": {
+  "website": "paradigm.com",
+  "source": "verified (full)",
+  "title": "Paradigm® | High Performance Audio - Crafted in Canada"
+ },
+ "Animoca Brands": {
+  "website": "animocabrands.com",
+  "source": "verified (full)",
+  "title": "Animoca Brands | Reimagining future economies"
+ },
+ "PayPal Ventures": {
+  "website": null,
+  "source": "rejected paypal.ai: reads as a namesake, not an investor"
+ },
+ "Moonfire Ventures": {
+  "website": "moonfire.com",
+  "source": "verified (stem)",
+  "title": "Moonfire"
+ },
+ "1kx": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Sapphire Ventures": {
+  "website": "sapphireventures.com",
+  "source": "verified (full)",
+  "title": "Sapphire Ventures | Enterprise AI VC"
+ },
+ "Benchmark": {
+  "website": "benchmark.com",
+  "source": "verified (full)",
+  "title": "Benchmark"
+ },
+ "Future Positive Capital": {
+  "website": "futurepositivecapital.com",
+  "source": "verified (full)",
+  "title": "Future Positive Capital"
+ },
+ "Latitude": {
+  "website": "latitude.com",
+  "source": "verified (full)",
+  "title": "Latitude.com"
+ },
+ "M&G Investments": {
+  "hq": "England",
+  "hq_source": "cala",
+  "description": "A British investment firm focused on asset management, private equity, real estate and financial insurance, founded in 2017.",
+  "website": "mandg.com",
+  "source": "cala"
+ },
+ "SoftBank Group": {
+  "website": "softbank.com",
+  "source": "verified (full)",
+  "title": "SoftBank Group Corp."
+ },
+ "Dragoneer Investment Group": {
+  "hq": "Building D, 1 Letterman Drive, Suite M-500, San Francisco, US-CA, 94129, US",
+  "hq_source": "cala",
+  "description": "A San Francisco‑based investment firm founded in 2012 that operates in private equity and venture capital.",
+  "website": "dragoneer.com",
+  "source": "cala"
+ },
+ "Blackstone": {
+  "website": "blackstone.com",
+  "source": "verified (full)",
+  "title": "Blackstone - The World's Largest Alternative Asset Manager"
+ },
+ "Unbound": {
+  "website": "unbound.com",
+  "source": "verified (full)",
+  "title": "UNBOUND 2026 | HubSpot's Annual Conference"
+ },
+ "CRV": {
+  "hq": "300 Hamilton Avenue, 3rd Floor, Palo Alto, CA 94301, United States",
+  "hq_source": "cala",
+  "description": "A venture capital firm headquartered in Palo Alto, California, United States.",
+  "website": "crv.com",
+  "source": "cala"
+ },
+ "Warburg Pincus": {
+  "hq": "450 Lexington Avenue, New York, US-NY, 10017, US",
+  "hq_source": "cala",
+  "description": "A financial services firm headquartered at 450 Lexington Avenue in New York specializing in asset management, private equity, and venture capital.",
+  "website": "warburgpincus.com",
+  "source": "cala"
+ },
+ "Galaxy Digital": {
+  "website": "galaxydigital.com",
+  "source": "verified (full)",
+  "title": "Volunteer Management Software | Get Connected by Galaxy Digital"
+ },
+ "Korelya Capital": {
+  "website": "korelyacapital.com",
+  "source": "verified (full)",
+  "title": "Korelya Capital"
+ },
+ "Senovo": {
+  "website": "senovo.vc",
+  "source": "verified (full)",
+  "title": "Senovo – B2B Enterprise Software Venture Capital"
+ },
+ "Adjacent": {
+  "website": "adjacent.com",
+  "source": "verified (full)",
+  "title": "Adjacent"
+ },
+ "CapHorn Invest": {
+  "website": null,
+  "source": "rejected caphorn.com: reads as a namesake, not an investor"
+ },
+ "Nesta": {
+  "hq": "58 VICTORIA EMBANKMENT, LONDON, GB-LND, EC4Y 0DS, GB",
+  "hq_source": "cala",
+  "description": "a UK-based consulting, education and nonprofit organization founded in 2011 and headquartered in London",
+  "website": "nesta.org.uk",
+  "source": "cala"
+ },
+ "TTV Capital": {
+  "website": "ttvcapital.com",
+  "source": "verified (full)",
+  "title": "Home - TTV Capital"
+ },
+ "Signals Venture Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "FinLeap": {
+  "website": "finleap.com",
+  "source": "verified (full)",
+  "title": "finleap – Fintech Company Builder – Reshaping the Future of Finance"
+ },
+ "BBVA": {
+  "hq": "Selnaustrasse 32/36, Zürich, CH-ZH, 8001, CH",
+  "hq_source": "cala",
+  "description": "Spanish multinational banking and financial services group, founded in 1974 and headquartered in Zurich, Switzerland.",
+  "website": "bbva.com",
+  "source": "cala"
+ },
+ "Visa": {
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, WILMINGTON, DE 19801, UNITED STATES",
+  "hq_source": "cala",
+  "description": "A United States multinational financial services and fintech company headquartered in Wilmington, Delaware.",
+  "website": "visa.com",
+  "source": "cala"
+ },
+ "Morgan Stanley": {
+  "website": "morganstanley.com",
+  "source": "verified (full)",
+  "title": "Global Leader in Financial Services"
+ },
+ "Baillie Gifford": {
+  "website": "bailliegifford.com",
+  "source": "verified (full)",
+  "title": "Investment Managers | Finland Professional Investors | Baillie Gifford"
+ },
+ "Prysm Capital": {
+  "website": "prysmcapital.com",
+  "source": "verified (full)",
+  "title": "Home | Prysm Capital"
+ },
+ "European Investment Bank": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "BNY Mellon": {
+  "hq": "240 Greenwich Street, New York, NY 10286",
+  "hq_source": "cala",
+  "description": "A U.S.-based multinational financial services company headquartered in New York City, founded in 1784, operating in banking, asset management, and financial insurance.",
+  "website": "bnymellon.com",
+  "source": "cala"
+ },
+ "Mastercard": {
+  "website": "mastercard.com",
+  "source": "verified (full)",
+  "title": "Mastercard – maailmanlaajuinen teknologiayritys maksualalla"
+ },
+ "Goldman Sachs": {
+  "website": "goldmansachs.com",
+  "source": "verified (full)",
+  "title": "Home | Goldman Sachs"
+ },
+ "VNV Global (Vostok New Ventures)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Inbox Capital": {
+  "website": "inboxcapital.ai",
+  "source": "verified (full)",
+  "title": "InboxCapital.AI — Financial Email Intelligence"
+ },
+ "growX Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Market One Capital": {
+  "hq": "Poland",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "VC fund investing €0.5-2 million in seed and Series A stage companies.",
+  "website": "marketonecapital.com",
+  "source": "cala"
+ },
+ "ETF Partners": {
+  "website": "etfpartners.com",
+  "source": "verified (full)",
+  "title": "Home - ETF Partners"
+ },
+ "Ontario Teachers' Pension Plan": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "S Capital": {
+  "website": "s-capital.vc",
+  "source": "verified (full)",
+  "title": "S-Capital Consulting | IT Consulting Solutions"
+ },
+ "Bond Capital": {
+  "website": "bond-capital.com",
+  "source": "verified (full)",
+  "title": "Bond Capital Partners (BCP) is an independent, Singapore-based investment holding company. The core values and vision of"
+ },
+ "Define Ventures": {
+  "website": "defineventures.com",
+  "source": "verified (full)",
+  "title": "DefineVentures.com is For Sale – Buy Premium Domain Name"
+ },
+ "Qiming Venture Partners USA": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Lachy Groom": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "MoreTech Ventures": {
+  "website": null,
+  "source": "rejected moretech.com: reads as a namesake, not an investor"
+ },
+ "Volvo Group Venture Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Nationwide": {
+  "website": "nationwide.com",
+  "source": "verified (full)",
+  "title": "Insurance and Financial Services Company – Nationwide"
+ },
+ "9Yards Capital": {
+  "website": null,
+  "source": "rejected 9yards.io: reads as a namesake, not an investor"
+ },
+ "Soma Capital": {
+  "website": "soma-capital.com",
+  "source": "verified (full)",
+  "title": "Soma Capital Partners – San Francisco Investment Firm"
+ },
+ "TQ Ventures": {
+  "website": "tqventures.com",
+  "source": "verified (full)",
+  "title": "TQ Ventures"
+ },
+ "Reach Capital": {
+  "website": "reachcapital.com",
+  "source": "verified (full)",
+  "title": "Reach Capital | Early-Stage Venture Capital"
+ },
+ "Sky9 Capital": {
+  "website": "sky9capital.com",
+  "source": "verified (full)",
+  "title": "Sky9 Capital"
+ },
+ "Source Code Capital": {
+  "website": null,
+  "source": "rejected sourcecode.com: reads as a namesake, not an investor"
+ },
+ "Qiming Venture Partners": {
+  "hq": "Unit 13-17, 24/F, CWTC Tower 1, No.1 Jianguomenwai Street, Beijing, China",
+  "hq_source": "cala",
+  "description": "A Beijing‑based venture capital firm.",
+  "website": "qimingvc.com",
+  "source": "cala"
+ },
+ "Skyfall Ventures": {
+  "website": "skyfallventures.com",
+  "source": "verified (full)",
+  "title": "Skyfall Ventures"
+ },
+ "Venture Stars": {
+  "website": "venture-stars.com",
+  "source": "verified (full)",
+  "title": "Venture Capital | Venture Stars"
+ },
+ "Signature Ventures": {
+  "website": "signature.co",
+  "source": "verified (stem)",
+  "title": "Signature.co for sale"
+ },
+ "APEX Ventures": {
+  "website": "apexventures.com",
+  "source": "verified (full)",
+  "title": "apexventures.com - apexventures Lähteet ja tiedot."
+ },
+ "Big Start Ventures": {
+  "website": null,
+  "source": "rejected bigstart.io: reads as a namesake, not an investor"
+ },
+ "Viola Credit": {
+  "website": "violacredit.com",
+  "source": "verified (full)",
+  "title": "Viola Credit"
+ },
+ "10D": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "KKR": {
+  "hq": "30 Hudson Yards, New York, New York 10001, United States",
+  "hq_source": "cala",
+  "description": "American investment firm headquartered in New York, specializing in asset management, real estate and private equity.",
+  "website": "kkr.com",
+  "source": "cala"
+ },
+ "Creator Fund": {
+  "website": "creator-fund.com",
+  "source": "verified (full)",
+  "title": "CreatorFund — Tip the creators you can't stop watching"
+ },
+ "CrowdStrike (Ventures)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "HubSpot Ventures": {
+  "website": null,
+  "source": "rejected hubspot.com: reads as a namesake, not an investor"
+ },
+ "BAM Elevate": {
+  "website": "bamelevate.com",
+  "source": "verified (full)",
+  "title": "BAM Elevate"
+ },
+ "Blockwall": {
+  "website": "blockwall.vc",
+  "source": "verified (full)",
+  "title": "Blockwall.vc | Web3 Venture Capital Platform"
+ },
+ "Foundamental": {
+  "website": "foundamental.com",
+  "source": "verified (full)",
+  "title": "Foundamental | The Global Investor in AEC and Construction Technology"
+ },
+ "Matrix Partners": {
+  "hq": "71-75 Shelton Street, London, Greater London, United Kingdom, WC2H 9JQ",
+  "hq_source": "cala",
+  "description": "British advertising and marketing firm headquartered in London, founded in 2020.",
+  "website": "matrix1.com",
+  "source": "cala"
+ },
+ "Metaplanet (Jaan Tallinn)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Founders Circle Capital": {
+  "website": "founderscirclecapital.com",
+  "source": "verified (full)",
+  "title": "Founders Circle Capital"
+ },
+ "Motier Ventures": {
+  "website": "motier.vc",
+  "source": "verified (full)",
+  "title": "Venture Family Office of Builders | Motier Ventures"
+ },
+ "Founders Future": {
+  "website": "foundersfuture.com",
+  "source": "verified (full)",
+  "title": "Founders Future | Plateforme d'investissement Tech & IA"
+ },
+ "Octopus Ventures": {
+  "website": "octopusventures.com",
+  "source": "verified (full)",
+  "title": "Octopus Ventures | Venture Capital"
+ },
+ "Outlier Ventures": {
+  "website": "outlierventures.com",
+  "source": "verified (stem)",
+  "title": "Outlier leverages creativity and capital to build exceptional businesses"
+ },
+ "NVIDIA": {
+  "hq": "2788 San Tomas Expressway, Santa Clara, CA 95051, United States",
+  "hq_source": "cala",
+  "description": "American technology company operating in hardware, software, entertainment and automotive manufacturing, headquartered in Santa Clara, California, and founded in 1993.",
+  "website": "nvidia.com",
+  "source": "cala"
+ },
+ "Possible Ventures": {
+  "website": "possibleventures.co",
+  "source": "verified (full)",
+  "title": "About | Possible Ventures"
+ },
+ "Valar Ventures": {
+  "hq": "915 Broadway, Suite 1900, New York, NY 10010, United States",
+  "hq_source": "cala",
+  "description": "Venture capital firm investing in internationally-focused technology companies.",
+  "website": "valarventures.com",
+  "source": "cala"
+ },
+ "Fortino Capital": {
+  "hq": "Borsbeeksebrug 36, 2600 Antwerpen-Berchem, Belgium",
+  "hq_source": "cala",
+  "description": "A Belgian venture capital firm headquartered in Antwerp.",
+  "website": "fortino.capital",
+  "source": "cala"
+ },
+ "Tioga Capital": {
+  "hq": "Belgium",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Brussels-based VC firm investing in web3, DeFi infrastructure, and NFT infrastructure across Europe.",
+  "website": "tiogacapital.com",
+  "source": "cala"
+ },
+ "GapMinder VC": {
+  "website": null,
+  "source": "rejected gapminder.com: reads as a namesake, not an investor"
+ },
+ "Audacious Ventures": {
+  "website": null,
+  "source": "rejected audacious.com: reads as a namesake, not an investor"
+ },
+ "PROfounders Capital": {
+  "website": "profounderscapital.com",
+  "source": "verified (stem)",
+  "title": "PROfounders | Home"
+ },
+ "NGP Energy Capital Management": {
+  "website": "ngpenergycapital.com",
+  "source": "verified (stem)",
+  "title": "NGP Energy Capital | Private equity for a changing world"
+ },
+ "Radius Capital": {
+  "hq": "51 Byron Avenue, London, England, E18 2HH",
+  "hq_source": "cala",
+  "description": "A London-based venture capital firm.",
+  "website": "radius.capital",
+  "source": "cala"
+ },
+ "Expansion Venture Capital": {
+  "hq": "58 Rue d'Hauteville, 75010 Paris, France",
+  "hq_source": "cala",
+  "description": "A Paris‑based venture capital firm focused on aerospace and defense technologies.",
+  "website": "expansion-vc.eu",
+  "source": "cala"
+ },
+ "Ervington Investments": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Commonfund": {
+  "hq": "Wilton, CT",
+  "hq_source": "cala",
+  "description": "A Wilton, Connecticut‑based asset management firm specializing in private equity, founded in 1971.",
+  "website": "commonfund.org",
+  "source": "cala"
+ },
+ "Techstars": {
+  "website": "techstars.com",
+  "source": "verified (full)",
+  "title": "Techstars: the early-stage accelerator and investor"
+ },
+ "Felicis Ventures": {
+  "website": "felicisventures.com",
+  "source": "verified (stem)",
+  "title": "Felicis"
+ },
+ "Avid Ventures": {
+  "website": "avidventures.com",
+  "source": "verified (full)",
+  "title": "Avid Ventures"
+ },
+ "b2venture": {
+  "website": "b2venture.vc",
+  "source": "verified (full)",
+  "title": "Home | b2venture"
+ },
+ "Semantic Ventures": {
+  "website": null,
+  "source": "rejected semantic.io: reads as a namesake, not an investor"
+ },
+ "MS&AD Ventures": {
+  "hq": "3000 Sand Hill Road, Building 1, Suite 140, Menlo Park, CA 94025, US",
+  "hq_source": "cala",
+  "description": "A venture capital firm focused on fintech, headquartered in Menlo Park, California.",
+  "website": "msad.vc",
+  "source": "cala"
+ },
+ "MGX": {
+  "hq": "Floor 13, Al Sarab Tower, Abu Dhabi Global Market Square, Al Maryah Island, Abu Dhabi, United Arab Emirates",
+  "hq_source": "cala",
+  "description": "a United Arab Emirates‑based venture capital firm founded in 2024 that participates in the TikTok USDS joint venture",
+  "website": "mgx.ae",
+  "source": "cala"
+ },
+ "T. Rowe Price": {
+  "website": "troweprice.com",
+  "source": "verified (full)",
+  "title": "Invest with Confidence | T. Rowe Price"
+ },
+ "Augmentum Fintech": {
+  "hq": "5th Floor 4 Chiswell Street, London, EC1Y 4UP, UK",
+  "hq_source": "cala",
+  "description": "A London-based fintech venture capital firm founded in 2018.",
+  "website": "augmentum.vc",
+  "source": "cala"
+ },
+ "Framework Ventures": {
+  "hq": "535 Pacific Ave, Suite 300, SAN FRANCISCO, US-CA, 94133, US",
+  "hq_source": "cala",
+  "description": "A San Francisco‑based venture capital firm founded in 2019.",
+  "website": "frameworkvp.com",
+  "source": "cala"
+ },
+ "NAP": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Rider Global": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Inven Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "G Squared": {
+  "website": "gsquared.com",
+  "source": "verified (full)",
+  "title": "Home - G Squared"
+ },
+ "Bee Partners": {
+  "website": "beepartners.co",
+  "source": "verified (full)",
+  "title": "beepartners.co"
+ },
+ "Industry Ventures": {
+  "website": "industryventures.com",
+  "source": "verified (full)",
+  "title": "Industry Ventures - Collaborative and Innovative Venture Capital Platform"
+ },
+ "1984 Ventures": {
+  "website": "1984ventures.com",
+  "source": "verified (full)",
+  "title": "1984 Ventures"
+ },
+ "Omnes Capital": {
+  "website": "omnescapital.com",
+  "source": "verified (full)",
+  "title": "Omnes Capital"
+ },
+ "NGP Capital": {
+  "hq": "20-22 WENLOCK ROAD, LONDON, N1 7GU, ENGLAND",
+  "hq_source": "cala",
+  "description": "A London‑based venture capital firm founded in 2016.",
+  "website": "ngpcap.com",
+  "source": "cala"
+ },
+ "Forestay Capital": {
+  "website": "forestaycapital.com",
+  "source": "verified (full)",
+  "title": "Forestay Capital – Enterprise AI & SaaS growth investors"
+ },
+ "Ericsson Ventures": {
+  "hq": "Sweden",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Corporate venture capital investment arm of Ericsson, investing across all stages in emerging growth areas for Ericsson.",
+  "website": "ericsson.com",
+  "source": "cala"
+ },
+ "Eight Roads Ventures": {
+  "website": "eightroads.com",
+  "source": "verified (stem)",
+  "title": "Global Investor | Eight Roads"
+ },
+ "NFX": {
+  "hq": "32 Page Street, San Francisco, CA 94102, United States",
+  "hq_source": "cala",
+  "description": "Seed-stage venture capital firm investing in network-effect businesses.",
+  "website": "nfx.com",
+  "source": "cala"
+ },
+ "HESTA": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Point72 Private Investments": {
+  "description": "a company operating in asset management, private equity and venture capital, founded in 2016",
+  "website": "p72.vc",
+  "source": "cala"
+ },
+ "Atlantic Labs": {
+  "website": "atlanticlabs.ai",
+  "source": "verified (full)",
+  "title": "Atlantic Labs AI - Claude Setup and Team Training for Your Firm"
+ },
+ "Newion": {
+  "website": "newion.com",
+  "source": "verified (full)",
+  "title": "NEWION"
+ },
+ "Mosaic Ventures": {
+  "website": "mosaicventures.com",
+  "source": "verified (full)",
+  "title": "Mosaic Ventures"
+ },
+ "Xavier Niel": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Ontario Teachers' Pension Plan (via Teachers' Venture Growth)": {
+  "hq": "160 Front Street West, Suite 3200, Toronto, Ontario, M5J 0G4, Canada",
+  "hq_source": "cala",
+  "description": "The investment arm of Ontario Teachers' Pension Plan, a private‑equity and venture‑capital organization headquartered in Toronto, Canada.",
+  "website": "otpp.com",
+  "source": "cala"
+ },
+ "Lowercarbon Capital": {
+  "website": "lowercarboncapital.com",
+  "source": "verified (full)",
+  "title": "Lowercarbon Capital"
+ },
+ "SBI Investment": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Motive Partners": {
+  "website": "motivepartners.com",
+  "source": "verified (full)",
+  "title": "Motive Partners"
+ },
+ "Illuminate Financial": {
+  "website": "illuminatefinancial.com",
+  "source": "verified (full)",
+  "title": "Illuminate Financial"
+ },
+ "10x Group": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Hedosophia": {
+  "website": "hedosophia.com",
+  "source": "verified (full)",
+  "title": "Hedosophia"
+ },
+ "Digital Currency Group (DCG)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Draper Esprit (now Molten Ventures)": {
+  "hq": "20 Garrick Street, London WC2E 9BT",
+  "hq_source": "cala",
+  "description": "a British venture capital firm that led Duel's Series A funding round",
+  "website": "moltenventures.com",
+  "source": "cala"
+ },
+ "Draper Dragon": {
+  "website": "draperdragon.com",
+  "source": "verified (full)",
+  "title": "Draper Dragon - Early Stage VC for Frontier Tech"
+ },
+ "FirstMark Capital": {
+  "hq": "100 5th Avenue, 3rd Floor, New York, NY 10011, United States",
+  "hq_source": "cala",
+  "description": "Venture capital firm based in New York, United States.",
+  "website": "firstmark.com",
+  "source": "cala"
+ },
+ "Draper Esprit (Molten Ventures)": {
+  "hq": "20 Garrick Street, London WC2E 9BT",
+  "hq_source": "cala",
+  "description": "a British venture capital firm that led Duel's Series A funding round",
+  "website": "moltenventures.com",
+  "source": "cala"
+ },
+ "Cambridge Angels": {
+  "website": "cambridgeangels.com",
+  "source": "verified (full)",
+  "title": "Welcome to the Cambridge Angels",
+  "hq": "Cambridge",
+  "hq_source": "wikidata",
+  "hq_precision": "city",
+  "wikidata": "Q25169472"
+ },
+ "Hegus": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Redpoint Ventures": {
+  "hq": "3000 Sand Hill Rd 2 Ste 290, Menlo Park, California, 94025, United States",
+  "hq_source": "cala",
+  "description": "A venture capital firm headquartered in Menlo Park, California, United States, founded in 1999.",
+  "website": "redpoint.com",
+  "source": "cala"
+ },
+ "CapitalG": {
+  "website": "capitalg.com",
+  "source": "verified (full)",
+  "title": "CapitalG is Alphabet’s independent growth fund."
+ },
+ "Porsche SE": {
+  "website": "porsche-se.com",
+  "source": "verified (full)",
+  "title": "Porsche SE: Home",
+  "hq": "Stuttgart",
+  "hq_source": "wikidata",
+  "hq_precision": "city",
+  "founded": "1931-00-00",
+  "wikidata": "Q2104551"
+ },
+ "Fidelity Management & Research Company": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Tenaya Capital": {
+  "website": "tenayacapital.com",
+  "source": "verified (full)",
+  "title": "Tenaya Capital | Portfolio & Firm Information"
+ },
+ "Dell Technologies Capital": {
+  "hq": "251 Little Falls Drive, Wilmington, New Castle County, Delaware",
+  "hq_source": "cala",
+  "description": "A Delaware-registered private‑equity and venture‑capital firm investing in technology ventures.",
+  "website": "delltechnologiescapital.com",
+  "source": "cala"
+ },
+ "London Co-investment Fund (LCIF)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "QED Investors": {
+  "website": "qedinvestors.com",
+  "source": "verified (full)",
+  "title": "Home | QED Investors"
+ },
+ "Blume Ventures": {
+  "hq": "Unit No 4, Jetha Compound, Opp Nirmal Park, Byculla East, Mumbai, Maharashtra, 400027, India",
+  "hq_source": "cala",
+  "description": "Indian venture capital firm supporting early-stage startups in healthcare, fintech, digital media, and SaaS.",
+  "website": "blume.vc",
+  "source": "cala"
+ },
+ "Radical Ventures": {
+  "website": "radical.io",
+  "source": "verified (stem)",
+  "title": "Radical I/O Technology"
+ },
+ "Accenture Ventures": {
+  "website": null,
+  "source": "rejected accentureventures.com: reads as a namesake, not an investor"
+ },
+ "2xN": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "2degrees": {
+  "hq": "Level 2, 136 Fanshawe Street, Auckland Central, Auckland, NZ-AUK, 1010, NZ",
+  "hq_source": "cala",
+  "description": "Secaro",
+  "website": "2degrees.nz",
+  "source": "wikidata",
+  "founded": "2009-00-00",
+  "wikidata": "Q4633463"
+ },
+ "Nationwide Building Society": {
+  "hq": "NATIONWIDE HOUSE, PIPERS WAY, SWINDON, GB-SWD, SN38 1NW, GB",
+  "hq_source": "cala",
+  "description": "British banking and financial services company headquartered in Swindon, founded in 1875.",
+  "website": "nationwide.co.uk",
+  "source": "cala"
+ },
+ "AlbionVC": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Better Tomorrow Ventures": {
+  "website": "bettertomorrow.io",
+  "source": "verified (stem)",
+  "title": "Better Tomorrow Films: Film & Video Production, Culver City"
+ },
+ "Tribe Capital": {
+  "website": "tribe-capital.com",
+  "source": "verified (full)",
+  "title": "Tribe Capital"
+ },
+ "Garage Capital": {
+  "website": null,
+  "source": "rejected garage.com: reads as a namesake, not an investor"
+ },
+ "Kora": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Individual/angel investors": {
+  "hq": "950 Mason Street, Suite 1299, San Francisco, CA 94108, USA",
+  "hq_source": "cala",
+  "description": "A San Francisco‑based venture capital firm founded by Ron Conway.",
+  "website": "<UNKNOWN>",
+  "source": "cala"
+ },
+ "KPN Ventures": {
+  "website": "kpnventures.com",
+  "source": "verified (full)",
+  "title": "KPN Ventures | Revenue adding investment partner"
+ },
+ "UBS": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "BNP Paribas": {
+  "hq": "16 BD DES ITALIENS, PARIS, FR-75C, 75009, FR",
+  "hq_source": "cala",
+  "description": "A French multinational banking and financial services group headquartered in Paris, founded in 1973.",
+  "website": "bnpparibas.com",
+  "source": "cala"
+ },
+ "Anthemis Group": {
+  "website": "anthemis.com",
+  "source": "verified (full)",
+  "title": "Anthemis"
+ },
+ "Maor Investments": {
+  "website": "maorinvestments.com",
+  "source": "verified (full)",
+  "title": "Maor Investments – INVESTING IN ISRAELI TECHNOLOGY"
+ },
+ "Compound": {
+  "website": "compound.io",
+  "source": "verified (full)",
+  "title": "compound"
+ },
+ "Eclipse Ventures": {
+  "website": null,
+  "source": "rejected eclipse.com: reads as a namesake, not an investor"
+ },
+ "O.G. Venture Partners": {
+  "website": "ogventurepartners.com",
+  "source": "verified (full)",
+  "title": "O.G. Venture Partners — Multi-Stage Venture Capital"
+ },
+ "Liberty City Ventures": {
+  "website": "libertycityventures.com",
+  "source": "verified (full)",
+  "title": "Liberty City Ventures | lcv-website"
+ },
+ "Positive Sum": {
+  "website": "positivesum.com",
+  "source": "verified (full)",
+  "title": "Home - Positive Sum"
+ },
+ "BDT & MSD Partners": {
+  "website": "bdtmsd.com",
+  "source": "verified (full)",
+  "title": "BDT & MSD Partners | Home"
+ },
+ "Join Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Spintop Ventures": {
+  "website": "spintopventures.com",
+  "source": "verified (full)",
+  "title": "Spintop Ventures - Backing entrepreneurs on a mission"
+ },
+ "Endeit Capital": {
+  "website": "endeit.com",
+  "source": "verified (stem)",
+  "title": "endeit"
+ },
+ "PortfoLion": {
+  "website": "portfolion.com",
+  "source": "verified (full)",
+  "title": "Portfolion - Backing founders all the way"
+ },
+ "SeedBlink": {
+  "website": "seedblink.com",
+  "source": "verified (full)",
+  "title": "Europe's Venture Deal Execution Platform | SeedBlink"
+ },
+ "Ontario Teachers' Pension Plan (Teachers' Venture Growth)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Daniel Gross": {
+  "website": "danielgross.com",
+  "source": "verified (full)",
+  "title": "Daniel Gross"
+ },
+ "Geeta Schmidt": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Adara Ventures": {
+  "hq": "Madrid, Spain",
+  "hq_source": "cala",
+  "description": "A Madrid‑based venture capital firm founded in 2005 that invests in software, hardware, healthcare, renewable energy and private equity sectors.",
+  "website": "adara.vc",
+  "source": "cala"
+ },
+ "4Founders Capital": {
+  "website": "4founderscapital.com",
+  "source": "verified (full)",
+  "title": "Homepage - 4Founders Capital"
+ },
+ "Woven Capital (Toyota)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Artofin VC": {
+  "website": "artofin.com",
+  "source": "verified (stem)",
+  "title": "ArtofIn - The Art of Investment"
+ },
+ "Third Kind Venture Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Watertower Ventures": {
+  "website": "watertowerventures.com",
+  "source": "verified (full)",
+  "title": "Watertower Ventures"
+ },
+ "Matt Robinson (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Annox Capital": {
+  "website": "annoxcapital.com",
+  "source": "verified (full)",
+  "title": "Annox Capital – Annox Capital Investments"
+ },
+ "GSV Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Omidyar Network": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Valiant Peregrine Fund": {
+  "website": null,
+  "source": "rejected valiantperegrine.com: reads as a namesake, not an investor"
+ },
+ "Protocol Labs": {
+  "website": "protocollabs.net",
+  "source": "verified (full)",
+  "title": "Protocol Labs — Modular GLP-1 Support"
+ },
+ "Lyra Ventures": {
+  "website": "lyra-ventures.com",
+  "source": "verified (full)",
+  "title": "Lyra Ventures | Investing in Fashion and Retail"
+ },
+ "Arkwright X": {
+  "hq": "Norway",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Leading Nordic venture capital firm investing in early-stage B2B startups from seed to Series A.",
+  "website": "arkwrightx.vc",
+  "source": "cala"
+ },
+ "Sondo Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Angel operators from OpenAI": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Scaleup Europe Fund (managed by EQT)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Maven 11 Capital": {
+  "website": "maven11.com",
+  "source": "verified (stem)",
+  "title": "Maven 11 | Crypto & Blockchain Investment Firm"
+ },
+ "Pipedrive founders (angels)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Seed X Liechtenstein": {
+  "hq": "Stron Legal, The Clubhouse St James, 8 St James's Square, St James's, London, United Kingdom, SW1Y 4JU",
+  "hq_source": "cala",
+  "description": "A London‑based venture capital firm investing in hardware, fintech, advertising and marketing sectors.",
+  "website": "seedx.li",
+  "source": "cala"
+ },
+ "SixThirty Ventures": {
+  "hq": "8182 Maryland Ave. Suite 1401, St. Louis, MO 63105",
+  "hq_source": "cala",
+  "description": "a venture capital firm headquartered in St. Louis, Missouri",
+  "website": "sixthirty.co",
+  "source": "cala"
+ },
+ "HighSage Ventures": {
+  "website": "highsage.com",
+  "source": "verified (full)",
+  "title": "HighSage Ventures - An Investment Firm Backed By Permanent Capital"
+ },
+ "Alumni Ventures": {
+  "website": "alumniventures.vc",
+  "source": "verified (full)",
+  "title": "Invest in Alumni Ventures"
+ },
+ "MUFG Innovation Partners": {
+  "hq": "Japan",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "CVC arm of MUFG focused on innovation partnerships and fintech investments.",
+  "website": "ip.mufg.jp",
+  "source": "cala"
+ },
+ "True Global Ventures": {
+  "website": "trueglobalventures.com",
+  "source": "verified (full)",
+  "title": "True Global Ventures"
+ },
+ "Sixth Street Growth": {
+  "hq": "San Francisco",
+  "hq_source": "cala",
+  "description": "A San Francisco‑based investment firm specializing in asset management, private equity, and venture capital.",
+  "website": "sixthstreetgrowth.com",
+  "source": "cala"
+ },
+ "Grid.vc": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "System.one": {
+  "website": "systemone.com",
+  "source": "verified (full)",
+  "title": "System One - A Catalyst to Success"
+ },
+ "CommerzVentures": {
+  "website": "commerzventures.com",
+  "source": "verified (full)",
+  "title": "CommerzVentures"
+ },
+ "Heliad": {
+  "website": "heliad.com",
+  "source": "verified (full)",
+  "title": "HELIAD | Access Investing"
+ },
+ "Guillaume Pousaz": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Brad Bao": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "IQ Capital": {
+  "website": "iqcapital.io",
+  "source": "verified (full)",
+  "title": "The #1 Prop Trading House | IQ Capital"
+ },
+ "Playfair Capital": {
+  "website": "playfaircapital.com",
+  "source": "verified (stem)",
+  "title": "London Venture Capital Firm for European Pre-Seed Investment | Playfair"
+ },
+ "Sten Tamkivi": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Taavet+Sten (Taavet Hinrikus & Sten Tamkivi)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Saarbrücker21": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Educapital": {
+  "hq": "12 RUE DU QUATRE SEPTEMBRE, PARIS, FR-75C, 75002, FR",
+  "hq_source": "cala",
+  "description": "French company founded in 2017 and headquartered in Paris.",
+  "website": "educapitalvc.com",
+  "source": "cala"
+ },
+ "Curus": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Collective Spark": {
+  "website": "collectivespark.com",
+  "source": "verified (full)",
+  "title": "Collective Spark"
+ },
+ "Leena Niemistö": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Sauli Törmälä": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Pear VC": {
+  "hq": "241 El Camino Real, Menlo Park, CA 94025",
+  "hq_source": "cala",
+  "description": "Venture capital firm based in Menlo Park, California, founded in 2013.",
+  "website": "pear.vc",
+  "source": "cala"
+ },
+ "Growth Equity at Goldman Sachs Alternatives": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Atlassian Ventures": {
+  "website": null,
+  "source": "rejected atlassian.com: reads as a namesake, not an investor"
+ },
+ "Wellington Management": {
+  "website": "wellington.com",
+  "source": "verified (full)",
+  "title": "Wellington Global | Wellington Management"
+ },
+ "Stefan Lindeberg": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Josefin Landgård": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Inflection": {
+  "website": "inflection.com",
+  "source": "verified (full)",
+  "title": "Inflection: Building Trust At the Point of Connection"
+ },
+ "Rockaway Blockchain Fund": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Backed VC": {
+  "hq": "Floor 1, 6 Cavendish Square, London, England, W1G 0PD",
+  "hq_source": "cala",
+  "description": "A London-based venture capital firm.",
+  "website": "backed.vc",
+  "source": "cala"
+ },
+ "MMC Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "s16vc": {
+  "hq": "Poseidonos 1, LEDRA BUSINESS CENTRE, 2406, Nicosia, Cyprus",
+  "hq_source": "cala",
+  "description": "A Cypriot venture capital firm based in Nicosia.",
+  "website": "s16vc.com",
+  "source": "cala"
+ },
+ "UL Invest": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "BADideas.fund": {
+  "hq": "Latvia",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Latvian venture capital fund investing in early-stage startups.",
+  "website": "badideas.fund",
+  "source": "cala"
+ },
+ "Cipio Partners": {
+  "website": "cipiopartners.com",
+  "source": "verified (full)",
+  "title": "Cipio Partners | Growth Capital & Minority Buyouts for European Technology Companies"
+ },
+ "Scale Capital": {
+  "website": "scalecapital.com",
+  "source": "verified (full)",
+  "title": "Scale Capital - Building in Europe. Scaling globally."
+ },
+ "Greenfield One": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Foreword": {
+  "website": "foreword.com",
+  "source": "verified (full)",
+  "title": "Foreword Companies | Glorify God, Grow People, Change Lives"
+ },
+ "KR1": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Founders Future (Marc Ménasé)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Financière Saint James": {
+  "hq": "8 Place Vendôme, 75001 Paris, France",
+  "hq_source": "cala",
+  "description": "French investment holding specializing in asset management and venture capital, founded by Michaël Benabou.",
+  "website": "finsj.com",
+  "source": "cala"
+ },
+ "Portage Ventures": {
+  "description": "a venture capital firm investing in fintech companies",
+  "website": "portageinvest.com",
+  "source": "cala"
+ },
+ "Route 66 Ventures": {
+  "website": "route66ventures.com",
+  "source": "verified (full)",
+  "title": "Route 66 Ventures"
+ },
+ "CF Private Equity": {
+  "website": "cfprivateequity.com",
+  "source": "verified (full)",
+  "title": "Home | CF Private Equity"
+ },
+ "Piton Capital": {
+  "hq": "Mappin House, 4 Winsley Street, London, W1W 8HF",
+  "hq_source": "cala",
+  "description": "London-based investment firm.",
+  "website": "pitoncap.com",
+  "source": "cala"
+ },
+ "Perwyn": {
+  "hq": "25 Hanover Square, London, W1S 1JF, UK",
+  "hq_source": "cala",
+  "description": "a London-based private equity firm",
+  "website": "perwyn.com",
+  "source": "cala"
+ },
+ "Stani Kulechov (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "CoinShares": {
+  "website": "coinshares.com",
+  "source": "verified (full)",
+  "title": "CoinShares | Building the Future of Investing"
+ },
+ "Ledger Cathay Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Jabre Capital Partners": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Point72 Ventures": {
+  "website": "point72ventures.com",
+  "source": "verified (full)",
+  "title": "Point72 Ventures - Venture Capital Firm"
+ },
+ "GSR Markets": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "TRGC": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "CMT Digital": {
+  "website": "cmtdigital.com",
+  "source": "verified (full)",
+  "title": "Home"
+ },
+ "Circle Ventures": {
+  "website": "circleventures.com",
+  "source": "verified (full)",
+  "title": "Circle Ventures"
+ },
+ "VaynerFund": {
+  "website": "vaynerfund.com",
+  "source": "verified (full)",
+  "title": "VaynerFund"
+ },
+ "ParaFi Capital": {
+  "website": "paraficapital.com",
+  "source": "verified (stem)",
+  "title": "ParaFi | Blockchain and Digital Asset Investment Firm"
+ },
+ "Operator Partners": {
+  "website": "operatorpartners.com",
+  "source": "verified (full)",
+  "title": "Operator Partners"
+ },
+ "Early Game Ventures": {
+  "website": "earlygame.com",
+  "source": "verified (stem)",
+  "title": "EarlyGame | Your Gaming & Entertainment Hub – News, Guides, Reviews"
+ },
+ "Sharmadean Reid (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Rio Ferdinand (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "World Innovation Lab (WiL)": {
+  "hq": "Japan",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Japanese VC firm focused on early-stage startups, part of the World Innovation Lab platform.",
+  "website": "wilab.com",
+  "source": "cala"
+ },
+ "Flat Capital": {
+  "website": "flatcapital.com",
+  "source": "verified (full)",
+  "title": "Flat Capital"
+ },
+ "SemperVirens": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "BOND (Bond Capital)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "StepStone Group": {
+  "website": "stepstone.com",
+  "source": "verified (full)",
+  "title": "The Stepstone Group — We help companies to hire the right talent"
+ },
+ "Schroders Capital": {
+  "website": "schroderscapital.com",
+  "source": "verified (full)",
+  "title": "Expert edge in private markets | Schroders Capital"
+ },
+ "Standard Investments": {
+  "website": "standardinvestments.com",
+  "source": "verified (full)",
+  "title": "Standard Investments | Standard Industries"
+ },
+ "Siemens": {
+  "website": "siemens.com",
+  "source": "verified (full)",
+  "title": "Siemens home | Siemens"
+ },
+ "Applied Materials": {
+  "website": "appliedmaterials.com",
+  "source": "verified (full)",
+  "title": "Applied Materials Europe"
+ },
+ "July Fund": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Allen & Company": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "British Business Bank": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Farvatn Venture": {
+  "website": "farvatnventure.com",
+  "source": "verified (full)",
+  "title": "Farvatn Venture"
+ },
+ "Erik Bakstad": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Shine Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Alliance VC": {
+  "hq": "Sweden",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Nordic venture capital firm based in Oslo investing in exceptional early-stage tech companies and purpose-driven founders.",
+  "website": "alliance.vc",
+  "source": "cala"
+ },
+ "Pitango": {
+  "website": "pitango.com",
+  "source": "verified (full)",
+  "title": "Pitango VC | Israeli Venture Capital Firm"
+ },
+ "Janus Henderson Investors": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "ION Crossover Partners": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "MizMaa Ventures": {
+  "website": "mizmaa.com",
+  "source": "verified (full)",
+  "title": "Mizmaa Ventures"
+ },
+ "Neva SGR": {
+  "website": "nevasgr.com",
+  "source": "verified (full)",
+  "title": "Neva SGR - Home Page"
+ },
+ "Energy Impact Partners": {
+  "website": "energyimpactpartners.com",
+  "source": "verified (full)",
+  "title": "home -"
+ },
+ "Headline (e.ventures)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Aldea Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Saban Ventures": {
+  "website": "sabanventures.com",
+  "source": "verified (full)",
+  "title": "Let's Do This | Saban Ventures"
+ },
+ "TriplePoint Capital": {
+  "website": "triplepointcapital.com",
+  "source": "verified (full)",
+  "title": "Venture Debt & Financing for VC-Backed Companies - TriplePoint Capital"
+ },
+ "Clocktower Technology Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "TheVentureCity": {
+  "website": "theventurecity.com",
+  "source": "verified (full)",
+  "title": "TheVentureCity | Series A VC Fund for Europe, US and LatAm"
+ },
+ "Blackwood": {
+  "website": "blackwood.com",
+  "source": "verified (full)",
+  "title": "Blackwood Real Estate"
+ },
+ "1818 Venture Capital": {
+  "website": "1818venturecapital.com",
+  "source": "verified (full)",
+  "title": "1818 Venture Capital | Early-Stage FinTech Investors"
+ },
+ "Tom Blomfield": {
+  "website": "tomblomfield.com",
+  "source": "verified (full)",
+  "title": "Tom Blomfield"
+ },
+ "Gradient Ventures (Google)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Felicis": {
+  "website": "felicis.com",
+  "source": "verified (full)",
+  "title": "Felicis"
+ },
+ "Mandeep Singh (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Quiet Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Lux Capital": {
+  "website": "lux-capital.io",
+  "source": "verified (full)",
+  "title": "Lux Capital — Partner of Ideas"
+ },
+ "Wellfound (formerly AngelList)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Meritech Capital Partners": {
+  "website": null,
+  "source": "rejected meritechcapital.com: reads as a namesake, not an investor"
+ },
+ "SoftBank": {
+  "website": "softbank.com",
+  "source": "verified (full)",
+  "title": "SoftBank Group Corp."
+ },
+ "ARK Invest": {
+  "website": "arkinvest.ai",
+  "source": "verified (full)",
+  "title": "ARK Investment Holdings Ltd."
+ },
+ "TPG": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Goanna Capital": {
+  "website": "goannacapital.com",
+  "source": "verified (full)",
+  "title": "Goanna Capital"
+ },
+ "Expedite Ventures": {
+  "website": "expediteventures.com",
+  "source": "verified (full)",
+  "title": "Expedite Ventures: The CTO Angel Network"
+ },
+ "Quadrille Capital": {
+  "website": "quadrillecapital.com",
+  "source": "verified (full)",
+  "title": "Quadrille Capital – Venture Capital & Growth Equity"
+ },
+ "WndrCo": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Evantic": {
+  "website": "evantic.com",
+  "source": "verified (full)",
+  "title": "Evantic | Precision Polymer Solutions & Plastic Contract Manufacturing"
+ },
+ "Alameda Research": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Maven 11": {
+  "website": "maven11.com",
+  "source": "verified (full)",
+  "title": "Maven 11 | Crypto & Blockchain Investment Firm"
+ },
+ "GSR": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Cavalry Ventures": {
+  "website": null,
+  "source": "rejected cavalry.vc: reads as a namesake, not an investor"
+ },
+ "European Innovation Council (EIC) Fund": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Stage 2 Capital (Stage II Capital)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Tsingyuan Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Wavemaker 360": {
+  "website": "wavemaker360.com",
+  "source": "verified (full)",
+  "title": "Wavemaker Three-Sixty Health"
+ },
+ "Supernode Ventures": {
+  "website": "supernode.com",
+  "source": "verified (stem)",
+  "title": "Supernode | Invest in Solutions"
+ },
+ "Berkeley SkyDeck": {
+  "website": "berkeleyskydeck.com",
+  "source": "verified (full)",
+  "title": "Berkeley SkyDeck"
+ },
+ "Plug and Play": {
+  "website": "plugandplay.com",
+  "source": "verified (full)",
+  "title": "Technology Consultancy, Software Consultancy | Plug and Play"
+ },
+ "Sequoia Scout Fund": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Index Ventures (Nina Achadjian)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Stage 2 Capital": {
+  "website": null,
+  "source": "rejected stage-2.com: reads as a namesake, not an investor"
+ },
+ "Alex Wang (CEO of Scale AI)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Dylan Field (CEO of Figma)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "PortfoLion Capital Partners (OTP Bank)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Institutional Venture Partners (IVP)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "NATO Innovation Fund": {
+  "hq": "2, rue d'Alsace L-1122 Luxembourg",
+  "hq_source": "cala",
+  "description": "A Luxembourg-based private equity and venture capital fund founded in 2022, backed by NATO.",
+  "website": "nif.fund",
+  "source": "cala"
+ },
+ "Norrsken Foundation": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Plum Alley Investments": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Undisclosed US West Coast asset manager": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "CoinFund": {
+  "website": "coinfund.io",
+  "source": "verified (full)",
+  "title": "CoinFund | Investing in decentralized networks."
+ },
+ "Dialectic": {
+  "website": "dialectic.com",
+  "source": "verified (full)",
+  "title": "Dialectic — Agentic DeFi & AI-Driven Yield"
+ },
+ "Francesco Simoneschi": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "January Capital": {
+  "website": null,
+  "source": "rejected january.com: reads as a namesake, not an investor"
+ },
+ "Brendan Hill (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Hostplus": {
+  "website": "hostplus.net",
+  "source": "verified (full)",
+  "title": "Hostplus.net"
+ },
+ "Wormhole Capital": {
+  "website": null,
+  "source": "rejected wormhole.com: reads as a namesake, not an investor"
+ },
+ "Saniel Ventures": {
+  "website": null,
+  "source": "rejected saniel.com: reads as a namesake, not an investor"
+ },
+ "Anthology (Menlo Ventures & Anthropic)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Latitude (growth fund of Phoenix Court)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Phoenix Court (LocalGlobe, Latitude, Solar funds)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Proeza Ventures": {
+  "hq": "Mexico",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Mexican venture capital firm focused on mobility and tech-driven sectors.",
+  "website": "proezaventures.com",
+  "source": "cala"
+ },
+ "Revel Venture Partners": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Andreas Kupke (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "New Enterprise Associates": {
+  "description": "American venture capital firm founded in 1977 and headquartered in Menlo Park, California.",
+  "website": "nea.com",
+  "source": "wikidata",
+  "founded": "1978-01-01",
+  "wikidata": "Q17083173"
+ },
+ "Hanno Renner": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Michael Wax": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Durable Capital Partners": {
+  "website": "durablecapitalpartners.com",
+  "source": "verified (full)",
+  "title": "Durable Capital Partners"
+ },
+ "Groupe Artémis": {
+  "hq": "12 Rue François 1er, 75008 Paris, France",
+  "hq_source": "cala",
+  "description": "French investment holding company founded in 1992, controlled by the Pinault family and the ultimate parent of Kering, with activities spanning entertainment, news, asset management, real estate, automotive manufacturing, food and beverage, luxury goods, hospitality and tourism, and private equity.",
+  "website": "groupeartemis.com",
+  "source": "cala"
+ },
+ "ARVO Venture Capital": {
+  "website": "arvo-venture.com",
+  "source": "verified (stem)",
+  "title": "ARVO Ventures – BUILDING VISIONS, CREATING VALUE."
+ },
+ "Daphni": {
+  "website": "daphni.com",
+  "source": "verified (full)",
+  "title": "daphni - Venture Capital, done our way."
+ },
+ "Rachel Delacour": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Julie Pellet": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Marc Simoncini": {
+  "website": "marcsimoncini.com",
+  "source": "verified (full)",
+  "title": "Marc Simoncini — Photographies"
+ },
+ "ZEBOX Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Build Collective (Tony Fadell)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Eric Setton (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Moment Ventures": {
+  "website": "momentventures.com",
+  "source": "verified (full)",
+  "title": "Moment Ventures"
+ },
+ "Partech Ventures": {
+  "website": null,
+  "source": "rejected partechventures.com: reads as a namesake, not an investor"
+ },
+ "DST Global (partners)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Main Incubator / Neosfer": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Saber": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Varma Mutual Pension Insurance Company": {
+  "hq": "Salmisaarenranta 11, 00180 Helsinki, Finland",
+  "hq_source": "cala",
+  "description": "A mutual pension insurance company.",
+  "website": "varma.fi",
+  "source": "cala"
+ },
+ "Veikko Laine (family office)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "HV Capital (Holtzbrinck Ventures)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Maximilian Tayenthal (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Wicklow Capital": {
+  "website": null,
+  "source": "rejected wicklow.com: reads as a namesake, not an investor"
+ },
+ "GDTRE": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "10T Holdings": {
+  "hq": "205 West 28th Street, New York, NY 10001",
+  "hq_source": "cala",
+  "description": "A New York‑based private‑equity and venture‑capital investment firm founded in 2020.",
+  "website": "10tfund.com",
+  "source": "cala"
+ },
+ "Morgan Creek Capital Management": {
+  "website": null,
+  "source": "rejected morgancreek.com: reads as a namesake, not an investor"
+ },
+ "Imperial Innovations (Touchstone Innovations)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Invoke Capital": {
+  "website": "invokecapital.com",
+  "source": "verified (full)",
+  "title": "Invoke Capital | At the Heart of European Technology"
+ },
+ "Robert Sansom": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "MissionOG": {
+  "website": "missionog.com",
+  "source": "verified (full)",
+  "title": "MissionOG"
+ },
+ "IP Group": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Sofina": {
+  "website": "sofina.io",
+  "source": "verified (full)",
+  "title": "Sofina – Software Development Company for Business Growth"
+ },
+ "Vulcan Capital": {
+  "website": "vulcan.com",
+  "source": "verified (stem)",
+  "title": "Home - Vulcan Real Estate"
+ },
+ "Decisive Capital Management": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Kadmos Capital": {
+  "website": "kadmoscapital.com",
+  "source": "verified (full)",
+  "title": "Kadmos Capital"
+ },
+ "Greycroft": {
+  "website": "greycroft.com",
+  "source": "verified (full)",
+  "title": "Greycroft | Venture Capital Firm for Courageous Founders"
+ },
+ "Sean Parker": {
+  "website": "sean-parker.com",
+  "source": "verified (full)",
+  "title": "Landscape and Timelapse Photography by Sean Parker Photography. Workshops are also available."
+ },
+ "Eric Schmidt": {
+  "website": "ericschmidt.com",
+  "source": "verified (full)",
+  "title": "Home - Eric Schmidt"
+ },
+ "Goldman Sachs Asset Management": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "DTCP": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Airbus Ventures": {
+  "website": null,
+  "source": "rejected airbus.com: reads as a namesake, not an investor"
+ },
+ "European Innovation Council (EIC)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Springvest": {
+  "website": "springvest.com",
+  "source": "verified (full)",
+  "title": "Welcome to Springvest Corporation website"
+ },
+ "Sandwater": {
+  "website": "sandwater.com",
+  "source": "verified (full)",
+  "title": "Sandwater"
+ },
+ "Tesi (Finnish Industry Investment)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Sino Global Capital": {
+  "hq": "Bahamas",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Crypto investment firm headquartered in Nassau, Bahamas that manages a VC fund investing in web3 applications across Solana, Ethereum, Arweave and Cosmos ecosystems.",
+  "website": "sinoglobalcapital.com",
+  "source": "cala"
+ },
+ "Mechanism Capital": {
+  "website": "mechanism.com",
+  "source": "verified (stem)",
+  "title": "Mechanism Ventures | Building Profitable Companies"
+ },
+ "XBTO": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "SIX FinTech Ventures": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Futurum Ventures": {
+  "website": "futurum.vc",
+  "source": "verified (full)",
+  "title": "Futurum Ventures"
+ },
+ "Investor 2": {
+  "website": "investor2.com",
+  "source": "verified (full)",
+  "title": "Investor 2.0 - Elevate your financial future"
+ },
+ "Breega": {
+  "website": "breega.com",
+  "source": "verified (full)",
+  "title": "BREEGA"
+ },
+ "Jørgen Balle Olesen": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Thomas Jensen": {
+  "website": "thomasjensen.com",
+  "source": "verified (full)",
+  "title": "Thomas Jensen"
+ },
+ "Techhub Invest": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Vækstfonden": {
+  "hq": "Haifagade 3, 2150 Nordhavn, Denmark",
+  "hq_source": "cala",
+  "description": "A Danish state‑owned venture‑capital organization founded in 1992 and based in Copenhagen, now merged into Danmarks Eksport‑ og Investeringsfond.",
+  "website": "vaekstfonden.dk",
+  "source": "cala"
+ },
+ "IBB Ventures": {
+  "website": "ibbventures.com",
+  "source": "verified (full)",
+  "title": "We back Berlin's most ambitious | IBB Ventures"
+ },
+ "Entrepreneur First": {
+  "hq": "LINCOLN BUILDING, THE BISCUIT FACTORY, 100 Clements Road, LONDON, GB-LND, SE16 4DG, GB",
+  "hq_source": "cala",
+  "description": "London-based company founded in 2011 focusing on software, consulting, and venture capital.",
+  "website": "joinef.com",
+  "source": "cala"
+ },
+ "Karman Ventures": {
+  "website": null,
+  "source": "rejected karman.com: reads as a namesake, not an investor"
+ },
+ "OMERS Ventures": {
+  "website": "omersventures.co",
+  "source": "verified (full)",
+  "title": "omersventures.co"
+ },
+ "Moving Capital": {
+  "website": null,
+  "source": "rejected moving.vc: reads as a namesake, not an investor"
+ },
+ "Carlos Gonzalez-Cadenas (angel)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "DRW Venture Capital": {
+  "hq": "540 West Madison Street Suite 2500 Chicago IL 60661",
+  "hq_source": "cala",
+  "description": "A Chicago‑based venture capital firm.",
+  "website": "drwvc.com",
+  "source": "cala"
+ },
+ "General Atlantic": {
+  "website": "generalatlantic.com",
+  "source": "verified (full)",
+  "title": "General Atlantic | Powering Visionary Growth"
+ },
+ "20VC (The Twenty Minute VC)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "KAYA": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "STV": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Greenfield Partners": {
+  "website": "greenfieldpartners.com",
+  "source": "verified (full)",
+  "title": "Greenfield Partners – Private Equity Real Estate Investment Management"
+ },
+ "Drive Capital": {
+  "website": "drivecapital.com",
+  "source": "verified (full)",
+  "title": "Drive Capital - Home"
+ },
+ "Social Tech Trust": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Fair By Design": {
+  "website": "fairbydesign.com",
+  "source": "verified (full)",
+  "title": "Home - Fair By Design"
+ },
+ "Smash Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Cristina Stenbeck": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Jeff Wilke": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Justin Mateen": {
+  "website": "justinmateen.com",
+  "source": "verified (full)",
+  "title": "Justin Mateen — Investor & Tinder Co-Founder"
+ },
+ "Spencer Rascoff": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Keith Richman": {
+  "website": "keithrichman.com",
+  "source": "verified (full)",
+  "title": "Home - Keithrichman"
+ },
+ "Black Ice Capital": {
+  "website": null,
+  "source": "rejected black-ice.com: reads as a namesake, not an investor"
+ },
+ "NordicNinja": {
+  "website": "nordicninja.com",
+  "source": "verified (full)",
+  "title": "NordicNinja – Investing in the future we choose to live in"
+ },
+ "Nineyards Equity": {
+  "website": "nineyardsequity.com",
+  "source": "verified (full)",
+  "title": "Hem - Nineyards Equity"
+ },
+ "Goodwater Capital": {
+  "hq": "240 Lorton ave, Burlingame, US-CA, 94010, US",
+  "hq_source": "cala",
+  "description": "A venture capital company headquartered in Burlingame, California, founded in 2014.",
+  "website": "goodwatercap.com",
+  "source": "cala"
+ },
+ "Insignia Ventures Partners": {
+  "website": null,
+  "source": "rejected insignia.com: reads as a namesake, not an investor"
+ },
+ "Pioneer Fund": {
+  "website": "pioneer.com",
+  "source": "verified (stem)",
+  "title": "Pioneer® Seeds | Global"
+ },
+ "MassMutual Ventures": {
+  "website": "massmutualventures.com",
+  "source": "verified (full)",
+  "title": "MassMutual® Ventures"
+ },
+ "Inventus Capital India": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Seraphim Space": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Dreamcraft Ventures": {
+  "hq": "Denmark",
+  "hq_source": "cala country",
+  "hq_precision": "country",
+  "description": "Copenhagen-based venture capital fund investing in early-stage startups.",
+  "website": "dreamcraft.vc",
+  "source": "cala"
+ },
+ "EIFO (Export and Investment Fund of Denmark)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Inventure VC": {
+  "website": "inventure.vc",
+  "source": "verified (full)",
+  "title": "Inventure VC - Backing the best Nordic and Baltic founders at Seed"
+ },
+ "10x Founders": {
+  "website": "10xfounders.com",
+  "source": "verified (full)",
+  "title": "10x Founders"
+ },
+ "Expansion VC": {
+  "website": "expansionvc.com",
+  "source": "verified (full)",
+  "title": "Expansion Venture Capital / Expansion VC | Early Stage VC Firm"
+ },
+ "ACF Investors (Angel CoFund)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Lloyds Banking Group": {
+  "hq": "33 OLD BROAD STREET, LONDON, GB-LND, EC2N 1HZ, GB",
+  "hq_source": "cala",
+  "description": "A UK-based banking and financial services group founded in 1995, headquartered in London with subsidiaries including Lloyds TSB Bank",
+  "website": "lloydsbankinggroup.com",
+  "source": "cala"
+ },
+ "AlbionVC (Albion Capital)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Dragonfly": {
+  "website": "dragonfly.com",
+  "source": "verified (full)",
+  "title": "Dragonfly"
+ },
+ "SevenX Ventures": {
+  "website": null,
+  "source": "rejected sevenx.ai: reads as a namesake, not an investor"
+ },
+ "Figment Capital": {
+  "website": null,
+  "source": "rejected figment.com: reads as a namesake, not an investor"
+ },
+ "Nomad Capital": {
+  "website": "nomadcapital.io",
+  "source": "verified (full)",
+  "title": "Nomad Capital - About"
+ },
+ "Undisclosed angel investors": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "HashKey Capital": {
+  "hq": "14th Floor, Three Exchange Square, 8 Connaught Place, Central, Hong Kong, HK",
+  "hq_source": "cala",
+  "description": "A Hong Kong‑based venture capital firm founded in 2018.",
+  "website": "hashkey.com",
+  "source": "cala"
+ },
+ "HTX Ventures": {
+  "website": "htxventures.com",
+  "source": "verified (full)",
+  "title": "htxventures.com"
+ },
+ "Dutch Founders Fund (DFF)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Panache Ventures": {
+  "hq": "10A GLEBE CLOSE, HEMEL HEMPSTEAD, HP3 9PA, ENGLAND",
+  "hq_source": "cala",
+  "description": "A UK‑based real estate and venture capital firm founded in 2020.",
+  "website": "panacheventures.com",
+  "source": "cala"
+ },
+ "Amaranthine": {
+  "website": "amaranthine.com",
+  "source": "verified (full)",
+  "title": "Amaranthine"
+ },
+ "Galata Business Angels": {
+  "website": "galatabusinessangels.com",
+  "source": "verified (full)",
+  "title": "Galata Business Angels - Türkiye’nin İlk Melek Yatırım Ağı"
+ },
+ "212": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Riverwood Capital": {
+  "website": "riverwoodcapital.com",
+  "source": "verified (full)",
+  "title": "Riverwood Capital | Partners to scaling technology businesses."
+ },
+ "Endeavor Catalyst": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "QIA (Qatar Investment Authority)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Esas Private Equity": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Avaana Capital": {
+  "website": "avaanacapital.com",
+  "source": "verified (full)",
+  "title": "Avaana Capital"
+ },
+ "Better Capital": {
+  "website": "bettercapital.com",
+  "source": "verified (full)",
+  "title": "Better Capital"
+ },
+ "Other participant": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Ott Kaukver": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "3VC": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "BlackSoil": {
+  "website": "blacksoil.io",
+  "source": "verified (full)",
+  "title": "BlackSoil – Regenerative farming system for carbon sequestration"
+ },
+ "InnoVen Capital": {
+  "website": "innovencapital.com",
+  "source": "verified (full)",
+  "title": "InnoVen Capital"
+ },
+ "Arena Investors": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Nomura": {
+  "website": "nomura.com",
+  "source": "verified (full)",
+  "title": "Home - NOMURA"
+ },
+ "Ishana Capital": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Trifecta Capital": {
+  "website": "trifecta.vc",
+  "source": "verified (stem)",
+  "title": "Trifecta"
+ },
+ "M&G (Prudential)": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "CPP Investments": {
+  "hq": "Suite 2500, One Queen Street East, Toronto, Ontario, M5C 2W5, Canada",
+  "hq_source": "cala",
+  "description": "A Canadian investment management firm headquartered in Toronto, founded in 1997, that manages assets across public markets, real estate, private equity and venture capital.",
+  "website": "cppinvestments.com",
+  "source": "cala"
+ },
+ "Hercules Capital": {
+  "website": "herculescapital.com",
+  "source": "verified (full)",
+  "title": "Hercules Capital | Venture Lending - Growth Capital"
+ },
+ "Primepulse": {
+  "website": "primepulse.com",
+  "source": "verified (full)",
+  "title": "More than capital. We bring momentum. - PRIMEPULSE SE"
+ },
+ "Tengelmann Ventures": {
+  "website": "tengelmann-ventures.com",
+  "source": "verified (full)",
+  "title": "Home - Tengelmann Ventures"
+ },
+ "Underscore VC": {
+  "website": "underscorevc.com",
+  "source": "verified (full)",
+  "title": "Home | Underscore VC"
+ },
+ "Viola Growth": {
+  "website": "violagrowth.com",
+  "source": "verified (full)",
+  "title": "Viola - Viola Growth"
+ },
+ "Outliers Venture Capital": {
+  "website": null,
+  "source": "rejected outliers.com: reads as a namesake, not an investor"
+ },
+ "Human Capital": {
+  "website": "humancapital.com",
+  "source": "verified (full)",
+  "title": "Purpose-Driven Growth for Colleges and Universities - Human Capital Education"
+ },
+ "500 Global": {
+  "website": "500-global.com",
+  "source": "verified (full)",
+  "title": "500 Global | 500 Global"
+ },
+ "Fly Ventures": {
+  "website": "flyventures.co",
+  "source": "verified (full)",
+  "title": "FlyVentures - Premium Flight Booking & Travel Directory"
+ },
+ "Zoubin Ghahramani": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Pieter Abbeel": {
+  "website": null,
+  "source": "no verified match"
+ },
+ "Ocado Group": {
+  "website": null,
+  "source": "no verified match"
  }
 }

@@ -1,1 +1,5904 @@
-{"Sequoia Capital": {"seen": 55, "lei": "724500ZJTL4CBKCMWL71", "id": "151bf814-7566-4b14-a7d2-f0d802ef0981", "entity_type": "Organization", "description": "American venture capital firm headquartered in Menlo Park, California, founded in 1972.", "hq": "Quellijnstraat 119C, 1073XH, Amsterdam", "source": "GLEIF", "lat": 52.3567372, "lon": 4.8937108, "precise": true, "cc": "NL"}, "Index Ventures": {"seen": 52, "lei": "254900C4G07FZFMAOB23", "id": "4a7ccd5d-1310-46b0-bd42-4ff8b409acc5", "entity_type": "Company", "description": "a London\u2011based venture capital firm founded in 1996 that invests in fintech and retail sectors", "hq": "TENANCY 10 , MARINA HOUSE, MAHE, EDEN ISLAND", "source": "GLEIF"}, "Lightspeed Venture Partners": {"seen": 40, "lei": "254900XR73525HA8GV10", "id": "5a9d0c1c-1e04-4816-b38a-28c4f560569b", "entity_type": "Company", "description": "A venture capital firm based in Menlo Park, California, United States.", "hq": "C/O Maples Corporate Services Limited, PO Box 309, Ugland House, Grand Cayman, KY1-1104, George Town", "source": "GLEIF"}, "Creandum": {"seen": 39, "lei": "549300RV2HDGRZ4SP482", "id": "6ba00a20-2cb4-4559-8fe2-f39484a9e5f6", "entity_type": "Organization", "description": "venture capital firm based in Stockholm, Sweden, founded by Stefan Lindeberg and focusing on fintech startups", "hq": "Box 7068, 103 86, Stockholm", "source": "GLEIF", "lat": 59.3251172, "lon": 18.0710935, "precise": true, "cc": "SE"}, "Balderton Capital": {"seen": 36, "lei": "648800LKXJ3G8X26AF36", "id": "c96fa533-91c0-5674-bcbe-0d0dc934b7fa", "entity_type": "Organization", "description": "a London-based venture capital firm", "hq": "3, Rue Gabriel Lippmann, 5365, Munsbach", "source": "GLEIF", "lat": 49.6385911, "lon": 6.2698505, "precise": true, "cc": "??"}, "83North": {"seen": 33, "lei": "9845003B2CAA783D7J95", "id": "2c43483a-8d36-4ae6-9887-e4746dd5dccb", "entity_type": "Company", "description": "A London\u2011based venture capital firm.", "hq": "P. O. Box 10008, Willow House, Cricket Square, KY1-1001, Grand Cayman", "source": "GLEIF"}, "Northzone": {"seen": 32, "lei": "984500Z5AE35F95F3991", "id": "208d7baa-10cd-4a73-825b-5bd3e827f79f", "entity_type": "Organization", "description": "a London\u2011based venture capital firm founded in 2006 that invests in fintech companies", "hq": "Whiteley Chambers, Don Street, JE2 4TR, St. Helier", "source": "GLEIF"}, "General Catalyst": {"seen": 30, "lei": "9845005RCEA680FC7936", "id": "03faa252-0570-4e3f-be48-39d7740d964c", "entity_type": "Organization", "description": "A venture capital firm based in Cambridge, Massachusetts, founded in 2000.", "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON", "source": "GLEIF"}, "Y Combinator": {"seen": 30, "lei": "984500AF4F2F865CE475", "id": "b30bd3be-0227-49fd-9f2a-9f87e3a5afe2", "entity_type": "Organization", "description": "A startup accelerator and seed investor.", "hq": "335 PIONEER WAY, 94041, MOUNTAIN VIEW", "source": "GLEIF", "lat": 37.3862565, "lon": -122.0668804, "precise": true, "cc": "US"}, "EQT Ventures": {"seen": 29, "lei": "254900NDMR3YDGHEVO18", "id": "d6cf13e1-92ff-4567-bd72-30316f2498e5", "entity_type": "Organization", "description": "A venture capital firm.", "hq": "51A, BOULEVARD ROYAL, L-2449, LUXEMBOURG", "source": "GLEIF", "lat": 49.61, "lon": 6.13, "precise": false, "cc": "LU"}, "Speedinvest": {"seen": 27, "lei": "213800FVX1JVPW275O97", "id": "94e0ca6a-4e39-4181-bd84-11f264d0aa62", "entity_type": "Company", "description": "A Vienna-based Austrian venture\u2011capital firm founded in 2011.", "hq": "26 ROUTE DU BOIS-DE-BAY, 1242, SATIGNY", "source": "GLEIF", "lat": 46.2002002, "lon": 6.063563, "precise": true, "cc": "??"}, "HV Capital": {"seen": 27, "lei": "7437004OMLAI6TKKXU78", "id": "8774eb35-b3d0-4d71-8135-a4fe1187a3b6", "entity_type": "Organization", "description": "German venture capital firm headquartered in Munich", "hq": "Verstaankatu 5 B 31, 33100 TAMPERE, FI-33100, TAMPERE", "source": "GLEIF", "lat": 61.5, "lon": 23.79, "precise": false, "cc": "FI"}, "Atomico": {"seen": 26, "lei": "984500460E4E4FF00302", "id": "32e27d54-3922-407f-aa07-2747d94b210c", "entity_type": "Company", "description": "a London-based venture capital firm founded by Mattias Ljungman", "hq": "412F, Route d'Esch, L-1471, Luxembourg", "source": "GLEIF", "lat": 49.61, "lon": 6.13, "precise": false, "cc": "LU"}, "Lifeline Ventures": {"seen": 22, "lei": "54930040XEAWX2GX6151", "id": "476a73ac-afa2-4713-9f73-188bc7ec0b95", "entity_type": "Organization", "description": "Finnish venture capital firm headquartered in Helsinki.", "hq": "C/O Greenstep Sverige AB, Drottninggatan 26, 602 24, Norrk\u00f6ping", "source": "GLEIF"}, "Cherry Ventures": {"seen": 22, "lei": "391200KFLCM0G1BON952", "id": "c06adc97-e2d8-4590-a329-4462750ee4e6", "entity_type": "Organization", "description": "A Berlin-based venture capital and private\u2011equity firm that invests in climate\u2011tech companies.", "hq": "Linienstrasse 214, 10119, Berlin", "source": "GLEIF", "lat": 52.5285309, "lon": 13.4059914, "precise": true, "cc": "DE"}, "Icebreaker.vc": {"seen": 20, "id": "70fb3317-cd8c-4c52-aa86-66502789bce3", "entity_type": "Company", "description": "Nordic early-stage VC firm backing teams at the earliest stages with \u20ac120M Fund III.", "website": "icebreaker.vc", "founded": null, "employees": null, "hq": null, "source": null}, "Highland Europe": {"seen": 19, "lei": "9845007BF9I6X8A68A96", "id": "e3d5b106-930a-4cbc-85d6-efa2e804f946", "entity_type": "Organization", "description": "A venture capital firm.", "hq": "5th - 7th Floors 30 Golden Square, W1F 9LD, London", "source": "GLEIF", "lat": 51.51, "lon": -0.13, "precise": false, "cc": "GB"}, "Bessemer Venture Partners": {"seen": 19, "lei": "2549007V2NN2335SEH50", "id": "04cfed12-5b91-424b-b7fc-3c14593b944c", "entity_type": "Company", "description": "A venture capital firm founded in 1911 and headquartered in Menlo\u00a0Park, California, United States.", "hq": "6TH FLOOR, TWO TRIBECA, TRIBECA CENTRAL, 72261, TRIANON", "source": "GLEIF"}, "Accel": {"seen": 18, "lei": "96950051EPF573OC1V32", "id": "aee065b7-5ae9-45c7-8c30-457f6d339958", "entity_type": "Organization", "description": "A venture capital firm founded in 1983 in Palo Alto, California, that created Viktor.", "hq": "8 RUE CREVE C\u0152UR, 01000, BOURG-EN-BRESSE", "source": "GLEIF", "lat": 46.208727, "lon": 5.224502, "precise": true, "cc": "??"}, "Project A Ventures": {"seen": 18, "lei": "3912008RQ3ORI32X9I23", "id": "14114b32-b79d-4dba-8f6f-356113a4c696", "entity_type": "Organization", "description": "an operational venture capital firm backed by Otto\u202fGmbH\u202f&\u202fCo\u202fKG", "hq": "Julie-Wolfthorn-Str. 1, 10115, Berlin", "source": "GLEIF", "lat": 52.5323939, "lon": 13.3846183, "precise": true, "cc": "DE"}, "LocalGlobe": {"seen": 17, "id": "1516c337-36cb-4357-ba0c-03b9c6c0d0e0", "entity_type": "Company", "description": "London-based venture capital fund investing in early-stage tech, media, mobile, fintech, and transportation startups since 1999.", "website": "localglobe.vc", "founded": null, "employees": null, "hq": "1 Brill Place, London, London NW1 1EL, GB", "source": "Cala.headquarters_address", "lat": 51.5316465, "lon": -0.1297838, "precise": true, "cc": "GB"}, "Earlybird Venture Capital": {"seen": 16, "lei": "391200H3M2LXJFE4KH85", "id": "7de3d7d6-af8f-4e95-a949-2befc86938a0", "entity_type": "Organization", "description": "Berlin-based venture capital firm founded in 2002 that invests in continental European technology companies.", "hq": "Promenadeplatz 9, c/o Earlybird Venture Capital, 80333, M\u00fcnchen", "source": "GLEIF"}, "Kleiner Perkins": {"seen": 16, "id": "ef662aff-9944-4543-a021-838f66e1b4a2", "entity_type": "Organization", "description": "Venture capital firm focused on technology and life sciences sectors, founded in 1972 and based in Menlo Park, California", "website": "kleinerperkins.com", "founded": "1972-01-01", "employees": 214, "hq": "2750 Sand Hill Road, Menlo Park, CA 94025", "source": "Cala.registered_address", "lat": 37.4206336, "lon": -122.2098054, "precise": true, "cc": "??"}, "Seedcamp": {"seen": 16, "lei": "549300QNOP4E1S02EH55", "id": "d2d11954-6bab-5ac9-8684-a54406623104", "entity_type": "Organization", "description": "a London\u2011based seed\u2011stage venture capital firm founded in 2007", "hq": "12 Little Portland Street 5th Floor, W1W 8BJ, London", "source": "GLEIF", "lat": 51.51, "lon": -0.13, "precise": false, "cc": "GB"}, "Frontline Ventures": {"seen": 15, "lei": "549300U50E1OXGL1IQ73", "id": "e8b34529-bf05-49ca-9728-d87c2bdac7bb", "entity_type": "Organization", "description": "London\u2011based private\u2011equity and venture\u2011capital investment firm", "hq": "LUSAKA BUILDING, UNIT 15 FREEDOMWAY NORTHEND, LUSAKA", "source": "GLEIF"}, "Lakestar": {"seen": 14, "lei": "89450005ZRK63VUCFM11", "id": "16bdbb1a-6658-4fa2-9b04-0a48011841d2", "entity_type": "Organization", "description": "a venture capital and private\u2011equity firm headquartered in St\u202fPeter\u202fPort, Guernsey", "hq": "Suite 102, Ground Floor, Blake Building, Corner Eyre & Hutson streets, na, Belize", "source": "GLEIF"}, "Inventure": {"seen": 14, "lei": "96760020GS29X9J1GF42", "id": "fd3ba350-0e55-40b5-96e3-013994777fdc", "entity_type": "Organization", "description": "a Finnish investment firm headquartered in Helsinki", "hq": "Lemenhoekstraat 19, 2861, Sint-Katelijne-Waver", "source": "GLEIF", "lat": 51.0578375, "lon": 4.5995368, "precise": true, "cc": "??"}, "Hoxton Ventures": {"seen": 14, "lei": "2138002E2QX2TXSHV413", "id": "df688dce-68f4-4d17-af72-d4f6a173a322", "entity_type": "Organization", "description": "A venture capital firm that participated in Preply's Series C funding round and has invested in companies such as Formance.", "hq": "55 NEW OXFORD STREET, WC1A 1BS, LONDON", "source": "GLEIF", "lat": 51.5168863, "lon": -0.1270467, "precise": true, "cc": "GB"}, "Andreessen Horowitz": {"seen": 14, "id": "8431295b-9ab9-4008-9d22-c22421e888c5", "entity_type": "Organization", "description": "An American venture capital firm headquartered in Menlo Park, California, founded in 2009.", "website": null, "founded": null, "employees": null, "hq": null, "source": null}, "Global Founders Capital (GFC)": {"seen": 13, "id": "68a934f8-4cf8-476f-b966-3c4b9f0cb391", "entity_type": "Organization", "description": "Berlin\u2011based venture\u2011capital firm", "website": "globalfounderscapital.com", "founded": null, "employees": 12, "hq": "Charlottenstr. 4, 10969 Berlin, Germany", "source": "Cala.registered_address", "lat": 52.5065424, "lon": 13.392988, "precise": true, "cc": "DE"}, "Coatue Management": {"seen": 13, "lei": "54930035XZQJY6VCW995", "id": "a15341c8-487b-441a-92f1-c9bff0f4a77b", "entity_type": "Organization", "description": "A New York\u2011based American investment firm focused on asset management, private equity and venture capital.", "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON", "source": "GLEIF"}, "Elad Gil": {"seen": 13, "id": "62676705-7d77-4d86-80f0-fac67e1b61da", "entity_type": "Company", "description": "A company backed by investors such as Rippling, HARVEY\u202fAI\u202fCORPORATION and Saronic.", "website": null, "founded": null, "employees": null, "hq": null, "source": null}, "Global Founders Capital": {"seen": 13, "lei": "5493005Q75X2ULH1KP74", "id": "68a934f8-4cf8-476f-b966-3c4b9f0cb391", "entity_type": "Organization", "description": "Berlin\u2011based venture\u2011capital firm", "hq": "12, rue des M\u00e9rovingiens, L-8070, Bertrange", "source": "GLEIF"}, "Heartcore Capital": {"seen": 13, "lei": "63670026ALAB2K1VSO83", "id": "c7c91c8e-15b5-4ba8-a652-5fa93c268db1", "entity_type": "Company", "description": "A Danish venture capital firm founded in 2011 and headquartered in Copenhagen.", "hq": "Frederiksgade 7 3., 1265, K\u00f8benhavn K", "source": "GLEIF"}, "Point Nine Capital": {"seen": 13, "lei": "391200LMOGA9C9XG3T57", "id": "c934f7e3-6ee3-4983-b0e1-f7827df567f9", "entity_type": "Organization", "description": "A Berlin-based venture capital firm founded in 2009.", "hq": "Torstr. 19, 10119, Berlin", "source": "GLEIF", "lat": 52.5280905, "lon": 13.4132074, "precise": true, "cc": "DE"}, "Spark Capital": {"seen": 13, "lei": "894500LLK7B9T9XHTG67", "id": "498fc3e8-784d-47d1-9220-605558bdd31c", "entity_type": "Organization", "description": "American venture capital firm based in Boston and San Francisco, founded in 2005.", "hq": "Pikk tn 48-4, 10133, Tallinn", "source": "GLEIF", "lat": 59.44, "lon": 24.75, "precise": false, "cc": "EE"}, "Coatue": {"seen": 13, "lei": "635400CEZVHD1WE5M720", "id": "39b47fd1-9a78-4492-9b73-75ef3c0cfe8f", "entity_type": "Organization", "description": "A U.S. investment firm specializing in technology and media, operating in asset management, private equity and venture capital.", "hq": "33 Sir John Rogerson\u2019s Quay, Dublin 2, Dublin", "source": "GLEIF", "lat": 53.3458341, "lon": -6.2411076, "precise": true, "cc": "IE"}, "Partech": {"seen": 13, "lei": "969500D4Q2TO0MYB0177", "id": "6d9385f7-9c5b-435d-932f-0a2da6371df5", "entity_type": "Organization", "description": "Paris\u2011based venture capital firm", "hq": "164 VOIE ARISTIDE BERGES, PARC D'ACTIVITES ALPESPACE, 73800, SAINTE-HELENE-DU-LAC", "source": "GLEIF", "lat": 45.4746247, "lon": 6.0295656, "precise": true, "cc": "??"}, "Tiger Global Management": {"seen": 12, "lei": "54930010VU8Q51DNY331", "id": "c00f2ce1-1ec4-40f8-afb3-3011dc2df90b", "entity_type": "Organization", "description": "An American hedge fund and venture capital firm headquartered in New York City.", "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON", "source": "GLEIF"}, "Dawn Capital": {"seen": 12, "lei": "21380093TXOCPGRMUQ52", "id": "c3fc864e-098c-49b1-8375-fca6acdf1bcf", "entity_type": "Organization", "description": "European venture capital firm based in London that invests in technology startups.", "hq": "ILONA ROSE HOUSE, MANETTE STREET, W1D 4AL, LONDON", "source": "GLEIF", "lat": 51.5145812, "lon": -0.1303259, "precise": true, "cc": "GB"}, "Temasek": {"seen": 12, "lei": "549300PZLR3HUD1NZ094", "id": "97e36c5b-db20-485d-ad87-9376edd5b95d", "entity_type": "Organization", "description": "A Singaporean sovereign wealth fund.", "hq": "21 Tampines Avenue 1, 529757, Singapore", "source": "GLEIF", "lat": 1.3449667, "lon": 103.9314124, "precise": true, "cc": "SG"}, "BlackRock": {"seen": 12, "lei": "89450092Q7JCNRQXYW05", "id": "19362263-e00c-418c-b15c-b6bcbfda9c4f", "entity_type": "Company", "description": "A US\u2011based multinational investment\u2011management corporation operating in asset management, financial services, fintech, real estate, private equity and venture capital, headquartered in New York City.", "hq": "C/O ETS BOISBOUVIER ROBERT, 46 BOULEVARD DES MOULINS, 98000, MONACO", "source": "GLEIF"}, "Alven": {"seen": 11, "lei": "894500J494YJNVX9QH86", "id": "6d830643-36d5-591e-b6f7-bb45b4b90ef5", "entity_type": "Organization", "description": "a private equity and venture capital firm", "hq": "124 Rue R\u00e9aumur, 75002, Paris", "source": "GLEIF", "lat": 48.868163, "lon": 2.3442714, "precise": true, "cc": "FR"}, "Eurazeo": {"seen": 11, "lei": "969500C656AA39O94N60", "id": "2825e017-0e7d-4c3e-b69c-b020b6bd0cb4", "entity_type": "Organization", "description": "French investment firm specializing in private equity, venture capital and asset management, founded in 1969", "hq": "66 RUE PIERRE CHARRON, 75008, PARIS", "source": "GLEIF", "lat": 48.8698564, "lon": 2.3042077, "precise": true, "cc": "FR"}, "Founders Fund AS": {"seen": 11, "id": "a5de4e4e-b8dc-4caa-b1fa-562de83b806f", "entity_type": "Organization", "description": "A Netherlands\u2011based global investment fund headquartered in Amsterdam that co\u2011invests with the Italian Founders Fund.", "website": null, "founded": null, "employees": 8, "hq": "Fred. Roeskestraat 115, 1076 EE Amsterdam, Netherlands", "source": "Cala.registered_address", "lat": 52.340691, "lon": 4.8584077, "precise": true, "cc": "NL"}, "Insight Partners": {"seen": 11, "lei": "984500A7AAAABF6AF530", "id": "925e2c39-33fc-4ca5-8439-5d83089fc6b8", "entity_type": "Organization", "description": "U.S. venture capital firm founded in 1995 and headquartered in Wilmington, Delaware.", "hq": "Diplomvej 381, 2800, Kgs. Lyngby", "source": "GLEIF", "lat": 55.782762, "lon": 12.512894, "precise": true, "cc": "??"}, "byFounders": {"seen": 11, "lei": "894500N8IVFBHHR7UC11", "id": "20003112-87a9-4ac0-be1a-bc97efecf19e", "entity_type": "Organization", "description": "is an early-stage venture capital fund based in Copenhagen, Denmark, that backs tech founders in the Nordics and Baltics.", "hq": "Kanonb\u00e5dsvej 2, 1437, K\u00f8benhavn K", "source": "GLEIF", "lat": 55.679349, "lon": 12.606441, "precise": true, "cc": "??"}, "Project A": {"seen": 11, "lei": "724500LVU8XWQE2WRV63", "id": "0ea1256e-bca0-4254-8af5-4102e32052ae", "entity_type": "Organization", "description": "A Berlin-based venture capital firm.", "hq": "Rietveldenkade 15, 5222AJ, 's-Hertogenbosch", "source": "GLEIF", "lat": 51.7059954, "lon": 5.2727472, "precise": true, "cc": "??"}, "SV Angel": {"seen": 10, "id": "5f580685-49ac-4324-8c2c-dda02cc2760d", "entity_type": "Organization", "description": "A San Francisco\u2011based venture capital firm founded by Ron Conway.", "website": "<UNKNOWN>", "founded": null, "employees": 6, "hq": "950 Mason Street, Suite 1299, San Francisco, CA 94108, USA", "source": "Cala.registered_address", "lat": 37.77, "lon": -122.42, "precise": false, "cc": "US"}, "Kima Ventures": {"seen": 10, "lei": "969500SSZ2S39DMW4521", "id": "df646c9d-947b-400d-8242-39d0e879430a", "entity_type": "Company", "description": "Venture capital firm based in Paris, founded in 2010 by Xavier Niel.", "hq": "16 RUE DE LA VILLE L'EVEQUE, 75008, PARIS", "source": "GLEIF", "lat": 48.8715973, "lon": 2.320377, "precise": true, "cc": "FR"}, "Fabric Ventures": {"seen": 10, "lei": "984500AQBAC2BX63EE82", "id": "f953c39d-d6e6-5093-af4e-def78ab03389", "entity_type": "Organization", "description": "A venture capital firm that is the beneficiary owner of Fabric Studios Ltd and has invested in the company Resonance.", "hq": "9, rue du Laboratoire, 1911, Luxembourg", "source": "GLEIF", "lat": 49.6041878, "lon": 6.136692, "precise": true, "cc": "LU"}}
+{
+ "Sequoia Capital": {
+  "seen": 55,
+  "lei": "724500ZJTL4CBKCMWL71",
+  "id": "151bf814-7566-4b14-a7d2-f0d802ef0981",
+  "entity_type": "Organization",
+  "description": "American venture capital firm headquartered in Menlo Park, California, founded in 1972.",
+  "hq": "Quellijnstraat 119C, 1073XH, Amsterdam",
+  "source": "GLEIF",
+  "lat": 52.3567372,
+  "lon": 4.8937108,
+  "precise": true,
+  "cc": "NL"
+ },
+ "Index Ventures": {
+  "seen": 52,
+  "lei": "254900C4G07FZFMAOB23",
+  "id": "4a7ccd5d-1310-46b0-bd42-4ff8b409acc5",
+  "entity_type": "Company",
+  "description": "a London‑based venture capital firm founded in 1996 that invests in fintech and retail sectors",
+  "hq": "TENANCY 10 , MARINA HOUSE, MAHE, EDEN ISLAND",
+  "source": "GLEIF"
+ },
+ "Lightspeed Venture Partners": {
+  "seen": 40,
+  "lei": "254900XR73525HA8GV10",
+  "id": "5a9d0c1c-1e04-4816-b38a-28c4f560569b",
+  "entity_type": "Company",
+  "description": "A venture capital firm based in Menlo Park, California, United States.",
+  "hq": "C/O Maples Corporate Services Limited, PO Box 309, Ugland House, Grand Cayman, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "Creandum": {
+  "seen": 39,
+  "lei": "549300RV2HDGRZ4SP482",
+  "id": "6ba00a20-2cb4-4559-8fe2-f39484a9e5f6",
+  "entity_type": "Organization",
+  "description": "venture capital firm based in Stockholm, Sweden, founded by Stefan Lindeberg and focusing on fintech startups",
+  "hq": "Box 7068, 103 86, Stockholm",
+  "source": "GLEIF",
+  "lat": 59.3251172,
+  "lon": 18.0710935,
+  "precise": true,
+  "cc": "SE"
+ },
+ "Balderton Capital": {
+  "seen": 36,
+  "lei": "648800LKXJ3G8X26AF36",
+  "id": "c96fa533-91c0-5674-bcbe-0d0dc934b7fa",
+  "entity_type": "Organization",
+  "description": "a London-based venture capital firm",
+  "hq": "3, Rue Gabriel Lippmann, 5365, Munsbach",
+  "source": "GLEIF",
+  "lat": 49.6385911,
+  "lon": 6.2698505,
+  "precise": true,
+  "cc": "??"
+ },
+ "83North": {
+  "seen": 33,
+  "lei": "9845003B2CAA783D7J95",
+  "id": "2c43483a-8d36-4ae6-9887-e4746dd5dccb",
+  "entity_type": "Company",
+  "description": "A London‑based venture capital firm.",
+  "hq": "P. O. Box 10008, Willow House, Cricket Square, KY1-1001, Grand Cayman",
+  "source": "GLEIF"
+ },
+ "Northzone": {
+  "seen": 32,
+  "lei": "984500Z5AE35F95F3991",
+  "id": "208d7baa-10cd-4a73-825b-5bd3e827f79f",
+  "entity_type": "Organization",
+  "description": "a London‑based venture capital firm founded in 2006 that invests in fintech companies",
+  "hq": "Whiteley Chambers, Don Street, JE2 4TR, St. Helier",
+  "source": "GLEIF"
+ },
+ "General Catalyst": {
+  "seen": 30,
+  "lei": "9845005RCEA680FC7936",
+  "id": "03faa252-0570-4e3f-be48-39d7740d964c",
+  "entity_type": "Organization",
+  "description": "A venture capital firm based in Cambridge, Massachusetts, founded in 2000.",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Y Combinator": {
+  "seen": 30,
+  "lei": "984500AF4F2F865CE475",
+  "id": "b30bd3be-0227-49fd-9f2a-9f87e3a5afe2",
+  "entity_type": "Organization",
+  "description": "A startup accelerator and seed investor.",
+  "hq": "335 PIONEER WAY, 94041, MOUNTAIN VIEW",
+  "source": "GLEIF",
+  "lat": 37.3862565,
+  "lon": -122.0668804,
+  "precise": true,
+  "cc": "US"
+ },
+ "EQT Ventures": {
+  "seen": 29,
+  "lei": "254900NDMR3YDGHEVO18",
+  "id": "d6cf13e1-92ff-4567-bd72-30316f2498e5",
+  "entity_type": "Organization",
+  "description": "A venture capital firm.",
+  "hq": "51A, BOULEVARD ROYAL, L-2449, LUXEMBOURG",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "Speedinvest": {
+  "seen": 27,
+  "lei": "213800FVX1JVPW275O97",
+  "id": "94e0ca6a-4e39-4181-bd84-11f264d0aa62",
+  "entity_type": "Company",
+  "description": "A Vienna-based Austrian venture‑capital firm founded in 2011.",
+  "hq": "26 ROUTE DU BOIS-DE-BAY, 1242, SATIGNY",
+  "source": "GLEIF",
+  "lat": 46.2002002,
+  "lon": 6.063563,
+  "precise": true,
+  "cc": "??"
+ },
+ "HV Capital": {
+  "seen": 27,
+  "lei": "7437004OMLAI6TKKXU78",
+  "id": "8774eb35-b3d0-4d71-8135-a4fe1187a3b6",
+  "entity_type": "Organization",
+  "description": "German venture capital firm headquartered in Munich",
+  "hq": "Verstaankatu 5 B 31, 33100 TAMPERE, FI-33100, TAMPERE",
+  "source": "GLEIF",
+  "lat": 61.5,
+  "lon": 23.79,
+  "precise": false,
+  "cc": "FI"
+ },
+ "Atomico": {
+  "seen": 26,
+  "lei": "984500460E4E4FF00302",
+  "id": "32e27d54-3922-407f-aa07-2747d94b210c",
+  "entity_type": "Company",
+  "description": "a London-based venture capital firm founded by Mattias Ljungman",
+  "hq": "412F, Route d'Esch, L-1471, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "Lifeline Ventures": {
+  "seen": 22,
+  "lei": "54930040XEAWX2GX6151",
+  "id": "476a73ac-afa2-4713-9f73-188bc7ec0b95",
+  "entity_type": "Organization",
+  "description": "Finnish venture capital firm headquartered in Helsinki.",
+  "hq": "C/O Greenstep Sverige AB, Drottninggatan 26, 602 24, Norrköping",
+  "source": "GLEIF"
+ },
+ "Cherry Ventures": {
+  "seen": 22,
+  "lei": "391200KFLCM0G1BON952",
+  "id": "c06adc97-e2d8-4590-a329-4462750ee4e6",
+  "entity_type": "Organization",
+  "description": "A Berlin-based venture capital and private‑equity firm that invests in climate‑tech companies.",
+  "hq": "Linienstrasse 214, 10119, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5285309,
+  "lon": 13.4059914,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Icebreaker.vc": {
+  "seen": 20,
+  "id": "70fb3317-cd8c-4c52-aa86-66502789bce3",
+  "entity_type": "Company",
+  "description": "Nordic early-stage VC firm backing teams at the earliest stages with €120M Fund III.",
+  "website": "icebreaker.vc",
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Highland Europe": {
+  "seen": 19,
+  "lei": "9845007BF9I6X8A68A96",
+  "id": "e3d5b106-930a-4cbc-85d6-efa2e804f946",
+  "entity_type": "Organization",
+  "description": "A venture capital firm.",
+  "hq": "5th - 7th Floors 30 Golden Square, W1F 9LD, London",
+  "source": "GLEIF",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Bessemer Venture Partners": {
+  "seen": 19,
+  "lei": "2549007V2NN2335SEH50",
+  "id": "04cfed12-5b91-424b-b7fc-3c14593b944c",
+  "entity_type": "Company",
+  "description": "A venture capital firm founded in 1911 and headquartered in Menlo Park, California, United States.",
+  "hq": "6TH FLOOR, TWO TRIBECA, TRIBECA CENTRAL, 72261, TRIANON",
+  "source": "GLEIF"
+ },
+ "Accel": {
+  "seen": 18,
+  "lei": "96950051EPF573OC1V32",
+  "id": "aee065b7-5ae9-45c7-8c30-457f6d339958",
+  "entity_type": "Organization",
+  "description": "A venture capital firm founded in 1983 in Palo Alto, California, that created Viktor.",
+  "hq": "8 RUE CREVE CŒUR, 01000, BOURG-EN-BRESSE",
+  "source": "GLEIF",
+  "lat": 46.208727,
+  "lon": 5.224502,
+  "precise": true,
+  "cc": "??"
+ },
+ "Project A Ventures": {
+  "seen": 18,
+  "lei": "3912008RQ3ORI32X9I23",
+  "id": "14114b32-b79d-4dba-8f6f-356113a4c696",
+  "entity_type": "Organization",
+  "description": "an operational venture capital firm backed by Otto GmbH & Co KG",
+  "hq": "Julie-Wolfthorn-Str. 1, 10115, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5323939,
+  "lon": 13.3846183,
+  "precise": true,
+  "cc": "DE"
+ },
+ "LocalGlobe": {
+  "seen": 17,
+  "id": "1516c337-36cb-4357-ba0c-03b9c6c0d0e0",
+  "entity_type": "Company",
+  "description": "London-based venture capital fund investing in early-stage tech, media, mobile, fintech, and transportation startups since 1999.",
+  "website": "localglobe.vc",
+  "founded": null,
+  "employees": null,
+  "hq": "1 Brill Place, London, London NW1 1EL, GB",
+  "source": "Cala.headquarters_address",
+  "lat": 51.5316465,
+  "lon": -0.1297838,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Earlybird Venture Capital": {
+  "seen": 16,
+  "lei": "391200H3M2LXJFE4KH85",
+  "id": "7de3d7d6-af8f-4e95-a949-2befc86938a0",
+  "entity_type": "Organization",
+  "description": "Berlin-based venture capital firm founded in 2002 that invests in continental European technology companies.",
+  "hq": "Promenadeplatz 9, c/o Earlybird Venture Capital, 80333, München",
+  "source": "GLEIF"
+ },
+ "Kleiner Perkins": {
+  "seen": 16,
+  "id": "ef662aff-9944-4543-a021-838f66e1b4a2",
+  "entity_type": "Organization",
+  "description": "Venture capital firm focused on technology and life sciences sectors, founded in 1972 and based in Menlo Park, California",
+  "website": "kleinerperkins.com",
+  "founded": "1972-01-01",
+  "employees": 214,
+  "hq": "2750 Sand Hill Road, Menlo Park, CA 94025",
+  "source": "Cala.registered_address",
+  "lat": 37.4206336,
+  "lon": -122.2098054,
+  "precise": true,
+  "cc": "??"
+ },
+ "Seedcamp": {
+  "seen": 16,
+  "lei": "549300QNOP4E1S02EH55",
+  "id": "d2d11954-6bab-5ac9-8684-a54406623104",
+  "entity_type": "Organization",
+  "description": "a London‑based seed‑stage venture capital firm founded in 2007",
+  "hq": "12 Little Portland Street 5th Floor, W1W 8BJ, London",
+  "source": "GLEIF",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Frontline Ventures": {
+  "seen": 15,
+  "lei": "549300U50E1OXGL1IQ73",
+  "id": "e8b34529-bf05-49ca-9728-d87c2bdac7bb",
+  "entity_type": "Organization",
+  "description": "London‑based private‑equity and venture‑capital investment firm",
+  "hq": "LUSAKA BUILDING, UNIT 15 FREEDOMWAY NORTHEND, LUSAKA",
+  "source": "GLEIF"
+ },
+ "Lakestar": {
+  "seen": 14,
+  "lei": "89450005ZRK63VUCFM11",
+  "id": "16bdbb1a-6658-4fa2-9b04-0a48011841d2",
+  "entity_type": "Organization",
+  "description": "a venture capital and private‑equity firm headquartered in St Peter Port, Guernsey",
+  "hq": "Suite 102, Ground Floor, Blake Building, Corner Eyre & Hutson streets, na, Belize",
+  "source": "GLEIF"
+ },
+ "Inventure": {
+  "seen": 14,
+  "lei": "96760020GS29X9J1GF42",
+  "id": "fd3ba350-0e55-40b5-96e3-013994777fdc",
+  "entity_type": "Organization",
+  "description": "a Finnish investment firm headquartered in Helsinki",
+  "hq": "Lemenhoekstraat 19, 2861, Sint-Katelijne-Waver",
+  "source": "GLEIF",
+  "lat": 51.0578375,
+  "lon": 4.5995368,
+  "precise": true,
+  "cc": "??"
+ },
+ "Hoxton Ventures": {
+  "seen": 14,
+  "lei": "2138002E2QX2TXSHV413",
+  "id": "df688dce-68f4-4d17-af72-d4f6a173a322",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that participated in Preply's Series C funding round and has invested in companies such as Formance.",
+  "hq": "55 NEW OXFORD STREET, WC1A 1BS, LONDON",
+  "source": "GLEIF",
+  "lat": 51.5168863,
+  "lon": -0.1270467,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Andreessen Horowitz": {
+  "seen": 14,
+  "id": "8431295b-9ab9-4008-9d22-c22421e888c5",
+  "entity_type": "Organization",
+  "description": "An American venture capital firm headquartered in Menlo Park, California, founded in 2009.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Global Founders Capital (GFC)": {
+  "seen": 13,
+  "id": "68a934f8-4cf8-476f-b966-3c4b9f0cb391",
+  "entity_type": "Organization",
+  "description": "Berlin‑based venture‑capital firm",
+  "website": "globalfounderscapital.com",
+  "founded": null,
+  "employees": 12,
+  "hq": "Charlottenstr. 4, 10969 Berlin, Germany",
+  "source": "Cala.registered_address",
+  "lat": 52.5065424,
+  "lon": 13.392988,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Coatue Management": {
+  "seen": 13,
+  "lei": "54930035XZQJY6VCW995",
+  "id": "a15341c8-487b-441a-92f1-c9bff0f4a77b",
+  "entity_type": "Organization",
+  "description": "A New York‑based American investment firm focused on asset management, private equity and venture capital.",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Elad Gil": {
+  "seen": 13,
+  "id": "62676705-7d77-4d86-80f0-fac67e1b61da",
+  "entity_type": "Company",
+  "description": "A company backed by investors such as Rippling, HARVEY AI CORPORATION and Saronic.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Global Founders Capital": {
+  "seen": 13,
+  "lei": "5493005Q75X2ULH1KP74",
+  "id": "68a934f8-4cf8-476f-b966-3c4b9f0cb391",
+  "entity_type": "Organization",
+  "description": "Berlin‑based venture‑capital firm",
+  "hq": "12, rue des Mérovingiens, L-8070, Bertrange",
+  "source": "GLEIF"
+ },
+ "Heartcore Capital": {
+  "seen": 13,
+  "lei": "63670026ALAB2K1VSO83",
+  "id": "c7c91c8e-15b5-4ba8-a652-5fa93c268db1",
+  "entity_type": "Company",
+  "description": "A Danish venture capital firm founded in 2011 and headquartered in Copenhagen.",
+  "hq": "Frederiksgade 7 3., 1265, København K",
+  "source": "GLEIF"
+ },
+ "Point Nine Capital": {
+  "seen": 13,
+  "lei": "391200LMOGA9C9XG3T57",
+  "id": "c934f7e3-6ee3-4983-b0e1-f7827df567f9",
+  "entity_type": "Organization",
+  "description": "A Berlin-based venture capital firm founded in 2009.",
+  "hq": "Torstr. 19, 10119, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5280905,
+  "lon": 13.4132074,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Spark Capital": {
+  "seen": 13,
+  "lei": "894500LLK7B9T9XHTG67",
+  "id": "498fc3e8-784d-47d1-9220-605558bdd31c",
+  "entity_type": "Organization",
+  "description": "American venture capital firm based in Boston and San Francisco, founded in 2005.",
+  "hq": "Pikk tn 48-4, 10133, Tallinn",
+  "source": "GLEIF",
+  "lat": 59.44,
+  "lon": 24.75,
+  "precise": false,
+  "cc": "EE"
+ },
+ "Coatue": {
+  "seen": 13,
+  "lei": "635400CEZVHD1WE5M720",
+  "id": "39b47fd1-9a78-4492-9b73-75ef3c0cfe8f",
+  "entity_type": "Organization",
+  "description": "A U.S. investment firm specializing in technology and media, operating in asset management, private equity and venture capital.",
+  "hq": "33 Sir John Rogerson’s Quay, Dublin 2, Dublin",
+  "source": "GLEIF",
+  "lat": 53.3458341,
+  "lon": -6.2411076,
+  "precise": true,
+  "cc": "IE"
+ },
+ "Partech": {
+  "seen": 13,
+  "lei": "969500D4Q2TO0MYB0177",
+  "id": "6d9385f7-9c5b-435d-932f-0a2da6371df5",
+  "entity_type": "Organization",
+  "description": "Paris‑based venture capital firm",
+  "hq": "164 VOIE ARISTIDE BERGES, PARC D'ACTIVITES ALPESPACE, 73800, SAINTE-HELENE-DU-LAC",
+  "source": "GLEIF",
+  "lat": 45.4746247,
+  "lon": 6.0295656,
+  "precise": true,
+  "cc": "??"
+ },
+ "Tiger Global Management": {
+  "seen": 12,
+  "lei": "54930010VU8Q51DNY331",
+  "id": "c00f2ce1-1ec4-40f8-afb3-3011dc2df90b",
+  "entity_type": "Organization",
+  "description": "An American hedge fund and venture capital firm headquartered in New York City.",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Dawn Capital": {
+  "seen": 12,
+  "lei": "21380093TXOCPGRMUQ52",
+  "id": "c3fc864e-098c-49b1-8375-fca6acdf1bcf",
+  "entity_type": "Organization",
+  "description": "European venture capital firm based in London that invests in technology startups.",
+  "hq": "ILONA ROSE HOUSE, MANETTE STREET, W1D 4AL, LONDON",
+  "source": "GLEIF",
+  "lat": 51.5145812,
+  "lon": -0.1303259,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Temasek": {
+  "seen": 12,
+  "lei": "549300PZLR3HUD1NZ094",
+  "id": "97e36c5b-db20-485d-ad87-9376edd5b95d",
+  "entity_type": "Organization",
+  "description": "A Singaporean sovereign wealth fund.",
+  "hq": "21 Tampines Avenue 1, 529757, Singapore",
+  "source": "GLEIF",
+  "lat": 1.3449667,
+  "lon": 103.9314124,
+  "precise": true,
+  "cc": "SG"
+ },
+ "BlackRock": {
+  "seen": 12,
+  "lei": "89450092Q7JCNRQXYW05",
+  "id": "19362263-e00c-418c-b15c-b6bcbfda9c4f",
+  "entity_type": "Company",
+  "description": "A US‑based multinational investment‑management corporation operating in asset management, financial services, fintech, real estate, private equity and venture capital, headquartered in New York City.",
+  "hq": "C/O ETS BOISBOUVIER ROBERT, 46 BOULEVARD DES MOULINS, 98000, MONACO",
+  "source": "GLEIF"
+ },
+ "Alven": {
+  "seen": 11,
+  "lei": "894500J494YJNVX9QH86",
+  "id": "6d830643-36d5-591e-b6f7-bb45b4b90ef5",
+  "entity_type": "Organization",
+  "description": "a private equity and venture capital firm",
+  "hq": "124 Rue Réaumur, 75002, Paris",
+  "source": "GLEIF",
+  "lat": 48.868163,
+  "lon": 2.3442714,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Eurazeo": {
+  "seen": 11,
+  "lei": "969500C656AA39O94N60",
+  "id": "2825e017-0e7d-4c3e-b69c-b020b6bd0cb4",
+  "entity_type": "Organization",
+  "description": "French investment firm specializing in private equity, venture capital and asset management, founded in 1969",
+  "hq": "66 RUE PIERRE CHARRON, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8698564,
+  "lon": 2.3042077,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Founders Fund AS": {
+  "seen": 11,
+  "id": "a5de4e4e-b8dc-4caa-b1fa-562de83b806f",
+  "entity_type": "Organization",
+  "description": "A Netherlands‑based global investment fund headquartered in Amsterdam that co‑invests with the Italian Founders Fund.",
+  "website": null,
+  "founded": null,
+  "employees": 8,
+  "hq": "Fred. Roeskestraat 115, 1076 EE Amsterdam, Netherlands",
+  "source": "Cala.registered_address",
+  "lat": 52.340691,
+  "lon": 4.8584077,
+  "precise": true,
+  "cc": "NL"
+ },
+ "Insight Partners": {
+  "seen": 11,
+  "lei": "984500A7AAAABF6AF530",
+  "id": "925e2c39-33fc-4ca5-8439-5d83089fc6b8",
+  "entity_type": "Organization",
+  "description": "U.S. venture capital firm founded in 1995 and headquartered in Wilmington, Delaware.",
+  "hq": "Diplomvej 381, 2800, Kgs. Lyngby",
+  "source": "GLEIF",
+  "lat": 55.782762,
+  "lon": 12.512894,
+  "precise": true,
+  "cc": "??"
+ },
+ "byFounders": {
+  "seen": 11,
+  "lei": "894500N8IVFBHHR7UC11",
+  "id": "20003112-87a9-4ac0-be1a-bc97efecf19e",
+  "entity_type": "Organization",
+  "description": "is an early-stage venture capital fund based in Copenhagen, Denmark, that backs tech founders in the Nordics and Baltics.",
+  "hq": "Kanonbådsvej 2, 1437, København K",
+  "source": "GLEIF",
+  "lat": 55.679349,
+  "lon": 12.606441,
+  "precise": true,
+  "cc": "??"
+ },
+ "Project A": {
+  "seen": 11,
+  "lei": "724500LVU8XWQE2WRV63",
+  "id": "0ea1256e-bca0-4254-8af5-4102e32052ae",
+  "entity_type": "Organization",
+  "description": "A Berlin-based venture capital firm.",
+  "hq": "Rietveldenkade 15, 5222AJ, 's-Hertogenbosch",
+  "source": "GLEIF",
+  "lat": 51.7059954,
+  "lon": 5.2727472,
+  "precise": true,
+  "cc": "??"
+ },
+ "SV Angel": {
+  "seen": 10,
+  "id": "5f580685-49ac-4324-8c2c-dda02cc2760d",
+  "entity_type": "Organization",
+  "description": "A San Francisco‑based venture capital firm founded by Ron Conway.",
+  "website": "<UNKNOWN>",
+  "founded": null,
+  "employees": 6,
+  "hq": "950 Mason Street, Suite 1299, San Francisco, CA 94108, USA",
+  "source": "Cala.registered_address",
+  "lat": 37.77,
+  "lon": -122.42,
+  "precise": false,
+  "cc": "US"
+ },
+ "Kima Ventures": {
+  "seen": 10,
+  "lei": "969500SSZ2S39DMW4521",
+  "id": "df646c9d-947b-400d-8242-39d0e879430a",
+  "entity_type": "Company",
+  "description": "Venture capital firm based in Paris, founded in 2010 by Xavier Niel.",
+  "hq": "16 RUE DE LA VILLE L'EVEQUE, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8715973,
+  "lon": 2.320377,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Fabric Ventures": {
+  "seen": 10,
+  "lei": "984500AQBAC2BX63EE82",
+  "id": "f953c39d-d6e6-5093-af4e-def78ab03389",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that is the beneficiary owner of Fabric Studios Ltd and has invested in the company Resonance.",
+  "hq": "9, rue du Laboratoire, 1911, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.6041878,
+  "lon": 6.136692,
+  "precise": true,
+  "cc": "LU"
+ },
+ "Firstminute Capital": {
+  "seen": 10,
+  "lei": "213800L2TGAAUKGP2F77",
+  "id": "4bd3b02e-7de3-4241-ab3e-35e34fdafc4f",
+  "entity_type": "Organization",
+  "description": "London-based institutional investor",
+  "hq": "LEVEL 6 ARUNDEL STREET BUILDING,180 STRAND, 2 ARUNDEL STREET, WC2R 3DA, LONDON",
+  "source": "GLEIF",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Headline": {
+  "seen": 10,
+  "lei": "25490005D12VB9NPXC37",
+  "id": "00c0de03-b09c-47a3-9b1d-bbae6a9d3884",
+  "entity_type": "Organization",
+  "description": "A global venture capital firm, formerly known as e.ventures and BV Capital, that invests across stages and sectors.",
+  "hq": "Flat 406 Siddal Apartments, 6 Heygate Street, SE17 1FE, London",
+  "source": "GLEIF",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Microsoft": {
+  "seen": 10,
+  "lei": "967600DJA1Q8K13MZ845",
+  "id": "fa54f617-b52b-5a20-877c-6abbd29c3d09",
+  "entity_type": "Organization",
+  "description": "An American multinational technology corporation headquartered in Redmond, Washington, founded in 1975.",
+  "hq": "Da Vincilaan 3, 1930, Zaventem",
+  "source": "GLEIF",
+  "lat": 50.8882394,
+  "lon": 4.4595604,
+  "precise": true,
+  "cc": "??"
+ },
+ "Altimeter Capital": {
+  "seen": 10,
+  "lei": "549300ZI9XRL1UYZ8D05",
+  "id": "4043764b-236f-4b24-8b40-766a3e26e8f9",
+  "entity_type": "Organization",
+  "description": "venture capital firm based in Boston, Massachusetts",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Khosla Ventures": {
+  "seen": 9,
+  "lei": "213800SFYKXABPQVA385",
+  "id": "dc7ff25e-150c-4b1c-a538-77e57af99f71",
+  "entity_type": "Company",
+  "description": "A venture capital and private equity firm headquartered in Menlo Park, California, United States.",
+  "hq": "2128 SAND HILL ROAD, 94025, MENLO PARK",
+  "source": "GLEIF",
+  "lat": 37.4256333,
+  "lon": -122.1933175,
+  "precise": true,
+  "cc": "??"
+ },
+ "Business Finland": {
+  "seen": 9,
+  "lei": "743700AVXTHX1NX6QZ08",
+  "id": "d5b41639-eb27-43df-a6ee-a4f03807fbca",
+  "entity_type": "Organization",
+  "description": "Finnish government agency that funds and promotes innovation and export activities.",
+  "hq": "PL 358, 00181 HELSINKI, FI-00181, HELSINKI",
+  "source": "GLEIF",
+  "lat": 60.17,
+  "lon": 24.94,
+  "precise": false,
+  "cc": "FI"
+ },
+ "Bpifrance": {
+  "seen": 9,
+  "lei": "969500ISDAVO0KBJOI22",
+  "id": "b8f60f04-9fb0-4a59-8913-8ad92cba937c",
+  "entity_type": "Organization",
+  "description": "French public investment bank and venture capital firm headquartered in Maisons‑Alfort, founded in 2012.",
+  "hq": "27 AVENUE DU GENERAL LECLERC, 27 - 31, 94700, MAISONS-ALFORT",
+  "source": "GLEIF"
+ },
+ "Cathay Innovation": {
+  "seen": 9,
+  "lei": "969500ISUB5AFUA69173",
+  "id": "65b357e1-d365-48fb-8343-b2cf371a5475",
+  "entity_type": "Company",
+  "description": "Paris‑based venture capital firm founded in 2016 by Cai Mingpo and Denis Barrier.",
+  "hq": "52 RUE D'ANJOU, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8730315,
+  "lon": 2.3223508,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Redalpine": {
+  "seen": 8,
+  "lei": "213800H9P4QQJUOBM337",
+  "id": "8932a610-7903-431d-8366-905e45c68ee4",
+  "entity_type": "Organization",
+  "description": "European venture capital firm",
+  "hq": "ZÄHLERWEG 4, 6300, ZUG",
+  "source": "GLEIF",
+  "lat": 47.1762425,
+  "lon": 8.5133356,
+  "precise": true,
+  "cc": "CH"
+ },
+ "Picus Capital": {
+  "seen": 8,
+  "lei": "529900SBEYL2YCKGR275",
+  "id": "858bd254-d821-403f-8c2e-b3aef72cc066",
+  "entity_type": "Organization",
+  "description": "London‑based venture‑capital firm investing in climate‑tech and energy",
+  "hq": "Leopoldstraße 20, 80802, München",
+  "source": "GLEIF",
+  "lat": 48.1540213,
+  "lon": 11.5836611,
+  "precise": true,
+  "cc": "??"
+ },
+ "Angel investors": {
+  "seen": 8,
+  "id": "a8165baf-3b81-4d53-8cda-f3a23fbe16b0",
+  "entity_type": "Organization",
+  "description": "A Dubai‑based investment group that has reported investment in the U.S. B2B video‑content SaaS company Vabble.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": "Dubai Silicon Oasis, DDP, Building A1, Dubai, United Arab Emirates",
+  "source": "Cala.registered_address",
+  "lat": 25.2,
+  "lon": 55.27,
+  "precise": false,
+  "cc": "AE",
+  "kind": "not an entity"
+ },
+ "J.P. Morgan": {
+  "seen": 8,
+  "lei": "549300BZ25KVFO74FE51",
+  "id": "0857f228-184d-41bc-854a-8e75a77df225",
+  "entity_type": "Organization",
+  "description": "A multinational investment bank and financial services company headquartered in New York City, United States, founded in 1871.",
+  "hq": "70 SIR JOHN ROGERSON'S QUAY, D02 R296, DUBLIN",
+  "source": "GLEIF",
+  "lat": 53.34531,
+  "lon": -6.2348746,
+  "precise": true,
+  "cc": "IE"
+ },
+ "Felix Capital": {
+  "seen": 8,
+  "lei": "6367008IQUQD4OTWON47",
+  "id": "ffddbaec-8888-4d34-8888-cd30c0856db3",
+  "entity_type": "Organization",
+  "description": "A London‑based venture capital firm.",
+  "hq": "Ramsvikveien 98, 5179, Godvik",
+  "source": "GLEIF",
+  "lat": 60.3621643,
+  "lon": 5.1826253,
+  "precise": true,
+  "cc": "??"
+ },
+ "VNV Global": {
+  "seen": 8,
+  "lei": "549300AO9GBHGX75HB20",
+  "id": "86bef222-a7c7-4f42-acb0-825e3ca124f4",
+  "entity_type": "Company",
+  "description": "A Bermuda-registered company headquartered in Hamilton, founded in 2014.",
+  "hq": "CLARENDON HOUSE, 2 CHURCH STREET, HM 11, HAMILTON",
+  "source": "GLEIF",
+  "lat": 32.2935751,
+  "lon": -64.7878249,
+  "precise": true,
+  "cc": "??"
+ },
+ "Not publicly disclosed": {
+  "seen": 8,
+  "id": "b58f54bb-cdf6-4a46-b279-f8cb6e92b6c3",
+  "entity_type": "Organization",
+  "description": "A multi‑model AI infrastructure startup backed by IBM.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null,
+  "kind": "not an entity"
+ },
+ "Nordic Makers": {
+  "seen": 8,
+  "id": "6f66e249-4cb9-4acd-8bfe-abe679a9c797",
+  "entity_type": "Company",
+  "description": "Copenhagen-based venture capital fund investing in Nordic startups.",
+  "website": "startupguide.com",
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Canapi Ventures": {
+  "seen": 8,
+  "id": "0478ef6b-8451-44e8-82a3-c0e914a9c0db",
+  "entity_type": "Organization",
+  "description": "A Washington, D.C.-based venture capital firm.",
+  "website": null,
+  "founded": null,
+  "employees": 28,
+  "hq": "801 17th St NW, Suite 1050, Washington, DC 20006",
+  "source": "Cala.registered_address"
+ },
+ "Thrive Capital": {
+  "seen": 8,
+  "lei": "254900B4PU0D29RJSC28",
+  "id": "2dddf6e9-cac2-4ba2-a8c7-d9daaaab730f",
+  "entity_type": "Organization",
+  "description": "A New York‑based private equity and venture capital firm.",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "DST Global": {
+  "seen": 8,
+  "lei": "213800HNZF6RY4RDM936",
+  "id": "e8e15d60-55ee-4866-bc53-5f6c519a1ff1",
+  "entity_type": "Organization",
+  "description": "A late-stage internet investment firm founded by Yuri Milner.",
+  "hq": "C/O TRIDENT TRUST COMPANY (CAYMAN) LIMITED, FOURTH FLOOR, ONE CAPITAL PLACE, P.O. BOX 847, KY1-1103, GRAND CAYMAN",
+  "source": "GLEIF"
+ },
+ "Barclays": {
+  "seen": 8,
+  "lei": "213800JEUFSZW5MKIE14",
+  "id": "221f3494-3dbf-440b-a85f-472e7f8d49fc",
+  "entity_type": "Organization",
+  "description": "British multinational bank and financial services company headquartered in London, founded in 1925.",
+  "hq": "2, RUE ALBERT BORSCHETTE, L-1246, LUXEMBOURG",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "Notion Capital": {
+  "seen": 8,
+  "lei": "9845002CA3EE1B798971",
+  "id": "bbfc25cc-fc30-4d3c-b3f0-1e1f862fc5f8",
+  "entity_type": "Company",
+  "description": "London-based VC firm focused on companies from seed to series B, investing in B2B SaaS companies.",
+  "hq": "44 Avenue de la Gare, 1610, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.6023287,
+  "lon": 6.1328086,
+  "precise": true,
+  "cc": "LU"
+ },
+ "Cyberstarts": {
+  "seen": 8,
+  "id": "97669245-a2d3-4369-bbda-cae25149249a",
+  "entity_type": "Company",
+  "description": "Israeli VC focused on cybersecurity startups, ranked among top early-stage funds in Israel.",
+  "website": "cyberstarts.com",
+  "founded": null,
+  "employees": null,
+  "hq": "1 Area Michmoret, Ha-Maftea'kh Street 5, Mikhmoret 40297, Israel",
+  "source": "Cala.headquarters_address",
+  "lat": 32.09,
+  "lon": 34.78,
+  "precise": false,
+  "cc": "IL"
+ },
+ "Stripes": {
+  "seen": 8,
+  "lei": "984500C6B3E2D3B89688",
+  "id": "ebde88f1-9ad5-4171-a1b6-fffe7189bdb0",
+  "entity_type": "Organization",
+  "description": "a New York‑based institutional investment firm",
+  "hq": "5 Ickburgh Road, E5 8AF, London",
+  "source": "GLEIF",
+  "lat": 51.5608723,
+  "lon": -0.0593204,
+  "precise": true,
+  "cc": "GB"
+ },
+ "SVB Capital": {
+  "seen": 7,
+  "id": "7b5adb87-6e62-4816-af41-63caea126e77",
+  "entity_type": "Organization",
+  "description": "The venture investing arm of Silicon Valley Bank.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "FJ Labs": {
+  "seen": 7,
+  "id": "5e6bf3a5-e8e9-4596-bd9c-d15217d42538",
+  "entity_type": "Organization",
+  "description": "New York City-based venture capital firm known as FJ Labs",
+  "website": "fjlabs.com",
+  "founded": null,
+  "employees": 34,
+  "hq": "New York City, United States",
+  "source": "Cala.registered_address",
+  "lat": 40.7127281,
+  "lon": -74.0060152,
+  "precise": true,
+  "cc": "US"
+ },
+ "True Ventures": {
+  "seen": 7,
+  "id": "6bd348a0-3393-4589-8552-31bc7eda8c4c",
+  "entity_type": "Organization",
+  "description": "A Boston-based venture capital firm that provides seed and early‑stage funding to technology companies.",
+  "website": "trueventures.com",
+  "founded": null,
+  "employees": 48,
+  "hq": "575 High Street, Suite 400, Palo Alto, CA 94301, US",
+  "source": "Cala.registered_address",
+  "lat": 37.44,
+  "lon": -122.14,
+  "precise": false,
+  "cc": "US"
+ },
+ "GGV Capital": {
+  "seen": 7,
+  "lei": "254900EEIZJ2BAI2JV20",
+  "id": "ce4e3fbb-6463-4dc6-8c96-6c1bf5455a28",
+  "entity_type": "Company",
+  "description": "A venture capital firm headquartered in Menlo Park, California, founded in 2000.",
+  "hq": "c/o BUSINESS FILINGS INCORPORATED, 108 WEST 13TH ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "The Visionaries Club": {
+  "seen": 7,
+  "id": "f86ef11f-0dc8-45f7-a67d-3fa3b5f871bc",
+  "entity_type": "Organization",
+  "description": "A London‑based venture capital firm.",
+  "website": "visionaries.vc",
+  "founded": null,
+  "employees": 26,
+  "hq": "3rd And 4th Floor 53-55 Beak Street, London, United Kingdom, W1F 9SQ",
+  "source": "Cala.registered_address",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Makers Fund": {
+  "seen": 7,
+  "lei": "549300JCPLE1T6KUSL58",
+  "id": "e55dc4a9-2e74-4bc6-8dc7-74fa6b83854f",
+  "entity_type": "Organization",
+  "description": "a venture capital fund investing in the entertainment sector",
+  "hq": "PO Box 309, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "BlueYard Capital": {
+  "seen": 7,
+  "id": "d9454d06-bb40-43ac-b193-be29083909e9",
+  "entity_type": "Organization",
+  "description": "A Berlin‑based venture capital and private equity firm founded in 2016.",
+  "website": "blueyard.com",
+  "founded": "2016-01-04",
+  "employees": 5,
+  "hq": "Berlin, Germany",
+  "source": "Cala.registered_address",
+  "lat": 52.5173885,
+  "lon": 13.3951309,
+  "precise": true,
+  "cc": "DE"
+ },
+ "IVP": {
+  "seen": 7,
+  "lei": "254900FH2X5O754D5A09",
+  "id": "4adb2e61-0f6d-40c3-82fd-c27b904098ad",
+  "entity_type": "Organization",
+  "description": "a venture capital firm based in Menlo Park, United States",
+  "hq": "CRTOMIROVA ULICA 19, 1000, LJUBLJANA",
+  "source": "GLEIF",
+  "lat": 46.0626024,
+  "lon": 14.5175541,
+  "precise": true,
+  "cc": "SI"
+ },
+ "GV (Google Ventures)": {
+  "seen": 7,
+  "id": "7727e24d-70f4-4240-8b84-1680b8552be1",
+  "entity_type": "Organization",
+  "description": "A venture capital firm based in Mountain View, California, founded in 2009.",
+  "website": "gv.com",
+  "founded": "2009-03-31",
+  "employees": 478,
+  "hq": "1600 Amphitheatre Parkway, Mountain View, CA 94043",
+  "source": "Cala.registered_address",
+  "lat": 37.4224858,
+  "lon": -122.0855846,
+  "precise": true,
+  "cc": "US"
+ },
+ "Exor": {
+  "seen": 7,
+  "lei": "5493002ENHZ6NYET7405",
+  "id": "9ebbbaea-0712-4cb2-aa69-36cce2fd835f",
+  "entity_type": "Organization",
+  "description": "a venture capital firm",
+  "hq": "Hildegard von Bingenstraat 38, 1081 LH, Amsterdam",
+  "source": "GLEIF",
+  "lat": 52.3375485,
+  "lon": 4.866547,
+  "precise": true,
+  "cc": "NL"
+ },
+ "D1 Capital Partners": {
+  "seen": 7,
+  "lei": "5493004R1QTG26U4DV34",
+  "id": "57c966f5-544e-4177-9835-bef229a3ad2e",
+  "entity_type": "Organization",
+  "description": "A private equity and venture capital firm led by Daniel Sundheim.",
+  "hq": "C/O COGENCY GLOBAL INC., 850 NEW BURTON ROAD, SUITE 201, 19904, DOVER",
+  "source": "GLEIF"
+ },
+ "FinTech Collective": {
+  "seen": 7,
+  "lei": "2549009MLMXBYRFT8318",
+  "id": "72821144-4131-4482-b46e-9c8ba7638bc0",
+  "entity_type": "Company",
+  "description": "a venture capital firm that is the beneficiary owner of MONEYLION Inc.",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "OpenAI Startup Fund": {
+  "seen": 7,
+  "id": "d266cc03-ea80-49e2-b900-ce5ee387abd0",
+  "entity_type": "Company",
+  "description": "A venture‑capital fund headquartered in San Francisco, United States, founded in 2023.",
+  "website": null,
+  "founded": "2023-04-03",
+  "employees": null,
+  "hq": "3180 18th Street, San Francisco, CA 94110, United States",
+  "source": "Cala.headquarters_address",
+  "lat": 37.762318,
+  "lon": -122.4146794,
+  "precise": true,
+  "cc": "US"
+ },
+ "ABN AMRO Ventures": {
+  "seen": 7,
+  "id": "e2b8b9a1-ed78-4e22-a4cd-b00e17e8f207",
+  "entity_type": "Organization",
+  "description": "Corporate venture arm of ABN AMRO focusing on fintech investments.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Aglaé Ventures": {
+  "seen": 6,
+  "lei": "969500OSUSQM4BL6BC78",
+  "id": "f54114ce-5848-440c-ac71-21624b6897f3",
+  "entity_type": "Company",
+  "description": "Paris‑based venture capital firm founded in 2017.",
+  "hq": "24 RUE JEAN GOUJON, 24-32, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.86,
+  "lon": 2.35,
+  "precise": false,
+  "cc": "FR"
+ },
+ "Credo Ventures": {
+  "seen": 6,
+  "lei": "315700V9DQ1HLW5Z2K13",
+  "id": "9642f867-0904-4954-9dea-aada36b650b9",
+  "entity_type": "Organization",
+  "description": "A London‑based venture capital firm.",
+  "hq": "Karlovo náměstí 2097/10, 120 00, Praha 2",
+  "source": "GLEIF",
+  "lat": 50.0755517,
+  "lon": 14.4184537,
+  "precise": true,
+  "cc": "??"
+ },
+ "Maki.vc": {
+  "seen": 6,
+  "lei": "6367000TB9HW497U4875",
+  "id": "8f0ff46d-d609-4ce0-b719-85f739b92ca3",
+  "entity_type": "Organization",
+  "description": "a venture capital firm that provides funding to companies",
+  "hq": "Lapinlahdenkatu 16 5, 00180, Helsinki",
+  "source": "GLEIF",
+  "lat": 60.167361,
+  "lon": 24.9240231,
+  "precise": true,
+  "cc": "FI"
+ },
+ "Molten Ventures": {
+  "seen": 6,
+  "lei": "213800IPCR3SAYJWSW10",
+  "id": "910768b3-9747-4fc8-8e85-fd615e706e3e",
+  "entity_type": "Organization",
+  "description": "a British venture capital firm that led Duel's Series A funding round",
+  "hq": "20 GARRICK STREET, WC2E 9BT, LONDON",
+  "source": "GLEIF",
+  "lat": 51.5117202,
+  "lon": -0.126819,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Kinnevik": {
+  "seen": 6,
+  "lei": "2138006PZH76JOS6MN27",
+  "id": "717b71cf-0575-4107-8464-6e739bb96ac3",
+  "entity_type": "Company",
+  "description": "Swedish private equity and venture capital firm headquartered in Stockholm, founded in 1946.",
+  "hq": "SKEPPSBRON 18, P.O. BOX 2094, 103 13, STOCKHOLM",
+  "source": "GLEIF",
+  "lat": 59.33,
+  "lon": 18.07,
+  "precise": false,
+  "cc": "SE"
+ },
+ "SoftBank Vision Fund 2": {
+  "seen": 6,
+  "id": "84bdfef7-da36-4318-ae46-05f98c880e18",
+  "entity_type": "Organization",
+  "description": "Jersey‑based private equity and venture‑capital firm founded in 2019.",
+  "website": "visionfund.com",
+  "founded": "2019-07-26",
+  "employees": null,
+  "hq": "47 Esplanade St., Helier, JE1 0BD, Jersey",
+  "source": "Cala.registered_address",
+  "lat": 49.1854881,
+  "lon": -2.1129746,
+  "precise": true,
+  "cc": "??"
+ },
+ "Change Ventures": {
+  "seen": 6,
+  "id": "3856cd2b-a912-4cdc-8e18-f4d3cecb60c9",
+  "entity_type": "Company",
+  "description": "Venture capital firm investing in pre-seed and seed technology startups in the Baltic States.",
+  "website": "changeventures.com",
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Karma Ventures": {
+  "seen": 6,
+  "lei": "222100Z7OW8VFZ5TG485",
+  "id": "07805945-1509-49e1-8cc9-7f8125b81d76",
+  "entity_type": "Organization",
+  "description": "A venture capital and private equity firm based in Tallinn, Estonia.",
+  "hq": "3 RUE GABRIEL LIPPMANN, L-5365, MUNSBACH",
+  "source": "GLEIF"
+ },
+ "Antler": {
+  "seen": 6,
+  "lei": "213800IUO76ARKERKS49",
+  "id": "120aa512-9f63-4941-a01b-33d54a851ef5",
+  "entity_type": "Organization",
+  "description": "A Singapore‑based venture capital firm founded in 2024 that focuses on financing fintech startups.",
+  "hq": "VIA SOAVE 2, 6900, LUGANO",
+  "source": "GLEIF",
+  "lat": 46.0044638,
+  "lon": 8.9509443,
+  "precise": true,
+  "cc": "??"
+ },
+ "RiverPark Ventures": {
+  "seen": 6,
+  "id": "da6c2398-5820-4176-9e4d-d52ecc802075",
+  "entity_type": "Organization",
+  "description": "A venture capital firm headquartered in New York City.",
+  "website": "riverparkvc.com",
+  "founded": null,
+  "employees": 14,
+  "hq": "156 West 56th Street, 17th Floor, New York, NY 10019",
+  "source": "Cala.registered_address",
+  "lat": 40.71,
+  "lon": -74.01,
+  "precise": false,
+  "cc": "US"
+ },
+ "Jerusalem Venture Partners (JVP)": {
+  "seen": 6,
+  "id": "e593ca02-5e8c-4ff6-9e75-02f87ad1b6ff",
+  "entity_type": "Organization",
+  "description": "A Menlo Park‑based venture capital and private equity firm founded in 1980.",
+  "website": "ivp.com",
+  "founded": "1980-12-31",
+  "employees": 36,
+  "hq": "Menlo Park, California, USA",
+  "source": "Cala.registered_address",
+  "lat": 37.4519671,
+  "lon": -122.177992,
+  "precise": true,
+  "cc": "US"
+ },
+ "Point Nine": {
+  "seen": 6,
+  "lei": "254900UJFP9NZVZRFI27",
+  "id": "be4c7d0d-c4a2-47c6-af29-a48a115e6d01",
+  "entity_type": "Company",
+  "description": "British company incorporated in London in 2025.",
+  "hq": "Unit No: 2546, DMCC Business Centre, Level No 1, Jewellery & Gemplex 3, DXB, Dubai",
+  "source": "GLEIF",
+  "lat": 25.2,
+  "lon": 55.27,
+  "precise": false,
+  "cc": "AE"
+ },
+ "Citi Ventures": {
+  "seen": 6,
+  "lei": "549300MOZXZGAM1KYY13",
+  "id": "8a82c54b-6918-4b6c-9198-505fdb227638",
+  "entity_type": "Company",
+  "description": "A corporate venture capital arm headquartered in Wilmington, Delaware.",
+  "hq": "C/O The Corporation Trust Company, Corporation Trust Center, 1209 Orange Street, 19801, Wilmington",
+  "source": "GLEIF"
+ },
+ "Conviction": {
+  "seen": 6,
+  "lei": "9845004AA999EE7E9761",
+  "id": "69438ccd-3f21-471c-add0-86b10eae6703",
+  "entity_type": "Organization",
+  "description": "a venture capital firm headquartered in San Francisco, United States",
+  "hq": "BLDG NO 16 / 102, ACME SWEET SIXTEEN,, AZAD NAGAR 1, BEHIND APNA BAZAAR,, OFF JP ROAD, ANDHERI, 400053, MUMBAI",
+  "source": "GLEIF",
+  "lat": 19.08,
+  "lon": 72.88,
+  "precise": false,
+  "cc": "IN"
+ },
+ "Blackbird Ventures": {
+  "seen": 6,
+  "lei": "254900D9NE31FTKW8D03",
+  "id": "5cc4fe46-0bc9-586b-b3e0-82317929389f",
+  "entity_type": "Organization",
+  "description": "An Australian venture capital firm headquartered in Surry Hills, New South Wales.",
+  "hq": "LEVEL 1, 111-115 ALBION STREET, SURRY HILLS, 2010, SYDNEY",
+  "source": "GLEIF",
+  "lat": -33.87,
+  "lon": 151.21,
+  "precise": false,
+  "cc": "AU"
+ },
+ "SBI Group": {
+  "seen": 6,
+  "id": "f2ef9116-649c-4e33-84b7-154f743ab925",
+  "entity_type": "Organization",
+  "description": "A Japanese financial services conglomerate that acts as a strategic partner and investor in blockchain-based protocols.",
+  "website": "sbigroup.co.jp",
+  "founded": "1999-07-08",
+  "employees": 18756,
+  "hq": "Izumi Garden Tower 19F, 1-6-1 Roppongi, Minato-ku, Tokyo 106-6019, Japan",
+  "source": "Cala.registered_address",
+  "lat": 35.68,
+  "lon": 139.69,
+  "precise": false,
+  "cc": "JP"
+ },
+ "Peter Thiel": {
+  "seen": 6,
+  "id": "0d3a9a33-4a74-429f-ab73-91e4f22cfb87",
+  "entity_type": "Company",
+  "description": "a company that has received investment from Raisin and is linked to Peter Thilt, a beneficiary owner of Airbnb and Palantir Technologies",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Georgian": {
+  "seen": 6,
+  "lei": "984500903BD075E92B19",
+  "id": "0d46b295-5d77-49b4-8f21-e08c5ed958b5",
+  "entity_type": "Company",
+  "description": "Growth-stage venture capital fund focused on data-driven B2B software companies, with US$5.6 billion AUM.",
+  "hq": "4/96 B, Peringattuparambil, Thirumarady, Pampakuda, Mannathoor P O, Pampakuda via, Ernakulam, 686667, Koothattukulam",
+  "source": "GLEIF"
+ },
+ "British Patient Capital": {
+  "seen": 6,
+  "lei": "213800I7MJKY7YP1TV75",
+  "id": "b20cab5e-80b9-4b30-9898-1c3c671ce6fc",
+  "entity_type": "Company",
+  "description": "A UK-based asset management and venture capital firm headquartered in Sheffield, founded in 2018.",
+  "hq": "STEEL CITY HOUSE, WEST STREET, S1 2GQ, SHEFFIELD",
+  "source": "GLEIF",
+  "lat": 53.3820398,
+  "lon": -1.4726349,
+  "precise": true,
+  "cc": "??"
+ },
+ "Citi": {
+  "seen": 6,
+  "lei": "335800KATNZ5XXDRVJ85",
+  "id": "f5622eb9-e15f-4dc5-9624-0f9af0b3d53c",
+  "entity_type": "Organization",
+  "description": "American banking, financial insurance and asset management firm based in Wilmington, Delaware, founded in 1998.",
+  "hq": "DOOR NO 52/A 29TH WARD,, CITI HOSPETAL DAM ROAD,, HOSPET, 583201, BALLARI",
+  "source": "GLEIF"
+ },
+ "The Raine Group": {
+  "seen": 6,
+  "id": "63509738-8455-4c24-aae8-e22d733d0af4",
+  "entity_type": "Organization",
+  "description": "a financial advisory and investment firm that participated in Games24x7 funding",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "State Street": {
+  "seen": 6,
+  "lei": "98450070QC067887BD92",
+  "id": "f851668c-8b13-57ff-9e70-74a2aa5f022e",
+  "entity_type": "Organization",
+  "description": "an American financial services and investment management firm",
+  "hq": "78 Sir John Rogersons Quay, Dublin 2, D02 HD32, Dublin",
+  "source": "GLEIF",
+  "lat": 53.35,
+  "lon": -6.26,
+  "precise": false,
+  "cc": "IE"
+ },
+ "Bain Capital Ventures": {
+  "seen": 5,
+  "lei": "549300V97QQDT5V8LK49",
+  "id": "413fea6f-ff5b-4a38-a93f-984a8261320f",
+  "entity_type": "Organization",
+  "description": "A venture capital and private equity firm.",
+  "hq": "C/O MAPLES FIDUCIARY SERVICES (DELAWARE) INC., 4001 KENNETT PIKE, SUITE 302, 19807, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Next Gear Ventures": {
+  "seen": 5,
+  "id": "dde85df8-c381-4efa-b27a-8cb3463010bc",
+  "entity_type": "Organization",
+  "description": "an Israeli venture capital fund that invests in auto‑tech startups",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Alliance Venture": {
+  "seen": 5,
+  "lei": "5493004ZBWOHCTUU4E63",
+  "id": "92c83bdb-2ee8-40c1-9e64-2f1e8fd6610d",
+  "entity_type": "Company",
+  "description": "Czech venture capital firm based in Prague, founded in 2018.",
+  "hq": "Luntmakargatan 26, 111 37, STOCKHOLM",
+  "source": "GLEIF",
+  "lat": 59.3379836,
+  "lon": 18.0630121,
+  "precise": true,
+  "cc": "SE"
+ },
+ "Andreessen Horowitz (a16z)": {
+  "seen": 5,
+  "id": "e839e0b0-6476-4490-bad4-a3260e409178",
+  "entity_type": "Organization",
+  "description": "a venture capital investment program based in Menlo Park, California",
+  "website": "a16z.com",
+  "founded": null,
+  "employees": null,
+  "hq": "2865 Sand Hill Road, Suite 101, Menlo Park, CA 94025",
+  "source": "Cala.registered_address"
+ },
+ "Norrsken VC": {
+  "seen": 5,
+  "id": "c0d5bf8c-3f43-4531-8ef6-8c8d1f0dcf5a",
+  "entity_type": "Organization",
+  "description": "A venture capital organization based in Stockholm, Sweden.",
+  "website": "norrsken.org",
+  "founded": null,
+  "employees": 15,
+  "hq": "Stockholm, Sweden",
+  "source": "Cala.registered_address",
+  "lat": 59.3251172,
+  "lon": 18.0710935,
+  "precise": true,
+  "cc": "SE"
+ },
+ "Amino Collective": {
+  "seen": 5,
+  "lei": "391200HD1NK1WKOIP560",
+  "id": "19816b99-9e22-49cd-83e5-a19d8943b0bc",
+  "entity_type": "Organization",
+  "description": "A Berlin-based German venture capital firm.",
+  "hq": "Karl-Liebknecht-Straße 29a, 10178, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5251621,
+  "lon": 13.4128089,
+  "precise": true,
+  "cc": "DE"
+ },
+ "468 Capital": {
+  "seen": 5,
+  "lei": "391200R6X077S4PHUE98",
+  "id": "ff51ac40-dbd6-475a-9961-c83b574982e4",
+  "entity_type": "Organization",
+  "description": "a venture capital firm that has received investment from Bliro",
+  "hq": "Wielandstr. 26/26 A, 10707, Berlin",
+  "source": "GLEIF",
+  "lat": 52.499734,
+  "lon": 13.314849,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Canaan Partners": {
+  "seen": 5,
+  "id": "842d3e58-9b0b-42f5-a506-006881d856b4",
+  "entity_type": "Company",
+  "description": "Venture capital firm investing in early-stage companies in healthcare, fintech, and enterprise technology.",
+  "website": "canaan.com",
+  "founded": null,
+  "employees": null,
+  "hq": "700 Fairfield Avenue, Suite 1, Stamford, CT 06902",
+  "source": "Cala.headquarters_address"
+ },
+ "Bayern Kapital": {
+  "seen": 5,
+  "lei": "391200LU011MN3TPMC14",
+  "id": "a23edf99-9797-4942-927c-afa3eac6bd7c",
+  "entity_type": "Company",
+  "description": "Bavaria's state-backed venture capital firm supporting innovative technology startups.",
+  "hq": "Ländgasse 135a, 84028, Landshut",
+  "source": "GLEIF",
+  "lat": 48.5356711,
+  "lon": 12.1499745,
+  "precise": true,
+  "cc": "??"
+ },
+ "Discovery Ventures": {
+  "seen": 5,
+  "lei": "391200RWQ2STTGLHFT59",
+  "id": "b9b7e8be-bc62-421f-9387-c71d7c7706fc",
+  "entity_type": "Company",
+  "description": "A British Virgin Islands‑registered private equity and venture capital firm founded in 2012 and headquartered in Road Town.",
+  "hq": "Große Hamburger Straße 17, 10115, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5247784,
+  "lon": 13.399017,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Mario Götze": {
+  "seen": 5,
+  "id": "d0047fc0-5127-5ec5-9144-19b7bb4e35cc",
+  "entity_type": "Organization",
+  "description": "An organization that invests in startups such as Brickanta and takes part in pre‑seed funding rounds.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "XAnge": {
+  "seen": 5,
+  "lei": "969500D7X684EZNR1D75",
+  "id": "6a7a99c8-1993-4685-b7f1-879d1f23aa15",
+  "entity_type": "Organization",
+  "description": "a French venture capital firm based in Paris",
+  "hq": "5 RUE FEYDEAU, 5-9, 75002, PARIS",
+  "source": "GLEIF",
+  "lat": 48.86,
+  "lon": 2.35,
+  "precise": false,
+  "cc": "FR"
+ },
+ "Tesi": {
+  "seen": 5,
+  "lei": "984500MQF407D7EH1F18",
+  "id": "df5be140-d50e-4e21-bb4f-d8f1e4ad3959",
+  "entity_type": "Organization",
+  "description": "A Finnish public investment company based in Helsinki that provides private equity and venture capital to technology firms.",
+  "hq": "VIA CESARE BATTISTI 14N, 56125, PISA",
+  "source": "GLEIF",
+  "lat": 43.7099705,
+  "lon": 10.3987587,
+  "precise": true,
+  "cc": "??"
+ },
+ "Stena Sessan": {
+  "seen": 5,
+  "lei": "549300V0ILNHKXWJMW33",
+  "id": "816bb2d3-f68d-4cd4-9bff-001ed697f64a",
+  "entity_type": "Company",
+  "description": "Swedish company founded in 1967 with headquarters at Drottninggatan 33 in Stockholm.",
+  "hq": "Drottninggatan 33, 111 51, Stockholm",
+  "source": "GLEIF",
+  "lat": 59.3316429,
+  "lon": 18.063528,
+  "precise": true,
+  "cc": "SE"
+ },
+ "HCVC (Hardware Club)": {
+  "seen": 5,
+  "id": "9ac6f0e6-1cb9-5a5c-89b4-0ed726ebbb9c",
+  "entity_type": "Organization",
+  "description": "Venture capital firm that participates in seed funding rounds and has invested in Renaissance Fusion.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Kraken Ventures": {
+  "seen": 5,
+  "lei": "213800AE6CZSXOX6HR24",
+  "id": "e220d9db-ac24-43eb-9cc9-a8189c51bf1f",
+  "entity_type": "Organization",
+  "description": "Venture capital firm that invests in early-stage companies.",
+  "hq": "271A FRANCISCAN ROAD, SW17 8HE, LONDON",
+  "source": "GLEIF",
+  "lat": 51.4273629,
+  "lon": -0.1615548,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Salesforce Ventures": {
+  "seen": 5,
+  "lei": "549300AUMHFXP8VPBT82",
+  "id": "e077bcad-ff03-43ea-b74b-5e983cf26c3c",
+  "entity_type": "Organization",
+  "description": "U.S. corporate venture capital firm that serves as the investment arm of Salesforce.",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Kreos Capital": {
+  "seen": 5,
+  "lei": "529900133ZJ8WHM03264",
+  "id": "b653c615-4bb5-4b67-ad23-fbe7cfb75ac5",
+  "entity_type": "Company",
+  "description": "A venture debt firm that provides financing to growth-stage companies.",
+  "hq": "Boulevard F.W. Raiffeisen 28, 2411, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "RTP Global": {
+  "seen": 5,
+  "lei": "5299007BYWYSRHA1F624",
+  "id": "d706d923-831e-45fe-b1ff-fd66cf0da2fa",
+  "entity_type": "Organization",
+  "description": "A New York‑based private equity and venture capital firm investing in technology companies.",
+  "hq": "c/o HLX MANAGEMENT LTD., 64 Shedden Road, 5th Floor Anderson Square Building, P. O. Box 31325, KY1-1206, Grand Cayman",
+  "source": "GLEIF"
+ },
+ "Village Global": {
+  "seen": 5,
+  "id": "0bea8c8b-8386-4c20-bc8d-a6b1ce0091bb",
+  "entity_type": "Organization",
+  "description": "Venture capital firm that leads investments in early-stage technology startups.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Sound Ventures": {
+  "seen": 5,
+  "lei": "743700S3QW7NT3KS9Q44",
+  "id": "809ae8f6-ffa7-45fa-a565-dbf16fb1ada0",
+  "entity_type": "Organization",
+  "description": "a Delaware‑registered venture capital firm based in the United States",
+  "hq": "Jaakonkuja 1 E 4, 90230 OULU, FI-90230, OULU",
+  "source": "GLEIF",
+  "lat": 65.01,
+  "lon": 25.47,
+  "precise": false,
+  "cc": "FI"
+ },
+ "Chr. Augustinus Fabrikker": {
+  "seen": 5,
+  "lei": "96760030LQLBJ38NXJ56",
+  "id": "3365e668-a072-46d3-8238-5853c4f40c7c",
+  "entity_type": "Company",
+  "description": "A Danish investment company founded in 1919 and headquartered in Copenhagen, Denmark.",
+  "hq": "Sankt Annæ Plads 13, st. th., 1250, København K",
+  "source": "GLEIF"
+ },
+ "Fidelity Investments": {
+  "seen": 5,
+  "lei": "549300N8042Y2BO9SS82",
+  "id": "b66d36a3-1471-4ea5-99c3-162de96818ed",
+  "entity_type": "Organization",
+  "description": "An American investment management firm and major investor in SpaceX.",
+  "hq": "820-407 2nd Street SW, T2P 2Y3, Calgary",
+  "source": "GLEIF"
+ },
+ "GIC": {
+  "seen": 5,
+  "lei": "984500DB4A845D8ED998",
+  "id": "2d3926fc-f4fa-4863-8493-b0a50f706eb5",
+  "entity_type": "Company",
+  "description": "Singapore's sovereign wealth fund and global investment manager.",
+  "hq": "VIA SANTA SOFIA 22, 20122, MILANO",
+  "source": "GLEIF",
+  "lat": 45.4568989,
+  "lon": 9.1895636,
+  "precise": true,
+  "cc": "BG"
+ },
+ "Maersk Growth": {
+  "seen": 5,
+  "id": "d6718649-1dfd-46ca-aa49-234fdc492a30",
+  "entity_type": "Company",
+  "description": "Corporate venture capital arm of A.P. Moller-Maersk, investing in logistics and supply chain technology startups.",
+  "website": "maerskgrowth.com",
+  "founded": null,
+  "employees": null,
+  "hq": "Esplanaden 8, 1263 Copenhagen, Denmark",
+  "source": "Cala.headquarters_address",
+  "lat": 55.687338,
+  "lon": 12.591448,
+  "precise": true,
+  "cc": "DK"
+ },
+ "K Fund": {
+  "seen": 5,
+  "lei": "959800AMRE456P3QUX43",
+  "id": "4712a5e8-fa2e-4f27-9375-73b8fdbd3faf",
+  "entity_type": "Organization",
+  "description": "A Madrid‑based Spanish venture capital firm that invests in software, services, and fintech companies.",
+  "hq": "Paseo de la Castellana 42 9, 28046, Madrid",
+  "source": "GLEIF",
+  "lat": 40.4799428,
+  "lon": -3.6856823,
+  "precise": true,
+  "cc": "ES"
+ },
+ "Swisscom Ventures": {
+  "seen": 5,
+  "id": "623fe48f-6ffe-475b-b631-083bd30788cc",
+  "entity_type": "Company",
+  "description": "Corporate venture capital arm of Swisscom, investing in Swiss university spin-offs from Seed to Series C.",
+  "website": "ventures.swisscom.com",
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Ribbit Capital": {
+  "seen": 5,
+  "lei": "254900U0BY74I4XRSU47",
+  "id": "a11318d5-2593-4f92-858a-6560a0c95390",
+  "entity_type": "Company",
+  "description": "A U.S. venture capital firm based in Palo Alto.",
+  "hq": "6th Floor, Two Tribeca, Tribeca Central, 72261, Trianon",
+  "source": "GLEIF"
+ },
+ "Alstin Capital": {
+  "seen": 5,
+  "lei": "894500T68WRXDBBPMD15",
+  "id": "f36abff9-79ae-4fef-990f-9fedc1d51fb5",
+  "entity_type": "Organization",
+  "description": "A German private equity and venture capital firm based in Munich.",
+  "hq": "Maximilianstraße 34, 80539, München",
+  "source": "GLEIF",
+  "lat": 48.1381232,
+  "lon": 11.5836538,
+  "precise": true,
+  "cc": "??"
+ },
+ "Tencent": {
+  "seen": 5,
+  "lei": "254900IBOVBXR6X04V66",
+  "id": "d7232725-3524-473e-bd38-679d3f1365b4",
+  "entity_type": "Company",
+  "description": "Chinese multinational conglomerate holding company specializing in internet services, entertainment, fintech and venture capital, headquartered in Shenzhen and founded in 1998.",
+  "hq": "Vistra Corporate Services Centre, Wickhams Cay II, Tortola, VG1110, Road Town",
+  "source": "GLEIF"
+ },
+ "Yabeo Capital": {
+  "seen": 5,
+  "lei": "3912008SW7W89QR1P231",
+  "id": "d7805dc8-6686-464f-9180-7e1b8d25124b",
+  "entity_type": "Company",
+  "description": "German company headquartered in Pullach, Bavaria, founded in 2016.",
+  "hq": "Gartenstraße 34, 82049, Pullach i. Isartal",
+  "source": "GLEIF",
+  "lat": 48.0547488,
+  "lon": 11.5189079,
+  "precise": true,
+  "cc": "??"
+ },
+ "Shorooq Partners": {
+  "seen": 5,
+  "id": "41186ba4-c690-4eb8-a752-a8492d95a120",
+  "entity_type": "Company",
+  "description": "An early stage venture capital and debt fund focused on the MENAP region including Pakistan.",
+  "website": "shorooq.com",
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Norwest Venture Partners": {
+  "seen": 5,
+  "lei": "254900U4OO08SDEOKX47",
+  "id": "5155c84b-767c-4c4e-a206-e23dbb0d46e3",
+  "entity_type": "Organization",
+  "description": "A Wilmington‑based American venture capital firm.",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "HSBC": {
+  "seen": 5,
+  "lei": "2138009HRTTP7FSCB954",
+  "id": "027a0602-2c0a-4845-824b-b49fad975b05",
+  "entity_type": "Organization",
+  "description": "A multinational banking and financial services organization headquartered in London, United Kingdom, founded in 1865.",
+  "hq": "C/O HSBC FUNDS, P.O. BOX 182845, 43218-2845, COLUMBUS, OHIO",
+  "source": "GLEIF"
+ },
+ "Vito Ventures": {
+  "seen": 5,
+  "lei": "529900VHIFOWRKH5SS52",
+  "id": "f9c4ae46-b933-4dd4-bc99-bbc9fdb4cf0c",
+  "entity_type": "Company",
+  "description": "A Dorchester-based British consulting and news-and-information company founded in 2023.",
+  "hq": "Hildegardstraße 8, 80539, München",
+  "source": "GLEIF",
+  "lat": 48.1372862,
+  "lon": 11.5834568,
+  "precise": true,
+  "cc": "??"
+ },
+ "Day One Capital": {
+  "seen": 4,
+  "lei": "529900FK4V65HXU16P56",
+  "id": "a9633c28-2f13-49cb-b398-2bc7c848155b",
+  "entity_type": "Organization",
+  "description": "An independent creative communications agency that created the Funables brand identity and launch campaign.",
+  "hq": "Márvány utca 18. 5, 1012, Budapest",
+  "source": "GLEIF",
+  "lat": 47.4954585,
+  "lon": 19.0241653,
+  "precise": true,
+  "cc": "HU"
+ },
+ "Acton Capital": {
+  "seen": 4,
+  "lei": "391200V8XAWTBEET1778",
+  "id": "040a4531-46ae-448f-9439-fbc847b7dacf",
+  "entity_type": "Organization",
+  "description": "German venture capital firm",
+  "hq": "Widenmayerstr. 29, 80538, München",
+  "source": "GLEIF",
+  "lat": 48.143734,
+  "lon": 11.5948596,
+  "precise": true,
+  "cc": "??"
+ },
+ "La Famiglia": {
+  "seen": 4,
+  "lei": "391200PQNCEPUTL78486",
+  "id": "955ecf27-7599-4bd4-a2ff-f66265cc6108",
+  "entity_type": "Organization",
+  "description": "A Berlin-based venture capital fund headquartered in Munich, Germany, that merged with General Catalyst Europe.",
+  "hq": "Schönhauser Allee 8, 10119, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5299353,
+  "lon": 13.4106932,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Jump Capital": {
+  "seen": 4,
+  "id": "680b79f1-4eaa-4451-94d7-caec08822f9e",
+  "entity_type": "Organization",
+  "description": "A venture capital firm based in Darlington, England, that invests in B2B software and technology companies.",
+  "website": null,
+  "founded": null,
+  "employees": 24,
+  "hq": "115-117 Stanhope Road South, Darlington, Co. Durham, England, DL3 7SF",
+  "source": "Cala.registered_address",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "OurCrowd": {
+  "seen": 4,
+  "lei": "98450073AH67A04F4297",
+  "id": "0fb520bb-741e-4a68-9f39-bd5396da268d",
+  "entity_type": "Company",
+  "description": "A Jerusalem-based venture capital firm operating out of Israel.",
+  "hq": "Craigmuir Chambers, Tortola, VG1110, Road Town",
+  "source": "GLEIF"
+ },
+ "Ascension Ventures": {
+  "seen": 4,
+  "id": "00814543-9d2b-4a88-9bd5-3c2cde82d26e",
+  "entity_type": "Company",
+  "description": "British banking company headquartered in London, founded in 2011.",
+  "website": null,
+  "founded": "2011-09-08",
+  "employees": null,
+  "hq": "9 APPOLD STREET, 6TH FLOOR, LONDON, GREATER LONDON, EC2A 2AP, ENGLAND",
+  "source": "Cala.registered_address",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "The Chan Zuckerberg Initiative": {
+  "seen": 4,
+  "id": "f84a0421-a41b-44c2-bb56-17c968c9dc17",
+  "entity_type": "Organization",
+  "description": "Philanthropic organization.",
+  "website": "chanzuckerberg.com",
+  "founded": "2015-12-01",
+  "employees": 519,
+  "hq": "2682 Middlefield Road, Suite i, Redwood City, CA 94063",
+  "source": "Cala.registered_address"
+ },
+ "ISAI": {
+  "seen": 4,
+  "lei": "9695005MKFNXU6D77N33",
+  "id": "d8f34189-2e9d-43b4-a10e-c46c178e121f",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that invested in Devo.",
+  "hq": "29 RUE DE LISBONNE, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8775939,
+  "lon": 2.3135701,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Sequoia Capital India (now Peak XV Partners)": {
+  "seen": 4,
+  "id": "eb8a458d-da1c-41d4-bab4-903240a334af",
+  "entity_type": "Organization",
+  "description": "An Indian venture capital and private equity firm founded in 2000.",
+  "website": "sequoiacap.com",
+  "founded": "2000-06-21",
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Cusp Capital": {
+  "seen": 4,
+  "lei": "529900K95V46VO0KQO82",
+  "id": "71f202e5-20c3-4637-9fc3-2a7d2eea826d",
+  "entity_type": "Organization",
+  "description": "European venture capital firm based in Essen, Germany.",
+  "hq": "Rüttenscheider Straße 62, 45130, Essen",
+  "source": "GLEIF",
+  "lat": 51.4379842,
+  "lon": 7.0048848,
+  "precise": true,
+  "cc": "??"
+ },
+ "Entrée Capital": {
+  "seen": 4,
+  "id": "91e64cdd-a717-4952-a534-3183e10eb3ec",
+  "entity_type": "Organization",
+  "description": "a London‑based investment firm registered in the United Kingdom.",
+  "website": null,
+  "founded": null,
+  "employees": 3,
+  "hq": "124 Baker Street, London, United Kingdom, W1U 6TY",
+  "source": "Cala.registered_address",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "H14": {
+  "seen": 4,
+  "lei": "894500F1D6ZKJTQO3848",
+  "id": "a6064f3b-fad6-411d-8835-e9024a892dc8",
+  "entity_type": "Organization",
+  "description": "An investment firm in which Sennder is a member and both Sennder and Ornikar have invested.",
+  "hq": "Piazza Borromeo, 12, 20123, Milano",
+  "source": "GLEIF",
+  "lat": 45.4634633,
+  "lon": 9.1822885,
+  "precise": true,
+  "cc": "??"
+ },
+ "Taavet Hinrikus": {
+  "seen": 4,
+  "id": "44a39cdc-e7ef-55e4-bf46-eeec687aec5e",
+  "entity_type": "Organization",
+  "description": "Estonian entrepreneur and investor, co‑founder of Wise, who has invested in Bolt.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Acequia Capital": {
+  "seen": 4,
+  "lei": "254900VZRU0LXN4SZR85",
+  "id": "242f4ee4-712a-45d4-9098-1e5b69bc65bf",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that provides seed funding to startups.",
+  "hq": "c/o THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Charlie Songhurst": {
+  "seen": 4,
+  "id": "4750e584-4f64-42c2-8155-e7a14fa33c7b",
+  "entity_type": "Company",
+  "description": "A British entertainment company founded in 2004 and based in Bristol, United Kingdom.",
+  "website": null,
+  "founded": "2004-02-12",
+  "employees": null,
+  "hq": "UNIT 1.4 THE PAINTWORKS, BATH ROAD, BRISTOL, BS4 3EH, UNITED KINGDOM",
+  "source": "Cala.registered_address",
+  "lat": 51.45,
+  "lon": -2.59,
+  "precise": false,
+  "cc": "GB",
+  "kind": "person"
+ },
+ "Verena Pausder": {
+  "seen": 4,
+  "id": "5eb0d99b-ee5b-5057-8888-33cdbe5fa6ed",
+  "entity_type": "Organization",
+  "description": "An investment organization that has invested in Karri and participates in pre‑seed funding rounds.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Additional angel investors": {
+  "seen": 4,
+  "id": "5f580685-49ac-4324-8c2c-dda02cc2760d",
+  "entity_type": "Organization",
+  "description": "A San Francisco‑based venture capital firm founded by Ron Conway.",
+  "website": "<UNKNOWN>",
+  "founded": null,
+  "employees": 6,
+  "hq": "950 Mason Street, Suite 1299, San Francisco, CA 94108, USA",
+  "source": "Cala.registered_address",
+  "lat": 37.77,
+  "lon": -122.42,
+  "precise": false,
+  "cc": "US",
+  "kind": "not an entity"
+ },
+ "Isomer Capital": {
+  "seen": 4,
+  "lei": "529900UB5FA9LKTTAJ45",
+  "id": "539e70a4-7568-4cd5-b86f-d6327c8963ce",
+  "entity_type": "Organization",
+  "description": "A London‑based venture capital firm.",
+  "hq": "8, rue Lou Hemmer, L-1748, Senningerberg",
+  "source": "GLEIF"
+ },
+ "Wamda Capital": {
+  "seen": 4,
+  "id": "d57ba20b-8504-433b-9cb4-1fe560206f66",
+  "entity_type": "Organization",
+  "description": "Los Angeles‑based venture capital firm founded by Moritz Döpfner.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "20VC": {
+  "seen": 4,
+  "id": "c10d642f-7e4d-4244-85e9-10f66619fcc7",
+  "entity_type": "Company",
+  "description": "London-based VC investing in early-stage ventures at the intersection of venture capital and media.",
+  "website": "thetwentyminutevc.com",
+  "founded": null,
+  "employees": null,
+  "hq": "16 Berkeley Mews, London W1H 7AY, England, United Kingdom",
+  "source": "Cala.headquarters_address",
+  "lat": 51.5154901,
+  "lon": -0.1577912,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Passion Capital": {
+  "seen": 4,
+  "lei": "213800YG5AN6EOVQUF46",
+  "id": "a12a84af-c089-4af1-8177-a12377e40ebc",
+  "entity_type": "Organization",
+  "description": "A London‑based venture capital firm founded in 2011.",
+  "hq": "SECOND FLOOR, LAXMI, THE TANNERIES, 57 BERMONDSEY STREET, SE1 3XJ, LONDON",
+  "source": "GLEIF",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Burda Principal Investments": {
+  "seen": 4,
+  "lei": "529900FNLOKT14U7ZM20",
+  "id": "b3adc1fa-5f2c-40dc-b1b3-42701d838df2",
+  "entity_type": "Organization",
+  "description": "A private equity and venture capital firm headquartered in Madrid, Paris and London.",
+  "hq": "Arabellastraße 23, 81925, München",
+  "source": "GLEIF",
+  "lat": 48.1502879,
+  "lon": 11.6225255,
+  "precise": true,
+  "cc": "??"
+ },
+ "Tapestry VC": {
+  "seen": 4,
+  "id": "b09b72b7-92d4-4b82-80b2-e87bbcd8b88b",
+  "entity_type": "Organization",
+  "description": "a London-based venture capital firm",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Vorwerk Ventures": {
+  "seen": 4,
+  "lei": "391200OEM99OLNS1MX81",
+  "id": "0cdc406f-2528-44d5-ad18-f85cec977189",
+  "entity_type": "Organization",
+  "description": "an investment firm based in Berlin, Germany, founded in 2007",
+  "hq": "Charlottenstr. 43, 10117, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5184296,
+  "lon": 13.3903566,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Cassius": {
+  "seen": 4,
+  "lei": "724500CM2TKUAQ3NDN84",
+  "id": "76f647d4-f759-555d-8a6c-4c29eff10a3f",
+  "entity_type": "Company",
+  "description": "A French real‑estate company founded in 2020 and headquartered in Rennes.",
+  "hq": "Thermiekstraat 17, 6361HB, Nuth",
+  "source": "GLEIF",
+  "lat": 50.9230165,
+  "lon": 5.8781266,
+  "precise": true,
+  "cc": "??"
+ },
+ "IVP (Institutional Venture Partners)": {
+  "seen": 4,
+  "id": "e593ca02-5e8c-4ff6-9e75-02f87ad1b6ff",
+  "entity_type": "Organization",
+  "description": "A Menlo Park‑based venture capital and private equity firm founded in 1980.",
+  "website": "ivp.com",
+  "founded": "1980-12-31",
+  "employees": 36,
+  "hq": "Menlo Park, California, USA",
+  "source": "Cala.registered_address",
+  "lat": 37.4519671,
+  "lon": -122.177992,
+  "precise": true,
+  "cc": "US"
+ },
+ "World Innovation Lab": {
+  "seen": 4,
+  "id": "7948fcaf-dd66-458f-bcde-f133e3ef53e2",
+  "entity_type": "Organization",
+  "description": "An accelerator program run by Accenture and the Partnership Fund for New York City that supports fintech startups.",
+  "website": "fintechinnovationlab.com",
+  "founded": null,
+  "employees": 58,
+  "hq": "One Battery Park Plaza, 5th Floor, New York, NY 10004, US",
+  "source": "Cala.registered_address",
+  "lat": 40.71,
+  "lon": -74.01,
+  "precise": false,
+  "cc": "US"
+ },
+ "Hummingbird Ventures": {
+  "seen": 4,
+  "lei": "549300SF0UL0K0YFDU61",
+  "id": "a9a2aa7e-ba54-43ff-b338-6ba46fdba830",
+  "entity_type": "Organization",
+  "description": "a London‑based venture capital firm",
+  "hq": "Victoria Reginaplantsoen 1, 1210, Sint-Joost-ten-Node",
+  "source": "GLEIF",
+  "lat": 50.8557153,
+  "lon": 4.3632797,
+  "precise": true,
+  "cc": "??"
+ },
+ "Paradigm": {
+  "seen": 4,
+  "lei": "549300M08XNBV2Q6DB65",
+  "id": "912a3d0f-e4cc-5c49-b931-4cbad039cc7a",
+  "entity_type": "Company",
+  "description": "A French consulting firm headquartered in Les Sables-d'Olonne, founded in 2017.",
+  "hq": "C/O CT CORPORATION SYSTEM, 4400 EASTON COMMONS WAY, SUITE 125, 43219, COLUMBUS",
+  "source": "GLEIF"
+ },
+ "Animoca Brands": {
+  "seen": 4,
+  "lei": "9845006B105X45A9E543",
+  "id": "bf9dc859-431d-530a-a2c7-91b8d2deddcc",
+  "entity_type": "Organization",
+  "description": "A Hong Kong‑based video game developer and publisher specializing in blockchain and NFT games.",
+  "hq": "Flat B, 7Th Floor, Shing Hing Commercial Building, Wing Kut Street, Hong Kong",
+  "source": "GLEIF",
+  "lat": 22.32,
+  "lon": 114.17,
+  "precise": false,
+  "cc": "HK"
+ },
+ "Foundation Capital": {
+  "seen": 4,
+  "id": "ae7c3386-56ac-401e-9f97-4b3ea2d8e107",
+  "entity_type": "Organization",
+  "description": "a venture capital firm based in Palo Alto, California, United States",
+  "website": "foundationcapital.com",
+  "founded": null,
+  "employees": null,
+  "hq": "550 High Street, 3rd Floor, Palo Alto, CA 94301, USA",
+  "source": "Cala.registered_address",
+  "lat": 37.44,
+  "lon": -122.14,
+  "precise": false,
+  "cc": "US"
+ },
+ "PayPal Ventures": {
+  "seen": 4,
+  "id": "159f3a77-2b91-42f2-afa6-2140e782234e",
+  "entity_type": "Organization",
+  "description": "Venture capital firm based in San Jose, California, and the investment arm of PayPal.",
+  "website": null,
+  "founded": null,
+  "employees": 12,
+  "hq": "2211 North First Street, San Jose, CA 95131, United States",
+  "source": "Cala.registered_address",
+  "lat": 37.3768714,
+  "lon": -121.9228061,
+  "precise": true,
+  "cc": "US"
+ },
+ "Moonfire Ventures": {
+  "seen": 4,
+  "lei": "213800SVV26NLDGDUX37",
+  "id": "bf1c3197-1214-4f61-83df-fe99a7f5f34f",
+  "entity_type": "Organization",
+  "description": "a venture capital firm founded by Mattias Ljungman",
+  "hq": "40 Queen Anne Street, W1G 9EL, London",
+  "source": "GLEIF",
+  "lat": 51.5180242,
+  "lon": -0.1479969,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Draper Associates": {
+  "seen": 4,
+  "id": "da2d9edd-7d4c-4691-ae84-b0dd1c6e6810",
+  "entity_type": "Organization",
+  "description": "a private equity and venture capital firm headquartered in San Mateo, California, United States",
+  "website": "draper.vc",
+  "founded": null,
+  "employees": null,
+  "hq": "55 East 3rd Avenue, San Mateo, CA 94401, United States",
+  "source": "Cala.registered_address",
+  "lat": 37.5639315,
+  "lon": -122.3251813,
+  "precise": true,
+  "cc": "US"
+ },
+ "1kx": {
+  "seen": 4,
+  "lei": "2549006FEBMB1G86G355",
+  "id": "725b56b1-7dd2-4bed-b7aa-f2435841a2d7",
+  "entity_type": "Company",
+  "description": "An asset management firm incorporated in the Cayman Islands in 2018 with headquarters in Road Town, British Virgin Islands.",
+  "hq": "c/o Maples Corporate Services Limited, PO Box 309, Ugland House, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "Sapphire Ventures": {
+  "seen": 4,
+  "lei": "894500R9KX72L33CSP09",
+  "id": "fa571562-97a8-48c3-b8de-948cdc95046c",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that invests in technology companies.",
+  "hq": "GROUND FLOOR, OFFICE NO.3, MANGAL BUILDING, NAUPADA, BEHIND NAUPADA POLICE STATION, Prashant Nagar, Thane, Thane, Maharashtra, 400602, Thane West",
+  "source": "GLEIF"
+ },
+ "New Enterprise Associates (NEA)": {
+  "seen": 4,
+  "id": "c96e885a-5a6f-442d-a6e3-2531b238c2a3",
+  "entity_type": "Organization",
+  "description": "A venture capital firm founded in 1977 and based in Menlo Park, California.",
+  "website": "nea.com",
+  "founded": "1977-01-01",
+  "employees": 126,
+  "hq": "Menlo Park, California, United States",
+  "source": "Cala.registered_address",
+  "lat": 37.4519671,
+  "lon": -122.177992,
+  "precise": true,
+  "cc": "US"
+ },
+ "Benchmark": {
+  "seen": 4,
+  "lei": "9676001IIPLFH1QN1U39",
+  "id": "22088c31-fbb1-411c-b61f-b00a41746376",
+  "entity_type": "Organization",
+  "description": "a venture capital firm that serves as a key investor in multiple companies",
+  "hq": "Dilbeeklaan 2, 8400, Oostende",
+  "source": "GLEIF",
+  "lat": 51.2118318,
+  "lon": 2.8846507,
+  "precise": true,
+  "cc": "??"
+ },
+ "Future Positive Capital": {
+  "seen": 4,
+  "lei": "969500T0ZMCKP4C53834",
+  "id": "93acd162-3c61-4869-8319-b3ad320bde0b",
+  "entity_type": "Company",
+  "description": "A French company founded in 2018 and headquartered in Paris.",
+  "hq": "9 RUE DES TROIS BORNES, 75011, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8663965,
+  "lon": 2.3717205,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Latitude": {
+  "seen": 4,
+  "lei": "969500ZEEVUAAYQOSD77",
+  "id": "38aeacb9-d8d2-4d35-a707-603736b404b7",
+  "entity_type": "Company",
+  "description": "French software and services venture capital company based in Lyon, founded in 1988.",
+  "hq": "1 RUE ANDRE LE NOTRE, 29200, BREST",
+  "source": "GLEIF",
+  "lat": 48.3946507,
+  "lon": -4.4520215,
+  "precise": true,
+  "cc": "??"
+ },
+ "M&G Investments": {
+  "seen": 4,
+  "lei": "254900ZQHVGZ738YRG23",
+  "id": "ac45955b-5f10-433c-8c68-bce0d60a100d",
+  "entity_type": "Organization",
+  "description": "A British investment firm focused on asset management, private equity, real estate and financial insurance, founded in 2017.",
+  "hq": "C/O Corporation Service Company, 251 Little Falls Drive, 19808, Wilmington",
+  "source": "GLEIF"
+ },
+ "Hearst Ventures": {
+  "seen": 4,
+  "id": "e06ef04a-4768-4168-b7ef-89c019c959a8",
+  "entity_type": "Organization",
+  "description": "A New York‑based venture capital firm affiliated with the Hearst media conglomerate.",
+  "website": "hearst.com",
+  "founded": null,
+  "employees": 13,
+  "hq": "300 West 57th Street, New York, NY 10019, United States",
+  "source": "Cala.registered_address",
+  "lat": 40.7664448,
+  "lon": -73.9833255,
+  "precise": true,
+  "cc": "US"
+ },
+ "Eniac Ventures": {
+  "seen": 4,
+  "id": "cad62909-65c7-4f01-9f0b-e409d817d53d",
+  "entity_type": "Company",
+  "description": "Seed-stage venture capital firm investing in deep tech and frontier technology companies.",
+  "website": "eniac.vc",
+  "founded": "2009-11-19",
+  "employees": null,
+  "hq": "584 Broadway, Suite 301, New York, NY 10012, United States",
+  "source": "Cala.headquarters_address",
+  "lat": 40.71,
+  "lon": -74.01,
+  "precise": false,
+  "cc": "US"
+ },
+ "Primary Venture Partners": {
+  "seen": 4,
+  "id": "7dec4968-e717-47e8-8447-7c4b33455904",
+  "entity_type": "Company",
+  "description": "Venture capital firm investing in early-stage technology companies with a focus on NYC's tech ecosystem.",
+  "website": "primaryvc.com",
+  "founded": null,
+  "employees": null,
+  "hq": "386 Park Avenue South, 14th Floor, New York, NY 10016, United States",
+  "source": "Cala.headquarters_address",
+  "lat": 40.71,
+  "lon": -74.01,
+  "precise": false,
+  "cc": "US"
+ },
+ "SoftBank Group": {
+  "seen": 4,
+  "lei": "894500D95YBZA22T8U77",
+  "id": "7fdf954c-99c9-4622-9eb4-c9e4024e9599",
+  "entity_type": "Company",
+  "description": "Japanese multinational holding company founded in 1981 that operates in software services, telecommunications and venture capital, headquartered in Tokyo.",
+  "hq": "69 Grosvenor Street, W1K 3JP, London",
+  "source": "GLEIF",
+  "lat": 51.5117464,
+  "lon": -0.1460662,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Dragoneer Investment Group": {
+  "seen": 4,
+  "lei": "549300VIMI1H3XTG2V19",
+  "id": "60e7decc-2720-4ef6-9ede-86fa119674d6",
+  "entity_type": "Organization",
+  "description": "A United States venture capital firm headquartered in Wilmington, Delaware.",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Blackstone": {
+  "seen": 4,
+  "lei": "984500B8K3F9T5E20E75",
+  "id": "f246ebb5-2729-54ff-b12a-baf36895ba0c",
+  "entity_type": "Organization",
+  "description": "American private equity and alternative investment firm headquartered in New York City, founded in 1985.",
+  "hq": "4TH FLOOR, 67A/1, RAJ KRISHNA CHATTERJEE ROAD, KASBA, 700042, KOLKATA",
+  "source": "GLEIF"
+ },
+ "Unbound": {
+  "seen": 4,
+  "lei": "2549005NLMTI4KBC4P08",
+  "id": "4de90fc1-8690-4cd7-94c1-34357609f318",
+  "entity_type": "Organization",
+  "description": "An organization that co‑invested in a financing round for Paack and received investment from Paack and Pramaana Labs.",
+  "hq": "Via Geretta 8, Paradiso, 6900, Lugano",
+  "source": "GLEIF",
+  "lat": 45.9913021,
+  "lon": 8.9460116,
+  "precise": true,
+  "cc": "??"
+ },
+ "CRV": {
+  "seen": 4,
+  "lei": "894500AX2Y08Z3EVEG72",
+  "id": "ded2fdb4-4171-4fe1-a313-f2c1136e6683",
+  "entity_type": "Organization",
+  "description": "A venture capital firm headquartered in Palo Alto, California, United States.",
+  "hq": "29 GUMASTA NAGAR INDORE MADHYA PRADESH, 452009, INDORE",
+  "source": "GLEIF"
+ },
+ "Warburg Pincus": {
+  "seen": 4,
+  "lei": "549300Q0SQ1DXWXY4D79",
+  "id": "9b5b5925-8acd-471d-9c6a-f0b083fa5985",
+  "entity_type": "Company",
+  "description": "A New York‑based private equity and venture capital firm founded in 1966.",
+  "hq": "C/O C T CORPORATION SYSTEM, 28 LIBERTY ST., 10005, NEW YORK",
+  "source": "GLEIF",
+  "lat": 40.71,
+  "lon": -74.01,
+  "precise": false,
+  "cc": "US"
+ },
+ "NordicNinja VC": {
+  "seen": 4,
+  "id": "a46a1058-93a7-4b0f-bc1f-bc31238fb006",
+  "entity_type": "Company",
+  "description": "British consulting and venture capital firm founded in 2023 and headquartered in St Albans, England.",
+  "website": "nordicninja.com",
+  "founded": "2023-01-25",
+  "employees": null,
+  "hq": "ARQUEN HOUSE 4-6, SPICER STREET, ST. ALBANS, AL3 4PQ, ENGLAND",
+  "source": "Cala.registered_address",
+  "lat": 51.7519024,
+  "lon": -0.3426761,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Galaxy Digital": {
+  "seen": 4,
+  "lei": "9845001C4070E5N07806",
+  "id": "0ff4eff3-20b0-43fb-8789-4ad25e8196b5",
+  "entity_type": "Company",
+  "description": "An American digital asset investment and financial services firm.",
+  "hq": "CORPORATION TRUST CENTER 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Korelya Capital": {
+  "seen": 4,
+  "lei": "969500NHZVWJG6VM4X39",
+  "id": "b7da1e7f-d0b2-4bd7-9033-41570816441f",
+  "entity_type": "Company",
+  "description": "A Paris‑based venture capital firm founded in 2016 by Fleur Pellerin and Antoine Jacques Dresch.",
+  "hq": "101 RUE REAUMUR, 75002, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8677826,
+  "lon": 2.3449384,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Archangel Ventures": {
+  "seen": 4,
+  "id": "ed159b17-c3d6-45ce-b754-8b1415f4aed5",
+  "entity_type": "Company",
+  "description": "A British consulting and venture‑capital firm founded in 2011 and headquartered in Newport, England.",
+  "website": "archangel.vc",
+  "founded": "2011-06-22",
+  "employees": null,
+  "hq": "20 BARNFIELD CLOSE, CHURCH ASTON, NEWPORT, TF10 9FD, ENGLAND",
+  "source": "Cala.registered_address",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Senovo": {
+  "seen": 4,
+  "lei": "3912003OSCOQIVG0VP67",
+  "id": "d5c48c30-2f27-425d-a41b-80201806a66f",
+  "entity_type": "Company",
+  "description": "German venture capital and software services firm based in Munich, founded in 2016.",
+  "hq": "Leopoldstraße 244, 80807, München",
+  "source": "GLEIF",
+  "lat": 48.180608,
+  "lon": 11.5854465,
+  "precise": true,
+  "cc": "??"
+ },
+ "Adjacent": {
+  "seen": 4,
+  "lei": "2549006BGP3NSGIVZ783",
+  "id": "dfdc0ab6-713a-48c4-97ec-0133ed60f177",
+  "entity_type": "Organization",
+  "description": "A venture capital investor with 21 employees that participates in financing rounds and has invested in Photoroom SAS.",
+  "hq": "C/O LEGALINC CORPORATE SERVICES INC., 131 CONTINENTAL DRIVE, SUITE 305, 19713, NEWARK",
+  "source": "GLEIF"
+ },
+ "CapHorn Invest": {
+  "seen": 4,
+  "lei": "9695008PLD6DA8KSLG90",
+  "id": "98db2ec7-dca6-48af-bc35-626dd71e9504",
+  "entity_type": "Company",
+  "description": "French company founded in 1900, headquartered in Paris.",
+  "hq": "7 RUE DROUOT, 75009, PARIS 9",
+  "source": "GLEIF",
+  "lat": 48.8727116,
+  "lon": 2.3403165,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Nesta": {
+  "seen": 4,
+  "lei": "213800KBQCYNVAIZ4760",
+  "id": "fe787a24-6a9f-4c2f-b7cc-a26e7a1ab945",
+  "entity_type": "Organization",
+  "description": "A UK innovation foundation whose chief security officer is Matt.",
+  "hq": "58 VICTORIA EMBANKMENT, EC4Y 0DS, LONDON",
+  "source": "GLEIF",
+  "lat": 51.5112457,
+  "lon": -0.1075606,
+  "precise": true,
+  "cc": "GB"
+ },
+ "TTV Capital": {
+  "seen": 4,
+  "id": "ad3a0cee-04fb-46cf-b02d-c3120bd49861",
+  "entity_type": "Organization",
+  "description": "A venture capital firm headquartered in Atlanta, United States.",
+  "website": null,
+  "founded": null,
+  "employees": 27,
+  "hq": "1230 Peachtree St NE, Suite 1150, Atlanta, GA 30309, United States",
+  "source": "Cala.registered_address",
+  "lat": 37.77,
+  "lon": -122.42,
+  "precise": false,
+  "cc": "US"
+ },
+ "Signals Venture Capital": {
+  "seen": 4,
+  "lei": "894500EYWEBUFXUD1O35",
+  "id": "e40e360b-86ab-4887-984e-ea4f9efc7175",
+  "entity_type": "Company",
+  "description": "A German venture capital firm headquartered in Berlin, founded in 2022.",
+  "hq": "Dircksenstraße 4, 10179, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5171179,
+  "lon": 13.4172346,
+  "precise": true,
+  "cc": "DE"
+ },
+ "FinLeap": {
+  "seen": 4,
+  "lei": "529900OI8QEE6AXKYH57",
+  "id": "63b3e45f-8586-4ad8-90df-e7ba9513cbae",
+  "entity_type": "Company",
+  "description": "A Berlin‑based German fintech and venture‑capital firm founded in 2014.",
+  "hq": "Kurfürstendamm 185, 10707, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5005713,
+  "lon": 13.3144765,
+  "precise": true,
+  "cc": "DE"
+ },
+ "BBVA": {
+  "seen": 4,
+  "lei": "213800FKGFR7Q2ACLS83",
+  "id": "f45a9d51-eeef-478b-98a4-eb46ac57d499",
+  "entity_type": "Organization",
+  "description": "Spanish multinational banking and financial services group headquartered in Bilbao, founded in 1999.",
+  "hq": "Selnaustrasse 32/36, 8001, Zürich",
+  "source": "GLEIF",
+  "lat": 47.3700778,
+  "lon": 8.5329031,
+  "precise": true,
+  "cc": "??"
+ },
+ "Visa": {
+  "seen": 4,
+  "lei": "969500LMLOSO47Q2M451",
+  "id": "a488fb54-90eb-5140-9759-96c0bb383696",
+  "entity_type": "Organization",
+  "description": "A United States multinational financial services and fintech company headquartered in Wilmington, Delaware.",
+  "hq": "RUE JULES VALLES, 35000, RENNES",
+  "source": "GLEIF",
+  "lat": 48.1053009,
+  "lon": -1.7056063,
+  "precise": true,
+  "cc": "??"
+ },
+ "Morgan Stanley": {
+  "seen": 4,
+  "lei": "IGJSJL3JD5P30I6NJZ34",
+  "id": "ac9995f7-89a5-4d68-ac89-e84dd67c231e",
+  "entity_type": "Company",
+  "description": "Global financial services company founded in 1924 and headquartered at 1585 Broadway, New York.",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Baillie Gifford": {
+  "seen": 4,
+  "lei": "213800T287IYS8QHPC42",
+  "id": "b0868597-f768-42f4-8a0a-1923c6346a0e",
+  "entity_type": "Company",
+  "description": "An investment management firm.",
+  "hq": "C/O C T CORPORATION SYSTEM, 155 FEDERAL ST., SUITE 700, 02110, BOSTON",
+  "source": "GLEIF",
+  "lat": 42.36,
+  "lon": -71.06,
+  "precise": false,
+  "cc": "US"
+ },
+ "Prysm Capital": {
+  "seen": 4,
+  "id": "279fed39-034a-4c36-a5f4-8a093e6b8d02",
+  "entity_type": "Organization",
+  "description": "a venture capital firm that led Replit's Series C funding round",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Evolution Equity Partners": {
+  "seen": 4,
+  "id": "85b0d198-feb7-40bb-a761-31c4df6d737b",
+  "entity_type": "Company",
+  "description": "London-based venture capital firm investing in deep tech and cybersecurity.",
+  "website": "evolutionequity.com",
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "European Investment Bank": {
+  "seen": 4,
+  "lei": "5493006YXS1U5GIHE750",
+  "id": "01c894d5-9eee-4929-a536-c1626fcddb96",
+  "entity_type": "Organization",
+  "description": "EU-owned multilateral development bank based in Luxembourg, founded in 1958",
+  "hq": "98-100, boulevard Konrad Adenauer, L-2950, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "BNY Mellon": {
+  "seen": 4,
+  "lei": "549300VQ42QXXL04CZ08",
+  "id": "45d6c30b-80fc-4ab4-b7ac-58b136962d8e",
+  "entity_type": "Organization",
+  "description": "A U.S.-based multinational financial services company headquartered in New York City, founded in 1784, operating in banking, asset management, and financial insurance.",
+  "hq": "C/O C T CORPORATION SYSTEM, 155 FEDERAL ST., SUITE 700, 02110, BOSTON",
+  "source": "GLEIF",
+  "lat": 42.36,
+  "lon": -71.06,
+  "precise": false,
+  "cc": "US"
+ },
+ "Raed Ventures": {
+  "seen": 4,
+  "id": "d25d64ba-cc31-4b3e-b839-99331b41f8d1",
+  "entity_type": "Company",
+  "description": "Early-stage venture capital fund in Saudi Arabia investing across seed and Series A stages.",
+  "website": "raed.vc",
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Mastercard": {
+  "seen": 4,
+  "lei": "RKISU8PSZM3XRHZTAV86",
+  "id": "6a2cc48c-0efa-5537-ab35-d08f746b9b47",
+  "entity_type": "Organization",
+  "description": "a multinational financial services and technology company headquartered in Harrison, New York, United States, founded in 2001",
+  "hq": "CHAUSSEE DE TERVUREN 198A, 1410, WATERLOO",
+  "source": "GLEIF",
+  "lat": 50.710484,
+  "lon": 4.409297,
+  "precise": true,
+  "cc": "??"
+ },
+ "Goldman Sachs": {
+  "seen": 4,
+  "lei": "YS3UVBVGHMAJ8IVO4752",
+  "id": "fcbd9b32-99bd-407f-8868-c28f6d407110",
+  "entity_type": "Company",
+  "description": "A multinational investment bank and financial services firm headquartered in New York City, United States, founded in 1869.",
+  "hq": "C/O Delaware Corporation Organizers, Inc., PO Box 1347, 18th Floor, 1201 North Market Street, 19801, Wilmington",
+  "source": "GLEIF"
+ },
+ "VNV Global (Vostok New Ventures)": {
+  "seen": 4,
+  "id": "22b4f94c-6f1b-4136-a172-c278a3d50865",
+  "entity_type": "Organization",
+  "description": "a venture capital firm that was an early investor in Preply",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Inbox Capital": {
+  "seen": 4,
+  "lei": "549300QZWSAFFCFXRD61",
+  "id": "1e0792c5-83ab-4003-8c63-4d84bda430c1",
+  "entity_type": "Company",
+  "description": "A Swedish venture capital firm headquartered in Stockholm, founded in 1985.",
+  "hq": "Hamngatan 11, 111 47, Stockholm",
+  "source": "GLEIF",
+  "lat": 59.3328691,
+  "lon": 18.0731784,
+  "precise": true,
+  "cc": "SE"
+ },
+ "growX Ventures": {
+  "seen": 4,
+  "lei": "335800YABESENBS8AL02",
+  "id": "cf093961-8caa-4612-bb65-f501aef9871a",
+  "entity_type": "Organization",
+  "description": "venture capital firm that has invested in Mad Street Den",
+  "hq": "C 19 NIZAMUDDIN WEST NEW DELHI NATIONAL CAPITAL TERRITORY OF DELHI, 110013, NEW DELHI",
+  "source": "GLEIF",
+  "lat": 28.61,
+  "lon": 77.21,
+  "precise": false,
+  "cc": "IN"
+ },
+ "Market One Capital": {
+  "seen": 4,
+  "lei": "5493001HE3SG5NGJZ396",
+  "id": "60c622d4-45d0-4495-8831-8bbdac192f12",
+  "entity_type": "Company",
+  "description": "VC fund investing €0.5-2 million in seed and Series A stage companies.",
+  "hq": "2, Place de Strasbourg, L-2562, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "ETF Partners": {
+  "seen": 4,
+  "lei": "213800YAK666B2PQ2R25",
+  "id": "974df438-8bd5-423d-8aff-146e7b1e2313",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that led Look Up's €50 million funding round.",
+  "hq": "29 Queen Annes Gate, SW1H 9BU, London",
+  "source": "GLEIF",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Ontario Teachers' Pension Plan": {
+  "seen": 4,
+  "lei": "H8N91ZZ5ZBHE2NQ34P83",
+  "id": "d6e49a68-56d1-5463-9149-537a40e08869",
+  "entity_type": "Organization",
+  "description": "a European holding company of the Canadian public pension fund Ontario Teachers' Pension Plan",
+  "hq": "160 Front Street West, Suite 3200, M5J 0G4, Toronto",
+  "source": "GLEIF",
+  "lat": 43.65,
+  "lon": -79.38,
+  "precise": false,
+  "cc": "CA"
+ },
+ "S Capital": {
+  "seen": 4,
+  "id": "5bd16cbc-c3a7-42fc-a17c-d18bd42831c7",
+  "entity_type": "Company",
+  "description": "A Leeds‑based British company founded in 2025 that operates in the entertainment and healthcare sectors.",
+  "website": null,
+  "founded": "2025-03-25",
+  "employees": null,
+  "hq": "3 JESSAMINE AVENUE, LEEDS, WEST YORKSHIRE, LS11 7AD, ENGLAND",
+  "source": "Cala.registered_address",
+  "lat": 53.7701811,
+  "lon": -1.5637326,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Bond Capital": {
+  "seen": 3,
+  "lei": "9695000R38OY574TRQ90",
+  "id": "8836abc3-c200-4b1f-a195-61c5985a0b6a",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that has invested in Ironclad, Ankorstore, Multiverse, Relativity Space and Checkr.",
+  "hq": "11 RUE GABRIEL SOMMER, 92430, MARNES-LA-COQUETTE",
+  "source": "GLEIF",
+  "lat": 48.8300773,
+  "lon": 2.1773847,
+  "precise": true,
+  "cc": "??"
+ },
+ "Define Ventures": {
+  "seen": 3,
+  "id": "035f6d16-1f5f-4851-807a-1b4b51ec7972",
+  "entity_type": "Organization",
+  "description": "a San Francisco‑based venture capital firm",
+  "website": null,
+  "founded": null,
+  "employees": 10,
+  "hq": "16 Funston Ave Apt B, San Francisco, California, 94129, United States",
+  "source": "Cala.registered_address",
+  "lat": 37.77,
+  "lon": -122.42,
+  "precise": false,
+  "cc": "US"
+ },
+ "Qiming Venture Partners USA": {
+  "seen": 3,
+  "id": "24e07a0c-7612-4e86-9aa1-473601c19f1a",
+  "entity_type": "Organization",
+  "description": "a United States‑based venture capital firm",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Lachy Groom": {
+  "seen": 3,
+  "id": "217280de-2246-426d-a477-296d885af833",
+  "entity_type": "Company",
+  "description": "a British company incorporated in 2022 and based in Huddersfield, England",
+  "website": null,
+  "founded": "2022-01-12",
+  "employees": null,
+  "hq": "5 UPPER HIRST, HUDDERSFIELD, HD3 3TG, ENGLAND",
+  "source": "Cala.registered_address",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB",
+  "kind": "person"
+ },
+ "MoreTech Ventures": {
+  "seen": 3,
+  "id": "d778a668-c47f-5348-b559-103d12775c08",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that has invested in the startup enso and participates in Series A funding rounds.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Volvo Group Venture Capital": {
+  "seen": 3,
+  "lei": "549300TQF7HGNI60JZ46",
+  "id": "7ab9fc5a-2d53-458e-bc8f-ce8dee199dac",
+  "entity_type": "Company",
+  "description": "Swedish venture capital firm headquartered in Gothenburg, founded in 1997.",
+  "hq": "C/O Volvo Group Venture Capital AB, 405 08, Gothenburg",
+  "source": "GLEIF",
+  "lat": 57.71,
+  "lon": 11.97,
+  "precise": false,
+  "cc": "SE"
+ },
+ "Nationwide": {
+  "seen": 3,
+  "lei": "549300NSF54JK5ULEY67",
+  "id": "db86fa05-a422-452f-8f6d-83cd59075d7b",
+  "entity_type": "Company",
+  "description": "British banking and financial services company headquartered in Swindon, founded in 1875.",
+  "hq": "C/O DAVID BENDAH, 914 E. 8TH ST., STE 110, 91950, NATIONAL CITY",
+  "source": "GLEIF"
+ },
+ "9Yards Capital": {
+  "seen": 3,
+  "id": "80cf6c18-77c2-4fd5-b8f0-0cb143f893f3",
+  "entity_type": "Organization",
+  "description": "an American venture capital firm headquartered in New York City",
+  "website": null,
+  "founded": null,
+  "employees": 13,
+  "hq": "853 Broadway, Suite 905, New York, NY 10003, USA",
+  "source": "Cala.registered_address",
+  "lat": 40.71,
+  "lon": -74.01,
+  "precise": false,
+  "cc": "US"
+ },
+ "Soma Capital": {
+  "seen": 3,
+  "lei": "254900HA578L0THCVM03",
+  "id": "4296e61b-f3ba-4d9c-b22c-0c7e27889889",
+  "entity_type": "Company",
+  "description": "Venture capital firm headquartered in Monaco.",
+  "hq": "57, Rue Grimaldi, 98000, Monaco",
+  "source": "GLEIF",
+  "lat": 43.7369312,
+  "lon": 7.421004,
+  "precise": true,
+  "cc": "??"
+ },
+ "TQ Ventures": {
+  "seen": 3,
+  "id": "49c239ce-4a96-4588-8630-a75b540b10d7",
+  "entity_type": "Organization",
+  "description": "A New York–based venture capital firm.",
+  "website": null,
+  "founded": null,
+  "employees": 20,
+  "hq": "408 West 14th Street, 4th Floor, New York, NY 10014, United States",
+  "source": "Cala.registered_address",
+  "lat": 40.71,
+  "lon": -74.01,
+  "precise": false,
+  "cc": "US"
+ },
+ "Lowercase Capital": {
+  "seen": 3,
+  "id": "ce095a5d-6889-49b6-afb3-8564f0961951",
+  "entity_type": "Organization",
+  "description": "A venture capital firm based in Bristol, England, founded by Chris Sacca.",
+  "website": "lowercasecapital.com",
+  "founded": null,
+  "employees": 10,
+  "hq": "58 Alma Vale Road, Bristol, England, BS8 2HS",
+  "source": "Cala.registered_address",
+  "lat": 51.4631967,
+  "lon": -2.613192,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Reach Capital": {
+  "seen": 3,
+  "lei": "969500U3HB42D1FLRC09",
+  "id": "889c5686-aa7e-41a5-b2f8-8fd7d3fbd07f",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that closed a $265 million fifth fund focused on AI applications.",
+  "hq": "22 AVENUE DE LA GRANDE ARMEE, 75017, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8754275,
+  "lon": 2.2910078,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Notable Capital": {
+  "seen": 3,
+  "id": "a9644c1d-078e-4f56-b188-237fcb227db2",
+  "entity_type": "Company",
+  "description": "Venture capital firm investing in later-stage technology companies (formerly GGV Capital).",
+  "website": "notablecap.com",
+  "founded": null,
+  "employees": null,
+  "hq": "3000 Sand Hill Rd Bldg 4 Ste 230, Menlo Park, California, 94025, United States",
+  "source": "Cala.headquarters_address",
+  "lat": 37.77,
+  "lon": -122.42,
+  "precise": false,
+  "cc": "US"
+ },
+ "Emerson Collective": {
+  "seen": 3,
+  "id": "0fda9b34-2a97-40e5-851b-f3bb62688e62",
+  "entity_type": "Organization",
+  "description": "a US-based investment and philanthropy organization headquartered in Palo Alto, California, active across software, entertainment, fintech, education, nonprofit and venture capital sectors",
+  "website": "emersoncollective.com",
+  "founded": null,
+  "employees": 238,
+  "hq": "55 Bryant St Ste 259, Palo Alto, California 94301, US",
+  "source": "Cala.registered_address",
+  "lat": 37.44,
+  "lon": -122.14,
+  "precise": false,
+  "cc": "US"
+ },
+ "Sky9 Capital": {
+  "seen": 3,
+  "id": "dbc13ed1-f5a2-41cc-b7d4-474db473ae1e",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that invests in seed-stage companies.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Source Code Capital": {
+  "seen": 3,
+  "id": "2e3a2bf3-2a65-4a8b-87bf-3a76ec32dbca",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that led Yuanbao's Series C funding round.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Qiming Venture Partners": {
+  "seen": 3,
+  "lei": "2549001OQ5S6TLECKD97",
+  "id": "01617f74-6e55-45a4-b268-06b0ba6e9a35",
+  "entity_type": "Organization",
+  "description": "A Beijing‑based venture capital firm.",
+  "hq": "C/O Maples Corporate Services Limited, PO Box 309, Ugland House, Grand Cayman, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "Skyfall Ventures": {
+  "seen": 3,
+  "lei": "984500D8A701CE1D4C25",
+  "id": "9b65ed62-a126-4255-8339-44c59fbf0ad8",
+  "entity_type": "Organization",
+  "description": "A venture capital firm headquartered in Glasgow, Scotland.",
+  "hq": "Arthur-Hoffmann-Straße 47, 04107, Leipzig",
+  "source": "GLEIF",
+  "lat": 51.325503,
+  "lon": 12.3792543,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Coinbase Ventures": {
+  "seen": 3,
+  "id": "8f1b035a-0570-46c3-b62a-f6dc01a3b711",
+  "entity_type": "Organization",
+  "description": "a San Francisco‑based fintech and venture‑capital firm founded in 2018",
+  "website": "coinbase.com",
+  "founded": "2018-01-01",
+  "employees": 5,
+  "hq": "San Francisco, California, United States",
+  "source": "Cala.registered_address",
+  "lat": 37.7879363,
+  "lon": -122.4075201,
+  "precise": true,
+  "cc": "US"
+ },
+ "Venture Stars": {
+  "seen": 3,
+  "lei": "391200I1UVAXSCLZGK75",
+  "id": "c488efcf-c285-4138-bc36-05a64ccabe4f",
+  "entity_type": "Company",
+  "description": "Munich-based venture capital firm investing in early-stage startups.",
+  "hq": "Seitzstraße 23, 80538, München",
+  "source": "GLEIF",
+  "lat": 48.1423735,
+  "lon": 11.5849219,
+  "precise": true,
+  "cc": "??"
+ },
+ "Coparion": {
+  "seen": 3,
+  "id": "4498fee3-69a1-4574-88bc-77b678bfa4af",
+  "entity_type": "Company",
+  "description": "State-backed venture capital firm providing co-investment alongside private VCs in Germany.",
+  "website": "coparion.de",
+  "founded": null,
+  "employees": null,
+  "hq": "Ottoplatz 6, 50679 Cologne, Germany",
+  "source": "Cala.headquarters_address",
+  "lat": 50.9395855,
+  "lon": 6.9758094,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Signature Ventures": {
+  "seen": 3,
+  "lei": "391200GHW6P9GX8WYO87",
+  "id": "311c60ea-a1f6-4dc1-9aaf-0a9af248d298",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that invests in early-stage companies.",
+  "hq": "Rosenheimer Landstraße 1f, 85653, Aying",
+  "source": "GLEIF",
+  "lat": 47.9617941,
+  "lon": 11.7781998,
+  "precise": true,
+  "cc": "??"
+ },
+ "APEX Ventures": {
+  "seen": 3,
+  "lei": "391200ZTWTGXHNS7QM85",
+  "id": "372c2f4f-bbbe-4080-a6f4-6de845402c4b",
+  "entity_type": "Organization",
+  "description": "A venture capital firm headquartered in Vienna, Austria and a key investor in Mobius Labs.",
+  "hq": "Rübenackerweg 2, 82418, Seehausen a.Staffelsee",
+  "source": "GLEIF",
+  "lat": 47.6842921,
+  "lon": 11.188743,
+  "precise": true,
+  "cc": "??"
+ },
+ "Big Start Ventures": {
+  "seen": 3,
+  "id": "623772cf-0114-4f09-980a-6adecc4369b5",
+  "entity_type": "Company",
+  "description": "VC fund based in Lisbon focusing on startups from seed to Series A stages.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Viola Credit": {
+  "seen": 3,
+  "lei": "254900WIARMLJBDJPA76",
+  "id": "8a496a3a-4e01-4fa5-8790-f65871dada52",
+  "entity_type": "Company",
+  "description": "A private credit investment fund incorporated in 2024 and headquartered in Tel Aviv, Israel.",
+  "hq": "C/O WILMINGTON TRUST, NATIONAL ASSOCIATION, RODNEY SQUARE NORTH, 1100 NORTH MARKET STREET, 19890, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "10D": {
+  "seen": 3,
+  "id": "22f643c9-4d91-499c-a862-e683c45b425d",
+  "entity_type": "Organization",
+  "description": "An institutional investor that served as the lead investor in bananaz's seed round.",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "KKR": {
+  "seen": 3,
+  "lei": "254900B07ZA2ERHIC327",
+  "id": "d3e0901b-8f0e-4dcf-83bb-4b56a46ed4a6",
+  "entity_type": "Organization",
+  "description": "a global investment firm",
+  "hq": "Berendonk 20, 2370, Arendonk",
+  "source": "GLEIF",
+  "lat": 51.3063157,
+  "lon": 5.0984215,
+  "precise": true,
+  "cc": "??"
+ },
+ "Creator Fund": {
+  "seen": 3,
+  "id": "b08b64c4-1802-4b61-926f-a610e4423402",
+  "entity_type": "Company",
+  "description": "A United Kingdom limited liability partnership founded in 2021 and headquartered in Wimbledon, London.",
+  "website": null,
+  "founded": "2021-10-14",
+  "employees": null,
+  "hq": "WSM, CONNECT HOUSE 133-137 ALEXANDRA ROAD, WIMBLEDON, LONDON, SW19 7JY, UNITED KINGDOM",
+  "source": "Cala.registered_address",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Eviny Ventures": {
+  "seen": 3,
+  "id": "8540e55a-1f3b-4969-bf08-6802f5344d24",
+  "entity_type": "Company",
+  "description": "Bergen-based corporate venture arm of Eviny Group, investing in early-stage companies accelerating the energy transformation.",
+  "website": "ventures.eviny.no",
+  "founded": null,
+  "employees": null,
+  "hq": "Solheimsgaten 5, 5058 Bergen, Norway",
+  "source": "Cala.headquarters_address",
+  "lat": 60.378649,
+  "lon": 5.335041,
+  "precise": true,
+  "cc": "NO"
+ },
+ "Tiny VC": {
+  "seen": 3,
+  "id": "52f581d3-6e56-4d43-987b-8da513f4a18c",
+  "entity_type": "Organization",
+  "description": "Venture capital firm headquartered in London, England.",
+  "website": "tiny.vc",
+  "founded": null,
+  "employees": null,
+  "hq": "Albert House, 256-260 Old Street, London, England, EC1V 9DD",
+  "source": "Cala.registered_address",
+  "lat": 51.5259054,
+  "lon": -0.0852374,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Stride VC": {
+  "seen": 3,
+  "id": "5b26791b-54da-419d-adb3-ab41d8a6804f",
+  "entity_type": "Organization",
+  "description": "A sector-agnostic venture debt fund.",
+  "website": "strideventures.global",
+  "founded": null,
+  "employees": null,
+  "hq": "Al Khatem Tower, 14-114, 14, Maryah Island, Abu Dhabi Global Market Square, Abu Dhabi, United Arab Emirates",
+  "source": "Cala.registered_address"
+ },
+ "Craft Ventures": {
+  "seen": 3,
+  "id": "c00479e9-793c-4919-9c7c-0b719a83bca9",
+  "entity_type": "Organization",
+  "description": "a San Francisco‑based venture capital firm founded by David Sacks",
+  "website": "craftventures.com",
+  "founded": null,
+  "employees": 42,
+  "hq": "855 Front Street, San Francisco, CA 94111, United States",
+  "source": "Cala.registered_address",
+  "lat": 37.7992281,
+  "lon": -122.4000793,
+  "precise": true,
+  "cc": "US"
+ },
+ "CrowdStrike (Ventures)": {
+  "seen": 3,
+  "id": "c6efc093-4545-4592-95cd-ba0560bb8ee6",
+  "entity_type": "Organization",
+  "description": "a corporate venture capital firm",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "HubSpot Ventures": {
+  "seen": 3,
+  "id": "3416b0d1-32d4-4ee2-8905-ed6f40c995eb",
+  "entity_type": "Organization",
+  "description": "An institutional venture‑capital firm founded in 2018.",
+  "website": null,
+  "founded": "2018-12-11",
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "BAM Elevate": {
+  "seen": 3,
+  "lei": "549300KH7D2P3R7HOI45",
+  "id": "694c5731-b6fd-476e-bd04-ecfad6167fb0",
+  "entity_type": "Organization",
+  "description": "An investment firm that participated in a Series G financing round.",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "LAUNCHub Ventures": {
+  "seen": 3,
+  "id": "b5400d55-f69a-4ac9-a1ce-345c6ad568ba",
+  "entity_type": "Company",
+  "description": "A leading early-stage venture capital fund investing in startups in South-Eastern and Central-Eastern Europe, including Bosnia and Herzegovina.",
+  "website": "launchub.com",
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Blockwall": {
+  "seen": 3,
+  "lei": "391200YVTZ0CN8FUID66",
+  "id": "2118c03d-4cb2-4567-b724-37f5f7be552a",
+  "entity_type": "Company",
+  "description": "German private equity and venture capital firm headquartered in Frankfurt, founded in 2017.",
+  "hq": "Grüneburgweg 58-62, c/o Blockwall Management GmbH, Westend Tower, 60322, Frankfurt am Main",
+  "source": "GLEIF",
+  "lat": 50.11,
+  "lon": 8.68,
+  "precise": false,
+  "cc": "DE"
+ },
+ "Foundamental": {
+  "seen": 3,
+  "lei": "391200OL7MR0CLUFJO87",
+  "id": "1ab83eaa-1e44-4016-a805-9604d2b2a3b3",
+  "entity_type": "Company",
+  "description": "German VC firm investing in construction and built environment technology startups.",
+  "hq": "Budapester Str. 5, 10787, Berlin",
+  "source": "GLEIF",
+  "lat": 52.506715,
+  "lon": 13.3471542,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Matrix Partners": {
+  "seen": 3,
+  "lei": "254900F1DT1EV181FX18",
+  "id": "662af458-0921-4037-aaf6-ec2ca165e535",
+  "entity_type": "Organization",
+  "description": "A venture capital firm specializing in seed investments.",
+  "hq": "Pope Hennessy Street, Suite No. 7020, 7th Floor, Hennessy Court, 11328, Port Louis",
+  "source": "GLEIF"
+ },
+ "Metaplanet (Jaan Tallinn)": {
+  "seen": 3,
+  "id": "7aa3c32d-d7f0-4ac5-b6ce-6c4651a618f5",
+  "entity_type": "Company",
+  "description": "a company that has invested in Posh, Astranis Space Technologies Corp., and Parallel Bio",
+  "website": null,
+  "founded": null,
+  "employees": null,
+  "hq": null,
+  "source": null
+ },
+ "Founders Circle Capital": {
+  "seen": 3,
+  "lei": "549300LQX5R9TSWHLZ27",
+  "id": "c4710932-b0c1-4251-b73a-6fea5e101d27",
+  "entity_type": "Organization",
+  "description": "A venture capital firm that has invested in Hidden Level, Multiverse, Algolia and Jasper AI and counts DJ Patil among its members.",
+  "hq": "251 LITTLE FALLS DRIVE, New Castle, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Motier Ventures": {
+  "seen": 3,
+  "lei": "969500V0S8R3MJOLQ109",
+  "id": "8359e0c8-1feb-433b-80e1-3f37e747ccc5",
+  "entity_type": "Organization",
+  "description": "A French venture capital firm based in Paris.",
+  "hq": "40 BOULEVARD HAUSSMANN, 75009, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8736459,
+  "lon": 2.3321271,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Founders Future": {
+  "seen": 3,
+  "lei": "89450052LMDRBJBVY065",
+  "id": "363d5692-004d-493e-aec1-424a35663c25",
+  "entity_type": "Organization",
+  "description": "A Paris‑based venture capital firm.",
+  "hq": "38 Rangwee, L-2412, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "Octopus Ventures": {
+  "seen": 3,
+  "lei": "9845007A102E4E0X9E84",
+  "id": "0df9199f-b8a1-4690-a8e5-48eb8a4b2894",
+  "entity_type": "Organization",
+  "description": "A London‑based venture capital and private‑equity firm.",
+  "hq": "14 Op der Lohrwies, 3384, Noerzange",
+  "source": "GLEIF"
+ },
+ "Outlier Ventures": {
+  "seen": 3,
+  "lei": "1595KVTGVD7CB6T9CS92",
+  "id": "7e4630f9-0044-4d18-9b75-4033e2ccc148",
+  "entity_type": "Company",
+  "description": "A Stockholm‑based venture capital firm founded in 2019, specializing in blockchain and Web3 investments.",
+  "hq": "Kungsbro Strand 25, 112 26, STOCKHOLM",
+  "source": "GLEIF",
+  "lat": 59.3311218,
+  "lon": 18.0498631,
+  "precise": true,
+  "cc": "SE"
+ },
+ "NVIDIA": {
+  "seen": 11,
+  "lei": "549300S4KLFTLO7GSQ80",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Possible Ventures": {
+  "seen": 10,
+  "lei": "3912002J64WU8LUH5071",
+  "hq": "Destouchesstraße 18, c/o Seitz, 80803, München",
+  "source": "GLEIF"
+ },
+ "Valar Ventures": {
+  "seen": 8,
+  "id": "b444edb1-f078-4d63-8874-40580a2cb4d9",
+  "entity_type": "Company",
+  "description": "Venture capital firm investing in internationally-focused technology companies.",
+  "hq": null,
+  "source": null
+ },
+ "Fortino Capital": {
+  "seen": 3,
+  "lei": "6488BT627O85J3SX3W32",
+  "hq": "Borsbeeksebrug 36, 2600, Antwerpen",
+  "source": "GLEIF",
+  "lat": 51.200253,
+  "lon": 4.4345009,
+  "precise": true,
+  "cc": "??"
+ },
+ "Tioga Capital": {
+  "seen": 3,
+  "lei": "254900SRYR0R8OTKFA47",
+  "hq": "7, RUE ROBERT STUMPER, L-2557, LUXEMBOURG",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "GapMinder VC": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Audacious Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "PROfounders Capital": {
+  "seen": 3,
+  "lei": "213800Y4C3EU79SGKW30",
+  "hq": "8, RUE LOU HEMMER, L-1748, SENNINGERBERG",
+  "source": "GLEIF"
+ },
+ "NGP Energy Capital Management": {
+  "seen": 3,
+  "lei": "2549006509ZQT3AJRH55",
+  "hq": "C/O JEFFREY A. ZLOTKY, 2850 N. HARWOOD STREET, 19TH FLOOR, 75201, DALLAS",
+  "source": "GLEIF"
+ },
+ "Radius Capital": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Expansion Venture Capital": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Ervington Investments": {
+  "seen": 3,
+  "lei": "213800GBON3BVE99BI85",
+  "hq": "EMMANUEL ROIDI, 10-12, HOLY ZONE, 3031, LIMASSOL",
+  "source": "GLEIF"
+ },
+ "Commonfund": {
+  "seen": 3,
+  "lei": "5493000XMEVMIQFXVW32",
+  "hq": "717 ERIE BLVD. WEST, 13204, SYRACUSE",
+  "source": "GLEIF",
+  "lat": 43.0477736,
+  "lon": -76.1678935,
+  "precise": true,
+  "cc": "??"
+ },
+ "Techstars": {
+  "seen": 3,
+  "lei": "254900UWO3JSOF8ZZN34",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Felicis Ventures": {
+  "seen": 3,
+  "lei": "254900FTR3NTLRDMPV06",
+  "hq": "C/O Corporation Service Company, 251 Little Falls Drive, 19808, Wilmington",
+  "source": "GLEIF"
+ },
+ "Avid Ventures": {
+  "seen": 3,
+  "lei": "984500A01D0C38BPD577",
+  "hq": "65, Unit 3, FCI Godown, Koregaon Park, 411001, Pune",
+  "source": "GLEIF"
+ },
+ "b2venture": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Semantic Ventures": {
+  "seen": 3,
+  "lei": "984500A059EIF4EYD426",
+  "hq": "6 St. Peters Street, AL1 3LF, St. Albans",
+  "source": "GLEIF"
+ },
+ "MS&AD Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "MGX": {
+  "seen": 3,
+  "lei": "6488N5QG75VG23Z75K83",
+  "hq": "Engelbrektsgatan 9-11, 114 32, Stockholm",
+  "source": "GLEIF",
+  "lat": 59.3392477,
+  "lon": 18.069753,
+  "precise": true,
+  "cc": "SE"
+ },
+ "T. Rowe Price": {
+  "seen": 3,
+  "lei": "984500374C9804D8F731",
+  "hq": "10 Earlsfort Terrace, D02 T380, Dublin",
+  "source": "GLEIF",
+  "lat": 53.3334414,
+  "lon": -6.2578198,
+  "precise": true,
+  "cc": "IE"
+ },
+ "Augmentum Fintech": {
+  "seen": 3,
+  "lei": "213800OTQ44T555I8S71",
+  "hq": "25 SOUTHAMPTON BUILDINGS, WC2A 1AL, LONDON",
+  "source": "GLEIF",
+  "lat": 51.5171423,
+  "lon": -0.1120464,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Framework Ventures": {
+  "seen": 3,
+  "lei": "254900EJGV8KMG69H117",
+  "hq": "C/O VCORP SERVICES, LLC, 108 W. 13TH STREET, SUITE 100, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "NAP": {
+  "seen": 3,
+  "lei": "969500AYGLGBJ80N4N62",
+  "hq": "19 AVENUE GEORGE V, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8669972,
+  "lon": 2.3010035,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Rider Global": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Inven Capital": {
+  "seen": 3,
+  "lei": "8945003C8OZTS2ORXY18",
+  "hq": "Pod křížkem 1773/2, 147 00, Praha 4",
+  "source": "GLEIF",
+  "lat": 50.0361734,
+  "lon": 14.4167257,
+  "precise": true,
+  "cc": "??"
+ },
+ "G Squared": {
+  "seen": 3,
+  "lei": "894500P91N1X5Q6D1282",
+  "hq": "Haldenstrasse 9, 78166, Donaueschingen",
+  "source": "GLEIF",
+  "lat": 47.9519613,
+  "lon": 8.5002538,
+  "precise": true,
+  "cc": "??"
+ },
+ "Bee Partners": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Industry Ventures": {
+  "seen": 3,
+  "lei": "98450077F6BB4CUF1N75",
+  "hq": "251 Little Falls Drive, 19808, Wilmington",
+  "source": "GLEIF"
+ },
+ "1984 Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Omnes Capital": {
+  "seen": 3,
+  "lei": "969500P3R0OS7Z72ZW30",
+  "hq": "37 RUE DU ROCHER, 37 A 41, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.86,
+  "lon": 2.35,
+  "precise": false,
+  "cc": "FR"
+ },
+ "NGP Capital": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Forestay Capital": {
+  "seen": 3,
+  "lei": "635400EMG7KQ4T2WIE78",
+  "hq": "118 Lower Baggot Street, D02 DW99, Dublin",
+  "source": "GLEIF",
+  "lat": 53.3369405,
+  "lon": -6.250028,
+  "precise": true,
+  "cc": "IE"
+ },
+ "Ericsson Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Eight Roads Ventures": {
+  "seen": 3,
+  "lei": "254900XKYANSZJPLSD32",
+  "hq": "C/O IQ EQ Fund Services (Mauritius) Ltd, 33 Edith Cavell Street, 11324, Port Louis",
+  "source": "GLEIF"
+ },
+ "NFX": {
+  "seen": 3,
+  "lei": "894500SPS0CBZRYFM260",
+  "hq": "VIA SAN FAUSTINO 74, 41037, MIRANDOLA",
+  "source": "GLEIF",
+  "lat": 44.8967308,
+  "lon": 11.0684468,
+  "precise": true,
+  "cc": "??"
+ },
+ "HESTA": {
+  "seen": 3,
+  "lei": "7BAHUKFV2EMX0SEODE27",
+  "hq": "Level 20, 2 Lonsdale St, 3000, Melbourne",
+  "source": "GLEIF",
+  "lat": -37.81,
+  "lon": 144.96,
+  "precise": false,
+  "cc": "AU"
+ },
+ "Point72 Private Investments": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Atlantic Labs": {
+  "seen": 3,
+  "lei": "391200BCAZLOERGVJB59",
+  "hq": "Rosenthaler Strasse 13, 10119, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5274215,
+  "lon": 13.4023675,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Newion": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Mosaic Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Xavier Niel": {
+  "seen": 3,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Ontario Teachers' Pension Plan (via Teachers' Venture Growth)": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Lowercarbon Capital": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "SBI Investment": {
+  "seen": 3,
+  "lei": "3358007FGNHZF41PQ419",
+  "hq": "UNIT NO. 208, SIGNATURE BUILDING 2ND FLOOR, BLOCK 13B, ZONE-1 GIFT SEZ, 382355, GANDHINAGAR",
+  "source": "GLEIF"
+ },
+ "Motive Partners": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Illuminate Financial": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "10x Group": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Hedosophia": {
+  "seen": 3,
+  "lei": "549300Q5OZTF68OGPY72",
+  "hq": "PO Box 309, Grand Cayman, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "Digital Currency Group (DCG)": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Draper Esprit (now Molten Ventures)": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Draper Dragon": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "FirstMark Capital": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Draper Esprit (Molten Ventures)": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Cambridge Angels": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Hegus": {
+  "seen": 3,
+  "lei": "39120038ATTPK9GS8G21",
+  "hq": "Hintere Grabenstraße 30, 72070, Tübingen",
+  "source": "GLEIF",
+  "lat": 48.5228308,
+  "lon": 9.0524912,
+  "precise": true,
+  "cc": "??"
+ },
+ "Redpoint Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "CapitalG": {
+  "seen": 3,
+  "lei": "254900T3F79EUQN6V116",
+  "hq": "C/O Corporation Service Company, 251 Little Falls Drive, 19808, Wilmington",
+  "source": "GLEIF"
+ },
+ "Porsche SE": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Fidelity Management & Research Company": {
+  "seen": 3,
+  "lei": "5493001Z012YSB2A0K51",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Tenaya Capital": {
+  "seen": 3,
+  "lei": "254900ECHJ4HJA7VM908",
+  "hq": "C/O INCORP SERVICES, INC., 107 S 1470 E, STE 201, 84790, SAINT GEORGE",
+  "source": "GLEIF"
+ },
+ "Dell Technologies Capital": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "London Co-investment Fund (LCIF)": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "QED Investors": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Blume Ventures": {
+  "seen": 3,
+  "lei": "335800LGYULGMCJECO80",
+  "hq": "UNIT NO.04, JETHA COMPOUND,, OPP. NIRMAL PARK,, BYCULLA EAST, 400027, MUMBAI",
+  "source": "GLEIF",
+  "lat": 19.08,
+  "lon": 72.88,
+  "precise": false,
+  "cc": "IN"
+ },
+ "Radical Ventures": {
+  "seen": 3,
+  "lei": "254900PVJGI2G9MMGX42",
+  "hq": "100 King Street West, 1 First Canadian Place, Suite 6200, M5X 1B8, Toronto",
+  "source": "GLEIF",
+  "lat": 43.65,
+  "lon": -79.38,
+  "precise": false,
+  "cc": "CA"
+ },
+ "Accenture Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "2xN": {
+  "seen": 3,
+  "lei": "894500YKEVILABDAQ260",
+  "hq": "6 rue Dicks, L-1417, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "2degrees": {
+  "seen": 3,
+  "lei": "72450039D2LOPG0Z2I07",
+  "hq": "Willem Fenengastraat 4A, 1096BN, Amsterdam",
+  "source": "GLEIF",
+  "lat": 52.3349746,
+  "lon": 4.9194819,
+  "precise": true,
+  "cc": "NL"
+ },
+ "Nationwide Building Society": {
+  "seen": 3,
+  "lei": "549300XFX12G42QIKN82",
+  "hq": "NATIONWIDE HOUSE, PIPERS WAY, SN38 1NW, SWINDON",
+  "source": "GLEIF",
+  "lat": 51.5400986,
+  "lon": -1.7775313,
+  "precise": true,
+  "cc": "??"
+ },
+ "AlbionVC": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Better Tomorrow Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Tribe Capital": {
+  "seen": 3,
+  "lei": "72450001H1U8RCOES793",
+  "hq": "Rietpolderlaan 60, 1398DC, Muiden",
+  "source": "GLEIF",
+  "lat": 52.3353141,
+  "lon": 5.0595235,
+  "precise": true,
+  "cc": "??"
+ },
+ "Garage Capital": {
+  "seen": 3,
+  "lei": "743700ZI6IAOUFPE2F18",
+  "hq": "Kaskelantie 697, 04430 JÄRVENPÄÄ, FI-04430, JÄRVENPÄÄ",
+  "source": "GLEIF"
+ },
+ "Kora": {
+  "seen": 3,
+  "lei": "335800YYMRDHWIASIY05",
+  "hq": "PLOT NO 187, KORA, NEHRU MARKET, NEAR PANCHAYAT BUILDING, GYANKHAR, 790104, TAWANG",
+  "source": "GLEIF"
+ },
+ "Individual/angel investors": {
+  "seen": 3,
+  "hq": null,
+  "source": null,
+  "kind": "not an entity"
+ },
+ "KPN Ventures": {
+  "seen": 3,
+  "lei": "724500XU8UQWPW4LFT36",
+  "hq": "Wilhelminakade 123, 3072AP, Rotterdam",
+  "source": "GLEIF",
+  "lat": 51.9071754,
+  "lon": 4.4894079,
+  "precise": true,
+  "cc": "NL"
+ },
+ "UBS": {
+  "seen": 3,
+  "lei": "529900KZA64FVQNQBK53",
+  "hq": "VIA GARIBALDI 33, 84016, Pagani",
+  "source": "GLEIF",
+  "lat": 40.7399283,
+  "lon": 14.6153179,
+  "precise": true,
+  "cc": "??"
+ },
+ "BNP Paribas": {
+  "seen": 3,
+  "lei": "2763TSAJ0VP4CVMFM028",
+  "hq": "Al Fardan Office Tower No. 12, Street No. 814, Zone No. 61, P.O. BOX. 2636, Doha",
+  "source": "GLEIF"
+ },
+ "Anthemis Group": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Maor Investments": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "Compound": {
+  "seen": 3,
+  "lei": "335800WSWO93IL88K761",
+  "hq": "310, K K TOWER, GHIYA MARG, 302016, JAIPUR",
+  "source": "GLEIF"
+ },
+ "Eclipse Ventures": {
+  "seen": 3,
+  "hq": null,
+  "source": null
+ },
+ "O.G. Venture Partners": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Liberty City Ventures": {
+  "seen": 2,
+  "lei": "254900ITUB6OCPAXPW88",
+  "hq": "C/O STELLAR CORPORATE SERVICES LLC, 3500 SOUTH DUPONT HIGHWAY, 19901, DOVER",
+  "source": "GLEIF"
+ },
+ "Positive Sum": {
+  "seen": 2,
+  "lei": "213800XTZUMYJSCOV148",
+  "hq": "Carts and Wagons, Felcourt Farm, Felcourt Road, RH19 2LQ, East Grinstead",
+  "source": "GLEIF"
+ },
+ "BDT & MSD Partners": {
+  "seen": 2,
+  "lei": "506700CB7Y589S4W5751",
+  "hq": "Route de Verbier Station 45, 1936, Verbier",
+  "source": "GLEIF",
+  "lat": 46.0969537,
+  "lon": 7.2242863,
+  "precise": true,
+  "cc": "??"
+ },
+ "Join Capital": {
+  "seen": 2,
+  "lei": "52990035XX7SKN96EO09",
+  "hq": "Straßburger Straße 55, 10405, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5294934,
+  "lon": 13.413028,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Spintop Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Endeit Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "PortfoLion": {
+  "seen": 2,
+  "lei": "233000QTO5R3W0B8ZR79",
+  "hq": "Alkotás utca 53/C. ép. V. em, 1123, Budapest",
+  "source": "GLEIF",
+  "lat": 47.5,
+  "lon": 19.04,
+  "precise": false,
+  "cc": "HU"
+ },
+ "SeedBlink": {
+  "seen": 2,
+  "lei": "984500847ACKCFB51132",
+  "hq": "Nr. 43, FLOREASCA PARK, CLADIREA B, CU O SUPRAFATA DE 364,14 MP, Etaj 1, 077190, București",
+  "source": "GLEIF"
+ },
+ "Ontario Teachers' Pension Plan (Teachers' Venture Growth)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Daniel Gross": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Geeta Schmidt": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Adara Ventures": {
+  "seen": 2,
+  "lei": "959800U9JA3RB0HTXW82",
+  "hq": "Jose Abascal 58 4 D, 28003, Madrid",
+  "source": "GLEIF",
+  "lat": 40.4381537,
+  "lon": -3.6937235,
+  "precise": true,
+  "cc": "ES"
+ },
+ "4Founders Capital": {
+  "seen": 2,
+  "lei": "959800LFMERBWGMP2J92",
+  "hq": "Av. Diagonal 405 bis 7A, 08008, Barcelona",
+  "source": "GLEIF",
+  "lat": 41.39,
+  "lon": 2.17,
+  "precise": false,
+  "cc": "ES"
+ },
+ "Woven Capital (Toyota)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Artofin VC": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Third Kind Venture Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Watertower Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Matt Robinson (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Annox Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "GSV Ventures": {
+  "seen": 2,
+  "lei": "254900RVKPB26WEA3451",
+  "hq": "C/O Corporation Service Company, 251 Little Falls Drive, 19808, Wilmington",
+  "source": "GLEIF"
+ },
+ "Omidyar Network": {
+  "seen": 2,
+  "lei": "335800H9SA1EOEMXKT83",
+  "hq": "1ST FLOOR, SAXENA HOUSE, JAWAHAR NAGAR ROAD NO 6 & 7, GOREGAON WEST, 400104, MUMBAI",
+  "source": "GLEIF",
+  "lat": 19.08,
+  "lon": 72.88,
+  "precise": false,
+  "cc": "IN"
+ },
+ "Valiant Peregrine Fund": {
+  "seen": 2,
+  "lei": "984500E4F3D1DC8D0U80",
+  "hq": "251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Protocol Labs": {
+  "seen": 2,
+  "lei": "254900S42IO04VDRST31",
+  "hq": "C/O Vcorp Services, LLC, 108 W. 13th Street, Suite 100, 19801, Wilmington",
+  "source": "GLEIF"
+ },
+ "Lyra Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Arkwright X": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Sondo Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Angel operators from OpenAI": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Scaleup Europe Fund (managed by EQT)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Maven 11 Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Pipedrive founders (angels)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Seed X Liechtenstein": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "SixThirty Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "HighSage Ventures": {
+  "seen": 2,
+  "lei": "549300KDDNDQFQSXI129",
+  "hq": "C/O COGENCY GLOBAL INC., 850 NEW BURTON ROAD, SUITE 201, 19904, DOVER",
+  "source": "GLEIF"
+ },
+ "Alumni Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "MUFG Innovation Partners": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "True Global Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Sixth Street Growth": {
+  "seen": 2,
+  "lei": "549300AWNHNLW6PQJA96",
+  "hq": "C/O MAPLES FIDUCIARY SERVICES (DELAWARE) INC., 4001 KENNETT PIKE, SUITE 302, 19807, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Grid.vc": {
+  "seen": 2,
+  "lei": "984500E1YDC84V138277",
+  "hq": "Eino Salmelaisen katu, 39500, Ikaalinen",
+  "source": "GLEIF",
+  "lat": 61.7660579,
+  "lon": 23.0695695,
+  "precise": true,
+  "cc": "??"
+ },
+ "System.one": {
+  "seen": 2,
+  "lei": "391200PDJE06TPW9UQ85",
+  "hq": "Oranienburger Straße 27, 10117, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5249306,
+  "lon": 13.3953068,
+  "precise": true,
+  "cc": "DE"
+ },
+ "CommerzVentures": {
+  "seen": 2,
+  "lei": "529900T3Q4B9SC7HRO85",
+  "hq": "c/o COMMERZBANK Aktiengesellschaft, Kaiserstraße 16, 60311, Frankfurt am Main",
+  "source": "GLEIF",
+  "lat": 50.11,
+  "lon": 8.68,
+  "precise": false,
+  "cc": "DE"
+ },
+ "Heliad": {
+  "seen": 2,
+  "lei": "391200YUZAZ2IYUT5V80",
+  "hq": "Ulmenstrasse 37-39, 60325, Frankfurt am Main",
+  "source": "GLEIF",
+  "lat": 50.1158234,
+  "lon": 8.6652704,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Guillaume Pousaz": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Brad Bao": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "IQ Capital": {
+  "seen": 2,
+  "lei": "984500E8614B2A8E3697",
+  "hq": "202 S 2nd St Ste A, 82070, Laramie",
+  "source": "GLEIF",
+  "lat": 41.3116442,
+  "lon": -105.5917876,
+  "precise": true,
+  "cc": "??"
+ },
+ "Playfair Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Sten Tamkivi": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Taavet+Sten (Taavet Hinrikus & Sten Tamkivi)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Saarbrücker21": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Educapital": {
+  "seen": 2,
+  "lei": "9695000XH4PCCYIPMJ09",
+  "hq": "12 RUE DU QUATRE SEPTEMBRE, 75002, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8695276,
+  "lon": 2.3374762,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Curus": {
+  "seen": 2,
+  "lei": "549300GGVMT6EWDTU947",
+  "hq": "C/O Forskaren Office Hub, Hagaplan 4, 113 68, Stockholm",
+  "source": "GLEIF",
+  "lat": 59.33,
+  "lon": 18.07,
+  "precise": false,
+  "cc": "SE"
+ },
+ "Collective Spark": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Voima Ventures": {
+  "seen": 2,
+  "lei": "743700GPG8JBPPC5QP91",
+  "hq": "Pohjoisranta 14 A 19, 00170 HELSINKI, FI-00170, HELSINKI",
+  "source": "GLEIF",
+  "lat": 60.17,
+  "lon": 24.94,
+  "precise": false,
+  "cc": "FI"
+ },
+ "Leena Niemistö": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Sauli Törmälä": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Pear VC": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Growth Equity at Goldman Sachs Alternatives": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Atlassian Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Wellington Management": {
+  "seen": 2,
+  "lei": "9845008ED7865F88BD87",
+  "hq": "RBC Water Park Place, 88 Queens Quay West, Suite 2500, M5J 0B8, Toronto",
+  "source": "GLEIF",
+  "lat": 43.65,
+  "lon": -79.38,
+  "precise": false,
+  "cc": "CA"
+ },
+ "Stefan Lindeberg": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Josefin Landgård": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Inflection": {
+  "seen": 2,
+  "lei": "5299007S0CFDEC4VIU31",
+  "hq": "Taunusanlage 9-10, 60329, Frankfurt am Main",
+  "source": "GLEIF",
+  "lat": 50.1122937,
+  "lon": 8.6685378,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Rockaway Blockchain Fund": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Backed VC": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "MMC Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "s16vc": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "UL Invest": {
+  "seen": 2,
+  "lei": "549300JC56T2B2BIIA81",
+  "hq": "Ellemosevej 4, Aulby, 5500, Middelfart",
+  "source": "GLEIF",
+  "lat": 55.50279,
+  "lon": 9.822805,
+  "precise": true,
+  "cc": "??"
+ },
+ "BADideas.fund": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Cipio Partners": {
+  "seen": 2,
+  "lei": "3912008NXBOYJCTLTW18",
+  "hq": "Ottostr. 8, 80333, München",
+  "source": "GLEIF",
+  "lat": 48.1418924,
+  "lon": 11.5682615,
+  "precise": true,
+  "cc": "??"
+ },
+ "Scale Capital": {
+  "seen": 2,
+  "lei": "549300VGRQYKN2WFBY78",
+  "hq": "Amerika Plads 26 A st., 2100, København Ø",
+  "source": "GLEIF"
+ },
+ "Greenfield One": {
+  "seen": 2,
+  "lei": "391200I3GBGZ71NFTH88",
+  "hq": "Neuer Wall 54, 20354, Hamburg",
+  "source": "GLEIF",
+  "lat": 53.5511178,
+  "lon": 9.9885121,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Foreword": {
+  "seen": 2,
+  "lei": "254900O6CG7L1W4K8H92",
+  "hq": "C/O GKL REGISTERED AGENTS OF DE, INC., 9 EAST LOOCKERMAN STREET, SUITE 311, 19901, DOVER",
+  "source": "GLEIF"
+ },
+ "KR1": {
+  "seen": 2,
+  "lei": "213800WFTIIBY5SBCL19",
+  "hq": "C/O IQ EQ (ISLE OF MAN) LIMITED, FIRST NAMES HOUSE, VICTORIA ROAD, IM2 4DF, DOUGLAS",
+  "source": "GLEIF"
+ },
+ "Founders Future (Marc Ménasé)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Financière Saint James": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Portage Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Route 66 Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "CF Private Equity": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Piton Capital": {
+  "seen": 2,
+  "lei": "549300UDMBAGO23L7Z55",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Perwyn": {
+  "seen": 2,
+  "lei": "213800YLTX2ZTIE8T170",
+  "hq": "25 HANOVER SQUARE, W1S 1JF, LONDON",
+  "source": "GLEIF",
+  "lat": 51.513509,
+  "lon": -0.1439697,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Stani Kulechov (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "CoinShares": {
+  "seen": 2,
+  "lei": "213800XIX1ZHW9SWFW27",
+  "hq": "2 HILL STREET, JE2 4UA, ST. HELIER",
+  "source": "GLEIF",
+  "lat": 49.1835318,
+  "lon": -2.1057041,
+  "precise": true,
+  "cc": "??"
+ },
+ "Ledger Cathay Capital": {
+  "seen": 2,
+  "lei": "969500EFDKFCWWE1S606",
+  "hq": "52 RUE D'ANJOU, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8730315,
+  "lon": 2.3223508,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Jabre Capital Partners": {
+  "seen": 2,
+  "lei": "549300LH3IWWTHU2LD07",
+  "hq": "Rue Pierre-Fatio 15, 1204, Genève",
+  "source": "GLEIF",
+  "lat": 46.2023639,
+  "lon": 6.1540732,
+  "precise": true,
+  "cc": "??"
+ },
+ "Point72 Ventures": {
+  "seen": 2,
+  "lei": "549300GSYU4QP8JCWK92",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "GSR Markets": {
+  "seen": 2,
+  "lei": "5493007W5RMEFVPMWT14",
+  "hq": "Suite 5508, 55th Floor, Central Plaza, 18 Harbour Road, Wan Chai, 999077, Hong Kong",
+  "source": "GLEIF",
+  "lat": 22.32,
+  "lon": 114.17,
+  "precise": false,
+  "cc": "HK"
+ },
+ "TRGC": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "CMT Digital": {
+  "seen": 2,
+  "lei": "54930020SIW6LPSSK508",
+  "hq": "C/O Maples Corporate Services, PO Box 309, Ugland House, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "Circle Ventures": {
+  "seen": 2,
+  "lei": "254900JEDTVFPQT5Q555",
+  "hq": "C/O Campbells Corporate Services Limited, Floor 4, Willow House, Cricket Square, Grand Cayman, KY1-9010, George Town",
+  "source": "GLEIF"
+ },
+ "VaynerFund": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "ParaFi Capital": {
+  "seen": 2,
+  "lei": "2549005LEO7EQR4J8D56",
+  "hq": "C/O VCORP SERVICES, LLC, 108 W. 13TH STREET, SUITE 100, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Operator Partners": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Early Game Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Sharmadean Reid (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Rio Ferdinand (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "World Innovation Lab (WiL)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Flat Capital": {
+  "seen": 2,
+  "lei": "549300LHOWJ5TLK68326",
+  "hq": "C/O Flat Capital AB, Kungsgatan 30, 111 35, Stockholm",
+  "source": "GLEIF",
+  "lat": 59.33,
+  "lon": 18.07,
+  "precise": false,
+  "cc": "SE"
+ },
+ "SemperVirens": {
+  "seen": 2,
+  "lei": "254900V3HWPS8HNUQ706",
+  "hq": "C/O WILMINGTON TRUST, NATIONAL ASSOCIATION, RODNEY SQUARE NORTH 1100, NORTH MARKET STREET, 19890, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "BOND (Bond Capital)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "StepStone Group": {
+  "seen": 2,
+  "lei": "2549007I2AGBHI2F7C52",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Schroders Capital": {
+  "seen": 2,
+  "lei": "549300PKBNLS9STQFP68",
+  "hq": "5, rue Höhenhof, L-1736, Senningerberg",
+  "source": "GLEIF"
+ },
+ "Standard Investments": {
+  "seen": 2,
+  "lei": "549300LSWWD31GHJS020",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Siemens": {
+  "seen": 2,
+  "lei": "529900YDAG61JYILJZ53",
+  "hq": "300, Janadel Avenue, 1685, Midrand",
+  "source": "GLEIF",
+  "lat": -26.0007213,
+  "lon": 28.1195837,
+  "precise": true,
+  "cc": "??"
+ },
+ "Applied Materials": {
+  "seen": 2,
+  "lei": "41BNNE1AFPNAZELZ6K07",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "July Fund": {
+  "seen": 2,
+  "lei": "391200N0TDOPSXO18B18",
+  "hq": "Im Dol 63, 14195, Berlin",
+  "source": "GLEIF",
+  "lat": 52.4622289,
+  "lon": 13.2804946,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Allen & Company": {
+  "seen": 2,
+  "lei": "549300RO3RYDN328JY68",
+  "hq": "711 FIFTH AVENUE, 8TH FLOOR, 10022, NEW YORK",
+  "source": "GLEIF",
+  "lat": 40.71,
+  "lon": -74.01,
+  "precise": false,
+  "cc": "US"
+ },
+ "British Business Bank": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Farvatn Venture": {
+  "seen": 2,
+  "lei": "549300J7PLJCJ20FKL19",
+  "hq": "Lars Hilles gate 30, 5008, Bergen",
+  "source": "GLEIF",
+  "lat": 60.38548,
+  "lon": 5.332801,
+  "precise": true,
+  "cc": "NO"
+ },
+ "Erik Bakstad": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Shine Capital": {
+  "seen": 2,
+  "lei": "335800KYVDQWZ8RPS402",
+  "hq": "MARTIN BURN BUILDING, 2ND FLOOR, ROOM NO. 240, 1. R.N . MUKHERJEE ROAD, LAL BAZAR, 700001, KOLKATA",
+  "source": "GLEIF"
+ },
+ "Alliance VC": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Pitango": {
+  "seen": 2,
+  "lei": "549300K3OPYYQBOR4W33",
+  "hq": "CALLE CASTELLO, 74, 28006, MADRID",
+  "source": "GLEIF",
+  "lat": 40.4306913,
+  "lon": -3.6809779,
+  "precise": true,
+  "cc": "ES"
+ },
+ "Janus Henderson Investors": {
+  "seen": 2,
+  "lei": "21380084Y3DB9W28LK56",
+  "hq": "47 ESPLANADE, JE1 0BD, ST. HELIER",
+  "source": "GLEIF",
+  "lat": 49.1854881,
+  "lon": -2.1129746,
+  "precise": true,
+  "cc": "??"
+ },
+ "ION Crossover Partners": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "MizMaa Ventures": {
+  "seen": 2,
+  "lei": "549300860USOCDC2NZ31",
+  "hq": "Office No. 6, 42/Floor, Lee Garden One,33 Hysan Avenue,Causeway Bay, Wan Chai",
+  "source": "GLEIF"
+ },
+ "Neva SGR": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Energy Impact Partners": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Headline (e.ventures)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Aldea Ventures": {
+  "seen": 2,
+  "lei": "959800T3Y8RJ2SPDKT92",
+  "hq": "AVENIDA DIAGONAL 423 Principal 2ª, 08036, Barcelona",
+  "source": "GLEIF",
+  "lat": 41.39,
+  "lon": 2.17,
+  "precise": false,
+  "cc": "ES"
+ },
+ "Saban Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "TriplePoint Capital": {
+  "seen": 2,
+  "lei": "549300R2TPYIJBNMPU68",
+  "hq": "C/O DISCERN REGISTERED AGENT INC., 1252 FORREST AVENUE, 19904, DOVER",
+  "source": "GLEIF"
+ },
+ "Clocktower Technology Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "TheVentureCity": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Blackwood": {
+  "seen": 2,
+  "lei": "648800LWMQ77XDT0QJ82",
+  "hq": "1209 MOUNTAIN ROAD PL NE, STE N, 87110, ALBUQUERQUE",
+  "source": "GLEIF"
+ },
+ "1818 Venture Capital": {
+  "seen": 2,
+  "lei": "213800Z5KWSTSU962521",
+  "hq": "UPPER HOUSE, SMITH STREET, GY1 2JQ, ST. PETER PORT",
+  "source": "GLEIF"
+ },
+ "Tom Blomfield": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Gradient Ventures (Google)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Felicis": {
+  "seen": 2,
+  "lei": "529900X6D755WWBYE008",
+  "hq": "Leopoldstraße 20, 80802, München",
+  "source": "GLEIF",
+  "lat": 48.1540213,
+  "lon": 11.5836611,
+  "precise": true,
+  "cc": "??"
+ },
+ "Mandeep Singh (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Quiet Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Lux Capital": {
+  "seen": 2,
+  "lei": "969500VJD9ZG8KPUAI21",
+  "hq": "44 RUE GEORGES VILLETTE, 77250, MORET-LOING-ET-ORVANNE",
+  "source": "GLEIF",
+  "lat": 48.3506973,
+  "lon": 2.8119529,
+  "precise": true,
+  "cc": "??"
+ },
+ "Wellfound (formerly AngelList)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Meritech Capital Partners": {
+  "seen": 2,
+  "lei": "254900LVC4930S1TL236",
+  "hq": "C/O Business Filings Incorporated, 108 West 13th Street, 19801, Wilmington",
+  "source": "GLEIF"
+ },
+ "SoftBank": {
+  "seen": 2,
+  "lei": "894500D95YBZA22T8U77",
+  "hq": "69 Grosvenor Street, W1K 3JP, London",
+  "source": "GLEIF",
+  "lat": 51.5117464,
+  "lon": -0.1460662,
+  "precise": true,
+  "cc": "GB"
+ },
+ "ARK Invest": {
+  "seen": 2,
+  "lei": "254900DNK1VGG3WJOG05",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "TPG": {
+  "seen": 2,
+  "lei": "969500TGRFFXH4ILUO84",
+  "hq": "175 RUE DU CHAUFOUR, 62161, AGNEZ-LES-DUISANS",
+  "source": "GLEIF",
+  "lat": 50.3148698,
+  "lon": 2.6493259,
+  "precise": true,
+  "cc": "??"
+ },
+ "Goanna Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Expedite Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Quadrille Capital": {
+  "seen": 2,
+  "lei": "969500V1FJ1YYI2IV150",
+  "hq": "16 PLACE DE LA MADELEINE, 75008, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8699049,
+  "lon": 2.3253704,
+  "precise": true,
+  "cc": "FR"
+ },
+ "WndrCo": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Evantic": {
+  "seen": 2,
+  "lei": "254900E7HCFK5TAT1996",
+  "hq": "3rd Floor, 1 Ashley Road, WA14 2DT, Altrincham",
+  "source": "GLEIF"
+ },
+ "Alameda Research": {
+  "seen": 2,
+  "lei": "549300D10GRWX1V2A036",
+  "hq": "Tortola Pier Park, Building 1, Second Floor,, Wickhams Cay I, Tortola, VG1110, Road Town",
+  "source": "GLEIF"
+ },
+ "Maven 11": {
+  "seen": 2,
+  "lei": "875500XEI5NDPE7M3Q09",
+  "hq": "Industriestrasse 2, 9487, Bendern",
+  "source": "GLEIF",
+  "lat": 47.2057731,
+  "lon": 9.5022437,
+  "precise": true,
+  "cc": "??"
+ },
+ "GSR": {
+  "seen": 2,
+  "lei": "3358007EK9R0T12OJZ90",
+  "hq": "07-26-02, CHEVURIVARI STREET, KAVALI, 524201, SRI POTTI SRIRAMULU NELLORE",
+  "source": "GLEIF"
+ },
+ "Cavalry Ventures": {
+  "seen": 2,
+  "lei": "894500CJ56J8E7B7NX05",
+  "hq": "Novalisstraße 12, 10115, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5284845,
+  "lon": 13.3884213,
+  "precise": true,
+  "cc": "DE"
+ },
+ "European Innovation Council (EIC) Fund": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Stage 2 Capital (Stage II Capital)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Tsingyuan Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Wavemaker 360": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Supernode Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Berkeley SkyDeck": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Plug and Play": {
+  "seen": 2,
+  "lei": "529900QNVEUGRJ3Q0I91",
+  "hq": "102 avenue des Champs-Elysées, 75008, Paris",
+  "source": "GLEIF",
+  "lat": 48.8718265,
+  "lon": 2.3022902,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Sequoia Scout Fund": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Index Ventures (Nina Achadjian)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Stage 2 Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Alex Wang (CEO of Scale AI)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Dylan Field (CEO of Figma)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "PortfoLion Capital Partners (OTP Bank)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Institutional Venture Partners (IVP)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "NATO Innovation Fund": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Norrsken Foundation": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Plum Alley Investments": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Undisclosed US West Coast asset manager": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "not an entity"
+ },
+ "CoinFund": {
+  "seen": 2,
+  "lei": "2549008CIB73L4610856",
+  "hq": "PO Box 309, Ugland House, KY1-1104, Grand Cayman",
+  "source": "GLEIF"
+ },
+ "Dialectic": {
+  "seen": 2,
+  "lei": "254900S23TUN2Q67X222",
+  "hq": "C/O CO Services Cayman Limited, P.O. Box 10008, Willow House, Cricket Square, Grand Cayman, KY1-1001, George Town",
+  "source": "GLEIF"
+ },
+ "Francesco Simoneschi": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "January Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Brendan Hill (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Hostplus": {
+  "seen": 2,
+  "lei": "549300SWS6XU2AZMIC73",
+  "hq": "CORPORATION TRUST CENTER 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Wormhole Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Saniel Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Anthology (Menlo Ventures & Anthropic)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Latitude (growth fund of Phoenix Court)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Phoenix Court (LocalGlobe, Latitude, Solar funds)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Proeza Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Revel Venture Partners": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Andreas Kupke (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "New Enterprise Associates": {
+  "seen": 2,
+  "lei": "254900GN1CG8IQ1CP774",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Hanno Renner": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Michael Wax": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Durable Capital Partners": {
+  "seen": 2,
+  "lei": "54930055LU0GC4VLG735",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Groupe Artémis": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "ARVO Venture Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Daphni": {
+  "seen": 2,
+  "lei": "9695005V6CKCWXK2MS79",
+  "hq": "87 RUE REAUMUR, 75002, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8670391,
+  "lon": 2.3477036,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Rachel Delacour": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Julie Pellet": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Marc Simoncini": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "ZEBOX Ventures": {
+  "seen": 2,
+  "lei": "969500DUNBSMG7DOTW39",
+  "hq": "4 BOULEVARD SAADE - QUAI ARENC, 13002, MARSEILLE",
+  "source": "GLEIF",
+  "lat": 43.3125786,
+  "lon": 5.3667793,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Build Collective (Tony Fadell)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Eric Setton (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Moment Ventures": {
+  "seen": 2,
+  "lei": "743700K6T2RVNJRB7494",
+  "hq": "Pyhäjärvenkatu 5 A, 33200 TAMPERE, FI-33200, TAMPERE",
+  "source": "GLEIF",
+  "lat": 61.5,
+  "lon": 23.79,
+  "precise": false,
+  "cc": "FI"
+ },
+ "Partech Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "DST Global (partners)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Main Incubator / Neosfer": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Saber": {
+  "seen": 2,
+  "lei": "699400R1E27LPEZKYK62",
+  "hq": "Plaats 9, 1547, Bever",
+  "source": "GLEIF",
+  "lat": 50.7172225,
+  "lon": 3.9429361,
+  "precise": true,
+  "cc": "??"
+ },
+ "Varma Mutual Pension Insurance Company": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Veikko Laine (family office)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "HV Capital (Holtzbrinck Ventures)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Maximilian Tayenthal (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Wicklow Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "GDTRE": {
+  "seen": 2,
+  "lei": "8156002A57D437454F91",
+  "hq": "VIA CLAVATURE, 1, 40124, BOLOGNA",
+  "source": "GLEIF",
+  "lat": 44.4933464,
+  "lon": 11.3439166,
+  "precise": true,
+  "cc": "IT"
+ },
+ "10T Holdings": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Morgan Creek Capital Management": {
+  "seen": 2,
+  "lei": "549300K0FDJ8T2OQQ437",
+  "hq": "C/O Corporation Service Company, 2626 Glenwood Ave Ste 550, 27608, Raleigh",
+  "source": "GLEIF"
+ },
+ "Imperial Innovations (Touchstone Innovations)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Invoke Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Robert Sansom": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "MissionOG": {
+  "seen": 2,
+  "lei": "549300IE02QM7K6GNQ83",
+  "hq": "C/O THE CORPORATION TRUST COMPANY, CORPORATION TRUST CENTER, 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "IP Group": {
+  "seen": 2,
+  "lei": "636700VPX85ZOK39HF49",
+  "hq": "Inkognitogata 33A, 0256, Oslo",
+  "source": "GLEIF",
+  "lat": 59.915949,
+  "lon": 10.720852,
+  "precise": true,
+  "cc": "NO"
+ },
+ "Sofina": {
+  "seen": 2,
+  "lei": "894500J2PTCB698PRO37",
+  "hq": "78 RUE DE LA REPUBLIQUE, 92150, SURESNES",
+  "source": "GLEIF",
+  "lat": 48.8634034,
+  "lon": 2.2228103,
+  "precise": true,
+  "cc": "??"
+ },
+ "Vulcan Capital": {
+  "seen": 2,
+  "lei": "213800F2AKVLYHIG7867",
+  "hq": "C/O XEINADIN, FIRST FLOOR SECURE HOUSE, LULWORTH CLOSE, SO53 3TL, CHANDLER'S FORD",
+  "source": "GLEIF"
+ },
+ "Decisive Capital Management": {
+  "seen": 2,
+  "lei": "5067005I4Z7SH352V720",
+  "hq": "rue du Rhône 78, 1204, Genève",
+  "source": "GLEIF",
+  "lat": 46.2037223,
+  "lon": 6.1492065,
+  "precise": true,
+  "cc": "??"
+ },
+ "Kadmos Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Greycroft": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Sean Parker": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Eric Schmidt": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Goldman Sachs Asset Management": {
+  "seen": 2,
+  "lei": "549300YXQ0Y6SPQTPE40",
+  "hq": "85 Avenue Marceau, 75116, Paris",
+  "source": "GLEIF",
+  "lat": 48.8722655,
+  "lon": 2.2960921,
+  "precise": true,
+  "cc": "FR"
+ },
+ "DTCP": {
+  "seen": 2,
+  "lei": "529900HC5C2M2EESTO69",
+  "hq": "Stationsplein 8 K, 6221BT, Maastricht",
+  "source": "GLEIF",
+  "lat": 50.8477521,
+  "lon": 5.7059771,
+  "precise": true,
+  "cc": "??"
+ },
+ "Airbus Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "European Innovation Council (EIC)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Springvest": {
+  "seen": 2,
+  "lei": "74370060B6AMS8M53K54",
+  "hq": "Siltasaarenkatu 8-10, 00530 HELSINKI, FI-00530, HELSINKI",
+  "source": "GLEIF",
+  "lat": 60.17,
+  "lon": 24.94,
+  "precise": false,
+  "cc": "FI"
+ },
+ "Sandwater": {
+  "seen": 2,
+  "lei": "6367004RZAU6YC67V558",
+  "hq": "Universitetsgata 12, 0164, Oslo",
+  "source": "GLEIF",
+  "lat": 59.916505,
+  "lon": 10.738621,
+  "precise": true,
+  "cc": "NO"
+ },
+ "Tesi (Finnish Industry Investment)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Sino Global Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Mechanism Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "XBTO": {
+  "seen": 2,
+  "lei": "98450080BD8C7ED3D543",
+  "hq": "16192 COASTAL HWY, 19958, LEWES",
+  "source": "GLEIF",
+  "lat": 38.7651166,
+  "lon": -75.2116064,
+  "precise": true,
+  "cc": "??"
+ },
+ "SIX FinTech Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Futurum Ventures": {
+  "seen": 2,
+  "lei": "636700TWCP94JTRKUY87",
+  "hq": "Ferjemannsveien 10, 7042, Trondheim",
+  "source": "GLEIF",
+  "lat": 63.4326158,
+  "lon": 10.4074577,
+  "precise": true,
+  "cc": "NO"
+ },
+ "Investor 2": {
+  "seen": 2,
+  "lei": "549300KPI9FNNW6E1025",
+  "hq": "Ryghs vei 18A, 0785, Oslo",
+  "source": "GLEIF",
+  "lat": 59.957691,
+  "lon": 10.657158,
+  "precise": true,
+  "cc": "NO"
+ },
+ "Breega": {
+  "seen": 2,
+  "lei": "969500TBUYKFA0B21D18",
+  "hq": "22 RUE DE PALESTRO, 75002, PARIS",
+  "source": "GLEIF",
+  "lat": 48.8660353,
+  "lon": 2.3519627,
+  "precise": true,
+  "cc": "FR"
+ },
+ "Jørgen Balle Olesen": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Thomas Jensen": {
+  "seen": 2,
+  "lei": "984500F66878384E6384",
+  "hq": "Tarmvej 57, Vostrup, 6880, Tarm",
+  "source": "GLEIF",
+  "lat": 55.897794,
+  "lon": 8.433164,
+  "precise": true,
+  "cc": "??",
+  "kind": "person"
+ },
+ "Techhub Invest": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Vækstfonden": {
+  "seen": 2,
+  "lei": "5493002QBHPQYRJZHK76",
+  "hq": "Strandvejen 104B, 2900, Hellerup",
+  "source": "GLEIF",
+  "lat": 55.733517,
+  "lon": 12.576916,
+  "precise": true,
+  "cc": "??"
+ },
+ "IBB Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Entrepreneur First": {
+  "seen": 2,
+  "lei": "2138009NQLSEHYP2L812",
+  "hq": "SENNA BUILDING, GORSUCH PL, E2 8JF, LONDON",
+  "source": "GLEIF",
+  "lat": 51.5301925,
+  "lon": -0.0755139,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Karman Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "OMERS Ventures": {
+  "seen": 2,
+  "lei": "894500XODXAWI6QEMH29",
+  "hq": "900 - 100 Adelaide St W, M5H 0E2, Toronto",
+  "source": "GLEIF",
+  "lat": 43.6487639,
+  "lon": -79.3860544,
+  "precise": true,
+  "cc": "CA"
+ },
+ "Moving Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Carlos Gonzalez-Cadenas (angel)": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "DRW Venture Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "General Atlantic": {
+  "seen": 2,
+  "lei": "254900JB7LATTL8PDG42",
+  "hq": "23 Savile Row, W1S 2ET, London",
+  "source": "GLEIF",
+  "lat": 51.5118761,
+  "lon": -0.1412133,
+  "precise": true,
+  "cc": "GB"
+ },
+ "20VC (The Twenty Minute VC)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "KAYA": {
+  "seen": 2,
+  "lei": "969500ZJQT8TFOGWK204",
+  "hq": "31 RES PARC CLUB DU GOLF, CS 90519, 13080, AIX EN PROVENCE",
+  "source": "GLEIF"
+ },
+ "STV": {
+  "seen": 2,
+  "lei": "6994004OZPMUIAJQLJ07",
+  "hq": "Rue de Morlies 2, 7640, Antoing",
+  "source": "GLEIF",
+  "lat": 50.5434974,
+  "lon": 3.492546,
+  "precise": true,
+  "cc": "??"
+ },
+ "Greenfield Partners": {
+  "seen": 2,
+  "lei": "254900PR5V24SA2RE244",
+  "hq": "C/O CO Services Cayman Limited, P.O. Box 10008, Willow House, Cricket Square, Grand Cayman, KY1-1001, George Town",
+  "source": "GLEIF"
+ },
+ "Drive Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Social Tech Trust": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Fair By Design": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Smash Capital": {
+  "seen": 2,
+  "lei": "254900BT0V286UJP5R54",
+  "hq": "C/O CORPORATION SERVICE COMPANY, 251 LITTLE FALLS DRIVE, 19808, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Cristina Stenbeck": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Jeff Wilke": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Justin Mateen": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Spencer Rascoff": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Keith Richman": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "Black Ice Capital": {
+  "seen": 2,
+  "lei": "213800XY3Y7KNAIRU274",
+  "hq": "GROUND FLOOR, PLAZA HOUSE, ADMIRAL PARK, GY1 2HU, ST PETER PORT",
+  "source": "GLEIF"
+ },
+ "NordicNinja": {
+  "seen": 2,
+  "lei": "2138008YYXHO2FIK6582",
+  "hq": "8, RUE LOU HEMMER, L-1748, SENNINGERBERG",
+  "source": "GLEIF"
+ },
+ "Nineyards Equity": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Goodwater Capital": {
+  "seen": 2,
+  "lei": "984500A6FO9513CA0E85",
+  "hq": "CORPORATION TRUST CENTER 1209 ORANGE ST, 19801, WILMINGTON",
+  "source": "GLEIF"
+ },
+ "Insignia Ventures Partners": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Pioneer Fund": {
+  "seen": 2,
+  "lei": "98450052HA691A0AD607",
+  "hq": "Dammstrasse 23, 6300, Zug",
+  "source": "GLEIF",
+  "lat": 47.177174,
+  "lon": 8.5146,
+  "precise": true,
+  "cc": "CH"
+ },
+ "MassMutual Ventures": {
+  "seen": 2,
+  "lei": "254900UAJ5ZBXSB9D078",
+  "hq": "No. 4272, Saptagiri, 2nd Floor, Vivekananda Park Road, Near Seetha Circle, 1st Phase Girinagar, 560085, Bangalore",
+  "source": "GLEIF",
+  "lat": 12.97,
+  "lon": 77.59,
+  "precise": false,
+  "cc": "IN"
+ },
+ "Inventus Capital India": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Seraphim Space": {
+  "seen": 2,
+  "lei": "9845004E7B597E459E08",
+  "hq": "2nd Floor One Fleet Place, EC4M 7WS, London",
+  "source": "GLEIF",
+  "lat": 51.51,
+  "lon": -0.13,
+  "precise": false,
+  "cc": "GB"
+ },
+ "Dreamcraft Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "EIFO (Export and Investment Fund of Denmark)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Inventure VC": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "10x Founders": {
+  "seen": 2,
+  "lei": "3912002ZVYOTIRQX7717",
+  "hq": "Brienner Straße 21, 80333, München",
+  "source": "GLEIF",
+  "lat": 48.1437258,
+  "lon": 11.5717408,
+  "precise": true,
+  "cc": "??"
+ },
+ "Expansion VC": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "ACF Investors (Angel CoFund)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Lloyds Banking Group": {
+  "seen": 2,
+  "lei": "549300PPXHEU2JF0AM85",
+  "hq": "THE MOUND, EH1 1YZ, EDINBURGH",
+  "source": "GLEIF",
+  "lat": 55.9502288,
+  "lon": -3.1958576,
+  "precise": true,
+  "cc": "GB"
+ },
+ "AlbionVC (Albion Capital)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Dragonfly": {
+  "seen": 2,
+  "lei": "969500GMYR7IR4TECP03",
+  "hq": "1 AV DE BLOIS, 41190, VALENCISSE",
+  "source": "GLEIF",
+  "lat": 47.578015,
+  "lon": 1.216022,
+  "precise": true,
+  "cc": "??"
+ },
+ "SevenX Ventures": {
+  "seen": 2,
+  "lei": "25490098U0SUL3S7TD09",
+  "hq": "Str. SEVASTOPOL, Nr. 24, CAMERA S04, 010991, Sectorul 1",
+  "source": "GLEIF"
+ },
+ "Figment Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Nomad Capital": {
+  "seen": 2,
+  "lei": "5493009W5CZAEVMSDW63",
+  "hq": "Olav Selvaags plass 5, 0252, Oslo",
+  "source": "GLEIF",
+  "lat": 59.907992,
+  "lon": 10.722116,
+  "precise": true,
+  "cc": "NO"
+ },
+ "Undisclosed angel investors": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "not an entity"
+ },
+ "HashKey Capital": {
+  "seen": 2,
+  "lei": "875500KJ3VUUUJSLIY29",
+  "hq": "14th Floor, Three Exchange Square, 8 Connaught Place, Central, Hong Kong",
+  "source": "GLEIF",
+  "lat": 22.32,
+  "lon": 114.17,
+  "precise": false,
+  "cc": "HK"
+ },
+ "HTX Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Dutch Founders Fund (DFF)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Panache Ventures": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Amaranthine": {
+  "seen": 2,
+  "lei": "549300LV45FR1PP7XL64",
+  "hq": "Αρχ. Μακαρίου ΙΙΙ, 34,, HADJIYIANNI BUILDING, 3065, Λεμεσός",
+  "source": "GLEIF"
+ },
+ "Galata Business Angels": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "212": {
+  "seen": 2,
+  "lei": "8156001EA59A7908FA11",
+  "hq": "VIA GALILEO GALILEI, 212, 41126, MODENA",
+  "source": "GLEIF",
+  "lat": 44.5803399,
+  "lon": 10.8239251,
+  "precise": true,
+  "cc": "??"
+ },
+ "Riverwood Capital": {
+  "seen": 2,
+  "lei": "25490009UUKSSEUIFN20",
+  "hq": "C/O Maples Corporate Services Limited, PO Box 309, Ugland House, Grand Cayman, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "Endeavor Catalyst": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "QIA (Qatar Investment Authority)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Esas Private Equity": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Avaana Capital": {
+  "seen": 2,
+  "lei": "335800HSXLV8KKI1UH75",
+  "hq": "1103, LODHA SUPREMUS, DR E MOSES ROAD, WORLI, 400018, MUMBAI",
+  "source": "GLEIF",
+  "lat": 19.08,
+  "lon": 72.88,
+  "precise": false,
+  "cc": "IN"
+ },
+ "Better Capital": {
+  "seen": 2,
+  "lei": "213800IAUZR6ONYQ5B12",
+  "hq": "C/O SOLVE LIMITED, VICTORIA HOUSE, 29-31 High Street, GY12JX, ST PETER PORT",
+  "source": "GLEIF"
+ },
+ "Other participant": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Ott Kaukver": {
+  "seen": 2,
+  "hq": null,
+  "source": null,
+  "kind": "person"
+ },
+ "3VC": {
+  "seen": 2,
+  "lei": "52990005LSWI4NCPHQ40",
+  "hq": "3, rue Gabriel Lippmann, L-5365, Munsbach",
+  "source": "GLEIF"
+ },
+ "BlackSoil": {
+  "seen": 2,
+  "lei": "984500E78CH1A89D4223",
+  "hq": "1203, Lodha Supremus, Senapati Bapat Marg, Lower Parel, 400013, MUMBAI",
+  "source": "GLEIF",
+  "lat": 19.08,
+  "lon": 72.88,
+  "precise": false,
+  "cc": "IN"
+ },
+ "InnoVen Capital": {
+  "seen": 2,
+  "lei": "969500DRP8N5BEMZER46",
+  "hq": "13 RUE TAITBOUT, 13-15, 75009, PARIS 9",
+  "source": "GLEIF",
+  "lat": 48.86,
+  "lon": 2.35,
+  "precise": false,
+  "cc": "FR"
+ },
+ "Arena Investors": {
+  "seen": 2,
+  "lei": "549300OV7W3MPPFLRE46",
+  "hq": "44 DAVIES STREET, W1K 5JA, LONDON",
+  "source": "GLEIF",
+  "lat": 51.5129533,
+  "lon": -0.1482621,
+  "precise": true,
+  "cc": "GB"
+ },
+ "Nomura": {
+  "seen": 2,
+  "lei": "549300QEDD8VC089OQ17",
+  "hq": "C/O Global Funds Trust Company, PO Box 309, Ugland House, South Church Street, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "Ishana Capital": {
+  "seen": 2,
+  "lei": "254900AAQI5J2ROGMO69",
+  "hq": "C/O Maples Corporate Services Limited, P.O. Box 309, Ugland House, Grand Cayman, KY1-1104, George Town",
+  "source": "GLEIF"
+ },
+ "Trifecta Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "M&G (Prudential)": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "CPP Investments": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Hercules Capital": {
+  "seen": 2,
+  "lei": "549300UJ5OC256GR2B73",
+  "hq": "C/O UNITED AGENT GROUP INC., 2405 YORK ROAD, SUITE 201-C, 21093, LUTHERVILLE-TIMONIUM",
+  "source": "GLEIF"
+ },
+ "Primepulse": {
+  "seen": 2,
+  "lei": "529900P6OUCFPVWCFE19",
+  "hq": "Promenadeplatz 12, 80333, München",
+  "source": "GLEIF",
+  "lat": 48.1407006,
+  "lon": 11.5717875,
+  "precise": true,
+  "cc": "??"
+ },
+ "Tengelmann Ventures": {
+  "seen": 2,
+  "lei": "529900GKDBCRH4ULFL14",
+  "hq": "Mies-van-der-Rohe-Straße 6, 80807, München",
+  "source": "GLEIF",
+  "lat": 48.1763551,
+  "lon": 11.5924983,
+  "precise": true,
+  "cc": "??"
+ },
+ "Underscore VC": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Viola Growth": {
+  "seen": 2,
+  "lei": "2549007XD698KFNJU913",
+  "hq": "C/O CO Services Cayman Limited, Willow House, PO Box 10008, Cricket Square, Grand Cayman, KY1-1001, George Town",
+  "source": "GLEIF"
+ },
+ "Outliers Venture Capital": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Human Capital": {
+  "seen": 2,
+  "lei": "5493002QMPORE32PZL42",
+  "hq": "4, rue Robert Stumper, L-2557, Luxembourg",
+  "source": "GLEIF",
+  "lat": 49.61,
+  "lon": 6.13,
+  "precise": false,
+  "cc": "LU"
+ },
+ "500 Global": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Fly Ventures": {
+  "seen": 2,
+  "lei": "894500LHV64UHQ0E4277",
+  "hq": "Monbijouplatz 2, 10178, Berlin",
+  "source": "GLEIF",
+  "lat": 52.5230254,
+  "lon": 13.399815,
+  "precise": true,
+  "cc": "DE"
+ },
+ "Zoubin Ghahramani": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Pieter Abbeel": {
+  "seen": 2,
+  "hq": null,
+  "source": null
+ },
+ "Ocado Group": {
+  "seen": 2,
+  "lei": "213800LO8F61YB8MBC74",
+  "hq": "BUILDINGS ONE & TWO TRIDENT PLACE, MOSQUITO WAY, AL10 9UL, HATFIELD",
+  "source": "GLEIF"
+ }
+}

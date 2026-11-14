@@ -638,6 +638,15 @@ def map_data():
                             "used and the registry string is kept as evidence.")
             overruled += 1
 
+    # An individual angel is a real investor and not a firm with an office.
+    # Pinning Peter Thiel to a city is a category error, and counting him as
+    # a fund we failed to find a website for made two numbers wrong in the
+    # same direction.
+    people = {k for k, v in dom.items() if (v or {}).get("kind") == "person"}
+    notent = {k for k, v in dom.items() if (v or {}).get("kind") == "not an entity"}
+    for k in people | notent:
+        dom.pop(k, None)
+
     if True:
         for name, v in dom.items():
             hq = v.get("hq")
@@ -730,7 +739,10 @@ def map_data():
             "disputed_funds": disputed_funds,
             "points": pts, "funds": funds, "portfolio": portfolio,
             "funds_from_cala": from_cala,
-            "funds_corrected_by_cala": overruled}
+            "funds_corrected_by_cala": overruled,
+            # Said out loud so the coverage figure means what it says.
+            "individuals_not_mapped": len(people),
+            "non_entities_dropped": len(notent)}
 
 
 @app.get("/")
