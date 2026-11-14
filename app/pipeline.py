@@ -250,3 +250,42 @@ def warm_path(graph: dict, backers: list[str], target: str,
                         "through": shared[:3], "strength": len(shared)})
     out.sort(key=lambda x: -x["strength"])
     return out
+
+
+def follow_rounds(rounds_by_company: dict, lead: str, member: str) -> list[dict]:
+    """The actual rounds behind "joins 25% of the rounds they lead".
+
+    The graph stores the count; a founder about to say that number out loud
+    needs the list. Returns every round this lead led, flagged with whether
+    the member was in it, newest first - so the denominator is visible too
+    and "2 of 8" can be read rather than taken.
+    """
+    kl, km = norm.name(lead), norm.name(member)
+    out = []
+    for company, rs in (rounds_by_company or {}).items():
+        for r in rs or []:
+            leads = {norm.name(x) for x in (r.get("leads") or [])}
+            if kl not in leads:
+                continue
+            names = {norm.name(i) for i in (r.get("investors") or [])}
+            out.append({"company": company, "date": r.get("date"),
+                        "stage": r.get("stage"),
+                        "joined": km in names,
+                        "investors": [i for i in (r.get("investors") or [])][:8]})
+    out.sort(key=lambda x: str(x.get("date") or ""), reverse=True)
+    return out
+
+
+def shared_rounds(rounds_by_company: dict, a: str, b: str) -> list[dict]:
+    """Rounds both of these investors were in - the evidence for a warm route."""
+    ka, kb = norm.name(a), norm.name(b)
+    out = []
+    for company, rs in (rounds_by_company or {}).items():
+        for r in rs or []:
+            names = {norm.name(i) for i in (r.get("investors") or [])}
+            if ka in names and kb in names:
+                out.append({"company": company, "date": r.get("date"),
+                            "stage": r.get("stage"),
+                            "investors": (r.get("investors") or [])[:8]})
+    out.sort(key=lambda x: str(x.get("date") or ""), reverse=True)
+    return out

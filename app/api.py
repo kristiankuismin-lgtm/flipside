@@ -1061,6 +1061,26 @@ def classify(q: str):
     return out
 
 
+@app.get("/syndicate-evidence")
+def syndicate_evidence(lead: str, member: str = "", via: str = ""):
+    """The rounds behind a syndicate claim or a warm route.
+
+    "Joins 25% of the rounds they lead" and "ask Voima, they co-invested"
+    are the two most distinctive numbers here and the two a founder is most
+    likely to repeat out loud. Both now open their rounds.
+    """
+    from . import pipeline as P
+    rbc = _rounds_by_company()
+    if via:
+        rows = P.shared_rounds(rbc, via, lead)
+        return {"kind": "warm", "a": via, "b": lead, "rounds": rows,
+                "count": len(rows)}
+    rows = P.follow_rounds(rbc, lead, member)
+    return {"kind": "syndicate", "lead": lead, "member": member,
+            "rounds": rows, "led": len(rows),
+            "joined": sum(1 for r in rows if r["joined"])}
+
+
 @app.get("/connectors")
 def connectors(limit: int = 12):
     """Funds whose handoffs spread widest - the bridges in this network."""

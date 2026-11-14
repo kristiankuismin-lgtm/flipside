@@ -139,3 +139,33 @@ def test_syndicate_members_exclude_people():
                  "B": [R("2021-06", ["Big Lead", "Real Capital", "Jane Smith"], ["Big Lead"])]})
     names = [m["name"] for m in P.syndicate(g, "Big Lead", size=3)["members"]]
     assert "Real Capital" in names and "Jane Smith" not in names
+
+
+def test_follow_rounds_shows_the_denominator_not_just_the_hits():
+    """"2 of 8" cannot be read unless the other six are on screen."""
+    rbc = {
+        "A": [{"date": "2025-01", "stage": "Series A",
+               "investors": ["Big Lead", "Follower"], "leads": ["Big Lead"]}],
+        "B": [{"date": "2024-06", "stage": "Series A",
+               "investors": ["Big Lead", "Someone Else"], "leads": ["Big Lead"]}],
+        "C": [{"date": "2024-01", "stage": "Seed",
+               "investors": ["Other Fund", "Follower"], "leads": ["Other Fund"]}],
+    }
+    got = P.follow_rounds(rbc, "Big Lead", "Follower")
+    assert [g["company"] for g in got] == ["A", "B"]      # only rounds the lead led
+    assert [g["joined"] for g in got] == [True, False]    # newest first, both shown
+
+
+def test_shared_rounds_is_the_evidence_for_a_warm_route():
+    rbc = {"A": [{"date": "2025-01", "stage": "Series A",
+                  "investors": ["Voima Ventures", "Target Fund"], "leads": []}],
+           "B": [{"date": "2024-01", "stage": "Seed",
+                  "investors": ["Voima Ventures"], "leads": []}]}
+    got = P.shared_rounds(rbc, "Voima Ventures", "Target Fund")
+    assert [g["company"] for g in got] == ["A"]
+
+
+def test_name_spelling_does_not_hide_a_round():
+    rbc = {"A": [{"date": "2025-01", "stage": "Series A",
+                  "investors": ["EQT Ventures AB", "Follower Oy"], "leads": ["EQT Ventures"]}]}
+    assert P.follow_rounds(rbc, "EQT Ventures", "Follower")[0]["joined"] is True

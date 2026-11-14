@@ -208,6 +208,16 @@ function wire() {
   };
   if ($("#plandl")) $("#plandl").onclick = () => planExport("download");
   if ($("#planprint")) $("#planprint").onclick = () => planExport("print");
+  document.querySelectorAll("[data-syn]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const [l, m] = b.dataset.syn.split("|");
+    openSyndicateEvidence(l, m, "syndicate");
+  });
+  document.querySelectorAll("[data-warm]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const [l, v] = b.dataset.warm.split("|");
+    openSyndicateEvidence(l, v, "warm");
+  });
   document.querySelectorAll("[data-cv]").forEach(b => b.onclick = e => {
     e.stopPropagation(); openConviction(b.dataset.cv);
   });
@@ -330,13 +340,16 @@ function syndicateBlock() {
   const cards = SYN.syndicates.map(s => {
     const members = s.members.map(m => `<div class="synm">
       ${logo(m.name)}<div><div class="nm">${esc(m.name)}</div>
-      <div class="sb">joined ${m.joined} of the ${s.rounds_led} rounds they led${
-        m.share != null ? ` · ${pct(m.share)}` : ""}</div></div></div>`).join("");
+      <div class="sb"><button class="figure" data-syn="${esc(s.lead)}|${esc(m.name)}"
+        title="The rounds behind this">joined ${m.joined} of the ${s.rounds_led} rounds
+        they led${m.share != null ? ` · ${pct(m.share)}` : ""}</button></div></div></div>`).join("");
 
     // When nothing is warm, one honest line at the top beats the same
     // sentence repeated under every card.
     const p = (s.warm_paths || [])[0];
-    const route = p ? `<div class="synp"><b>Ask ${esc(p.via)}.</b> ${
+    const route = p ? `<div class="synp"><b><button class="figure"
+        data-warm="${esc(s.lead)}|${esc(p.via)}" title="The cap tables they share"
+        >Ask ${esc(p.via)}.</button></b> ${
         p.through.map(t => `${esc(t.company)}${t.when ? ` (${esc(String(t.when).slice(0, 7))})` : ""}`).join(", ")
       } — they sat on that cap table with ${esc(s.lead)}, so the intro is one hop.</div>`
       : anyWarm ? `<div class="synp cold">No shared cap table with ${esc(s.lead)} — cold approach.</div>`
@@ -1476,6 +1489,59 @@ function openConviction(company) {
   const close = () => w2.remove();
   w2.onclick = close;
   w2.querySelector("#cvclose").onclick = close;
+}
+
+/* The rounds behind a syndicate claim or a warm route. */
+async function openSyndicateEvidence(lead, other, kind) {
+  const w = document.createElement("div");
+  w.className = "scrim on";
+  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd"><h3>${kind === "warm" ? "Shared cap tables" : "Rounds they joined"}</h3>
+      <div class="s">Reading the round graph…</div></div>
+    <div style="padding:34px"><span class="spin"></span></div></div>`;
+  document.body.appendChild(w);
+  const close = () => w.remove();
+  w.onclick = close;
+
+  let d;
+  const qs = kind === "warm"
+    ? `lead=${encodeURIComponent(lead)}&via=${encodeURIComponent(other)}`
+    : `lead=${encodeURIComponent(lead)}&member=${encodeURIComponent(other)}`;
+  try { d = await (await fetch(`/syndicate-evidence?${qs}`)).json(); }
+  catch (e) { d = { rounds: [], error: String(e.message) }; }
+
+  const rows = (d.rounds || []).map(r => `<tr${r.joined === false ? ' class="dim"' : ""}>
+    <td>${esc(r.company)}</td>
+    <td class="nowrap">${esc(r.stage || "")}</td>
+    <td class="nowrap">${esc(String(r.date || "").slice(0, 10))}</td>
+    ${kind === "warm" ? "" : `<td>${r.joined ? badge("joined", "green")
+      : `<span class="sub">did not</span>`}</td>`}
+    <td class="sub">${esc((r.investors || []).join(", ").slice(0, 70))}</td></tr>`).join("");
+
+  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd">
+      <h3>${kind === "warm" ? `${esc(other)} × ${esc(lead)}`
+        : `${esc(other)} in ${esc(lead)}'s rounds`}</h3>
+      <div class="s">${kind === "warm"
+        ? `${d.count || 0} cap tables they both sat on`
+        : `${d.joined || 0} of ${d.led || 0} rounds ${esc(lead)} led`}</div></div>
+    <div style="padding:15px">
+      <div class="sub" style="margin-bottom:11px;line-height:1.6;max-width:62ch">
+        ${kind === "warm"
+          ? `A warm route is only worth asking for if it is real. These are the
+             rounds both funds were in — name the company when you ask.`
+          : `Every round ${esc(lead)} led, not only the ones ${esc(other)} joined,
+             so the denominator is on screen and the share can be read rather
+             than taken on trust.`}</div>
+      ${rows ? `<div class="tbl"><table><thead><tr><th>Company</th><th>Stage</th>
+        <th>Date</th>${kind === "warm" ? "" : "<th>Role</th>"}<th>Investors</th>
+        </tr></thead><tbody>${rows}</tbody></table></div>`
+        : `<div class="msg" style="padding:22px">No rounds on record for this pair.</div>`}
+      <div style="display:flex;margin-top:14px">
+        <button class="btn" id="synclose" style="margin-left:auto">Close</button></div>
+    </div></div>`;
+  w.onclick = close;
+  w.querySelector("#synclose").onclick = close;
 }
 
 function render() {
