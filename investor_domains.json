@@ -1,0 +1,42 @@
+{
+ "Byfounders": {
+  "website": "byfounders.vc",
+  "hq": null,
+  "description": "is an early-stage venture capital fund based in Copenhagen, Denmark, that backs tech founders in the Nordics and Baltics.",
+  "id": "20003112-87a9-4ac0-be1a-bc97efecf19e",
+  "entity_type": "Organization",
+  "hq_source": null
+ },
+ "Nordic Makers": {
+  "website": "startupguide.com",
+  "hq": null,
+  "description": "Copenhagen-based venture capital fund investing in Nordic startups.",
+  "id": "6f66e249-4cb9-4acd-8bfe-abe679a9c797",
+  "entity_type": "Company",
+  "hq_source": null
+ },
+ "Creandum": {
+  "website": "creandum.com",
+  "hq": null,
+  "description": "venture capital firm based in Stockholm, Sweden, founded by Stefan Lindeberg and focusing on fintech startups",
+  "id": "6ba00a20-2cb4-4559-8fe2-f39484a9e5f6",
+  "entity_type": "Organization",
+  "hq_source": null
+ },
+ "Northzone": {
+  "website": null,
+  "hq": null,
+  "description": "a London\u2011based venture capital firm founded in 2006 that invests in fintech companies",
+  "id": "208d7baa-10cd-4a73-825b-5bd3e827f79f",
+  "entity_type": "Organization",
+  "hq_source": null
+ },
+ "EQT Ventures": {
+  "website": null,
+  "hq": null,
+  "description": "A venture capital firm.",
+  "id": "d6cf13e1-92ff-4567-bd72-30316f2498e5",
+  "entity_type": "Organization",
+  "hq_source": null
+ }
+}

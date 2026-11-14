@@ -1,0 +1,1041 @@
+{
+  "competitors": [
+    "Abridge",
+    "DeepScribe",
+    "Ambience Healthcare",
+    "Nabla",
+    "Suki AI",
+    "Corti",
+    "TORTUS",
+    "Heidi",
+    "Freed",
+    "Augmedix / Commure",
+    "Nuance (Microsoft)",
+    "Tandem Health"
+  ],
+  "investors": [
+    {
+      "name": "Andreessen Horowitz (a16z)",
+      "backs": [
+        "Abridge",
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Khosla Ventures",
+      "backs": [
+        "Abridge",
+        "TORTUS"
+      ]
+    },
+    {
+      "name": "Sequoia Capital",
+      "backs": [
+        "Augmedix / Commure",
+        "Freed"
+      ]
+    },
+    {
+      "name": "Berkeley SkyDeck",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Plug and Play",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Sequoia Scout Fund",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Bee Partners",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Alex Wang (CEO of Scale AI)",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Wavemaker 360",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Stage 2 Capital",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Industry Ventures",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Dylan Field (CEO of Figma)",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Tsingyuan Ventures",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Supernode Ventures",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Stage 2 Capital (Stage II Capital)",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "1984 Ventures",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Index Ventures (Nina Achadjian)",
+      "backs": [
+        "DeepScribe"
+      ]
+    },
+    {
+      "name": "Julie Pellet",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Rachel Delacour",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Firstminute Capital",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "ARVO Venture Capital",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Daphni",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Marc Simoncini",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "ZEBOX Ventures",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Highland Europe",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Xavier Niel",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "DST Global",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Build Collective (Tony Fadell)",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Groupe Art\u00e9mis",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Cathay Innovation",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "HV Capital",
+      "backs": [
+        "Nabla"
+      ]
+    },
+    {
+      "name": "Liquid 2 Ventures",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Georgian",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Founders Circle Capital",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Town Hall Ventures",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Memorial Hermann",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Kleiner Perkins",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Optum Ventures",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Airtree Ventures",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Oak HC/FT",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "500 Global",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "OpenAI Startup Fund",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Smash Capital",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Frist Cressey Ventures",
+      "backs": [
+        "Ambience Healthcare"
+      ]
+    },
+    {
+      "name": "Nat Turner (Flatiron Health)",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Philips Ventures",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "March Capital",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "inHealth Ventures",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Flare Capital Partners",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Breyer Capital",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Social Capital",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Zoom Ventures",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Russell Farscht",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "First Round Capital",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Venrock",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Healthier Capital",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Marc Benioff",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Gaingels",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Andrew Deutsch",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Hedosophia",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Hercules Capital",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Google employees / other angels",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Pankaj Patel",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Epsilon Health",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Crosslink Capital",
+      "backs": [
+        "Suki AI"
+      ]
+    },
+    {
+      "name": "Redpoint Ventures",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "KdT Ventures",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "IKS Health",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "SCAN Group",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Bessemer Venture Partners",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Union Square Ventures",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "American College of Cardiology",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Whistler Capital Partners",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "LifePoint Health",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "California Health Care Foundation",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "NVentures (NVIDIA)",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "UPMC (Enterprises)",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "UPMC",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "University of California (UC Investments)",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Pillar VC",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Yoshua Bengio",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Mayo Clinic",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Mass General Brigham (AIDIF)",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "SV Angel",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "CVS Health Ventures",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Spark Capital",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "IVP",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Elad Gil",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Wittington Ventures",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Kaiser Permanente Ventures",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "CapitalG",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Lightspeed Venture Partners",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Not publicly disclosed",
+      "backs": [
+        "Abridge"
+      ]
+    },
+    {
+      "name": "Better Angle",
+      "backs": [
+        "TORTUS"
+      ]
+    },
+    {
+      "name": "Entrepreneur First",
+      "backs": [
+        "TORTUS"
+      ]
+    },
+    {
+      "name": "Lord David Prior",
+      "backs": [
+        "TORTUS"
+      ]
+    },
+    {
+      "name": "Eric Jang",
+      "backs": [
+        "TORTUS"
+      ]
+    },
+    {
+      "name": "Idinvest Partners",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Heartcore Capital",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Eurazeo",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Sunstone Life Science Ventures",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Chr. Augustinus Fabrikker",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "EIT Health",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "EIFO (Export and Investment Fund of Denmark)",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "byFounders",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "EASME (EU Executive Agency for SMEs) / European Commission",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Thomas Madsen-Mygdal",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "V\u00e6kstfonden (now EIFO)",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Atomico",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Nordic Makers",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Prosus Ventures",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Sunstone Capital",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Lars Marcher",
+      "backs": [
+        "Corti"
+      ]
+    },
+    {
+      "name": "Daniel Gross",
+      "backs": [
+        "Freed"
+      ]
+    },
+    {
+      "name": "Scale Venture Partners",
+      "backs": [
+        "Freed"
+      ]
+    },
+    {
+      "name": "Ted Zagat",
+      "backs": [
+        "Freed"
+      ]
+    },
+    {
+      "name": "Gokul Rajaram",
+      "backs": [
+        "Freed"
+      ]
+    },
+    {
+      "name": "Wormhole Capital",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "LocalGlobe",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Anthology (Menlo Ventures & Anthropic)",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Possible Ventures",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Blackbird Ventures",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "HESTA",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Saniel Ventures",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Hostplus",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Archangel Ventures",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Point72 Private Investments",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Brendan Hill (angel)",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Phoenix Court (LocalGlobe, Latitude, Solar funds)",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Latitude (growth fund of Phoenix Court)",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Headline",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "January Capital",
+      "backs": [
+        "Heidi"
+      ]
+    },
+    {
+      "name": "Kinnevik",
+      "backs": [
+        "Tandem Health"
+      ]
+    },
+    {
+      "name": "Angel operators from DeepMind",
+      "backs": [
+        "Tandem Health"
+      ]
+    },
+    {
+      "name": "Scaleup Europe Fund (managed by EQT)",
+      "backs": [
+        "Tandem Health"
+      ]
+    },
+    {
+      "name": "Northzone",
+      "backs": [
+        "Tandem Health"
+      ]
+    },
+    {
+      "name": "Visionaries Club",
+      "backs": [
+        "Tandem Health"
+      ]
+    },
+    {
+      "name": "Amino Collective",
+      "backs": [
+        "Tandem Health"
+      ]
+    },
+    {
+      "name": "Angel operators from OpenAI",
+      "backs": [
+        "Tandem Health"
+      ]
+    },
+    {
+      "name": "Founder of Capio",
+      "backs": [
+        "Tandem Health"
+      ]
+    },
+    {
+      "name": "Fidelity Ventures",
+      "backs": [
+        "Nuance (Microsoft)"
+      ]
+    },
+    {
+      "name": "Unnamed Investor",
+      "backs": [
+        "Nuance (Microsoft)"
+      ]
+    },
+    {
+      "name": "Tribe Capital",
+      "backs": [
+        "Nuance (Microsoft)"
+      ]
+    },
+    {
+      "name": "SF Capital Group",
+      "backs": [
+        "Nuance (Microsoft)"
+      ]
+    },
+    {
+      "name": "Mayfield Fund",
+      "backs": [
+        "Nuance (Microsoft)"
+      ]
+    },
+    {
+      "name": "Warburg Pincus",
+      "backs": [
+        "Nuance (Microsoft)"
+      ]
+    },
+    {
+      "name": "SAIC Venture Capital",
+      "backs": [
+        "Nuance (Microsoft)"
+      ]
+    },
+    {
+      "name": "Microsoft",
+      "backs": [
+        "Nuance (Microsoft)"
+      ]
+    },
+    {
+      "name": "Wanxiang Healthcare Investments",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "OrbiMed",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "GBL Capital",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Trinity Capital",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Sutter Health",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Catholic Health Initiatives",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "TriHealth",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Greenoaks Capital",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Commure",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Morgan Stanley",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Emergence Capital Partners",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "General Catalyst",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "McKesson Ventures",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Great Oaks Venture Capital",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "HCA Healthcare",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Redmile Group",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Green Sands Equity",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Kirkland & Ellis",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "DCM Ventures",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Dignity Health",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Eastward Capital Partners",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    },
+    {
+      "name": "Human Capital",
+      "backs": [
+        "Augmedix / Commure"
+      ]
+    }
+  ]
+}

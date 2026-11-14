@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+cache.sqlite
+recon_report.md
+.env

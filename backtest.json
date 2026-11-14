@@ -1,0 +1,5046 @@
+{
+ "outcome": "progressed to a later stage within 36 months",
+ "samples": 498,
+ "base_rate": 0.3855,
+ "high_insider_return": {
+  "n": 203,
+  "rate": 0.4877,
+  "lift_pp": 10.2
+ },
+ "low_insider_return": {
+  "n": 295,
+  "rate": 0.3153,
+  "lift_pp": -7.0
+ },
+ "spread_pp": 17.2,
+ "naive_most_active": {
+  "n": 348,
+  "rate": 0.4138,
+  "lift_pp": 2.8
+ },
+ "previous_lead_returned": {
+  "n": 309,
+  "rate": 0.4207
+ },
+ "previous_lead_absent": {
+  "n": 102,
+  "rate": 0.2941
+ },
+ "lead_spread_pp": 12.7,
+ "by_cap_table_size": [
+  {
+   "cap_table": "1",
+   "low_n": 28,
+   "low": 0.4286,
+   "high_n": 29,
+   "high": 0.3793,
+   "spread_pp": -4.9
+  },
+  {
+   "cap_table": "2-3",
+   "low_n": 39,
+   "low": 0.2051,
+   "high_n": 62,
+   "high": 0.5323,
+   "spread_pp": 32.7
+  },
+  {
+   "cap_table": "4-6",
+   "low_n": 56,
+   "low": 0.4107,
+   "high_n": 67,
+   "high": 0.5373,
+   "spread_pp": 12.7
+  },
+  {
+   "cap_table": "7+",
+   "low_n": 172,
+   "low": 0.2907,
+   "high_n": 45,
+   "high": 0.4222,
+   "spread_pp": 13.2
+  }
+ ],
+ "rows": [
+  {
+   "company": "11x",
+   "date": "2024-09-01",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "11x",
+   "date": "2024-11-01",
+   "stage": "Series B",
+   "n_prior": 19,
+   "ret_frac": 0.21052631578947367,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "15Five (follow-on)",
+   "date": "2022-12-07",
+   "stage": "Series C \u2013 II / Strategic Follow-on",
+   "n_prior": 4,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "ARX Robotics",
+   "date": "2024-06-10",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Aiven",
+   "date": "2019-05-03",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Aiven",
+   "date": "2020-02-05",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Aiven",
+   "date": "2021-03-23",
+   "stage": "Series C",
+   "n_prior": 7,
+   "ret_frac": 0.14285714285714285,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Aiven",
+   "date": "2021-10-19",
+   "stage": "Series C Extension",
+   "n_prior": 11,
+   "ret_frac": 0.45454545454545453,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Aiven",
+   "date": "2022-05-10",
+   "stage": "Series D",
+   "n_prior": 12,
+   "ret_frac": 0.4166666666666667,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Alan",
+   "date": "2018-04-01",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.25,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Alan",
+   "date": "2019-02-01",
+   "stage": "Series B",
+   "n_prior": 8,
+   "ret_frac": 0.125,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Alan",
+   "date": "2020-04-01",
+   "stage": "Series C",
+   "n_prior": 10,
+   "ret_frac": 0.1,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Alan",
+   "date": "2021-04-01",
+   "stage": "Series D",
+   "n_prior": 11,
+   "ret_frac": 0.18181818181818182,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Alan",
+   "date": "2022-05-01",
+   "stage": "Series E",
+   "n_prior": 15,
+   "ret_frac": 0.4,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Alan",
+   "date": "2024-09-01",
+   "stage": "Series F (1st tranche)",
+   "n_prior": 17,
+   "ret_frac": 0.23529411764705882,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Alloy",
+   "date": "2017-10-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Alloy",
+   "date": "2019-09-17",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Alloy",
+   "date": "2020-09-16",
+   "stage": "Series B",
+   "n_prior": 9,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Alloy",
+   "date": "2021-09-16",
+   "stage": "Series C",
+   "n_prior": 14,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Alloy",
+   "date": "2022-09-01",
+   "stage": "Series C Extension",
+   "n_prior": 15,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Alphin",
+   "date": "2021-02-01",
+   "stage": "Incubator / Accelerator",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Alphin",
+   "date": "2022-08-03",
+   "stage": "\u20ac6M Financing Round",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Anboto",
+   "date": "2023-10-26",
+   "stage": "Seed Round",
+   "n_prior": 6,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Ankorstore",
+   "date": "2020-11-30",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Ankorstore",
+   "date": "2021-05-17",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Ankorstore",
+   "date": "2022-01-10",
+   "stage": "Series C",
+   "n_prior": 6,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Anrok",
+   "date": "2022-03-01",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Anrok",
+   "date": "2024-04-01",
+   "stage": "Series B",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Anyday",
+   "date": "2021-04-12",
+   "stage": "Seed (2021)",
+   "n_prior": 4,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Anyday",
+   "date": "2023-09-19",
+   "stage": "Grant / Biz Plan Competition",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Anyfin",
+   "date": "2019-05-01",
+   "stage": "Series A Extension",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Anyfin",
+   "date": "2020-05-01",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Anyfin",
+   "date": "2021-10-01",
+   "stage": "Series B Extension",
+   "n_prior": 6,
+   "ret_frac": 0.8333333333333334,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Anyfin",
+   "date": "2023-01-01",
+   "stage": "Series C",
+   "n_prior": 8,
+   "ret_frac": 0.75,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Appital",
+   "date": "2021-08-01",
+   "stage": "Series A \u2014 First Close",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Appital",
+   "date": "2022-08-01",
+   "stage": "Series A \u2014 Second Close (Extension)",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Argent (now Ready)",
+   "date": "2020-03-01",
+   "stage": "Series A",
+   "n_prior": 7,
+   "ret_frac": 0.42857142857142855,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Argent (now Ready)",
+   "date": "2022-04-01",
+   "stage": "Series B",
+   "n_prior": 9,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Aspire",
+   "date": "2019-08-01",
+   "stage": "Series A",
+   "n_prior": 8,
+   "ret_frac": 0.625,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Aspire",
+   "date": "2021-09-27",
+   "stage": "Series B",
+   "n_prior": 11,
+   "ret_frac": 0.18181818181818182,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Aspire",
+   "date": "2023-02-14",
+   "stage": "Series C",
+   "n_prior": 18,
+   "ret_frac": 0.1111111111111111,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Avail",
+   "date": "2024-06-04",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Avail",
+   "date": "2024-06-12",
+   "stage": "Venture Round",
+   "n_prior": 21,
+   "ret_frac": 0.047619047619047616,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "BUD (metaverse startup)",
+   "date": "2021-05-01",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "BUD (metaverse startup)",
+   "date": "2022-02-01",
+   "stage": "Series A+",
+   "n_prior": 4,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "BUD (metaverse startup)",
+   "date": "2022-05-23",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Better Stack",
+   "date": "2024-01-22",
+   "stage": "Series A Extension",
+   "n_prior": 11,
+   "ret_frac": 0.09090909090909091,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Bubblehouse",
+   "date": "2022-05-24",
+   "stage": "Seed",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Capitolis",
+   "date": "2019-11-20",
+   "stage": "Series B",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Capitolis",
+   "date": "2020-09-10",
+   "stage": "Strategic Round (Series B extension)",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Capitolis",
+   "date": "2021-03-30",
+   "stage": "Series C",
+   "n_prior": 8,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Capitolis",
+   "date": "2022-03-22",
+   "stage": "Series D",
+   "n_prior": 9,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "CardioSignal",
+   "date": "2024-01-23",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Cauldron Studios",
+   "date": "2022-07-01",
+   "stage": "Seed",
+   "n_prior": 6,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Coachhub",
+   "date": "2019-12-01",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Coachhub",
+   "date": "2020-12-18",
+   "stage": "Series B",
+   "n_prior": 7,
+   "ret_frac": 0.7142857142857143,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Coachhub",
+   "date": "2021-09-01",
+   "stage": "Series B Extension (B2)",
+   "n_prior": 8,
+   "ret_frac": 0.625,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Coachhub",
+   "date": "2022-06-14",
+   "stage": "Series C",
+   "n_prior": 9,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Colorful",
+   "date": "2020-09-21",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Colorful",
+   "date": "2022-04-28",
+   "stage": "Seed",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Contentsquare",
+   "date": "2018-01-29",
+   "stage": "Series B",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Contentsquare",
+   "date": "2019-01-28",
+   "stage": "Series C",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Contentsquare",
+   "date": "2019-07-01",
+   "stage": "Series C Extension",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Contentsquare",
+   "date": "2020-05-19",
+   "stage": "Series D",
+   "n_prior": 6,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Contentsquare",
+   "date": "2021-05-25",
+   "stage": "Series E",
+   "n_prior": 10,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Contentsquare",
+   "date": "2022-07-21",
+   "stage": "Series F",
+   "n_prior": 12,
+   "ret_frac": 0.5833333333333334,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Coro",
+   "date": "2018-11-08",
+   "stage": "Series B",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Coro",
+   "date": "2022-04-05",
+   "stage": "Series C",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Coro",
+   "date": "2023-04-19",
+   "stage": "Series C Extension (Series C2)",
+   "n_prior": 5,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Coro",
+   "date": "2024-03-28",
+   "stage": "Series D",
+   "n_prior": 7,
+   "ret_frac": 0.42857142857142855,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Courtyard",
+   "date": "2022-11-02",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Cowboy (e-bikes)",
+   "date": "2018-10-01",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Cowboy (e-bikes)",
+   "date": "2020-07-01",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.4,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Cowboy (e-bikes)",
+   "date": "2022-01-01",
+   "stage": "Series C",
+   "n_prior": 8,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Cowboy (e-bikes)",
+   "date": "2024-09-01",
+   "stage": "Strategic Round (Series D)",
+   "n_prior": 11,
+   "ret_frac": 0.2727272727272727,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Creative Force",
+   "date": "2023-10-16",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Cryptio",
+   "date": "2022-06-06",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "CurifyLabs",
+   "date": "2022-04-01",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "CurifyLabs",
+   "date": "2023-01-01",
+   "stage": "Grant",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "CurifyLabs",
+   "date": "2024-03-04",
+   "stage": "Debt",
+   "n_prior": 4,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "D2X",
+   "date": "2024-03-14",
+   "stage": "Series A",
+   "n_prior": 8,
+   "ret_frac": 0.375,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "DREM",
+   "date": "2023-08-01",
+   "stage": "Pre-Seed Round",
+   "n_prior": 6,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "DREM",
+   "date": "2024-11-01",
+   "stage": "Seed Round",
+   "n_prior": 9,
+   "ret_frac": 0.2222222222222222,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Deblock",
+   "date": "2024-11-01",
+   "stage": "Seed Extension",
+   "n_prior": 7,
+   "ret_frac": 0.5714285714285714,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "DeepL",
+   "date": "2022-11-16",
+   "stage": "Series A (extension / follow-on)",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "DeepL",
+   "date": "2023-01-11",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "DeepL",
+   "date": "2024-05-22",
+   "stage": "Series C",
+   "n_prior": 8,
+   "ret_frac": 0.375,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "DeepScribe",
+   "date": "2022-01-11",
+   "stage": "Series A",
+   "n_prior": 10,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Deepnote",
+   "date": "2022-01-31",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Dream Games",
+   "date": "2021-02-28",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Dream Games",
+   "date": "2021-06-30",
+   "stage": "Series B",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Dream Games",
+   "date": "2022-01-18",
+   "stage": "Series C",
+   "n_prior": 5,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Druid AI",
+   "date": "2019-02-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Druid AI",
+   "date": "2021-01-01",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Druid AI",
+   "date": "2022-05-01",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.25,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Druid AI",
+   "date": "2023-09-01",
+   "stage": "Series B",
+   "n_prior": 7,
+   "ret_frac": 0.42857142857142855,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Eeki",
+   "date": "2020-07-01",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Eeki",
+   "date": "2021-01-01",
+   "stage": "Accelerator/Pre-Series A",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Eeki",
+   "date": "2022-02-01",
+   "stage": "Early Stage VC",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Eeki",
+   "date": "2022-04-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.4,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Eeki",
+   "date": "2024-10-01",
+   "stage": "Series A",
+   "n_prior": 12,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Einride",
+   "date": "2017-11-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Einride",
+   "date": "2018-07-01",
+   "stage": "Seed / Angel",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Einride",
+   "date": "2018-12-01",
+   "stage": "Convertible",
+   "n_prior": 4,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Einride",
+   "date": "2019-10-10",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Einride",
+   "date": "2020-10-01",
+   "stage": "Venture Round",
+   "n_prior": 11,
+   "ret_frac": 0.2727272727272727,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Einride",
+   "date": "2021-05-06",
+   "stage": "Series B",
+   "n_prior": 12,
+   "ret_frac": 0.4166666666666667,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Einride",
+   "date": "2022-12-07",
+   "stage": "Series C (equity)",
+   "n_prior": 17,
+   "ret_frac": 0.23529411764705882,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Elucidate",
+   "date": "2020-06-24",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Elucidate",
+   "date": "2021-03-09",
+   "stage": "Seed (Pre-Series A)",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Elucidate",
+   "date": "2022-05-11",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "FUEL",
+   "date": "2022-09-06",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Factorial",
+   "date": "2018-10-01",
+   "stage": "Seed / Series A Extension",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Factorial",
+   "date": "2020-04-01",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Factorial",
+   "date": "2021-09-01",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Factorial",
+   "date": "2022-10-01",
+   "stage": "Series C",
+   "n_prior": 6,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Factorial",
+   "date": "2024-04-01",
+   "stage": "Conventional Debt",
+   "n_prior": 8,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Featurespace",
+   "date": "2014-06-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.4,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Featurespace",
+   "date": "2016-05-01",
+   "stage": "Series B",
+   "n_prior": 6,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Featurespace",
+   "date": "2017-10-01",
+   "stage": "Series C",
+   "n_prior": 7,
+   "ret_frac": 0.2857142857142857,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Featurespace",
+   "date": "2019-01-01",
+   "stage": "Series D",
+   "n_prior": 12,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Featurespace",
+   "date": "2020-05-01",
+   "stage": "Series E",
+   "n_prior": 15,
+   "ret_frac": 0.26666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Fiat Republic",
+   "date": "2022-06-08",
+   "stage": "Extended Seed (Seed II)",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Fiat Republic",
+   "date": "2023-12-19",
+   "stage": "Seed Extension (Seed III)",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Finnadvance",
+   "date": "2020-04-29",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Finnadvance",
+   "date": "2022-04-01",
+   "stage": "Grant (Prize Money)",
+   "n_prior": 4,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Finnadvance",
+   "date": "2022-04-08",
+   "stage": "Seed",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Finnt",
+   "date": "2022-05-11",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Finoa",
+   "date": "2021-04-29",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Finoa",
+   "date": "2024-01-09",
+   "stage": "Strategic Round",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Fireblocks",
+   "date": "2020-11-18",
+   "stage": "Series B",
+   "n_prior": 10,
+   "ret_frac": 0.3,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Fireblocks",
+   "date": "2021-03-18",
+   "stage": "Series C",
+   "n_prior": 14,
+   "ret_frac": 0.35714285714285715,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Fireblocks",
+   "date": "2021-07-27",
+   "stage": "Series D",
+   "n_prior": 19,
+   "ret_frac": 0.21052631578947367,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Fireblocks",
+   "date": "2022-01-27",
+   "stage": "Series E",
+   "n_prior": 23,
+   "ret_frac": 0.043478260869565216,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Fixably",
+   "date": "2022-02-01",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Fixably",
+   "date": "2023-06-01",
+   "stage": "Seed Round",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "FlowX.AI",
+   "date": "2023-05-22",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Flowdesk",
+   "date": "2022-06-24",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Flowdesk",
+   "date": "2024-01-18",
+   "stage": "Series B",
+   "n_prior": 16,
+   "ret_frac": 0.25,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Fonoa",
+   "date": "2021-11-22",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Fonoa",
+   "date": "2022-07-21",
+   "stage": "Series B",
+   "n_prior": 12,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Foretellix",
+   "date": "2019-01-16",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Foretellix",
+   "date": "2021-09-01",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Foretellix",
+   "date": "2023-05-02",
+   "stage": "Series C (First Close)",
+   "n_prior": 10,
+   "ret_frac": 0.4,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Foretellix",
+   "date": "2023-12-05",
+   "stage": "Series C (Second Close)",
+   "n_prior": 14,
+   "ret_frac": 0.6428571428571429,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Form3",
+   "date": "2018-11-01",
+   "stage": "Series B",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Form3",
+   "date": "2020-08-01",
+   "stage": "Series C",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Form3",
+   "date": "2020-12-01",
+   "stage": "Series C (continued / second close)",
+   "n_prior": 7,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Form3",
+   "date": "2021-09-01",
+   "stage": "Series C ($160M tranche)",
+   "n_prior": 8,
+   "ret_frac": 0.625,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Form3",
+   "date": "2022-11-01",
+   "stage": "Venture Debt",
+   "n_prior": 10,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Form3",
+   "date": "2023-09-01",
+   "stage": "Corporate Minority / Late VC",
+   "n_prior": 12,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Form3",
+   "date": "2024-09-01",
+   "stage": "Series C Extension",
+   "n_prior": 13,
+   "ret_frac": 0.3076923076923077,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Formance",
+   "date": "2022-06-20",
+   "stage": "Pre-Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Forto",
+   "date": "2017-12-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Forto",
+   "date": "2019-05-01",
+   "stage": "Series B",
+   "n_prior": 8,
+   "ret_frac": 0.375,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Forto",
+   "date": "2020-09-01",
+   "stage": "Series B Extension",
+   "n_prior": 11,
+   "ret_frac": 0.36363636363636365,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Forto",
+   "date": "2020-11-01",
+   "stage": "Series C (first close)",
+   "n_prior": 12,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Forto",
+   "date": "2021-06-01",
+   "stage": "Series C (second close)",
+   "n_prior": 14,
+   "ret_frac": 0.2857142857142857,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Forto",
+   "date": "2022-03-01",
+   "stage": "Series D",
+   "n_prior": 17,
+   "ret_frac": 0.23529411764705882,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Framer",
+   "date": "2017-12-13",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Framer",
+   "date": "2018-11-12",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.4,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Framer",
+   "date": "2023-09-28",
+   "stage": "Series C",
+   "n_prior": 6,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Freeverse.io",
+   "date": "2022-05-10",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Fuse Energy",
+   "date": "2024-09-12",
+   "stage": "Strategic Round",
+   "n_prior": 8,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "GOALS",
+   "date": "2022-04-05",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "GOALS",
+   "date": "2023-04-01",
+   "stage": "Series A",
+   "n_prior": 9,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Giraffe360",
+   "date": "2019-01-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Giraffe360",
+   "date": "2020-11-17",
+   "stage": "Seed (Follow-on)",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Giraffe360",
+   "date": "2022-11-30",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Giraffe360",
+   "date": "2023-12-01",
+   "stage": "Series A Extension",
+   "n_prior": 6,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Handshake",
+   "date": "2016-11-17",
+   "stage": "Series B",
+   "n_prior": 6,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Handshake",
+   "date": "2018-10-31",
+   "stage": "Series C",
+   "n_prior": 7,
+   "ret_frac": 0.5714285714285714,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Handshake",
+   "date": "2020-10-20",
+   "stage": "Series D",
+   "n_prior": 11,
+   "ret_frac": 0.5454545454545454,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Handshake",
+   "date": "2021-05-12",
+   "stage": "Series E",
+   "n_prior": 14,
+   "ret_frac": 0.5714285714285714,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Handshake",
+   "date": "2022-01-19",
+   "stage": "Series F",
+   "n_prior": 15,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Harvey",
+   "date": "2023-04-01",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Harvey",
+   "date": "2023-12-01",
+   "stage": "Series B",
+   "n_prior": 7,
+   "ret_frac": 0.42857142857142855,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Harvey",
+   "date": "2024-07-01",
+   "stage": "Series C",
+   "n_prior": 8,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Heidi",
+   "date": "2023-10-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Helppy",
+   "date": "2022-05-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Heltia",
+   "date": "2023-11-20",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Hero Software",
+   "date": "2024-07-12",
+   "stage": "Series B",
+   "n_prior": 7,
+   "ret_frac": 0.14285714285714285,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Heygo",
+   "date": "2021-12-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Heygo",
+   "date": "2022-02-15",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Humaans",
+   "date": "2022-10-04",
+   "stage": "Series A",
+   "n_prior": 14,
+   "ret_frac": 0.2857142857142857,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "HungryPanda",
+   "date": "2020-11-01",
+   "stage": "Series C",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "HungryPanda",
+   "date": "2021-12-01",
+   "stage": "Series D",
+   "n_prior": 6,
+   "ret_frac": 0.8333333333333334,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "HungryPanda",
+   "date": "2024-09-01",
+   "stage": "Series D (extension)",
+   "n_prior": 9,
+   "ret_frac": 0.4444444444444444,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Huuva",
+   "date": "2022-06-01",
+   "stage": "Seed",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Hyperexponential",
+   "date": "2024-01-01",
+   "stage": "Series B",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "IPRally",
+   "date": "2023-03-21",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Immortal Game",
+   "date": "2022-09-01",
+   "stage": "Series A",
+   "n_prior": 8,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Inflow",
+   "date": "2022-01-17",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Inflow",
+   "date": "2023-01-11",
+   "stage": "Series A",
+   "n_prior": 8,
+   "ret_frac": 0.25,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Insempra (Origin.Bio)",
+   "date": "2021-05-26",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Insempra (Origin.Bio)",
+   "date": "2024-05-08",
+   "stage": "Series A",
+   "n_prior": 7,
+   "ret_frac": 0.42857142857142855,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Insider (Insider PTE)",
+   "date": "2015-02-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Insider (Insider PTE)",
+   "date": "2016-09-01",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Insider (Insider PTE)",
+   "date": "2018-04-01",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 0.25,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Insider (Insider PTE)",
+   "date": "2020-07-01",
+   "stage": "Series C",
+   "n_prior": 6,
+   "ret_frac": 0.16666666666666666,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Insider (Insider PTE)",
+   "date": "2022-03-01",
+   "stage": "Series D",
+   "n_prior": 9,
+   "ret_frac": 0.4444444444444444,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Insider (Insider PTE)",
+   "date": "2023-05-01",
+   "stage": "Series D (extension)",
+   "n_prior": 12,
+   "ret_frac": 0.16666666666666666,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Insider (Insider PTE)",
+   "date": "2024-11-01",
+   "stage": "Series E",
+   "n_prior": 12,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Intergrid",
+   "date": "2023-09-01",
+   "stage": "Pre-Seed Round",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Inven",
+   "date": "2023-03-31",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Island",
+   "date": "2022-03-23",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Island",
+   "date": "2022-11-10",
+   "stage": "Series B Extension",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Island",
+   "date": "2023-10-23",
+   "stage": "Series C",
+   "n_prior": 7,
+   "ret_frac": 0.7142857142857143,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Island",
+   "date": "2024-04-30",
+   "stage": "Series D",
+   "n_prior": 9,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Januar",
+   "date": "2022-05-01",
+   "stage": "",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Januar",
+   "date": "2024-02-01",
+   "stage": "",
+   "n_prior": 11,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Jasper AI",
+   "date": "2021-06-01",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Jasper AI",
+   "date": "2022-10-18",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Kaiko",
+   "date": "2021-06-01",
+   "stage": "Series A",
+   "n_prior": 9,
+   "ret_frac": 0.2222222222222222,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Kaiko",
+   "date": "2022-06-01",
+   "stage": "Series B",
+   "n_prior": 12,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Kiln",
+   "date": "2022-11-28",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Kiln",
+   "date": "2024-01-18",
+   "stage": "Series A Extension",
+   "n_prior": 17,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Kive",
+   "date": "2022-10-10",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Klaus",
+   "date": "2020-09-01",
+   "stage": "Seed Round",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Klaus",
+   "date": "2022-09-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Knowunity",
+   "date": "2022-05-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.4,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Knowunity",
+   "date": "2023-02-01",
+   "stage": "Series A Extension",
+   "n_prior": 7,
+   "ret_frac": 0.8571428571428571,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Kry",
+   "date": "2017-06-28",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Kry",
+   "date": "2018-06-12",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Kry",
+   "date": "2020-01-07",
+   "stage": "Series C",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Kry",
+   "date": "2021-04-27",
+   "stage": "Series D",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Kry",
+   "date": "2022-07-21",
+   "stage": "Series D Extension",
+   "n_prior": 7,
+   "ret_frac": 0.8571428571428571,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Kry",
+   "date": "2024-03-01",
+   "stage": "Convertible Debt",
+   "n_prior": 9,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Kvantify",
+   "date": "2023-01-01",
+   "stage": "Grant",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Kvantify",
+   "date": "2024-07-03",
+   "stage": "Seed",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Kwara",
+   "date": "2020-01-01",
+   "stage": "Grant",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Kwara",
+   "date": "2021-12-09",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Kwara",
+   "date": "2023-01-16",
+   "stage": "Seed Extension",
+   "n_prior": 15,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Kwara",
+   "date": "2024-05-07",
+   "stage": "Unattributed VC",
+   "n_prior": 21,
+   "ret_frac": 0.047619047619047616,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Lassie",
+   "date": "2022-05-01",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Lassie",
+   "date": "2023-11-28",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Lean Technologies",
+   "date": "2022-01-20",
+   "stage": "Series A",
+   "n_prior": 7,
+   "ret_frac": 0.42857142857142855,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Lean Technologies",
+   "date": "2024-11-11",
+   "stage": "Series B",
+   "n_prior": 16,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Ledger",
+   "date": "2017-03-30",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.16666666666666666,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Ledger",
+   "date": "2018-01-18",
+   "stage": "Series B",
+   "n_prior": 15,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Ledger",
+   "date": "2019-04-24",
+   "stage": "Venture Round (Samsung investment)",
+   "n_prior": 24,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Ledger",
+   "date": "2021-06-10",
+   "stage": "Series C",
+   "n_prior": 25,
+   "ret_frac": 0.2,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Ledger",
+   "date": "2023-03-30",
+   "stage": "Series C Extension",
+   "n_prior": 36,
+   "ret_frac": 0.1111111111111111,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Leya AI",
+   "date": "2024-02-01",
+   "stage": "Pre-Seed Round",
+   "n_prior": 4,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Malted AI",
+   "date": "2024-05-15",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Maple Finance",
+   "date": "2021-03-18",
+   "stage": "Venture Round",
+   "n_prior": 9,
+   "ret_frac": 0.1111111111111111,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Maple Finance",
+   "date": "2023-08-22",
+   "stage": "Strategic Round",
+   "n_prior": 11,
+   "ret_frac": 0.18181818181818182,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Marvel Fusion",
+   "date": "2024-09-25",
+   "stage": "Series B (First Close)",
+   "n_prior": 10,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Material Exchange",
+   "date": "2020-11-01",
+   "stage": "Funding Round",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Material Exchange",
+   "date": "2022-04-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Measurlabs",
+   "date": "2023-09-01",
+   "stage": "Seed",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Metroc",
+   "date": "2023-08-25",
+   "stage": "Seed Round",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Metycle",
+   "date": "2023-12-14",
+   "stage": "Seed",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Mjuk",
+   "date": "2022-04-25",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Mjuk",
+   "date": "2023-09-12",
+   "stage": "Equity Round + Conventional Debt",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Modash",
+   "date": "2022-11-23",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Modash",
+   "date": "2024-10-31",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.4,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Moralis",
+   "date": "2022-05-11",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Moss",
+   "date": "2021-01-14",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Moss",
+   "date": "2021-08-19",
+   "stage": "Series A Extension",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Moss",
+   "date": "2022-01-19",
+   "stage": "Series B",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Moss",
+   "date": "2023-09-20",
+   "stage": "Debt Facility",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Moss",
+   "date": "2024-06-07",
+   "stage": "Series B (Growth Equity)",
+   "n_prior": 6,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Multiverse",
+   "date": "2019-07-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Multiverse",
+   "date": "2021-01-01",
+   "stage": "Series B",
+   "n_prior": 7,
+   "ret_frac": 0.2857142857142857,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Multiverse",
+   "date": "2021-09-01",
+   "stage": "Series C",
+   "n_prior": 12,
+   "ret_frac": 0.5833333333333334,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Multiverse",
+   "date": "2022-06-08",
+   "stage": "Series D",
+   "n_prior": 16,
+   "ret_frac": 0.4375,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Nabla",
+   "date": "2024-01-05",
+   "stage": "Series B",
+   "n_prior": 8,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Netspeak Games",
+   "date": "2022-09-01",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Nilo Health",
+   "date": "2021-04-19",
+   "stage": "Pre-Seed / Seed (nilo)",
+   "n_prior": 4,
+   "ret_frac": 0.25,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Nilo Health",
+   "date": "2022-05-23",
+   "stage": "Seed (nilo)",
+   "n_prior": 5,
+   "ret_frac": 0.2,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Nilo Health",
+   "date": "2022-09-01",
+   "stage": "Angel Round (nilo)",
+   "n_prior": 13,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Nilo Health",
+   "date": "2023-07-01",
+   "stage": "Seed (Likeminded)",
+   "n_prior": 15,
+   "ret_frac": 0.06666666666666667,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Nilo Health",
+   "date": "2023-10-26",
+   "stage": "Seed (nilo / Likeminded)",
+   "n_prior": 16,
+   "ret_frac": 0.0625,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Nilo Health",
+   "date": "2024-11-02",
+   "stage": "Funding Round (Nilo Health / Likeminded)",
+   "n_prior": 17,
+   "ret_frac": 0.11764705882352941,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Nolea Health",
+   "date": "2023-04-02",
+   "stage": "Accelerator/Incubator \u2014 Innovate UK",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Nolea Health",
+   "date": "2023-04-11",
+   "stage": "Seed Round",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Nostos Genomics",
+   "date": "2020-03-01",
+   "stage": "Convertible Note (Pre-Seed)",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Nostos Genomics",
+   "date": "2021-01-01",
+   "stage": "Accelerator/Incubator",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Nostos Genomics",
+   "date": "2022-02-01",
+   "stage": "Seed Round (Main Seed / Seed VC)",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Nostos Genomics",
+   "date": "2023-01-01",
+   "stage": "Seed VC \u2013 II",
+   "n_prior": 9,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Nothing",
+   "date": "2021-02-01",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Nothing",
+   "date": "2021-10-01",
+   "stage": "Series A Extension",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Nothing",
+   "date": "2022-03-01",
+   "stage": "Series B",
+   "n_prior": 6,
+   "ret_frac": 0.16666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Nothing",
+   "date": "2023-06-01",
+   "stage": "Series B Extension / Series C (first tranche)",
+   "n_prior": 14,
+   "ret_frac": 0.14285714285714285,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Obligate",
+   "date": "2023-01-19",
+   "stage": "Seed Extension",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Obligo",
+   "date": "2018-06-01",
+   "stage": "Venture / Debt Round",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Obligo",
+   "date": "2020-11-18",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Obligo",
+   "date": "2021-11-04",
+   "stage": "Series B",
+   "n_prior": 7,
+   "ret_frac": 0.42857142857142855,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Obligo",
+   "date": "2024-10-21",
+   "stage": "Series C",
+   "n_prior": 11,
+   "ret_frac": 0.5454545454545454,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Onramper",
+   "date": "2024-02-09",
+   "stage": "Strategic Round (Later Stage VC)",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "OpenAI",
+   "date": "2019-01-01",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "OpenAI",
+   "date": "2019-07-22",
+   "stage": "Series B",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "OpenAI",
+   "date": "2023-01-23",
+   "stage": "Series C",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "OpenAI",
+   "date": "2024-10-02",
+   "stage": "Series D",
+   "n_prior": 10,
+   "ret_frac": 0.3,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Pactum",
+   "date": "2020-06-29",
+   "stage": "Seed",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Pactum",
+   "date": "2021-04-27",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Pactum",
+   "date": "2022-12-08",
+   "stage": "Series A Extension",
+   "n_prior": 10,
+   "ret_frac": 0.3,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Pactum",
+   "date": "2024-07-11",
+   "stage": "Series B",
+   "n_prior": 15,
+   "ret_frac": 0.26666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Parloa",
+   "date": "2023-03-30",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Parloa",
+   "date": "2024-04-24",
+   "stage": "Series B",
+   "n_prior": 9,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Payable",
+   "date": "2022-10-01",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "PetsApp",
+   "date": "2021-12-07",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "PetsApp",
+   "date": "2022-09-28",
+   "stage": "Series A",
+   "n_prior": 8,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Photoroom",
+   "date": "2020-12-17",
+   "stage": "Seed",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Photoroom",
+   "date": "2022-11-07",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Photoroom",
+   "date": "2024-02-27",
+   "stage": "Series B",
+   "n_prior": 10,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Pixxel",
+   "date": "2020-08-01",
+   "stage": "Seed (Tranche 1)",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Pixxel",
+   "date": "2021-03-01",
+   "stage": "Seed (Tranche 2 / Close)",
+   "n_prior": 7,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Pixxel",
+   "date": "2022-03-28",
+   "stage": "Series A",
+   "n_prior": 11,
+   "ret_frac": 0.18181818181818182,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Pixxel",
+   "date": "2022-08-01",
+   "stage": "Venture Round",
+   "n_prior": 16,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Pixxel",
+   "date": "2023-06-01",
+   "stage": "Series B",
+   "n_prior": 17,
+   "ret_frac": 0.17647058823529413,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Playmint",
+   "date": "2024-03-26",
+   "stage": "Accelerator / Incubator",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Pliant",
+   "date": "2021-08-01",
+   "stage": "Seed (Initial)",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Pliant",
+   "date": "2021-12-01",
+   "stage": "Seed Extension",
+   "n_prior": 6,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Pliant",
+   "date": "2023-02-01",
+   "stage": "Series A",
+   "n_prior": 7,
+   "ret_frac": 0.14285714285714285,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Pliant",
+   "date": "2024-01-01",
+   "stage": "Series A Extension (1st)",
+   "n_prior": 11,
+   "ret_frac": 0.18181818181818182,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Pliant",
+   "date": "2024-01-01",
+   "stage": "Debt Financing",
+   "n_prior": 13,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Pliant",
+   "date": "2024-04-01",
+   "stage": "Series A Extension (2nd)",
+   "n_prior": 14,
+   "ret_frac": 0.14285714285714285,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Pluto.markets",
+   "date": "2022-03-01",
+   "stage": "Angel Round",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Pluto.markets",
+   "date": "2024-02-01",
+   "stage": "Seed Round",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Podimo",
+   "date": "2020-05-01",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Podimo",
+   "date": "2021-02-01",
+   "stage": "Series A Extension",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Podimo",
+   "date": "2021-11-01",
+   "stage": "Series B",
+   "n_prior": 8,
+   "ret_frac": 0.75,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Podimo",
+   "date": "2022-09-01",
+   "stage": "Series B Extension",
+   "n_prior": 10,
+   "ret_frac": 0.6,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Podimo",
+   "date": "2023-12-01",
+   "stage": "Series B (Late VC)",
+   "n_prior": 10,
+   "ret_frac": 0.4,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Procuros",
+   "date": "2022-04-01",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Pyramid Analytics",
+   "date": "2015-10-15",
+   "stage": "Series B",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Pyramid Analytics",
+   "date": "2018-12-01",
+   "stage": "Series C",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Pyramid Analytics",
+   "date": "2020-03-26",
+   "stage": "Series D",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Pyramid Analytics",
+   "date": "2022-05-09",
+   "stage": "Series E",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "QA.tech",
+   "date": "2024-05-20",
+   "stage": "Seed",
+   "n_prior": 6,
+   "ret_frac": 0.16666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "QMill",
+   "date": "2024-09-17",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Qlub",
+   "date": "2023-03-15",
+   "stage": "Series A",
+   "n_prior": 8,
+   "ret_frac": 0.875,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Qogita",
+   "date": "2021-07-01",
+   "stage": "Seed (Round 2)",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Qogita",
+   "date": "2021-10-01",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Qogita",
+   "date": "2023-12-14",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Quantexa",
+   "date": "2018-08-01",
+   "stage": "Series B",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Quantexa",
+   "date": "2020-07-01",
+   "stage": "Series C",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Quantexa",
+   "date": "2021-07-01",
+   "stage": "Series D",
+   "n_prior": 9,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Quantexa",
+   "date": "2023-03-01",
+   "stage": "Series E",
+   "n_prior": 11,
+   "ret_frac": 0.7272727272727273,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Quantica",
+   "date": "2024-06-06",
+   "stage": "Series A Extension",
+   "n_prior": 4,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Quantum Systems",
+   "date": "2021-07-01",
+   "stage": "Venture Debt",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Quantum Systems",
+   "date": "2022-06-01",
+   "stage": "Series A (First Close)",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Quantum Systems",
+   "date": "2022-10-01",
+   "stage": "Series A (Second Close)",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Quantum Systems",
+   "date": "2023-10-01",
+   "stage": "Series B",
+   "n_prior": 7,
+   "ret_frac": 0.2857142857142857,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Quantum Systems",
+   "date": "2024-09-01",
+   "stage": "Series B Extension",
+   "n_prior": 13,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "RPA Supervisor",
+   "date": "2022-07-28",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Ramp Network",
+   "date": "2021-06-15",
+   "stage": "Seed",
+   "n_prior": 11,
+   "ret_frac": 0.2727272727272727,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Ramp Network",
+   "date": "2021-12-15",
+   "stage": "Series A",
+   "n_prior": 19,
+   "ret_frac": 0.3157894736842105,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Ramp Network",
+   "date": "2022-11-09",
+   "stage": "Series B",
+   "n_prior": 20,
+   "ret_frac": 0.1,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "ReOrbit",
+   "date": "2022-11-08",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "ReOrbit",
+   "date": "2023-08-30",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "ReOrbit",
+   "date": "2023-12-21",
+   "stage": "Grant",
+   "n_prior": 7,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Relay",
+   "date": "2021-05-01",
+   "stage": "Series A",
+   "n_prior": 8,
+   "ret_frac": 0.625,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Relay",
+   "date": "2024-05-01",
+   "stage": "Series B",
+   "n_prior": 9,
+   "ret_frac": 0.4444444444444444,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Reveel",
+   "date": "2023-10-01",
+   "stage": "Accelerator (Store N\u00ba8 dCommerce Base Camp by Outlier Ventures / Walmart)",
+   "n_prior": 5,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Rooser",
+   "date": "2022-04-24",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "SEON",
+   "date": "2021-03-01",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "SEON",
+   "date": "2022-04-01",
+   "stage": "Series B",
+   "n_prior": 12,
+   "ret_frac": 0.08333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Sastrify",
+   "date": "2021-08-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Sastrify",
+   "date": "2022-01-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Sastrify",
+   "date": "2023-05-01",
+   "stage": "Series B (first closing)",
+   "n_prior": 10,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Sastrify",
+   "date": "2023-12-01",
+   "stage": "Series B (second closing)",
+   "n_prior": 13,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Scandit",
+   "date": "2014-03-25",
+   "stage": "Angel Round",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Scandit",
+   "date": "2017-01-10",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Scandit",
+   "date": "2018-07-26",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 0.25,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Scandit",
+   "date": "2020-05-26",
+   "stage": "Series C",
+   "n_prior": 6,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Scandit",
+   "date": "2022-02-09",
+   "stage": "Series D",
+   "n_prior": 11,
+   "ret_frac": 0.5454545454545454,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Scrimba",
+   "date": "2017-03-28",
+   "stage": "Seed Round",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Scrimba",
+   "date": "2017-07-03",
+   "stage": "Seed Round (Strategic Investment)",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Scrimba",
+   "date": "2020-08-25",
+   "stage": "Seed Round",
+   "n_prior": 4,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Scrimba",
+   "date": "2020-09-24",
+   "stage": "Seed Round",
+   "n_prior": 5,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Scrimba",
+   "date": "2023-10-09",
+   "stage": "Secondary (Corporate Minority)",
+   "n_prior": 6,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Scrimba",
+   "date": "2024-09-30",
+   "stage": "Unattributed VC",
+   "n_prior": 7,
+   "ret_frac": 0.2857142857142857,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Shackle",
+   "date": "2021-06-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Shackle",
+   "date": "2022-07-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Shackle",
+   "date": "2023-09-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Sidekick",
+   "date": "2024-06-01",
+   "stage": "Seed",
+   "n_prior": 9,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Smitten",
+   "date": "2022-09-01",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Snapshift",
+   "date": "2022-02-01",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "SoSafe",
+   "date": "2020-07-17",
+   "stage": "Pre-Series A",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "SoSafe",
+   "date": "2022-01-13",
+   "stage": "Series B",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Soda Health",
+   "date": "2022-09-13",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Solaris",
+   "date": "2017-03-14",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Solaris",
+   "date": "2018-03-07",
+   "stage": "Series B",
+   "n_prior": 6,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Solaris",
+   "date": "2020-06-29",
+   "stage": "Series C",
+   "n_prior": 11,
+   "ret_frac": 0.45454545454545453,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Solaris",
+   "date": "2021-07-26",
+   "stage": "Series D",
+   "n_prior": 17,
+   "ret_frac": 0.17647058823529413,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Solaris",
+   "date": "2022-06-27",
+   "stage": "Series E",
+   "n_prior": 22,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Solaris",
+   "date": "2023-07-11",
+   "stage": "Series F (first close)",
+   "n_prior": 23,
+   "ret_frac": 0.30434782608695654,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Solaris",
+   "date": "2024-03-19",
+   "stage": "Series F (second close)",
+   "n_prior": 24,
+   "ret_frac": 0.041666666666666664,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Sona",
+   "date": "2022-03-01",
+   "stage": "Seed",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Sona",
+   "date": "2024-05-01",
+   "stage": "Series A",
+   "n_prior": 12,
+   "ret_frac": 0.16666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Speckle (AEC Systems)",
+   "date": "2022-04-01",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Speckle (AEC Systems)",
+   "date": "2024-10-01",
+   "stage": "Series A",
+   "n_prior": 7,
+   "ret_frac": 0.42857142857142855,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stability AI",
+   "date": "2023-06-01",
+   "stage": "Convertible Note",
+   "n_prior": 6,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stability AI",
+   "date": "2023-10-01",
+   "stage": "Convertible Note",
+   "n_prior": 9,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Stability AI",
+   "date": "2024-06-25",
+   "stage": "Recapitalization / New Investment",
+   "n_prior": 10,
+   "ret_frac": 0.3,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2012-02-09",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Stripe",
+   "date": "2012-07-09",
+   "stage": "Series B",
+   "n_prior": 11,
+   "ret_frac": 0.36363636363636365,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Stripe",
+   "date": "2014-01-01",
+   "stage": "Series C",
+   "n_prior": 11,
+   "ret_frac": 0.09090909090909091,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2014-12-02",
+   "stage": "Series C",
+   "n_prior": 15,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2015-07-28",
+   "stage": "Series C",
+   "n_prior": 15,
+   "ret_frac": 0.06666666666666667,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2015-11-12",
+   "stage": "Series C",
+   "n_prior": 19,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2016-10-03",
+   "stage": "Series C",
+   "n_prior": 20,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Stripe",
+   "date": "2016-11-22",
+   "stage": "Series D",
+   "n_prior": 21,
+   "ret_frac": 0.09523809523809523,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2016-11-25",
+   "stage": "Conventional Debt",
+   "n_prior": 22,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2018-09-21",
+   "stage": "Series E",
+   "n_prior": 26,
+   "ret_frac": 0.23076923076923078,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2019-01-25",
+   "stage": "Series E",
+   "n_prior": 28,
+   "ret_frac": 0.03571428571428571,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2019-09-19",
+   "stage": "Series F",
+   "n_prior": 29,
+   "ret_frac": 0.10344827586206896,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2020-03-25",
+   "stage": "Series G",
+   "n_prior": 29,
+   "ret_frac": 0.10344827586206896,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2021-03-14",
+   "stage": "Series H",
+   "n_prior": 30,
+   "ret_frac": 0.03333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Stripe",
+   "date": "2023-03-15",
+   "stage": "Series I",
+   "n_prior": 35,
+   "ret_frac": 0.14285714285714285,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Sun Zu Lab",
+   "date": "2024-01-01",
+   "stage": "Follow-on round",
+   "n_prior": 3,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Superlist",
+   "date": "2021-12-01",
+   "stage": "Pre-Seed Round",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Superlist",
+   "date": "2022-04-01",
+   "stage": "Seed Round",
+   "n_prior": 4,
+   "ret_frac": 0.25,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Taxfix",
+   "date": "2018-08-01",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Taxfix",
+   "date": "2019-04-01",
+   "stage": "Series B",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Taxfix",
+   "date": "2020-04-01",
+   "stage": "Series C",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Taxfix",
+   "date": "2022-04-01",
+   "stage": "Series D",
+   "n_prior": 4,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Tjommi",
+   "date": "2019-08-01",
+   "stage": "Early Stage VC / Seed",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Tjommi",
+   "date": "2021-04-01",
+   "stage": "Seed",
+   "n_prior": 4,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Tjommi",
+   "date": "2022-06-01",
+   "stage": "Equity Round",
+   "n_prior": 10,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Two",
+   "date": "2023-03-01",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2018-02-01",
+   "stage": "Series B",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Udaan",
+   "date": "2018-09-01",
+   "stage": "Series C",
+   "n_prior": 4,
+   "ret_frac": 0.25,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Udaan",
+   "date": "2019-10-01",
+   "stage": "Series D (initial close)",
+   "n_prior": 5,
+   "ret_frac": 0.4,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2021-01-01",
+   "stage": "Series D (extension)",
+   "n_prior": 12,
+   "ret_frac": 0.4166666666666667,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2021-09-01",
+   "stage": "Venture Debt",
+   "n_prior": 14,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2021-11-01",
+   "stage": "Venture Debt",
+   "n_prior": 15,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2021-11-01",
+   "stage": "Debt Financing",
+   "n_prior": 16,
+   "ret_frac": 0.0625,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2022-01-01",
+   "stage": "Convertible Note + Debt",
+   "n_prior": 19,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2022-10-01",
+   "stage": "Convertible Note",
+   "n_prior": 22,
+   "ret_frac": 0.09090909090909091,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2022-11-01",
+   "stage": "Convertible Note / Debt",
+   "n_prior": 28,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2023-05-01",
+   "stage": "Venture Debt",
+   "n_prior": 29,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2023-12-01",
+   "stage": "Series E",
+   "n_prior": 30,
+   "ret_frac": 0.16666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Udaan",
+   "date": "2024-10-01",
+   "stage": "Debt Funding",
+   "n_prior": 35,
+   "ret_frac": 0.05714285714285714,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Ultimate Wallet",
+   "date": "2022-08-10",
+   "stage": "Series A",
+   "n_prior": 7,
+   "ret_frac": 0.8571428571428571,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Upvest",
+   "date": "2019-12-01",
+   "stage": "Series A",
+   "n_prior": 4,
+   "ret_frac": 0.25,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Upvest",
+   "date": "2020-12-01",
+   "stage": "Series A Extension",
+   "n_prior": 7,
+   "ret_frac": 0.5714285714285714,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Upvest",
+   "date": "2021-05-01",
+   "stage": "Series A Extension",
+   "n_prior": 9,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Upvest",
+   "date": "2022-06-01",
+   "stage": "Series B",
+   "n_prior": 10,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Upvest",
+   "date": "2023-10-01",
+   "stage": "VC Round (Late-stage)",
+   "n_prior": 12,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "VAST Data",
+   "date": "2018-05-01",
+   "stage": "Series A1",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "VAST Data",
+   "date": "2019-02-01",
+   "stage": "Series B",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "VAST Data",
+   "date": "2020-04-16",
+   "stage": "Series C",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "VAST Data",
+   "date": "2021-05-04",
+   "stage": "Series D",
+   "n_prior": 9,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "VAST Data",
+   "date": "2023-12-04",
+   "stage": "Series E",
+   "n_prior": 11,
+   "ret_frac": 0.6363636363636364,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Vanta",
+   "date": "2021-05-01",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Vanta",
+   "date": "2022-06-01",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Vanta",
+   "date": "2022-10-01",
+   "stage": "Series B Extension",
+   "n_prior": 9,
+   "ret_frac": 0.1111111111111111,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Vanta",
+   "date": "2024-07-01",
+   "stage": "Series C",
+   "n_prior": 9,
+   "ret_frac": 0.7777777777777778,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Vectornator",
+   "date": "2021-09-02",
+   "stage": "Series B",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Vensum Power",
+   "date": "2023-05-26",
+   "stage": "Seed",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Vertice",
+   "date": "2024-01-17",
+   "stage": "Series B",
+   "n_prior": 8,
+   "ret_frac": 0.25,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Via",
+   "date": "2015-03-01",
+   "stage": "Series B",
+   "n_prior": 4,
+   "ret_frac": 0.75,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Via",
+   "date": "2016-05-01",
+   "stage": "Series C",
+   "n_prior": 7,
+   "ret_frac": 0.7142857142857143,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Via",
+   "date": "2017-09-01",
+   "stage": "Series D",
+   "n_prior": 10,
+   "ret_frac": 0.1,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Via",
+   "date": "2020-03-01",
+   "stage": "Series E",
+   "n_prior": 12,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Via",
+   "date": "2021-03-01",
+   "stage": "Series F",
+   "n_prior": 19,
+   "ret_frac": 0.05263157894736842,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Via",
+   "date": "2021-11-01",
+   "stage": "Series G (first close)",
+   "n_prior": 19,
+   "ret_frac": 0.05263157894736842,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Via",
+   "date": "2023-02-01",
+   "stage": "Series H",
+   "n_prior": 23,
+   "ret_frac": 0.2608695652173913,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Vibrant",
+   "date": "2021-03-25",
+   "stage": "Series E",
+   "n_prior": 1,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2018-09-01",
+   "stage": "Seed",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2018-11-01",
+   "stage": "Series A",
+   "n_prior": 3,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2019-03-01",
+   "stage": "Series A (top-up)",
+   "n_prior": 14,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2019-11-01",
+   "stage": "Series B",
+   "n_prior": 23,
+   "ret_frac": 0.17391304347826086,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2020-07-01",
+   "stage": "Series C",
+   "n_prior": 29,
+   "ret_frac": 0.034482758620689655,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2020-11-01",
+   "stage": "Grant",
+   "n_prior": 29,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2020-12-01",
+   "stage": "Series C",
+   "n_prior": 30,
+   "ret_frac": 0.2,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2020-12-01",
+   "stage": "Conventional Debt",
+   "n_prior": 32,
+   "ret_frac": 0.21875,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2021-08-01",
+   "stage": "Series C",
+   "n_prior": 32,
+   "ret_frac": 0.0625,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2021-12-01",
+   "stage": "Series D",
+   "n_prior": 32,
+   "ret_frac": 0.1875,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Voi Technology",
+   "date": "2024-03-01",
+   "stage": "Series D (extension)",
+   "n_prior": 36,
+   "ret_frac": 0.2222222222222222,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Wagestream",
+   "date": "2019-05-01",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.3333333333333333,
+   "lead_back": null,
+   "naive_active": false,
+   "progressed": true
+  },
+  {
+   "company": "Wagestream",
+   "date": "2020-07-01",
+   "stage": "Series B",
+   "n_prior": 9,
+   "ret_frac": 0.5555555555555556,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Wagestream",
+   "date": "2022-04-13",
+   "stage": "Series C",
+   "n_prior": 11,
+   "ret_frac": 0.36363636363636365,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Wagestream",
+   "date": "2024-04-17",
+   "stage": "Series C Follow-On (Extension)",
+   "n_prior": 17,
+   "ret_frac": 0.29411764705882354,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Wayve",
+   "date": "2019-11-01",
+   "stage": "Series A",
+   "n_prior": 6,
+   "ret_frac": 0.6666666666666666,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Wayve",
+   "date": "2021-03-01",
+   "stage": "Series A Follow-On",
+   "n_prior": 9,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Wayve",
+   "date": "2021-10-01",
+   "stage": "Strategic Investment",
+   "n_prior": 10,
+   "ret_frac": 0.0,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Wayve",
+   "date": "2022-01-01",
+   "stage": "Series B",
+   "n_prior": 11,
+   "ret_frac": 0.45454545454545453,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Wayve",
+   "date": "2024-05-01",
+   "stage": "Series C",
+   "n_prior": 20,
+   "ret_frac": 0.05,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Wirepas",
+   "date": "2016-03-01",
+   "stage": "Series A",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Wirepas",
+   "date": "2016-09-01",
+   "stage": "VC Round",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Wirepas",
+   "date": "2019-05-14",
+   "stage": "Series C",
+   "n_prior": 3,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Wirepas",
+   "date": "2019-11-22",
+   "stage": "Series B",
+   "n_prior": 5,
+   "ret_frac": 0.8,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Wirepas",
+   "date": "2021-09-01",
+   "stage": "VC Round",
+   "n_prior": 7,
+   "ret_frac": 0.2857142857142857,
+   "lead_back": false,
+   "naive_active": false,
+   "progressed": false
+  },
+  {
+   "company": "Wirepas",
+   "date": "2023-10-31",
+   "stage": "Series D",
+   "n_prior": 7,
+   "ret_frac": 0.5714285714285714,
+   "lead_back": false,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Yonder",
+   "date": "2022-03-01",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Yonder",
+   "date": "2023-04-01",
+   "stage": "Series A",
+   "n_prior": 7,
+   "ret_frac": 0.7142857142857143,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "Yonder",
+   "date": "2024-09-01",
+   "stage": "Series D",
+   "n_prior": 12,
+   "ret_frac": 0.25,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "Zapp",
+   "date": "2022-01-28",
+   "stage": "Series B",
+   "n_prior": 11,
+   "ret_frac": 0.45454545454545453,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "eBrands",
+   "date": "2022-05-01",
+   "stage": "Series A",
+   "n_prior": 2,
+   "ret_frac": 0.0,
+   "lead_back": null,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "getpaid",
+   "date": "2023-10-01",
+   "stage": "Seed (follow-on)",
+   "n_prior": 1,
+   "ret_frac": 1.0,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "lemon.markets",
+   "date": "2024-07-01",
+   "stage": "Series A",
+   "n_prior": 5,
+   "ret_frac": 0.6,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  },
+  {
+   "company": "omi",
+   "date": "2022-06-01",
+   "stage": "Seed",
+   "n_prior": 2,
+   "ret_frac": 0.5,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": true
+  },
+  {
+   "company": "omi",
+   "date": "2024-06-01",
+   "stage": "Series A",
+   "n_prior": 10,
+   "ret_frac": 0.3,
+   "lead_back": true,
+   "naive_active": true,
+   "progressed": false
+  }
+ ]
+}
