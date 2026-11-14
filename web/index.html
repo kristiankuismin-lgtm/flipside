@@ -45,7 +45,9 @@ a:hover{text-decoration:underline}
   width:calc(100% - 16px);text-align:left}
 .navitem:hover{background:var(--hover);color:var(--ink)}
 .navitem.on{background:var(--accent-bg);color:var(--accent-ink);font-weight:600}
-.navitem .ic{width:15px;text-align:center;opacity:.8;font-size:12px}
+.navitem .ic{width:16px;height:16px;flex-shrink:0;opacity:.75;display:grid;place-items:center}
+.navitem .ic svg{width:16px;height:16px}
+.navitem.on .ic{opacity:1}
 .navitem .ct{margin-left:auto;font:10px var(--mono);color:var(--faint)}
 .navitem.on .ct{color:var(--accent)}
 .navfoot{margin-top:auto;padding:13px 16px;border-top:1px solid var(--line);
@@ -249,25 +251,40 @@ tbody tr:hover{background:var(--panel2)}
 .maproot{display:grid;grid-template-columns:1fr 330px;gap:11px;align-items:start}
 .mapbox{position:relative;border:1px solid var(--line);border-radius:11px;overflow:hidden;
   box-shadow:var(--sh);background:var(--panel)}
-#mlmap{height:560px;width:100%}
+#mlmap{height:540px;width:100%}
+.mapbar{display:flex;gap:10px;align-items:center;padding:10px 12px;
+  border-bottom:1px solid var(--line);flex-wrap:wrap;background:var(--panel)}
+.mapbar .grp{display:flex;gap:5px;align-items:center}
+.mapbar .lbl{font:10px var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);margin-right:2px}
+.tgl{border:1px solid var(--line2);background:var(--panel);border-radius:7px;
+  padding:5px 10px;font-size:12.5px;white-space:nowrap;color:var(--dim);display:inline-flex;
+  align-items:center;gap:6px}
+.tgl:hover{background:var(--hover);color:var(--ink)}
+.tgl.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:550}
+.tgl i{width:9px;height:9px;display:inline-block;background:currentColor;opacity:.85}
+.tgl i.sq{border-radius:2px} .tgl i.ci{border-radius:50%} .tgl i.di{transform:rotate(45deg)}
 .mapctl{position:absolute;top:11px;left:11px;z-index:3;display:flex;gap:6px;flex-wrap:wrap}
 .mapctl .btn{background:rgba(255,255,255,.94);backdrop-filter:blur(6px)}
-.mapsearch{position:absolute;top:11px;right:11px;z-index:3;display:flex;align-items:center;
-  gap:6px;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);
-  border:1px solid var(--line2);border-radius:9px;padding:6px 10px;box-shadow:var(--sh);width:250px}
+.mapsearch{display:flex;align-items:center;gap:6px;background:var(--bg);
+  border:1px solid var(--line2);border-radius:8px;padding:5px 10px;
+  flex:1 1 180px;min-width:150px;max-width:320px}
+.mapsearch:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
 .mapsearch input{border:0;outline:0;background:none;font:13px var(--sans);width:100%;padding:0;
   min-width:0;box-shadow:none}
 .mlpop{font:13px var(--sans)}
-.maplegend{position:absolute;bottom:11px;left:11px;z-index:3;background:rgba(255,255,255,.94);
-  backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:9px;padding:8px 11px;
-  font-size:11.5px;color:var(--dim);display:flex;gap:13px;flex-wrap:wrap;box-shadow:var(--sh)}
+.maplegend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:9px 13px;
+  border-top:1px solid var(--line);font-size:11.5px;color:var(--faint);background:var(--panel)}
 .maplegend .sw{display:inline-flex;align-items:center;gap:6px}
 .maplegend .sw i{width:9px;height:9px;border-radius:50%}
 .maplegend .sw.off{opacity:.35}
 .maplegend .sw{cursor:pointer;user-select:none}
 .mkr.sq{border-radius:4px}
 .mkr.di{border-radius:3px;transform:rotate(45deg)}
-.mkr{border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
+.mkr{border-radius:50%;border:1.5px solid rgba(255,255,255,.95);
+  box-shadow:0 1px 3px rgba(0,0,0,.22);cursor:pointer;opacity:.82;
+  transition:opacity .12s,transform .12s}
+.mkr:hover{opacity:1;transform:scale(1.35);z-index:5}
 .side{background:var(--panel);border:1px solid var(--line);border-radius:11px;box-shadow:var(--sh);
   overflow:hidden;position:sticky;top:64px;max-height:calc(100vh - 90px);display:flex;flex-direction:column}
 .sidehd{padding:13px 15px;border-bottom:1px solid var(--line)}
@@ -338,14 +355,14 @@ tbody tr:hover{background:var(--panel2)}
         <div class="qsres" id="qsres"></div>
       </div>
     </div>
-    <button class="navitem on" data-mode="home"><span class="ic">✦</span>Ask</button>
+    <button class="navitem on" data-mode="home"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l6-4.5L14 7v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></span>Ask</button>
     <div class="navsec">Perspective</div>
-    <button class="navitem" data-mode="founder"><span class="ic">◧</span>Founder<span class="ct" id="ct-f"></span></button>
-    <button class="navitem" data-mode="investor"><span class="ic">◨</span>Investor<span class="ct" id="ct-i"></span></button>
+    <button class="navitem" data-mode="founder"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 9.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M2.5 14a5.5 5.5 0 0 1 11 0"/></svg></span>Founder<span class="ct" id="ct-f"></span></button>
+    <button class="navitem" data-mode="investor"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12.5l3.5-4 3 2.5L14 4"/><path d="M10.5 4H14v3.5"/></svg></span>Investor<span class="ct" id="ct-i"></span></button>
     <div class="navsec">Evidence</div>
-    <button class="navitem" data-mode="map"><span class="ic">◉</span>Map<span class="ct" id="ct-m"></span></button>
+    <button class="navitem" data-mode="map"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2.5L2 4v9.5L6 12l4 1.5 4-1.5V2.5L10 4z"/><path d="M6 2.5V12M10 4v9.5"/></svg></span>Map<span class="ct" id="ct-m"></span></button>
     <div class="navsec">Context</div>
-    <div class="navitem" style="cursor:default"><span class="ic">◆</span>Slush 2026<span class="ct">18 Nov</span></div>
+    <div class="navitem" style="cursor:default"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg></span>Slush 2026<span class="ct">18 Nov</span></div>
     <div class="navfoot">Slush 2026 · 18 Nov</div>
   </aside>
   <main class="main">

@@ -649,31 +649,34 @@ function mapView() {
       `${MAP.placed} placed · ${MAP.unplaced} addresses we could not resolve`,
       `<div class="maproot">
         <div class="mapbox">
+          <div class="mapbar">
+            <span class="grp"><span class="lbl">Show</span>
+              ${Object.entries(LAYER_META).map(([k, [lbl, shape]]) =>
+                `<button class="tgl ${LAYERS[k] ? "on" : ""}" data-layer="${k}">
+                   <i class="${shape === "circle" ? "ci" : shape === "square" ? "sq" : "di"}"></i>${lbl}</button>`).join("")}
+              <button class="tgl ${MAPMODE === "pp" ? "on" : ""}" data-mm="pp">People</button>
+            </span>
+            <span class="mapsearch"><span style="color:var(--faint)">⌕</span>
+              <input id="mapq" autocomplete="off" placeholder="${
+                MAPMODE === "pp" ? "Find a founder or investor"
+                : "Filter by name, sector or city"}"></span>
+            <span class="grp" style="margin-left:auto"><span class="lbl">Zoom</span>
+              ${Object.entries({ eu: "Europe", nordics: "Nordics", world: "World" }).map(([k, lbl]) =>
+                `<button class="tgl ${REGION === k ? "on" : ""}" data-fly="${k}">${lbl}</button>`).join("")}
+            </span>
+          </div>
           <div id="mlmap"></div>
-          <div class="mapctl">
-            <button class="btn" data-fly="eu">Europe</button>
-            <button class="btn" data-fly="nordics">Nordics</button>
-            <button class="btn" data-fly="world">World</button>
-          </div>
-          <div class="mapctl" style="top:auto;bottom:11px;left:auto;right:11px">
-            ${Object.entries(LAYER_META).map(([k, [lbl]]) =>
-              `<button class="btn ${LAYERS[k] ? "pri" : ""}" data-layer="${k}">${lbl}</button>`).join("")}
-            <button class="btn ${MAPMODE === "pp" ? "pri" : ""}" data-mm="pp">People</button>
-          </div>
-          <div class="mapsearch"><span style="color:var(--faint)">⌕</span>
-            <input id="mapq" autocomplete="off" placeholder="${
-              MAPMODE === "pp" ? "Find a founder or investor"
-              : "Filter by name, sector or city"}"></div>
           <div class="maplegend">
-            <span class="sw"><i style="background:#8a8580"></i>● exhibitor</span>
-            <span class="sw"><i style="background:#8a8580;border-radius:3px"></i>■ funded</span>
-            <span class="sw"><i style="background:#c2614f;border-radius:2px;transform:rotate(45deg)"></i>◆ fund</span>
+            <span class="sw"><i style="background:#8a8580;border-radius:50%"></i>exhibitor</span>
+            <span class="sw"><i style="background:#8a8580;border-radius:2px"></i>funded</span>
+            <span class="sw"><i style="background:#c2614f;border-radius:2px;transform:rotate(45deg)"></i>fund</span>
             <span style="width:1px;height:12px;background:var(--line2)"></span>
             ${Object.entries(STATUS).map(([k, [c, lbl]]) =>
               `<span class="sw"><i style="background:${c}"></i>${lbl}${
                 MAP.status?.[k] ? ` (${MAP.status[k]})` : ""}</span>`).join("")}
             <span class="sw" id="precisenote"></span>
           </div>
+          <div class="tip" id="tip"></div>
         </div>
         <div class="side">
           <div class="sidehd"><h3 id="sidet">Exhibitors</h3>
@@ -690,6 +693,7 @@ let ML = null, MLMARKERS = [], MAPMODE = "co", PPMARKER = null, PPTIMER = null, 
 /* Layers are shown together and toggled, not swapped: the question "where is
    the ecosystem" is not answered by looking at one slice at a time. */
 let LAYERS = { ex: true, pf: true, fu: true };
+let REGION = "eu";          // which region button is active
 const LAYER_META = {
   ex: ["Slush exhibitors", "circle"],
   pf: ["Funded companies", "square"],
@@ -766,7 +770,7 @@ function initMap() {
   ML = new maplibregl.Map({
     container: "mlmap",
     style: "https://tiles.openfreemap.org/styles/liberty",
-    center: FLY.eu.center, zoom: FLY.eu.zoom, attributionControl: true,
+    center: FLY[REGION].center, zoom: FLY[REGION].zoom, attributionControl: true,
   });
   ML.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
 
@@ -819,7 +823,11 @@ function initMap() {
     pn.innerHTML = `<i style="background:transparent;border:2px dashed #9b958c"></i>city only (${MAP.placed - MAP.exact})`;
 
   document.querySelectorAll("[data-fly]").forEach(b => b.onclick = () => {
-    const f = FLY[b.dataset.fly]; ML.flyTo({ center: f.center, zoom: f.zoom, duration: 700 });
+    REGION = b.dataset.fly;
+    const f = FLY[REGION];
+    ML.flyTo({ center: f.center, zoom: f.zoom, duration: 700 });
+    document.querySelectorAll("[data-fly]").forEach(x =>
+      x.classList.toggle("on", x.dataset.fly === REGION));
   });
   document.querySelectorAll("[data-mm]").forEach(b => b.onclick = () => {
     MAPMODE = MAPMODE === b.dataset.mm ? "co" : b.dataset.mm; render();
@@ -852,7 +860,7 @@ function initMap() {
     }
     sideList(shown, t ? `Matching "${q.value.trim()}"` : "Everything on the map");
     clearTimeout(PLTIMER);
-    if (!t) { fitTo(active); return; }
+    if (!t) { const f = FLY[REGION]; ML.flyTo({ ...f, duration: 600 }); return; }
     if (shown.length) {
       // Frame whatever matched, so typing a city both filters and zooms.
       fitTo(shown);
