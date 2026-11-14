@@ -118,13 +118,24 @@ name-to-LEI join put a Munich fund in Tampere. And `norm.name()` strips legal
 suffixes, which turned "NORRSKEN COMPANY LIMITED" into an exact match for
 "Norrsken" and ranked a British construction firm above Norrsken VC.
 
-**What doesn't work?** Cala credits ran out mid-build, so live lookups return
-402. Everything demoed above runs from the 6,418 entities already cached —
-`CALA_CACHE_ONLY=1 python rehearse.py` walks the whole demo path in 2 seconds
-with no network at all, which is how we know the pitch cannot stall.
+**What doesn't work?** Cala's limiter allows about ten requests and then
+refuses, with no ratelimit headers to read, so anything not already cached is
+slow and anything fetched in parallel is slower still. Everything demoed above
+runs from the 11,466 entities already cached — `CALA_CACHE_ONLY=1 python
+rehearse.py` walks the whole demo path in about a second with no network at
+all, which is how we know the pitch cannot stall.
 
-Three things the product says about itself rather than hiding: pre-emption
-detection is starved, not absent (of 837 round records only 58 carry an
-amount); the orphan detector can never fire, because Cala has no headcount
-series for private companies; and the founder signal has no backtest, unlike
-the other two readings.
+Three things the product says about itself rather than hiding: the orphan
+detector can never fire, because Cala has no headcount series for private
+companies; the founder signal has no backtest, unlike the other two
+readings; and the Round Architect records what a lead has done rather than
+predicting what they will do, because the backtest said it could not predict
+(-1.8, -2.8 and -8.0 points against a naive baseline, published in the
+product).
+
+A fourth used to be here and was wrong. We said pre-emption detection was
+starved because only 58 of 837 round records carried an amount. That
+measured our own requests, not Cala: those records were stubs picked up off
+a relationship edge, and an edge does not carry the far entity's properties.
+Ten rounds fetched in full came back ten for ten with `transaction_value`
+and its currency. The harvester now fetches them.

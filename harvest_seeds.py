@@ -25,15 +25,38 @@ def main() -> int:
     seen: set[str] = set()
 
     def tier(label: str, ids) -> None:
-        fresh = [i for i in ids if i and i not in seen]
-        seen.update(fresh)
+        # Dedupe within the tier as well as against earlier ones: the one-hop
+        # tier reads the same entity off several funds' edges, and a count
+        # that disagrees with the file it describes is not worth printing.
+        fresh = []
+        for i in ids:
+            if i and i not in seen:
+                seen.add(i)
+                fresh.append(i)
         tiers.append((label, fresh))
 
     # 1. The funds we rank.
     funds = [i for n in api._investor_pool() for i in by_name.get(norm.name(n), [])]
     tier("funds we rank", funds)
 
-    # 2. Whoever those funds are connected to - the people are the call list.
+    # 2. Funding rounds, for their amounts.
+    #
+    # The product has been telling people that pre-emption detection is
+    # starved because only 58 of 837 round records carry an amount. That
+    # measured our own requests: those records are stubs picked up off a
+    # PARTICIPATES_IN_CORPORATE_EVENT edge, and an edge does not carry the
+    # far entity's properties. Ten rounds fetched in full came back ten for
+    # ten with transaction_value and its currency.
+    tier("funding rounds, for their amounts",
+         [k for k, v in idx.items()
+          if v.get("entity_type") == "PrivateCompanyFundingRound"])
+
+    # 3. Every person we hold: a person is a contact, and contacts are the point.
+    tier("people", [k for k, v in idx.items() if v.get("entity_type") == "Person"])
+
+    # 5. Whoever else those funds are connected to. Harvested funds carry
+    # hundreds of edges each, so this tier is thousands wide and has to come
+    # after the narrow tiers or it swallows them.
     near: list[str] = []
     for fid in funds:
         for block in (idx.get(fid, {}).get("relationships") or {}).values():
@@ -42,15 +65,12 @@ def main() -> int:
                     near += [x.get("id") for x in (items or []) if isinstance(x, dict)]
     tier("one hop from those funds", near)
 
-    # 3. Every person we hold: a person is a contact, and contacts are the point.
-    tier("people", [k for k, v in idx.items() if v.get("entity_type") == "Person"])
-
-    # 4. Companies that appear in rounds - the evidence behind a ranking.
+    # 5. Companies that appear in rounds - the evidence behind a ranking.
     rounds = api._rounds_by_company()
     tier("companies in rounds",
          [i for n in rounds for i in by_name.get(norm.name(n), [])])
 
-    # 5. The rest, organisations before companies.
+    # 6. The rest, organisations before companies.
     for t in ("Organization", "GovernmentalInstitution", "NonprofitOrganization",
               "ResearchInstitution", "Company", "PrivateCompanyFundingRound"):
         tier(f"remaining {t}", [k for k, v in idx.items() if v.get("entity_type") == t])
