@@ -1358,7 +1358,7 @@ function render() {
     parts = [{ t: "Signals" }, { t: "Founder signal" }];
     html = signalView();
   } else if (MODE === "accuracy") {
-    parts = [{ t: "Method" }, { t: "Backtest" }];
+    parts = [{ t: "Signals" }, { t: "Does the signal work?" }];
     html = accuracyView();
   } else if (MODE === "founder") {
     parts = SEL ? [{ t: "Founder", go: 1 }, { t: F?.company || "", go: 1 }, { t: SEL }]
@@ -2023,7 +2023,16 @@ function accuracyView() {
     <span class="v">${pct(v)}</span></div>
     <div style="margin:-6px 0 8px 161px;font:10.5px var(--mono);color:var(--faint)">n=${n}</div>`;
 
-  return stats(4, [
+  return `<div class="verdict green" style="margin-bottom:var(--s3)">
+      <b>The signal predicts progression; the obvious alternative barely does.</b>
+      Companies where at least half the prior investors came back progressed to a
+      later stage ${pct(b.high_insider_return.rate)} of the time against a
+      ${pct(b.base_rate)} base rate. Ranking instead by "whoever invests most",
+      the first thing anyone would try, gets ${pct(b.naive_most_active.rate)} —
+      ${(b.naive_most_active.rate * 100 - b.base_rate * 100).toFixed(1)}pp of lift
+      against our ${(b.high_insider_return.rate * 100 - b.base_rate * 100).toFixed(1)}pp.
+      Measured on ${b.samples} companies, out of sample, over ${esc(b.outcome)}.</div>`
+  + stats(4, [
     ["Observations", b.samples],
     ["Outcome", "stage progression"],
     ["Spread, high vs low", `<span style="color:var(--green)">+${b.spread_pp}pp</span>`],
