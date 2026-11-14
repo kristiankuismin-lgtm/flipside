@@ -47,6 +47,7 @@ class Req(BaseModel):
     description: str = ""
     investors: list[str] | None = None
     my_investors: list[str] | None = None
+    investor: str | None = None        # /outreach: which fund to write to
 
 
 _DOMAINS = None
@@ -146,10 +147,10 @@ GOOD_EVIDENCE = 10
 
 def evidence_depth(n: int) -> str:
     if n >= GOOD_EVIDENCE:
-        return "hyva"
+        return "good"
     if n >= MIN_ROUNDS_TO_RANK:
-        return "ohut"
-    return "riittamaton"
+        return "thin"
+    return "insufficient"
 
 
 def analyze_one(inv, company, desc, stage, comps, histories, mine):
@@ -193,7 +194,7 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
     fit = {"stage": 1.0, "sector": 0.8, "geo": 0.9, "check": 0.8}
     depth = evidence_depth(len(rounds))
     # Ilman riittavaa otosta pisteet olisivat harhaanjohtavia: nayta se.
-    score = None if depth == "riittamaton" else M.score(fit, sig)
+    score = None if depth == "insufficient" else M.score(fit, sig)
     # Portfolio highlights: the companies this firm actually led into, newest
     # first, so the card shows what they do rather than only how they behave.
     led = [r for r in sorted(rounds, key=lambda x: x.date, reverse=True)
@@ -248,7 +249,7 @@ def analyze(req: Req):
 
     out = [analyze_one(i, req.company, desc, req.stage, comps, histories, mine)
            for i in pool]
-    # Rankkaamattomat (riittamaton data) aina loppuun, ei sekaan.
+    # Unranked (insufficient evidence) always last, never mixed in.
     out.sort(key=lambda x: (x["score"] is None, -(x["score"] or 0), x["investor"]))
     # Kilpailija <-> rahasto -kaaret konfliktikarttaa varten.
     edges = [{"investor": x["investor"], "competitor": c}
@@ -678,6 +679,37 @@ def syndicates(req: Req):
             break
     return {"company": req.company, "stage": req.stage,
             "your_backers": mine, "syndicates": out}
+
+
+@app.post("/outreach")
+def outreach(req: Req):
+    """What to open with at Slush, and the numbers under every sentence.
+
+    Synthesised from the screen that already ran: lead rate at this stage,
+    deployment pace, who follows this fund, whether a warm route exists, and
+    which portfolio companies sit in the founder's market. Nothing new is
+    fetched, so this answers instantly and works offline.
+    """
+    from . import outreach as OB, pipeline as P
+    want = (req.investor or "").strip()
+    if not want:
+        return JSONResponse({"error": "No investor named."}, status_code=200)
+
+    scored = analyze(req)
+    inv = next((x for x in scored["investors"]
+                if norm.name(x["investor"]) == norm.name(want)), None)
+    if inv is None:
+        return JSONResponse({"error": f"{want} is not in this screen."},
+                            status_code=200)
+
+    p = PRESETS.get(req.company.strip().lower(), {})
+    mine = req.my_investors or p.get("my_investors", [])
+    syn = P.syndicate(_pipeline(), inv["investor"], exclude=set(mine), size=2)
+    b = OB.brief(company=req.company, stage=req.stage, investor=inv,
+                 syndicate=syn if syn.get("members") else None,
+                 competitors=scored.get("competitors") or [])
+    b["syndicate"] = syn
+    return b
 
 
 @app.get("/connectors")

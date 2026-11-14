@@ -94,6 +94,10 @@ function wire() {
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
     TAB = +b.dataset.tab; render();
   });
+  document.querySelectorAll("[data-brief]").forEach(b => b.onclick = e => {
+    e.stopPropagation();           // the row underneath opens the fund profile
+    openBrief(b.dataset.brief);
+  });
   document.querySelectorAll("[data-open]").forEach(tr => tr.onclick = () => {
     SEL = tr.dataset.open; TAB = 0; render(); window.scrollTo(0, 0);
   });
@@ -178,6 +182,7 @@ function syndicateBlock() {
         <div class="synt"><div class="nm">${esc(s.lead)}</div>
           <div class="sb">${esc(s.lead_text || "")} · led ${s.rounds_led} rounds · ${esc(s.pace || "")}</div></div>
         ${badge("Lead", "green")}${s.enough ? "" : badge("Thin evidence", "amber")}
+        <button class="btn sm" data-brief="${esc(s.lead)}">Slush brief</button>
       </div>
       <div class="synms">${members}</div>
       ${route}</div>`;
@@ -220,6 +225,7 @@ function founderList() {
                 s.dry_powder.label === "🟢" ? "green" : s.dry_powder.label === "🟡" ? "amber" : "red")}</td>
       <td>${x.backs?.length ? badge(x.backs.join(", "), "red") : badge("clear", "grey")}</td>
       <td>${s.warm_path.label !== "⚪" ? badge(s.warm_path.text.replace(/^via /, ""), "blue") : ""}</td>
+      <td class="tdact"><button class="btn sm" data-brief="${esc(x.investor)}">Brief</button></td>
     </tr>`;
   }).join("");
 
@@ -236,7 +242,7 @@ function founderList() {
     + section("ftable", "Target list", "", `<div class="tbl"><table>
       <thead><tr><th></th><th>Investor</th><th>Verdict</th><th style="text-align:right">Score</th>
       <th style="text-align:right">Lead</th><th style="text-align:right">Follow-on</th>
-      <th>Pace</th><th>Conflict</th><th>Route</th></tr></thead><tbody>${rows}</tbody></table></div>`)
+      <th>Pace</th><th>Conflict</th><th>Route</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`)
     + section("fmap", "Conflict map", "", conflictMap());
 }
 
@@ -293,9 +299,9 @@ function founderEntity() {
     fm.employees ? esc(fm.employees) + " people" : "",
     `${x.rounds_seen} rounds in Cala`,
     `${x.portfolio_size || 0} portfolio`,
-    badge(x.evidence_depth === "hyva" ? "well covered"
-      : x.evidence_depth === "ohut" ? "thin coverage" : "insufficient",
-      x.evidence_depth === "hyva" ? "green" : x.evidence_depth === "ohut" ? "amber" : "grey"),
+    badge(x.evidence_depth === "good" ? "well covered"
+      : x.evidence_depth === "thin" ? "thin coverage" : "insufficient",
+      x.evidence_depth === "good" ? "green" : x.evidence_depth === "thin" ? "amber" : "grey"),
   ].filter(Boolean).join(" · ");
   let body = entityHeader(x.investor, "", meta, tabs,
     `<button class="btn" id="composeit">${GMAIL_ICON}Compose intro</button>
@@ -338,8 +344,8 @@ function founderEntity() {
             ["Still deploying", [s.dry_powder.label === "⚪" ? "unknown"
               : s.dry_powder.label === "🔴" ? "slowed" : "active"],
               s.dry_powder.label === "🔴" ? "red" : "green"],
-            ["Evidence depth", [x.evidence_depth === "hyva" ? "well covered"
-              : x.evidence_depth === "ohut" ? "thin" : "insufficient"], "grey"],
+            ["Evidence depth", [x.evidence_depth === "good" ? "well covered"
+              : x.evidence_depth === "thin" ? "thin" : "insufficient"], "grey"],
           ]))
       + section("fo-chart", "Portfolio behaviour", "",
           `<div class="three">
@@ -651,7 +657,8 @@ function render() {
     $("#asksend").onclick = () => routeAsk(ab.value);
   }
   const cm = $("#composeit");
-  if (cm) cm.onclick = () => openCompose();
+  if (cm) cm.onclick = () => (MODE === "founder" && F && !ENT)
+    ? openBrief(SEL) : openCompose();
   const sc = $("#screenit");
   if (sc) sc.onclick = () => {
     const hit = F?.investors?.find(x => x.investor.toLowerCase() === (ENT?.name || "").toLowerCase());
@@ -1408,6 +1415,104 @@ function entityView() {
 /* Drafts an approach grounded in what the graph actually says, then hands it
    to the user's own mail client. Nothing is sent from here: the message goes
    out from their account, after they have read it. */
+/* ---------- Slush outreach brief ----------
+   The compose box used to assemble sentences in the browser from whatever
+   happened to be on screen. The brief is now synthesised server-side from the
+   same screen that produced the ranking, and every sentence arrives with the
+   evidence it was built from - so the drawer is both the draft and the trail.*/
+let BRIEF = null;
+
+async function openBrief(investor) {
+  const w = document.createElement("div");
+  w.className = "scrim on";
+  w.innerHTML = `<div class="composebox" onclick="event.stopPropagation()">
+    <div class="sidehd"><h3>Slush brief — ${esc(investor)}</h3>
+      <div class="s">Reading the graph…</div></div>
+    <div style="padding:34px"><span class="spin"></span></div></div>`;
+  document.body.appendChild(w);
+  const close = () => w.remove();
+  w.onclick = close;
+
+  let b;
+  try {
+    b = await (await fetch("/outreach", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company: F?.company || "", stage: F?.stage || "series a",
+                             limit: F?.investors?.length || 14, investor })
+    })).json();
+  } catch (e) { b = { error: String(e.message) }; }
+  BRIEF = b;
+
+  if (b.error) {
+    w.innerHTML = `<div class="composebox" onclick="event.stopPropagation()">
+      <div class="sidehd"><h3>Slush brief — ${esc(investor)}</h3></div>
+      <div class="msg">${esc(b.error)}</div></div>`;
+    w.onclick = close;
+    return;
+  }
+
+  if (b.blocked) {
+    w.innerHTML = `<div class="composebox" onclick="event.stopPropagation()">
+      <div class="sidehd"><h3>No brief for ${esc(investor)}</h3>
+        <div class="s">This is the finding, not a failure to write one</div></div>
+      <div style="padding:16px">
+        <div class="verdict red"><b>${esc(b.reason)}</b> Pitching a fund that already
+          backs a direct competitor hands them your numbers for free.</div>
+        ${b.evidence.map(e => `<div class="evrow"><span class="evk">${esc(e.kind)}</span>
+          <span>${esc(e.claim)}${e.detail ? ` — ${esc(e.detail)}` : ""}</span></div>`).join("")}
+        <div style="display:flex;margin-top:14px"><button class="btn" id="bclose"
+          style="margin-left:auto">Close</button></div>
+      </div></div>`;
+    w.onclick = close;
+    w.querySelector("#bclose").onclick = close;
+    return;
+  }
+
+  const ev = k => b.evidence.find(e => e.kind === k);
+  const trail = b.sentences.map((sn, i) => {
+    const e = b.evidence[i];
+    return `<div class="bsent"><p>${esc(sn)}</p>
+      ${e ? `<div class="evrow"><span class="evk">${esc(e.kind.replace(/_/g, " "))}</span>
+        <span>${esc(e.detail || e.claim)}</span></div>` : ""}</div>`;
+  }).join("");
+
+  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd"><h3>Slush brief — ${esc(investor)}</h3>
+      <div class="s">Three sentences, each one a number you can check</div></div>
+    <div style="padding:15px">
+      <div class="btrail">${trail}</div>
+      <div class="fld" style="margin:13px 0 11px"><label>To</label>
+        <input id="cto" placeholder="name@fund.com" style="width:100%"></div>
+      <div class="fld" style="margin-bottom:11px"><label>Subject</label>
+        <input id="csub" value="${esc(b.subject)}" style="width:100%"></div>
+      <div class="fld"><label>Message</label>
+        <textarea id="cbody" rows="8" style="width:100%;border:1px solid var(--line2);
+          border-radius:8px;padding:11px;font:13px/1.65 var(--sans)">${esc(
+            "Hi,\n\n" + b.body + "\n\nBest,")}</textarea></div>
+      <div style="display:flex;gap:8px;margin-top:13px;flex-wrap:wrap">
+        <button class="btn pri" id="cmail">${GMAIL_ICON}Open in Gmail</button>
+        <button class="btn" id="ccopy">Copy</button>
+        <button class="btn" id="cmailto">Other mail app</button>
+        <button class="btn" id="bclose" style="margin-left:auto">Close</button>
+      </div>
+    </div></div>`;
+  w.onclick = close;
+  w.querySelector("#bclose").onclick = close;
+  const val = id => w.querySelector(id).value;
+  w.querySelector("#cmail").onclick = () => window.open(
+    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(val("#cto").trim())
+      }&su=${encodeURIComponent(val("#csub"))}&body=${encodeURIComponent(val("#cbody"))}`,
+    "_blank", "noopener");
+  w.querySelector("#cmailto").onclick = () => {
+    location.href = `mailto:${encodeURIComponent(val("#cto").trim())}?subject=${
+      encodeURIComponent(val("#csub"))}&body=${encodeURIComponent(val("#cbody"))}`;
+  };
+  w.querySelector("#ccopy").onclick = async () => {
+    await navigator.clipboard.writeText(val("#cbody"));
+    w.querySelector("#ccopy").textContent = "Copied";
+  };
+}
+
 function composeDraft() {
   const name = ENT?.name || SEL || "";
   const isPerson = ENT?.kind === "people";
