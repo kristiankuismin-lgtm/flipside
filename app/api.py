@@ -222,6 +222,18 @@ def map_data():
     profs = json.loads(PROFILES.read_text())
     ok = [p for p in profs if not p.get("error")]
 
+    # Funding status from the graph walk. Conviction needs two rounds and
+    # prior investors to compare against, which almost no exhibitor has - so
+    # the map answers the question the data can actually support: who on this
+    # floor has raised at all?
+    walked = {}
+    wpath = ROOT / "exhibitor_rounds.json"
+    if wpath.exists():
+        try:
+            walked = json.loads(wpath.read_text())
+        except ValueError:
+            walked = {}
+
     conv = {}
     if CONVICTION.exists():
         for c in json.loads(CONVICTION.read_text()).get("companies") or []:
@@ -245,10 +257,19 @@ def map_data():
                 continue
             lat, lon, cc = loc
             precise = False
+        w = walked.get(p["id"])
+        n_rounds = len(w["rounds"]) if w else None
+        status = ("unknown" if n_rounds is None else
+                  "none" if n_rounds == 0 else
+                  "once" if n_rounds == 1 else "multiple")
+        last = (w["rounds"][-1] if w and w["rounds"] else None)
         pts.append({"name": p["name"], "lat": lat, "lon": lon, "cc": cc,
                     "precise": precise, "hq": hq, "website": p.get("website"),
                     "industries": (p.get("industries") or [])[:2],
                     "score": conv.get(p["name"].lower()),
+                    "rounds": n_rounds, "status": status,
+                    "last_round": ({"stage": last["stage"], "date": last["date"]}
+                                   if last else None),
                     "source": p.get("hq_source")})
     # Second layer: the funds themselves. The map is about where capital and
     # companies sit, not only who booked a stand at Slush.
@@ -278,9 +299,12 @@ def map_data():
                           "founded": v.get("founded"), "employees": v.get("employees"),
                           "source": v.get("hq_source"), "kind": "fund"})
 
+    from collections import Counter
+    status_counts = Counter(p["status"] for p in pts)
     return {"event": "Slush 2026", "event_date": "2026-11-18",
             "total_exhibitors": len(profs), "profiles_fetched": len(ok),
             "placed": len(pts), "exact": exact, "unplaced": unplaced,
+            "walked": len(walked), "status": dict(status_counts),
             "points": pts, "funds": funds}
 
 
@@ -404,6 +428,36 @@ def _entity(eid, props, rels):
     from . import cala_client as cala
     return cala.get_entity(eid, properties=props, outgoing=rels, limit=25,
                            allow_live=True, ttl=86400)
+
+
+@app.get("/founder-signal/{entity_id}")
+def founder_signal(entity_id: str, name: str = "", github: str = ""):
+    """The third reading: does this person look like a founder before they are one?"""
+    from . import founder_signal as FS, github as GH
+    prof = entity_profile(entity_id, kind="people")
+    if isinstance(prof, JSONResponse):
+        return prof
+    groups = prof.get("groups") or []
+    nm = name or prof.get("name") or ""
+
+    gh_profile, gh_err = None, None
+    try:
+        login = github or GH.find_user(nm)
+        if login:
+            gh_profile = GH.profile(login)
+    except GH.RateLimited as e:
+        gh_err = str(e)
+    except Exception as e:
+        gh_err = f"{type(e).__name__}"
+
+    sig = GH.signal(gh_profile)
+    out = FS.assess(nm, groups, gh=sig if gh_profile else None)
+    return {"name": nm, "id": entity_id, "score": out.score,
+            "confidence": out.confidence, "reasons": out.reasons,
+            "components": out.components, "evidence_edges": out.evidence_edges,
+            "github": gh_profile, "github_signal": sig, "github_error": gh_err,
+            "groups": [{"rel": g["rel"], "label": g["label"],
+                        "items": [i["name"] for i in g["items"][:6]]} for g in groups]}
 
 
 @app.get("/locate/{entity_id}")

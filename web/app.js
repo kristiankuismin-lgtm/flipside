@@ -607,6 +607,17 @@ async function loadMap() {
 const scoreColor = s => s == null ? "#6b655c"
   : s >= 70 ? "#7fb88a" : s >= 55 ? "#d9a441" : "#d9685c";
 
+/* The map is coloured by funding status, not conviction: conviction needs two
+   rounds and prior investors, and almost nothing on a Slush floor has that.
+   "Has this company raised at all" is a question the data can answer. */
+const STATUS = {
+  multiple: ["#2d7a4f", "raised twice or more"],
+  once:     ["#90610a", "raised once"],
+  none:     ["#b03628", "no funding on record"],
+  unknown:  ["#b8b2a9", "not checked yet"],
+};
+const statusColor = p => (STATUS[p.status] || STATUS.unknown)[0];
+
 function mapView() {
   if (!MAP) return `<div class="msg"><span class="spin"></span>Loading…</div>`;
   if (MAP.error && !MAP.points?.length)
@@ -614,12 +625,13 @@ function mapView() {
       <span style="color:var(--dim)">The fetch runs in the background; reload shortly.</span></div>`;
 
   const scored = MAP.points.filter(p => p.score != null).length;
+  const st = MAP.status || {};
   return stats(5, [
     ["Companies placed", MAP.placed],
     ["Funds placed", (MAP.funds || []).length],
     ["Exact street coordinates", MAP.exact],
-    ["Address not placeable", MAP.unplaced],
-    ["Scored for conviction", scored],
+    ["Checked for funding", MAP.walked || 0],
+    ["Have raised", (st.once || 0) + (st.multiple || 0)],
   ])
   + section("gmap", "Where the floor comes from",
       `${MAP.placed} placed · ${MAP.unplaced} addresses we could not resolve`,
@@ -707,7 +719,10 @@ function sideList(points, title) {
     <div class="sideitem">
       <div class="n">${esc(p.name)}${p.score != null
         ? ` <span class="bdg ${p.score >= 70 ? "b-green" : p.score >= 55 ? "b-amber" : "b-red"}"
-            style="margin-left:5px">${p.score}</span>` : ""}</div>
+            style="margin-left:5px">${p.score}</span>` : ""}
+        ${p.status && p.status !== "unknown" ? `<span class="bdg ${
+          p.status === "multiple" ? "b-green" : p.status === "once" ? "b-amber" : "b-grey"
+        }" style="margin-left:5px">${esc((STATUS[p.status] || [])[1] || "")}</span>` : ""}</div>
       <div class="d">${esc(p.hq || "")}${p.industries?.length
         ? " · " + esc(p.industries.join(", ")) : ""}</div>
       ${p.description ? `<div class="d">${esc(p.description.slice(0, 130))}</div>` : ""}
@@ -748,7 +763,7 @@ function initMap() {
     const d = document.createElement("div");
     d.className = "mkr";
     const isFund = p.kind === "fund";
-    const col = isFund ? "#c2614f" : scoreColor(p.score);
+    const col = isFund ? "#c2614f" : statusColor(p);
     const sz = isFund ? 15 : (p.score != null ? 13 : 10);
     d.style.cssText = p.precise
       ? `width:${sz}px;height:${sz}px;background:${col}${isFund ? ";box-shadow:0 0 0 5px rgba(194,97,79,.18)" : ""}`
@@ -759,6 +774,10 @@ function initMap() {
         `<div class="mlpop"><b>${esc(p.name)}</b><br>
          <span style="color:#777">${esc(p.hq || "")}</span>
          ${p.precise ? "" : `<br><span style="color:#999">city only</span>`}
+         ${p.status && p.status !== "unknown"
+            ? `<br>${esc((STATUS[p.status] || [])[1] || "")}${
+                p.last_round ? ` · ${esc(p.last_round.stage || "")} ${esc(String(p.last_round.date).slice(0, 7))}` : ""}`
+            : ""}
          ${p.score != null ? `<br>conviction <b>${p.score}</b>` : ""}</div>`))
       .addTo(ML);
     d.onclick = () => sideList([p], p.name);
@@ -1127,7 +1146,11 @@ function entityView() {
         ${isPerson ? "" : `<button class="btn" id="screenit">Screen this fund</button>`}
         <button class="btn" onclick="window.print()">Export</button></span>
     </div><div class="tabs">
-      <button class="tab on">Profile</button></div></div><div class="tabbody">`;
+      <button class="tab ${TAB === 0 ? "on" : ""}" data-tab="0">Profile</button>
+      ${isPerson ? `<button class="tab ${TAB === 1 ? "on" : ""}" data-tab="1">Founder signal</button>` : ""}
+      </div></div><div class="tabbody">`;
+
+  if (isPerson && TAB === 1) return body + founderSignalTab() + "</div>";
 
   if (val("description"))
     body += `<p class="lede">${esc(val("description"))}
@@ -1229,4 +1252,72 @@ function openCompose() {
     await navigator.clipboard.writeText(w.querySelector("#cbody").value);
     w.querySelector("#ccopy").textContent = "Copied";
   };
+}
+
+
+/* ================= FOUNDER SIGNAL (third reading) ================= */
+let FSIG = null, FSIGFOR = null;
+
+async function loadFounderSignal(id, name) {
+  FSIGFOR = id; FSIG = null; render();
+  try {
+    FSIG = await (await fetch(`/founder-signal/${id}?name=${encodeURIComponent(name || "")}`)).json();
+  } catch (e) { FSIG = { error: String(e.message) }; }
+  render();
+}
+
+function founderSignalTab() {
+  if (FSIGFOR !== ENT.id) { loadFounderSignal(ENT.id, ENT.name); return `<div class="msg">
+    <span class="spin"></span>Reading the graph…</div>`; }
+  if (!FSIG) return `<div class="msg"><span class="spin"></span>Reading the graph…</div>`;
+  if (FSIG.error) return `<div class="msg">${esc(FSIG.error)}</div>`;
+
+  const f = FSIG, gh = f.github, comps = (f.components || []).filter(c => c.counted);
+  const uncounted = (f.components || []).filter(c => !c.counted);
+
+  if (f.score === null) return `<div class="verdict grey">
+    <b>Not enough to read.</b> ${esc((f.reasons || [])[0] || "")}</div>`;
+
+  const max = Math.max(...comps.map(c => c.contribution), 1);
+  return stats(4, [
+    ["Founder signal", f.score, "mono"],
+    ["Confidence", f.confidence],
+    ["Connections read", f.evidence_edges, "mono"],
+    ["Ships code publicly", gh ? (f.github_signal?.label || "yes") : "unknown"],
+  ])
+  + `<div class="verdict ${f.score >= 55 ? "green" : "grey"}">
+      <b>${f.score >= 55 ? "Looks like someone who starts things."
+        : "Some of the pattern, not all of it."}</b> ${esc((f.reasons || []).join("; "))}.</div>`
+  + section("fs-comp", "What the score is made of", "", `<div class="card">${
+      comps.map(c => `<div class="barrow">
+        <span class="lbl">${esc(c.label)}</span>
+        <span class="bart"><i class="g" style="width:${Math.round(100 * c.contribution / max)}%"></i></span>
+        <span class="pc">+${c.contribution}</span></div>`).join("")}
+      ${uncounted.length ? `<div class="sub" style="margin-top:12px">Counted but not scored:
+        ${uncounted.map(c => `${esc(c.label)} (${c.n})`).join(", ")} — visibility measures
+        being already known, not being about to build.</div>` : ""}</div>`)
+  + (gh ? section("fs-gh", "GitHub", esc(gh.login), `<div class="two">
+      <div class="card"><h4>${esc(gh.name || gh.login)}</h4>
+        <div class="sub">${esc(gh.bio || "")}</div>
+        ${bars([["Stars", gh.stars, "g", gh.stars],
+                ["Own repos", gh.own_repos, "g", gh.own_repos],
+                ["Followers", gh.followers, "g", gh.followers]])}
+        <div class="sub" style="margin-top:9px">on GitHub since ${gh.since}
+          ${gh.languages?.length ? "· " + esc(gh.languages.map(l => l[0]).join(", ")) : ""}</div></div>
+      <div class="card"><h4>Most starred</h4><div class="sub">public repositories</div>
+        ${(gh.top_repos || []).map(r => `<div class="sideitem">
+          <div class="n"><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}</a>
+            <span class="bdg b-grey" style="margin-left:6px">${r.stars}★</span></div>
+          <div class="d">${esc(r.description || r.lang || "")}</div></div>`).join("")
+          || `<div class="sub">No public repositories.</div>`}</div></div>`)
+    : section("fs-gh", "GitHub", "", `<div class="card"><div class="sub">${
+        esc(f.github_error || "No GitHub account matched this name with enough confidence to attribute.")}
+        </div><div style="font-size:12.8px;color:var(--dim);margin-top:7px">
+        A same-name account is not evidence — we decline rather than credit someone
+        else's work.</div></div>`))
+  + section("fs-ev", "Everything this reads", "straight from Cala's Person graph",
+      `<div class="hl">${(f.groups || []).map(g => `<div class="hlc">
+        <div class="hlhd"><div style="min-width:0"><div class="nm">${esc(g.label)}</div>
+          <div class="sb">${g.items.length} on record</div></div></div>
+        <div class="sub" style="margin:0">${esc(g.items.join(", "))}</div></div>`).join("")}</div>`);
 }

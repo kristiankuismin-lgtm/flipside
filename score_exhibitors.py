@@ -74,6 +74,7 @@ def main():
     log(f"{len(state)} already walked, trying {len(todo)} more")
 
     done = fails = 0
+    backoff = 60.0
     for i, p in enumerate(todo, 1):
         try:
             rids = company_rounds(p["id"])
@@ -84,6 +85,7 @@ def main():
                 time.sleep(PACE)
                 if r:
                     rounds.append(r)
+            backoff = 60.0        # a success means the budget refilled
             state[p["id"]] = {"name": p["name"],
                               "rounds": [{"stage": r.stage, "date": str(r.date),
                                           "amount": r.amount_eur,
@@ -92,13 +94,23 @@ def main():
             done += 1
             if len(rounds) >= 2:
                 log(f"{i}/{len(todo)} {p['name'][:30]}: {len(rounds)} rounds")
+        except cala.CalaError as e:
+            fails += 1
+            if "Rate limit" in str(e):
+                # The quota is a budget over time, so waiting is the fix, not
+                # stopping. Save what we have and sleep it off.
+                json.dump(state, open(STATE, "w"))
+                log(f"{i}/{len(todo)} quota wall — sleeping {backoff:.0f}s "
+                    f"(walked {len(state)} so far)")
+                time.sleep(backoff)
+                backoff = min(backoff * 1.4, 600)
+                continue
+            if fails % 10 == 1:
+                log(f"{i}/{len(todo)} {p['name'][:26]}: {str(e)[:50]}")
         except Exception as e:
             fails += 1
             if fails % 10 == 1:
                 log(f"{i}/{len(todo)} {p['name'][:26]}: {type(e).__name__}")
-            if fails > 40:
-                log("too many failures - quota wall, stopping")
-                break
         if i % 25 == 0:
             json.dump(state, open(STATE, "w"))
             log(f"{i}/{len(todo)} walked={done} failed={fails}")
