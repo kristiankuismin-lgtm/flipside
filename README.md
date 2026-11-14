@@ -11,6 +11,14 @@ Junction 2026.
 | **Investor** | When this company raised again, did the people already on the cap table come back — and was that unusual for them? | writing a cheque |
 | **Third** | Who looks like a founder before they are one? | looking early |
 
+The product opens on one sentence and three buttons:
+
+> **Build the round around Atomico, with World Innovation Lab and Lightspeed
+> Venture Partners following them in.**
+> 1. Open with Atomico — World Innovation Lab joins 25% of the rounds they lead
+> 2. Ask Voima Ventures for an intro — it reaches Icebreaker.vc
+> 3. Do not pitch Byfounders, Nordic Makers — they back Corti, Tandem Health
+
 ---
 
 ## Why this needs a graph
@@ -38,6 +46,55 @@ graph and impossible in a search engine.
 
 M2 counts only companies whose entry round is 18+ months old — younger ones
 have not had time to raise again.
+
+## Round architect
+
+A ranked list is a shopping list; a round is a syndicate. For each fund that
+genuinely leads at the founder's stage, we propose the two funds that show up
+**when that fund leads** — which is a different edge from generic
+co-investment, and the one a founder can actually assemble:
+
+| Lead | Rounds led | Who follows them in |
+|---|---|---|
+| Balderton Capital | 11 | Creandum (3×, 27%) · Coparion (2×, 18%) |
+| Atomico | 8 | World Innovation Lab (2×, 25%) · Lightspeed (1×, 13%) |
+| Creandum | 7 | Index Ventures (2×, 29%) · EQT Ventures (1×, 14%) |
+
+Every one of those numbers opens the rounds behind it — **all** the rounds the
+lead led, not only the ones the member joined, because "2 of 8" cannot be read
+unless the other six are on screen.
+
+Where no warm route exists we say so once, plainly, and name the route that
+does: for Gosta Labs, Voima Ventures reaches Icebreaker.vc, which does not
+lead at this stage. A door in, not a lead.
+
+## Every figure opens its evidence
+
+Fifty-eight figures on the founder screen are buttons. Each opens the claim,
+its observation count and confidence, the rounds underneath with dates and
+amounts, any cited document URLs, and the UTC time the screen was retrieved —
+a number with no retrieval time can be believed but not checked.
+
+The scores open their own arithmetic rather than rounds: fit, signal quality
+with the share of signals actually known, lead factor, conflict, warm route
+and recency, ending in the expression that produces the number. The conviction
+score does the same, and a test pins the breakdown to the scorer so the drawer
+cannot disagree with the figure it explains.
+
+## Where the sources disagree
+
+A product built on a graph inherits the graph's disagreements. Vanta's Series B
+is on record at both €101.2M and €36.8M, with different leads, dated four
+months apart. We used to pick one and print it as fact.
+
+151 disagreements across 80 companies, 35 of them hard. Both readings are
+shown, no winner is chosen, and the founder table carries the count per fund —
+before you repeat one of these figures to the fund itself, know that our own
+sources do not agree on it.
+
+Deliberately **not** flagged: amounts within 15% (rounding and currency), the
+same lead spelled two ways (normalisation already knows), and co-leads, which
+are real and are counted separately rather than shown as errors.
 
 ## Investor side — insider conviction
 
@@ -81,6 +138,20 @@ cap-table-size buckets — because return *fraction* is mechanically tied to how
 many investors were already on the register. It holds at +32.7pp, +12.7pp and
 +13.2pp in the 2–3, 4–6 and 7+ buckets, and **reverses at −4.9pp in
 single-investor cap tables.** That row is in the product, not filtered out.
+
+## Evidence ages
+
+Conviction is evidence that insiders chose to put more money in. A four-year-old
+instance of that is still a fact and much weaker evidence about this week.
+Ankorstore's last round closed in January 2022 and it ranked **#1**; it now
+ranks #53, 84.1 → 33.6.
+
+Flat inside a grace period, halving after it, floored — discounted, never
+erased, and an unknown date is treated as current because we do not know that
+it is old. Both halves of the product age their evidence, with constants that
+differ on purpose: funds age more slowly than companies (18-month grace, 24-month
+half-life, 0.55 floor) than rounds do (12, 18, 0.40). A test pins the two apart
+so they cannot quietly converge.
 
 ## Three rules the code enforces
 
@@ -126,13 +197,27 @@ graph means a company is raising and has not said so. Abridge filed 2026-09-11.
 
 ## The map
 
-376 entities: Slush 2026 exhibitors, funded companies, and funds, shown together
-with distinct marker shapes. MapLibre GL over OpenFreeMap vector tiles, library
+1,242 placed entities: Slush 2026 exhibitors, funded companies, and funds, shown
+together with distinct marker shapes. Exhibitors are off by default — 676
+pre-funding stands drown out 173 funds, and "where is the ecosystem" is not
+answered by a conference floorplan. MapLibre GL over OpenFreeMap vector tiles, library
 vendored so only tiles need the network.
 
 Addresses are geocoded against Nominatim and cached. City-centroid fallbacks are
 drawn hollow and counted — the earlier version scattered them with jitter, which
 invented positions and dropped companies into the Gulf of Finland.
+
+A registry address and the firm's own description are cross-checked, because
+the GLEIF name-to-LEI join lands on namesakes abroad: HV Capital (Munich) was
+pinned to Tampere, Spark Capital (Boston) to Tallinn, Alliance Venture (Prague)
+to Stockholm. Eleven funds were disputed and re-placed by description, fifteen
+had no resolvable address at all, and the registry string is kept as evidence
+rather than as a location.
+
+"Near me" ranks the graph by great-circle distance from the browser's own
+geolocation, asked for with consent and used for one request. No IP lookup —
+that means telling a third party where you are in order to find out where you
+are.
 
 Colour is **funding status**, not conviction. The graph walk showed Slush's floor
 is overwhelmingly pre-funding — of the first 156 checked, most have never raised
@@ -157,7 +242,7 @@ which cost a day of name-matching heuristics before we read the error properly.
 ```bash
 uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python -r requirements.txt
-echo "CALA_API_KEY=..." > .env          # GITHUB_TOKEN optional, raises 60/hr to 5000
+cp .env.example .env                    # CALA_API_KEY required; GITHUB_TOKEN optional
 
 .venv/bin/python recon.py                       # what this Cala account exposes
 .venv/bin/python precompute.py investors.txt    # fill the cache
@@ -174,8 +259,15 @@ because Cala's quota is a budget over time — waiting beats aborting.
 ## Tests
 
 ```bash
-.venv/bin/python -m pytest tests/ -q      # 145, none of which call Cala
+.venv/bin/python -m pytest tests/ -q      # 259, none of which call Cala
+node tests/test_ask_routing.mjs           # 29 more, for the Ask router
+CALA_CACHE_ONLY=1 .venv/bin/python rehearse.py   # walk the demo, timed
 ```
+
+`rehearse.py` walks the three-minute demo end to end — every endpoint it
+touches, with a time budget and a check on what came back, because a 200
+carrying an error payload is the failure that looks fine until you are standing
+in front of judges. **15/15 clean, 2s end to end** with no network at all.
 
 Every bug found along the way has a regression test: name normalisation
 (`Index Ventures` ≠ `Index Ventures LLP` silently zeroed every metric), schema
