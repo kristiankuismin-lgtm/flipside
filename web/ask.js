@@ -23,16 +23,6 @@
       [/\bwhere\s+(?:are|is)\b/, 3],
       [/\b(?:geograph|atlas|nearby|near me)\w*/, 3],
     ]],
-    ["investor", [
-      [/\binsider\s+conviction\b/, 7],
-      [/\b(?:doubling|double)\s+down\b/, 6],
-      [/\bwithout\s+announcing\b/, 6],
-      [/\b(?:unannounced|stealth|quietly|silently)\b/, 5],
-      [/\bconviction\b/, 4],
-      [/\binsiders?\b/, 3],
-      [/\borphan\w*/, 3],
-      [/\bdeal\s?flow\b/, 3],
-    ]],
     ["lookup", [
       [/^(?:find|open|look\s+up|search\s+for|show\s+me)\s+\S/, 6],
       [/^(?:who|what)\s+(?:is|are)\s+\S/, 5],
@@ -122,8 +112,7 @@
       if (restView && restBest >= 4) {
         return { view: restView, term: text, confident: true,
                  why: { map: "showing the map",
-                        investor: "reading the graph from the investor side",
-                        founder: "screening investors" }[restView] };
+                                          founder: "screening investors" }[restView] };
       }
       if (term.length < 2) {
         return { view: "founder", term: text, confident: false,
@@ -145,8 +134,7 @@
           : "screening investors",
       };
     }
-    const why = { map: "showing the map",
-                  investor: "reading the graph from the investor side" }[view];
+    const why = { map: "showing the map" }[view];
     return { view, term: text, confident: best >= 4, why };
   }
 

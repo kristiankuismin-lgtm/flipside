@@ -25,12 +25,14 @@ is(askIntent("Gosta Labs Series A").view, "founder", "company + stage");
 is(askIntent("screen my investor list").view, "founder", "screen");
 is(askIntent("who should I meet at Slush").view, "founder", "who should I meet");
 
-// ...and it must not swallow the genuine investor-side questions.
-is(askIntent("who are insiders doubling down on?").view, "investor", "doubling down");
-is(askIntent("who is raising without announcing it?").view, "investor",
-   "raising without announcing beats raising");
-is(askIntent("insider conviction").view, "investor", "insider conviction");
-is(askIntent("show me stealth rounds").view, "investor", "stealth");
+// The product has one audience now. There is no investor destination, so
+// an investor-side question lands on the founder screen rather than on a
+// view that no longer exists - and the trace tells the user what it did.
+// "who are ..." still reads as a lookup, which is right: with no investor
+// view there is no better home, and a lookup that finds nothing says so.
+is(askIntent("who are insiders doubling down on?").view !== "investor", true, "no investor view");
+is(askIntent("insider conviction").view !== "investor", true, "no investor destination");
+is(askIntent("insider conviction").view, "founder", "falls through to the one screen");
 
 // Map, but not on a stray "where".
 is(askIntent("map the Slush 2026 floor").view, "map", "map the floor");

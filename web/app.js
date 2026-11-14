@@ -6,7 +6,7 @@ const pct = v => v == null ? "—" : Math.round(v * 100) + "%";
 const initials = s => (s || "?").replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/)
   .slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "?";
 
-let MODE = "home", F = null, I = null, SEL = null, TAB = 0;
+let MODE = "home", F = null, SEL = null, TAB = 0;
 let SYN = null;                        // /syndicates, filled after the screen
 let HEALTH = null;                     // what the product is standing on
 let FCONTRA = {};                      // investor -> disagreements in their rounds
@@ -185,7 +185,6 @@ function wire() {
     ASKWHY = { ...ASKWHY, why: "you chose this view", confident: true, view: v };
     SEL = null;
     if (v === "map") { MODE = "map"; return MAP ? render() : loadMap(); }
-    if (v === "investor") { MODE = "investor"; return I ? render() : loadInvestor(); }
     MODE = "founder";
     if (!F) { PENDING_CO = ASKWHY.q; render(); return runFounder(); }
     render();
@@ -238,7 +237,7 @@ function wire() {
     openSyndicateEvidence(l, v, "warm");
   });
   document.querySelectorAll("[data-cv]").forEach(b => b.onclick = e => {
-    e.stopPropagation(); openConviction(b.dataset.cv);
+    e.stopPropagation();
   });
   document.querySelectorAll("[data-ev]").forEach(b => b.onclick = e => {
     e.stopPropagation();
@@ -476,8 +475,7 @@ function founderList() {
         <b>Evidence and experiments.</b> Not part of the answer above, kept
         because they are how it was checked.
         <span>
-          <button class="lnk" data-goto="accuracy">Does the signal work?</button>
-          <button class="lnk" data-goto="investor">Insider conviction</button>
+          <button class="lnk" data-goto="accuracy">What we tested</button>
           <button class="lnk" data-goto="map">Where these funds are</button>
           <button class="lnk" data-goto="signal">Founder signal (untested)</button>
         </span></div>`;
@@ -796,18 +794,9 @@ const GMAIL_ICON = `<svg width="15" height="12" viewBox="0 0 48 36" aria-hidden=
   <path fill="#C5221F" d="M0 6v3l12 9V4L8 2a5 5 0 0 0-8 4z"/>
 </svg>`;
 
-const STRUCT = { "pre-emption": ["Pre-emption", "green"], "healthy": ["Healthy up-round", "blue"],
-  "bridge": ["Bridge / extension", "red"], "unknown": ["Structure unknown", "grey"] };
 
 let CONTRA = null;        // where sources disagree with each other
 
-async function loadInvestor() {
-  $("#view").innerHTML = `<div class="msg"><span class="spin"></span>Scoring insider conviction…</div>`;
-  I = await (await fetch("/conviction")).json();
-  SEL = null; render();
-  if (!CONTRA) loadContradictions();
-  if (!BT) loadBacktest();
-}
 
 async function loadContradictions() {
   try { CONTRA = await (await fetch("/contradictions")).json(); }
@@ -823,239 +812,8 @@ function contraFor(company) {
     (i.company || "").toLowerCase().replace(/[^a-z0-9]/g, "") === k);
 }
 
-function contraSection() {
-  if (!CONTRA || !CONTRA.count) return "";
-  const hard = (CONTRA.items || []).filter(i => !i.soft);
-  if (!hard.length) return "";
-  return section("icontra", "Sources disagree",
-    `${CONTRA.hard} conflicts across ${CONTRA.companies} companies`,
-    `<div class="sub" style="margin-bottom:12px;max-width:62ch;line-height:1.6">
-       Two records of the same round, differing on date, amount or lead. We do
-       not pick a winner — both readings are shown, because a number you are
-       about to repeat to the person it is about should come with its doubt.</div>
-     <div class="tbl"><table>
-       <thead><tr><th>Company</th><th>Field</th><th>One source says</th>
-       <th>Another says</th><th>Sources</th></tr></thead>
-       <tbody>${hard.slice(0, 40).map(i => `<tr>
-         <td><div class="ent">${logo(i.company)}<div class="nm">${esc(i.company)}</div></div></td>
-         <td>${badge(i.field, i.field === "amount" ? "red" : "amber")}</td>
-         <td class="nowrap">${esc(i.a || "—")}</td>
-         <td class="nowrap">${esc(i.b || "—")}</td>
-         <td>${(i.sources || []).slice(0, 2).map(u =>
-           `<a href="${esc(u)}" target="_blank" rel="noopener" class="srcx">${
-             esc(String(u).replace(/^https?:\/\/(www\.)?/, "").slice(0, 26))}</a>`).join(" ")
-           || `<span class="sub">no document URL</span>`}</td>
-       </tr>`).join("")}</tbody></table></div>`);
-}
 
-function investorList() {
-  if (!I) return `<div class="msg"><span class="spin"></span>Loading…</div>`;
-  if (I.error) return `<div class="msg">${esc(I.error)}</div>`;
-  const all = I.companies || [];
-  const pre = all.filter(c => c.structure === "pre-emption");
-  const bridge = all.filter(c => c.structure === "bridge");
-  const strong = all.filter(c => (c.score ?? 0) >= 70);
-  const orphans = I.orphans || [];
-  // Six KPI cards that only sat there have become three that filter the list.
-  const cs = IFILTER === "strong" ? strong : IFILTER === "bridge" ? bridge : all;
 
-  // Columns that read the same on every row are not columns. "Round
-  // structure" was healthy on 35 of the top 40 and "Previous lead" returned
-  // on 30 - so those move to a single Flags cell that is empty when there is
-  // nothing to say, and the space goes to recency, which does vary.
-  const ago = c => c.months_since == null ? "—"
-    : c.months_since < 1 ? "this month"
-    : c.months_since < 24 ? `${c.months_since} mo`
-    : `${(c.months_since / 12).toFixed(1)} yr`;
-
-  const rows = cs.map((c, i) => {
-    const back = c.insiders.filter(x => x.returned).length;
-    const flags = [
-      c.structure === "bridge" ? badge("bridge", "amber") : "",
-      c.structure === "preemption" ? badge("pre-empted", "green") : "",
-      c.previous_lead_returned === false ? badge("lead walked", "red") : "",
-      c.confidence === "Low" ? badge("thin evidence", "grey") : "",
-      c.at_slush ? badge("Slush 2026", "accent") : "",
-      contraFor(c.company).some(i => !i.soft) ? badge("sources disagree", "red") : "",
-    ].filter(Boolean).join(" ");
-    return `<tr data-open="${esc(c.company)}" class="${c.stale ? "stalerow" : ""}">
-      <td class="rank">${i + 1}</td>
-      <td><div class="ent">${logo(c.company)}<div><div class="nm">${esc(c.company)}</div>
-        <div class="sb">${c.rounds.length} rounds · ${c.n_insiders} insiders</div></div></div></td>
-      <td class="num" style="color:${c.score >= 70 ? "var(--green)" : c.score < 40 ? "var(--red)" : "var(--ink)"}">
-        <button class="figure" data-cv="${esc(c.company)}"
-          title="How this conviction score was computed">${c.score}</button>
-        ${c.recency < 0.995 ? `<span class="decay" title="aged from ${c.score_fresh}">↓${
-          Math.round((1 - c.recency) * 100)}%</span>` : ""}</td>
-      <td class="num">${esc(ago(c))}</td>
-      <td class="nowrap">${esc(String(c.last_round || "—").slice(0, 7))}
-        ${c.stale ? badge("stale", "amber") : ""}</td>
-      <td class="num">${back}/${c.n_insiders}</td>
-      <td class="flags">${flags}</td>
-    </tr>`;
-  }).join("");
-
-  return askTrace() + kpis([
-    ["Companies scored", cs.length, "all",
-     "every company with two rounds and a prior investor to compare"],
-    ["Insiders doubling down", strong.length, "strong",
-     "conviction 70+ after ageing the evidence"],
-    ["Bridges", bridge.length, "bridge",
-     "an extension rather than a priced up-round"],
-  ], IFILTER, k => { IFILTER = IFILTER === k ? "all" : k; render(); })
-  + (IFILTER !== "all" ? `<div class="filterline">Showing
-      <b>${esc({ strong: "insiders doubling down", bridge: "bridges" }[IFILTER] || IFILTER)}</b>
-      — ${cs.length} of ${all.length}.
-      <button class="btn sm" id="clearf">Clear</button></div>` : "")
-  + (!pre.length && IFILTER === "all" && I.coverage
-      ? section("ipre", "Pre-emptions",
-          `0 of ${all.length} — starved, not absent`,
-          `<div class="emptywhy">
-            <b>Not enough round sizes to detect one.</b>
-            A pre-emption is an insider-only round at 2x or more within twelve
-            months, which needs the size of this round and the one before it.
-            Of ${I.coverage.round_records} round records in this corpus,
-            ${I.coverage.with_amount} carry an amount
-            (${Math.round(100 * I.coverage.with_amount / Math.max(I.coverage.round_records, 1))}%),
-            and only ${I.coverage.amount_pairs} consecutive pairs have both.
-            <span class="sub">The zero is the coverage, not the market.</span>
-          </div>`)
-      : "")
-  + (pre.length && IFILTER === "all" ? section("ipre", "Pre-emptions", "",
-      `<div class="hl">${pre.slice(0, 6).map(c => `<div class="hlc green"><div class="hlhd">${logo(c.company)}
-        <div><div class="nm">${esc(c.company)}</div><div class="sb">${c.rounds.at(-1).stage}</div></div>
-        ${badge(c.score, "green")}</div>
-        <div class="hlm"><div><div class="k">Insiders back</div><div class="v">${c.insiders.filter(x => x.returned).length}/${c.n_insiders}</div></div>
-        <div><div class="k">Last round</div><div class="v">${esc(String(c.last_round || "—").slice(0, 7))}</div></div></div></div>`).join("")}</div>`) : "")
-  + contraSection()
-  + `<div class="validated">
-      <b>Measured, not asserted.</b> On ${BT?.samples || 498} companies this signal
-      lifts stage progression by ${BT ? BT.high_insider_return.lift_pp : 10.2} points
-      where ranking by "whoever invests most" lifts it by ${
-        BT ? BT.naive_most_active.lift_pp : 2.8}.
-      <button class="lnk" data-goto="accuracy">See the backtest →</button></div>`
-  + section("itbl", "Conviction ranking",
-      I.recency ? `evidence older than ${I.recency.grace_months} months is discounted,
-        halving every ${I.recency.halflife_months}` : "", `<div class="tbl"><table>
-      <thead><tr><th class="w-rank"></th><th>Company</th><th class="num">Conviction</th>
-      <th class="num">Age</th><th class="w-date">Last round</th>
-      <th class="num">Insiders back</th><th class="w-flags">Flags</th></tr></thead>
-      <tbody>${rows}</tbody></table></div>`)
-  + (orphans.length ? section("iorph", "Well-performing orphans",
-      "growing, but their lead's fund has stopped deploying",
-      `<div class="hl">${orphans.map(o => `<div class="hlc"><div class="hlhd">${logo(o.company)}
-        <div><div class="nm">${esc(o.company)}</div><div class="sb">${o.months} months since last round</div></div>
-        ${badge("needs a new lead", "amber")}</div>
-        <ul class="reasons">${o.why.map(w => `<li>${esc(w)}</li>`).join("")}</ul></div>`).join("")}</div>`)
-    : section("iorph", "Well-performing orphans", "detector is inert — one input is missing",
-      `<div class="emptywhy">
-        <b>This cannot fire on the data we have.</b>
-        An orphan is a company still growing whose lead's fund has stopped
-        deploying. Two of the three conditions are checkable — the fund has
-        slowed, and 15+ months since the last round. The third, headcount
-        still growing, is not: Cala carries no headcount series for private
-        companies, so the condition can never be evaluated and the detector
-        can never return anyone.
-        <span class="sub">Shown rather than hidden, because a section that
-        silently never fires is worse than one that says why.</span></div>`));
-}
-
-function investorEntity() {
-  const c = (I.companies || []).find(x => x.company === SEL);
-  if (!c) { SEL = null; return investorList(); }
-  const [sl, sc] = STRUCT[c.structure] || STRUCT.unknown;
-  const tabs = ["Overview", "Insiders", "Rounds", "Public record", "Evidence"];
-  const latest = c.rounds.at(-1);
-  let body = entityHeader(c.company, "",
-    `${c.rounds.length} rounds · latest ${esc(latest.stage)} ${esc(latest.date)}
-     · ${badge(sl, sc)}${c.at_slush ? " · " + badge("Slush 2026", "accent") : ""}`,
-    tabs, `<button class="btn" onclick="window.print()">Export brief</button>`);
-
-  if (TAB === 0) {
-    const back = c.insiders.filter(x => x.returned).length;
-    body += `<div class="verdict ${c.score >= 70 ? "green" : c.score < 40 ? "red" : "grey"}">
-      <b>${c.score >= 70 ? "Insiders are doubling down." : c.score < 40 ? "Insiders stepped back."
-        : "Mixed insider signal."}</b> ${esc(c.reasons.join("; "))}.</div>`
-      + stats(5, [
-        ["Conviction", c.score, "mono"],
-        ["Insiders returning", `${back}/${c.n_insiders}`, "mono"],
-        ["Round structure", sl],
-        ["Previous lead", c.previous_lead_returned === true ? "returned"
-          : c.previous_lead_returned === false ? "walked away" : "unknown"],
-        ["Confidence", c.confidence],
-      ])
-      + section("io-why", "Why this score", "",
-          `<div class="card"><ul class="reasons">${c.reasons.map(r => `<li>${esc(r)}</li>`).join("")}</ul></div>`)
-      + section("io-prof", "Round profile", "",
-          badgeGroup([
-            ["Stage reached", [latest.stage].filter(Boolean), "purple"],
-            ["Round structure", [sl], sc],
-            ["Insider types", [...new Set(c.insiders.map(i => i.kind))], "blue"],
-            ["Evidence", [`${c.n_insiders} insiders`, c.confidence], "grey"],
-          ]))
-      + section("io-chart", "Where the conviction comes from", "",
-          `<div class="three">
-            ${chart("Insider participation",
-              `${back} of ${c.n_insiders} prior investors returned (${Math.round(100*back/Math.max(c.n_insiders,1))}%)`,
-              donut([{k:"Returned",v:back,c:"#7fb88a"},
-                     {k:"Did not",v:Math.max(0,c.n_insiders-back),c:"#d9685c"}]))}
-            ${chart("Investor mix", `${new Set(c.insiders.map(i=>i.kind)).size} types on the cap table`,
-              donut(Object.entries(c.insiders.reduce((a,i)=>(a[i.kind]=(a[i.kind]||0)+1,a),{}))
-                .map(([k,v],i)=>({k,v,c:["#8ba3c7","#a894c4","#d9a441","#7d766c"][i%4]}))))}
-            ${chart("Round cadence", `${c.rounds.length} rounds on record`,
-              bars(c.rounds.map((r,i)=>{
-                const prev = i ? new Date(c.rounds[i-1].date) : null;
-                const gap = prev ? Math.round((new Date(r.date)-prev)/2628000000) : 0;
-                return [r.stage||"round", gap, gap>24?"a":"g", gap?gap+" mo":"first"];
-              })))}
-          </div>`)
-      + section("io-mix", "Insider behaviour", "", `<div class="two">
-          <div class="card"><h4>Who came back</h4>
-            ${bars(c.insiders.map(x => [x.name, x.returned ? 1 : 0, x.returned ? "g" : "r",
-              x.returned ? "back" : "out"]), 1)}</div>
-          <div class="card"><h4>Against their own habit</h4>
-            
-            ${bars(c.insiders.filter(x => x.baseline != null).map(x =>
-              [x.name, x.baseline, x.returned ? "g" : "n", pct(x.baseline)]), 1)
-              || `<div class="msg" style="padding:18px">No habit baseline — unknown is not zero.</div>`}</div>
-        </div>`);
-  }
-  if (TAB === 1) {
-    body += `<div class="hl">${c.insiders.map(x => `<div class="hlc ${x.returned ? "green" : ""}">
-      <div class="hlhd">${logo(x.name)}<div><div class="nm">${esc(x.name)}</div>
-        <div class="sb">${esc(x.kind)}</div></div>
-      ${x.returned ? badge("returned", "green") : badge("did not return", "red")}</div>
-      <div class="hlm">
-        <div><div class="k">Role on prior round</div><div class="v">${x.was_lead ? "Lead" : "Participant"}</div></div>
-        <div><div class="k">Usual follow-on</div><div class="v">${x.baseline == null ? "—" : pct(x.baseline)}</div></div>
-      </div></div>`).join("")}</div>`;
-  }
-  if (TAB === 2) {
-    body += `<div class="tbl"><table><thead><tr><th>Round</th><th>Date</th>
-      <th style="text-align:right">Amount</th><th>Lead</th><th>Investors</th></tr></thead><tbody>
-      ${c.rounds.map(r => `<tr style="cursor:default"><td>${esc(r.stage)}</td><td class="num" style="text-align:left">${esc(r.date)}</td>
-        <td class="num">${r.amount ? "€" + (r.amount / 1e6).toFixed(1) + "M" : "—"}</td>
-        <td>${r.leads?.length ? esc(r.leads.join(", ")) : "—"}</td>
-        <td style="font-size:12.3px;color:var(--dim)">${esc((r.investors || []).join(", "))}</td></tr>`).join("")}
-      </tbody></table></div>`;
-  }
-  if (TAB === 3) {
-    body += publicRecordTab(c.company, c.rounds.map(r => r.date));
-  }
-  if (TAB === 4) {
-    body += `<p class="lede">Conviction is arithmetic over Cala's funding graph: who was on the cap
-      table before the latest round, who appears on it again, and how that compares with what each
-      of those investors usually does. No part of the score is generated text.</p>`
-      + `<div class="card"><h4>Inputs used</h4><div class="sub">all from Cala</div>
-        <ul class="reasons">
-        <li>${c.rounds.length} funding rounds with dates, investors and lead flags</li>
-        <li>${c.insiders.filter(x => x.baseline != null).length} of ${c.n_insiders} insiders had enough
-            history for a habit baseline (pool mean ${pct(I.pool_baseline)} used to shrink thin ones)</li>
-        <li>Round structure from label, gap and size${latest.amount ? "" : " — size unavailable, so structure is reported as unknown rather than guessed"}</li>
-        </ul></div>`;
-  }
-  return body + "</div>";
-}
 
 /* ================= router ================= */
 /* ---------- evidence drawer ----------
@@ -1324,7 +1082,7 @@ function kbdRows() {
   // The primary list for this view, not every table on the page. The
   // investor view also renders a contradictions table, and indexing across
   // both put the highlight on one list while the shortcuts acted on another.
-  const id = MODE === "founder" ? "ftable" : MODE === "investor" ? "itbl" : null;
+  const id = MODE === "founder" ? "ftable" : MODE === "calls" ? "cl" : null;
   const scope = id ? document.querySelector(`[data-secb="${id}"]`) : null;
   return scope ? [...scope.querySelectorAll("tbody tr[data-open]")] : [];
 }
@@ -1555,68 +1313,6 @@ function founderSignalPanel() {
 
 /* The conviction score, taken apart. Same shape as the founder one, from
    the components the scorer itself uses. */
-function openConviction(company) {
-  const c = (I?.companies || []).find(x => x.company === company);
-  if (!c) return;
-  const b = c.breakdown;
-  const w = b?.weights || {};
-  const w2 = document.createElement("div");
-  w2.className = "scrim on";
-
-  const rows = b ? [
-    ["Insiders returned", b.participation,
-     `${b.returned} of ${b.insiders}, weighted by investor type and shrunk toward
-      the ${pct(b.pool_mean)} pool mean so one insider cannot outrank six`],
-    ["Lift over habit", b.lift_norm,
-     b.lift == null ? "no follow-on baselines known for these investors"
-       : `${b.lift > 0 ? "above" : "below"} their usual rate by ${pct(Math.abs(b.lift))},
-          over ${b.known_baselines} investors whose habit we know`],
-    ["Previous lead", b.lead,
-     c.previous_lead_returned === true ? "the lead came back"
-       : c.previous_lead_returned === false ? "the lead did not return"
-       : "no previous lead on record"],
-    ["Round structure", b.structure, esc(b.structure_label || "unknown")],
-  ] : [];
-
-  w2.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
-    <div class="sidehd"><h3>Conviction ${c.score} — ${esc(company)}</h3>
-      <div class="s">${c.last_round ? `last round ${esc(String(c.last_round).slice(0, 7))}` : ""}
-        ${c.months_since != null ? ` · ${c.months_since} months ago` : ""}</div></div>
-    <div style="padding:15px">
-      ${b ? `<table class="mathtbl"><tbody>${rows.map(([k, v, why]) => `
-        <tr><td>${esc(k)}</td><td class="num">${(v ?? 0).toFixed(2)}</td>
-        <td class="num" style="color:var(--faint)">×${w[k === "Insiders returned" ? "participation"
-          : k === "Lift over habit" ? "lift" : k === "Previous lead" ? "lead" : "structure"]}</td>
-        <td class="sub">${why}</td></tr>`).join("")}</tbody></table>
-        <div class="sub" style="margin-top:9px">
-          weighted blend = <b>${b.rebuilt}</b>${
-            c.recency < 0.995 ? `, aged ×${c.recency} for a round ${c.months_since} months
-              old = <b>${c.score}</b>` : ""}
-          ${Math.abs(b.residual || 0) > 0.5 ? `<br><span style="color:var(--amber)">
-            Differs from the stored score by ${b.residual > 0 ? "+" : ""}${b.residual}.
-            The corpus was scored against a fund-slowing set we reconstruct from
-            today's cache, and the two no longer match exactly for this company.
-            Reported rather than hidden.</span>` : ""}
-        </div>`
-      : `<div class="sub">No breakdown stored for this company.</div>`}
-      <div class="sub" style="margin:13px 0 6px">The ${c.n_insiders} prior investors</div>
-      <div class="tbl"><table><thead><tr><th>Investor</th><th>Type</th>
-        <th>Came back</th><th class="num">Their usual rate</th></tr></thead><tbody>
-        ${(c.insiders || []).map(i => `<tr>
-          <td>${esc(i.name)}${i.was_lead ? " " + badge("lead", "blue") : ""}</td>
-          <td class="sub">${esc(i.kind || "unknown")}${
-            i.fund_slowing ? " " + badge("slowed", "amber") : ""}</td>
-          <td>${i.returned ? badge("yes", "green") : badge("no", "red")}</td>
-          <td class="num">${i.baseline == null ? "—" : pct(i.baseline)}</td>
-        </tr>`).join("")}</tbody></table></div>
-      <div style="display:flex;margin-top:14px">
-        <button class="btn" id="cvclose" style="margin-left:auto">Close</button></div>
-    </div></div>`;
-  document.body.appendChild(w2);
-  const close = () => w2.remove();
-  w2.onclick = close;
-  w2.querySelector("#cvclose").onclick = close;
-}
 
 /* The rounds behind a syndicate claim or a warm route. */
 async function openSyndicateEvidence(lead, other, kind) {
@@ -2124,6 +1820,23 @@ async function loadCalls() {
   render();
 }
 
+/* Alerts as a destination, not only a modal: the forward half of the
+   exclusion deserves a page of its own. */
+function watchView() {
+  if (!F) return `<div class="msg">Run a screen first — there is nothing to
+    watch until there is a list.</div>`;
+  if (!ALERTRULES) { loadAlertRules().then(render); return `<div class="msg">
+    <span class="spin"></span>Loading the rules…</div>`; }
+  if (!ALERTS) runAlerts();
+  return `<div class="sub" style="max-width:64ch;line-height:1.7;margin-bottom:var(--s3)">
+      A conflict you already know about is a fact. The one that changes whether
+      you can pitch somebody is the competitor round that has not happened yet —
+      and every investor in it joins your exclusion the day it closes.</div>`
+    + section("wrules", "What to watch", `${(ALERTON || new Set()).size} rules on`,
+        alertRulesPane())
+    + section("wnow", "What it catches now", "", alertResultsPane());
+}
+
 function callsView() {
   if (!F) return `<div class="msg">Run a screen first — the call list is built
     from the funds that survive it.</div>`;
@@ -2203,8 +1916,11 @@ function render() {
   } else if (MODE === "map") {
     parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
+  } else if (MODE === "watch") {
+    parts = [{ t: "Your raise", go: 1 }, { t: "Watch" }];
+    html = watchView();
   } else if (MODE === "calls") {
-    parts = [{ t: "Raising", go: 1 }, { t: "Call list" }];
+    parts = [{ t: "Your raise", go: 1 }, { t: "Call list" }];
     html = callsView();
   } else if (MODE === "fund") {
     parts = [{ t: "Funds", go: 1 }, { t: FUND?.name || ENTLOAD?.name || "Fund" }];
@@ -2220,9 +1936,8 @@ function render() {
                 : [{ t: "Founder" }, { t: F?.company || "Target screening" }];
     html = SEL ? founderEntity() : founderList();
   } else {
-    parts = SEL ? [{ t: "Investor", go: 1 }, { t: "Conviction", go: 1 }, { t: SEL }]
-                : [{ t: "Investor" }, { t: "Insider conviction" }];
-    html = SEL ? investorEntity() : investorList();
+    parts = [{ t: "Ask" }];
+    html = homeView();
   }
   crumb(parts);
   $("#baracts").innerHTML = MODE === "founder" && !SEL && F
@@ -2282,8 +1997,7 @@ function render() {
 
 document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => {
   MODE = b.dataset.mode; SEL = null; TAB = 0;
-  if (MODE === "investor" && !I) loadInvestor();
-  else if (MODE === "map" && !MAP) loadMap();
+  if (MODE === "map" && !MAP) loadMap();
   else if (MODE === "accuracy" && !BT) loadBacktest();
   else render();
 });
@@ -2966,11 +2680,14 @@ function accuracyView() {
 }
 
 /* ================= HOME / ASK ================= */
+/* Four questions a founder raising a round actually has. The old set asked
+   two of them from the investor's side, and one routed to a view that no
+   longer exists. */
 const CHIPS = [
-  ["◧", "Screen my investor list", "gosta labs"],
-  ["◨", "Who are insiders doubling down on?", "conviction"],
-  ["◉", "Map the Slush 2026 floor", "map"],
-  ["◆", "Who is raising without announcing it?", "silent"],
+  ["◧", "Screen my investor list", "Gosta Labs Series A"],
+  ["⊘", "Who must I not pitch?", "who backs a competitor of Gosta Labs"],
+  ["☎", "Who do I call first?", "who should I meet first for Gosta Labs"],
+  ["◉", "Where are these funds?", "map"],
 ];
 
 /* Which side of the graph the question is asked from. "Auto" reads the
@@ -2981,7 +2698,6 @@ let LENS = "auto";
 const LENSES = [
   ["auto", "Auto", "read the question"],
   ["founder", "I'm raising", "screen investors for a company"],
-  ["investor", "I'm investing", "insider conviction across companies"],
   ["lookup", "Look up", "open a fund or person profile"],
 ];
 
@@ -3081,7 +2797,7 @@ async function routeAsk(text) {
   // An explicit lens wins outright: the user has told us the answer.
   if (LENS === "investor") {
     ASKWHY = { q, why: "you chose the investor side", confident: true, view: "investor" };
-    MODE = "investor"; SEL = null; return I ? render() : loadInvestor();
+    MODE = "founder"; SEL = null; return render();
   }
   if (LENS === "lookup") {
     ASKWHY = { q, why: `looking up “${q}”`, confident: true, view: "lookup" };
@@ -3115,7 +2831,7 @@ async function routeAsk(text) {
 
   if (intent.view === "map") { MODE = "map"; SEL = null; return MAP ? render() : loadMap(); }
   if (intent.view === "investor") {
-    MODE = "investor"; SEL = null; return I ? render() : loadInvestor();
+    MODE = "founder"; SEL = null; return render();
   }
   if (intent.view === "lookup") return lookupEntity(intent.term, intent.kind);
 

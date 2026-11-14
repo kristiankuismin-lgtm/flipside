@@ -6,14 +6,18 @@ You send your deck, your metrics and your customer pipeline to a fund that is
 already funding your competitor. They keep it. They are allowed to. Flipside
 answers the question first — *who is out* — and only then *who is left*.
 
-One funding graph, read three ways. Built on [Cala](https://cala.ai) for
+One audience: a founder raising a round. Built on [Cala](https://cala.ai) for
 Junction 2026.
 
-| | Question | Who asks it |
+| | The question | Where it is answered |
 |---|---|---|
-| **Founder** | Which investors actually lead, still deploy, and already back my competitor? | raising a round |
-| **Investor** | When this company raised again, did the people already on the cap table come back — and was that unusual for them? | writing a cheque |
-| **Third** | Who looks like a founder before they are one? | looking early |
+| **Who is out** | Which funds already fund my competitor? | Your round |
+| **Who is left** | Of the rest, who actually leads at my stage and is still deploying? | Your round |
+| **Who do I call** | Which named person at each one, and in what order? | Call list |
+| **What changes it** | Which competitor round makes another fund un-pitchable? | Watch |
+
+The investor-side reading was cut on purpose. Two audiences is two products,
+and the brief asks for one need solved well.
 
 The product opens on the exclusion:
 
