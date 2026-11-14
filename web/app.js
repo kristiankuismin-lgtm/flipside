@@ -587,6 +587,119 @@ function nearMeOnReach() {
   }, { timeout: 8000 });
 }
 
+/* ======================================================= THE OTHER SIDE
+   Flipside is named for this: the same graph answers two questions, and
+   they are the same question from opposite ends of the table.
+
+   A founder asks who can lead their round. An investor asks which companies
+   are being backed again by the people who already know them - insiders
+   doubling down is the one signal that cannot be manufactured for a deck,
+   because it costs the insider money to send it.
+
+   One screen, not a second product. The engine, the evidence and the
+   honesty about what was not tested are the ones already built. */
+let ROLE = (() => { try { return localStorage.getItem("flipside.role") || "founder"; }
+                    catch { return "founder"; } })();
+let CONV = null;
+
+function applyRoleChrome() {
+  document.querySelectorAll("[data-role]").forEach(b =>
+    b.classList.toggle("on", b.dataset.role === ROLE));
+  const f = $("#navfounder"), i = $("#navinvestor");
+  if (f) f.hidden = ROLE !== "founder";
+  if (i) i.hidden = ROLE !== "investor";
+}
+
+function setRole(r) {
+  ROLE = r;
+  try { localStorage.setItem("flipside.role", r); } catch { /* private window */ }
+  applyRoleChrome();
+  MODE = r === "investor" ? "investor" : "home";
+  SEL = null;
+  if (r === "investor" && !CONV) return loadConviction();
+  render();
+}
+
+async function loadConviction() {
+  CONV = { loading: true }; render();
+  try { CONV = await (await fetch("/conviction")).json(); }
+  catch (e) { CONV = { error: String(e.message), companies: [] }; }
+  render();
+}
+
+function investorView() {
+  if (!CONV || CONV.loading) return `<div class="msg" style="padding:40px">
+    <span class="spin"></span>Reading who got backed again…</div>`;
+  if (CONV.error) return errorPanel(CONV.error, "insider conviction");
+  const cs = (CONV.companies || []).filter(c => c.score != null);
+  const healthy = cs.filter(c => c.structure === "healthy");
+  const back = cs.filter(c => c.previous_lead_returned);
+
+  return `<div class="runline">
+      <div class="rl1"><b>Insider conviction</b>
+        <span class="sub">· ${CONV.scored ?? cs.length} of ${CONV.corpus ?? "?"} companies scored</span></div>
+      <div class="rl2"><span class="sub">precomputed from Cala's round records</span>
+        <button class="lnk" data-goto="accuracy">Does it predict?</button></div>
+    </div>
+    <div class="verdict grey" style="line-height:1.7">
+      <b>The one signal a deck cannot manufacture.</b> Everything a company
+      tells you is chosen. Whether the investors who already own a piece of it
+      put more money in is not — it costs them to send it, and they know what
+      you do not. This reads that off the round records: who came back, who
+      sat out, and whether the previous lead led again.
+    </div>
+    ${kpis([
+      ["Scored", cs.length, "all", "two rounds and prior investors to compare"],
+      ["Insiders came back", healthy.length, "healthy", "the round structure reads healthy"],
+      ["Previous lead returned", back.length, "lead", "the strongest version of it"],
+    ], IFILTER, null)}
+    ${section("convlist", "Backed again by the people who already knew them",
+      `${cs.length} companies`, `<div class="convlist">${
+        cs.slice(0, 60).map((c, i) => `<button class="convrow" data-conv="${esc(c.company)}">
+          <span class="rk">${i + 1}</span>
+          <span><span class="nm">${esc(c.company)}</span>${
+            c.at_slush ? ` <span class="chip sm">at Slush</span>` : ""}
+            <span class="wh">${esc((c.reasons || []).slice(0, 2).join(" · ") || "no reason recorded")}</span></span>
+          <span class="st sub">${esc(c.structure || "")} · ${esc(c.confidence || "")}</span>
+          <span class="sc">${c.score}</span></button>`).join("")}</div>`)}
+    ${(CONV.orphans || []).length ? "" : `<div class="evfoot">
+      <b>What this cannot do.</b> The orphan detector — companies whose
+      insiders stopped — never fires, because Cala holds no headcount series
+      for private companies to confirm distress against. It is in the product
+      saying so rather than quietly returning nothing.</div>`}`;
+}
+
+function openConviction(name) {
+  const c = (CONV?.companies || []).find(x => x.company === name);
+  if (!c) return;
+  const w = document.createElement("div");
+  w.className = "scrim on";
+  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd"><h3>${esc(c.company)}</h3>
+      <div class="s">${esc(c.structure || "")} · confidence ${esc(c.confidence || "—")}
+        · score ${c.score}</div></div>
+    <div style="padding:15px">
+      <div class="sech"><h3>Why</h3></div>
+      <ul class="why">${(c.reasons || []).map(r => `<li>${esc(r)}</li>`).join("")
+        || `<li class="sub">No reason recorded.</li>`}</ul>
+      <div class="sech"><h3>The rounds it read</h3></div>
+      <div class="tbl"><table><thead><tr><th>Stage</th><th>Date</th>
+        <th class="num">Amount</th><th>Who was in it</th></tr></thead><tbody>${
+        (c.rounds || []).map(r => `<tr style="cursor:default">
+          <td>${esc(r.stage || "")}</td>
+          <td class="nowrap">${esc(String(r.date || "").slice(0, 10))}</td>
+          <td class="num">${r.amount ? (r.amount / 1e6).toFixed(1) + "M" : "—"}</td>
+          <td class="sub">${(r.investors || []).map(i =>
+            (r.leads || []).includes(i) ? `<b>${esc(i)}</b>` : esc(i)).join(", ")}</td>
+        </tr>`).join("")}</tbody></table></div>
+      <div class="emptywhy" style="margin-top:var(--s2)">
+        <b>Bold is the lead.</b> An amount shown as — is a round Cala records
+        without one, not a round of nothing.</div>
+    </div></div>`;
+  document.body.appendChild(w);
+  w.onclick = () => w.remove();
+}
+
 function founderList() {
   if (!F) return searchPanel() + `<div class="msg">Run diligence to screen your target list.</div>`;
   const inv = F.investors, red = inv.filter(x => x.signals.conflict.label === "🔴");
@@ -2406,6 +2519,9 @@ function render() {
   } else if (MODE === "brief") {
     parts = [{ t: "Ask", go: 1 }, { t: INTAKE.profile?.name || "Reading your brief" }];
     html = intakeView();
+  } else if (MODE === "investor") {
+    parts = [{ t: "Your pipeline" }, { t: "Insider conviction" }];
+    html = investorView();
   } else if (MODE === "map") {
     parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
@@ -2483,6 +2599,10 @@ function render() {
   if (MODE === "reach") { paintReachMap(); }
   const nm = $("#nearme");
   if (nm) nm.onclick = () => nearMeOnReach();
+  document.querySelectorAll("[data-role]").forEach(b =>
+    b.onclick = () => setRole(b.dataset.role));
+  document.querySelectorAll("[data-conv]").forEach(b =>
+    b.onclick = () => openConviction(b.dataset.conv));
   document.querySelectorAll("[data-q]").forEach(b =>
     b.onclick = () => routeAsk(b.dataset.q));
   const ab = $("#askbox");
@@ -3630,6 +3750,9 @@ function wireQuickSearch() {
 wireQuickSearch();
 loadHealth();
 neoMount();
+// Apply the role the browser remembers before the first paint, so an
+// investor who reloads does not land on the founder's ask box.
+applyRoleChrome();
 render();
 
 /* ================= ENTITY CARD (person / fund) ================= */
