@@ -282,6 +282,38 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
             "breakdown": breakdown, "notes": notes}
 
 
+def _resolve_company(name: str) -> dict | None:
+    """The company entity behind a name, from the harvest or from Cala.
+
+    Cache first: a harvested entity carries its whole record, and asking the
+    network for something we already hold in full is a second of a demo
+    spent on nothing.
+    """
+    from . import cala_client as cala, graph
+    hit = DEPTH.entity(name, types=("Company", "Organization"))
+    if hit is None:
+        try:
+            hit = graph.find_company(name, allow_live=True, ttl=86400)
+        except Exception:                             # noqa: BLE001
+            return None
+    if hit is None or hit.get("relationships"):
+        return hit
+    # A stub carries a name and nothing else. One fetch with the vocabulary
+    # the harvester learned for this type turns it into the whole record -
+    # and this is the moment in the run where showing what Cala actually
+    # holds is worth a second.
+    voc = DEPTH.vocabulary(hit.get("entity_type") or "Company") or {}
+    try:
+        full = cala.get_entity(hit["id"], properties=voc.get("properties") or None,
+                               outgoing=voc.get("outgoing") or None,
+                               incoming=voc.get("incoming") or None,
+                               limit=200, allow_live=True, ttl=30 * 86400,
+                               timeout=25, retries=1, interactive=True)
+        return full or hit
+    except Exception:                                 # noqa: BLE001
+        return hit
+
+
 @app.post("/analyze")
 def analyze(req: Req):
     from . import progress as PG
@@ -295,7 +327,32 @@ def analyze(req: Req):
     PG.step(key, f"Reading {req.company}", desc[:140], layer="you",
             because="What you build decides who your competitors are, and "
                     "your competitors decide which investors are closed to you.")
+    # Resolving the company is fast and the competitor query is not, so do
+    # the cheap, informative thing first. A minute of a single unchanging
+    # line is the worst moment in this product: it looks indistinguishable
+    # from a hang, and the founder has no idea whether Cala has heard of
+    # them at all.
     PG.step(key, f"Resolving {req.company} in Cala's graph", layer="cala")
+    ent, _ = _safe(_resolve_company, req.company)
+    if ent:
+        cov = DEPTH.coverage(ent) if ent.get("relationships") else None
+        PG.step(key, f"Cala has {ent.get('name')}",
+                f"{ent.get('entity_type')}"
+                + (f" · {cov['edges']} relationships, {cov['properties']} properties"
+                   if cov else " · a stub, not yet read in full"),
+                layer="cala",
+                because="Everything below is read off this entity, so if this "
+                        "is the wrong company nothing after it is worth "
+                        "trusting - which is why we show you which one it is.")
+    else:
+        PG.step(key, f"Cala has no entity named {req.company}", layer="cala",
+                because="The screen still runs: competitors are found from the "
+                        "description, and the ranking is about the funds. But "
+                        "nothing here is anchored to your company record.")
+    PG.step(key, "Asking Cala who competes with you",
+            "the slow one \u2014 about a minute", layer="cala",
+            because="This is a question about meaning, not a lookup: it reads "
+                    "descriptions across the graph rather than following an edge.")
     comps, cerr = _safe(C.competitors, cq)
     PG.step(key, f"Cala names {len(comps or [])} competitors",
             ", ".join(c.get("name", "") for c in (comps or [])[:4]), layer="cala",

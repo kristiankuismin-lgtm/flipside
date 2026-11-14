@@ -285,3 +285,31 @@ def profile(name_or_id: str, types=None) -> dict:
         "industries": industries(e),
         "coverage": coverage(e),
     }
+
+
+# ----------------------------------------------------- learned vocabulary
+def vocabulary(entity_type: str, db: str = "cache.sqlite") -> dict | None:
+    """What the harvester learned this entity type carries.
+
+    An entity knows its own schema, but asking it costs a round trip. The
+    harvester has already asked several of each type and stored the union,
+    so a one-off live fetch can skip the introspection and still ask for
+    everything.
+    """
+    import sqlite3
+    try:
+        con = sqlite3.connect(db)
+        row = con.execute("SELECT props, outgoing, incoming FROM harvest_vocab "
+                          "WHERE entity_type=?", (entity_type,)).fetchone()
+        con.close()
+    except sqlite3.Error:
+        return None
+    if not row:
+        return None
+    import json as _json
+    try:
+        return {"properties": _json.loads(row[0]),
+                "outgoing": _json.loads(row[1]),
+                "incoming": _json.loads(row[2])}
+    except ValueError:
+        return None
