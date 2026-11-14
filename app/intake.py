@@ -227,17 +227,33 @@ def _domains(lines) -> list[tuple[str, str, str]]:
     return out
 
 
-def _title_line(docs) -> tuple[str, str, str] | None:
-    """The first substantial line of the first deck: the title slide.
+# A heading is a name, not a sentence: "Gosta Labs" is one, "We build
+# clinical documentation software" is not.
+_SENTENCEY = re.compile(r"[.!?]\s|\b(we|our|the|a|an|is|are|for|that)\b", re.I)
 
-    Founders put the company name on slide one. Not a rule we invented -
-    it is what every deck does, which is why it is worth reading.
+
+def _title_line(docs) -> tuple[str, str, str] | None:
+    """The first substantial line of a document: the title slide, or the
+    heading of a one-pager.
+
+    Founders put the company name at the top. Decks first, because a title
+    slide is the most reliable version of that, but a .txt or a PDF has a
+    heading too - reading only decks sent a one-pager's name to the website
+    slug and screened "Nightingalehealth" instead of Nightingale Health.
     """
-    for d in docs:
-        if d.kind != "deck":
-            continue
-        for where, t in d.lines[:6]:
-            if 2 <= len(t) <= 60 and not t.lower().startswith(("confidential", "www.")):
+    for kind in ("deck", None):
+        for d in docs:
+            if kind and d.kind != kind:
+                continue
+            if not kind and d.kind == "deck":
+                continue        # already tried above
+            for where, t in d.lines[:6]:
+                if not (2 <= len(t) <= 60):
+                    continue
+                if t.lower().startswith(("confidential", "www.", "http")):
+                    continue
+                if _SENTENCEY.search(t):
+                    continue
                 return t, d.name, where
     return None
 

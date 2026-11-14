@@ -122,3 +122,26 @@ def test_what_the_founder_typed_outranks_the_title_slide(deck_bytes):
     docs = [intake.read(deck_bytes, "deck.pptx")]
     p = intake.profile("Nightingale Health", docs)
     assert p["name"] == "Nightingale Health"
+
+
+def test_a_one_pager_heading_is_the_company_name():
+    """Reading only decks sent a .txt one-pager's name to the website slug
+    and screened "Nightingalehealth" instead of Nightingale Health."""
+    d = intake.read(b"Nightingale Health\nBlood test diagnostics for prevention.\n"
+                    b"Raising 12M EUR Series B. nightingalehealth.com", "onepager.txt")
+    p = intake.profile("", [d])
+    assert p["name"] == "Nightingale Health"
+    assert p["website"] == "nightingalehealth.com"
+
+
+def test_a_sentence_at_the_top_is_not_a_company_name():
+    d = intake.read(b"We build clinical documentation software for doctors.\n"
+                    b"gostalabs.com", "notes.txt")
+    p = intake.profile("", [d])
+    assert p["name"] != "We build clinical documentation software for doctors."
+
+
+def test_a_deck_title_still_wins_over_another_file(deck_bytes):
+    docs = [intake.read(b"Some Other Heading\nmore text", "notes.txt"),
+            intake.read(deck_bytes, "deck.pptx")]
+    assert intake.profile("", docs)["name"] == "Gosta Labs"
