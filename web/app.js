@@ -1160,7 +1160,95 @@ function planExport(kind) {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
+/* ---------- keyboard ----------
+   A list you work through at a conference should not need a mouse. j/k move,
+   Enter opens the row, e opens its evidence, p adds it to the plan, b drafts
+   the brief, / focuses search, Escape closes whatever is open.
+
+   Scoped to the rows actually on screen, re-read on every keypress rather
+   than cached, because the list re-renders under filters. */
+let KBD = -1;
+
+function kbdRows() {
+  // The primary list for this view, not every table on the page. The
+  // investor view also renders a contradictions table, and indexing across
+  // both put the highlight on one list while the shortcuts acted on another.
+  const id = MODE === "founder" ? "ftable" : MODE === "investor" ? "itbl" : null;
+  const scope = id ? document.querySelector(`[data-secb="${id}"]`) : null;
+  return scope ? [...scope.querySelectorAll("tbody tr[data-open]")] : [];
+}
+
+function kbdPaint() {
+  const rows = kbdRows();
+  rows.forEach((r, i) => r.classList.toggle("kbd", i === KBD));
+  const el = rows[KBD];
+  if (el) el.scrollIntoView({ block: "nearest" });
+}
+
+function kbdHint(on) {
+  let h = $("#kbdhint");
+  if (!h) {
+    h = document.createElement("div");
+    h.id = "kbdhint"; h.className = "kbdhint";
+    h.innerHTML = `<span><kbd>j</kbd><kbd>k</kbd>move</span>
+      <span><kbd>↵</kbd>open</span><span><kbd>e</kbd>evidence</span>
+      <span><kbd>p</kbd>plan</span><span><kbd>b</kbd>brief</span>
+      <span><kbd>esc</kbd>close</span>`;
+    document.body.appendChild(h);
+  }
+  h.classList.toggle("on", !!on);
+}
+
+function kbdInit() {
+  if (window.__kbd) return;
+  window.__kbd = true;
+  document.addEventListener("keydown", e => {
+    const t = e.target;
+    const typing = t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA"
+      || t.isContentEditable);
+
+    if (e.key === "Escape") {
+      const scrim = document.querySelector(".scrim");
+      if (scrim) { scrim.remove(); return; }
+      if (typing) { t.blur(); return; }
+      if (KBD >= 0) { KBD = -1; kbdPaint(); kbdHint(false); }
+      return;
+    }
+    if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+
+    if (e.key === "/") { e.preventDefault(); $("#qsq")?.focus(); return; }
+
+    const rows = kbdRows();
+    if (!rows.length) return;
+
+    if (e.key === "j" || e.key === "ArrowDown") {
+      e.preventDefault(); KBD = Math.min(KBD + 1, rows.length - 1);
+      kbdPaint(); kbdHint(true); return;
+    }
+    if (e.key === "k" || e.key === "ArrowUp") {
+      e.preventDefault(); KBD = Math.max(KBD - 1, 0);
+      kbdPaint(); kbdHint(true); return;
+    }
+    if (KBD < 0) return;
+
+    const name = rows[KBD]?.dataset.open;
+    if (!name) return;
+    if (e.key === "Enter") { e.preventDefault(); rows[KBD].click(); return; }
+    if (e.key === "e") {
+      e.preventDefault();
+      // The score is the figure worth opening from the keyboard.
+      if (MODE === "founder") openEvidence(name, "score");
+      return;
+    }
+    if (e.key === "p" && MODE === "founder") { e.preventDefault(); planToggle(name); return; }
+    if (e.key === "b" && MODE === "founder") { e.preventDefault(); openBrief(name); return; }
+  });
+}
+
+let KBDMODE = null;
+
 function render() {
+  if (KBDMODE !== MODE) { KBD = -1; KBDMODE = MODE; kbdHint(false); }
   document.querySelectorAll("[data-mode]").forEach(b =>
     b.classList.toggle("on", b.dataset.mode === MODE));
   let html, parts;
@@ -1191,6 +1279,9 @@ function render() {
     ? `<button class="btn" id="go2">Re-run</button>` : "";
   $("#view").innerHTML = html;
   wire();
+  kbdInit();
+  if (KBD >= 0 && KBD >= kbdRows().length) { KBD = -1; kbdHint(false); }
+  if (KBD >= 0) kbdPaint();
   if (MODE === "map" && MAP?.points) setTimeout(initMap, 30);
   document.querySelectorAll("[data-q]").forEach(b =>
     b.onclick = () => routeAsk(b.dataset.q));
