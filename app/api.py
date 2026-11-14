@@ -1190,6 +1190,78 @@ def _neo_phrase(question: str, computed: dict) -> dict | None:
     return {"text": text.strip(), "model": "claude-sonnet-5"}
 
 
+FUND_TABS_RELS_OUT = ["INVESTED_IN", "PARTICIPATES_IN_FUNDING_ROUND",
+                      "PARTICIPATES_IN_CORPORATE_EVENT", "OPERATES_IN_INDUSTRY",
+                      "HAS_HEADQUARTERS_IN", "HAS_PRESENCE_IN"]
+FUND_TABS_RELS_IN = ["WORKS_AT", "INVESTED_IN"]
+
+
+@app.get("/fund/{entity_id}")
+def fund_profile(entity_id: str):
+    """One fund with the tabs a reader actually came for.
+
+    A single entity fetch carries investments, rounds with native is_lead,
+    corporate events, industries, headquarters and the people Cala has on
+    it. Enriched with the rounds already cached, so a portfolio company
+    shows what it went on to do rather than only a name.
+    """
+    from . import cala_client as cala, cache_index, profile as PR
+    degraded = None
+    try:
+        e = cala.get_entity(entity_id, properties=FUND_PROPS + ["registered_address"],
+                            outgoing=FUND_TABS_RELS_OUT, incoming=FUND_TABS_RELS_IN,
+                            limit=200, allow_live=True, ttl=86400)
+    except Exception as ex:
+        e = cache_index.get(entity_id)
+        if e is None:
+            return JSONResponse({"error": f"{type(ex).__name__}: {str(ex)[:120]}"},
+                                status_code=200)
+        degraded = ("Live lookup unavailable, so this profile is built from "
+                    "what we already hold.")
+    out = PR.build(e, rounds_by_company=_rounds_by_company(), domains=_domains())
+    out["degraded"] = degraded
+    return out
+
+
+@app.get("/news")
+def news(name: str, year: str = ""):
+    """What has been written about this firm lately, with the documents.
+
+    /knowledge/search returns a sourced answer: each claim carries the
+    context it came from and the URL that context was read at. We keep the
+    claims and their documents and drop the prose, because a claim with a
+    link is checkable and a paragraph is not.
+
+    It takes about fifty seconds cold and nothing warm, so the UI loads it
+    on demand rather than with the profile.
+    """
+    from . import cala_client as cala
+    q = (f"Recent funding rounds, investments and news involving {name}"
+         f"{' in ' + year if year else ''}")
+    try:
+        r = cala.search(q, allow_live=True, ttl=7 * 86400, timeout=90)
+    except Exception as e:
+        return {"name": name, "items": [], "error": f"{type(e).__name__}: {str(e)[:110]}"}
+
+    ctx = {c.get("id"): c for c in (r.get("context") or [])}
+    items, seen = [], set()
+    for claim in r.get("explainability") or []:
+        text = (claim.get("content") or "").strip()
+        if not text or text in seen:
+            continue
+        seen.add(text)
+        docs = []
+        for ref in claim.get("references") or []:
+            for origin in (ctx.get(ref, {}).get("origins") or []):
+                doc = (origin or {}).get("document") or {}
+                url, nm = doc.get("url"), doc.get("name")
+                if url and url not in [d["url"] for d in docs]:
+                    docs.append({"url": url, "name": (nm or url)[:90]})
+        items.append({"claim": text, "documents": docs[:3]})
+    return {"name": name, "items": items, "summary": r.get("content"),
+            "error": None}
+
+
 @app.get("/connectors")
 def connectors(limit: int = 12):
     """Funds whose handoffs spread widest - the bridges in this network."""

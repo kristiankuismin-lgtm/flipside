@@ -211,6 +211,13 @@ function wire() {
   };
   if ($("#plandl")) $("#plandl").onclick = () => planExport("download");
   if ($("#planprint")) $("#planprint").onclick = () => planExport("print");
+  document.querySelectorAll("[data-ftab]").forEach(b => b.onclick = () => {
+    FUNDTAB = +b.dataset.ftab; render();
+  });
+  document.querySelectorAll("[data-teamfor]").forEach(b => b.onclick = () =>
+    loadTeam(b.dataset.teamfor));
+  document.querySelectorAll("[data-fscreen]").forEach(b => b.onclick = () =>
+    routeAsk(b.dataset.fscreen));
   document.querySelectorAll("[data-syn]").forEach(b => b.onclick = e => {
     e.stopPropagation();
     const [l, m] = b.dataset.syn.split("|");
@@ -1773,6 +1780,188 @@ function neoMount() {
   neoPaint();
 }
 
+/* ---------- the fund profile ----------
+   Tabs because a reader arrives with one question at a time: what do they
+   invest in, do they lead, has anything come out, who is there, what has
+   been written. A tab with nothing in it says which edge was empty rather
+   than rendering blank. */
+let FUND = null, FUNDFOR = null, FUNDTAB = 0;
+const FUND_TABS = ["Overview", "Portfolio", "Rounds", "Exits", "People", "News"];
+
+async function loadFund(id, name) {
+  MODE = "fund"; FUNDFOR = id; FUND = null; FUNDTAB = 0;
+  ENTLOAD = { id, kind: "fund", name };
+  render();
+  try { FUND = await (await fetch(`/fund/${id}`)).json(); }
+  catch (e) { FUND = { error: String(e.message) }; }
+  render();
+}
+
+function fundStat(k, v, sub) {
+  return `<div class="fstat"><div class="k">${esc(k)}</div>
+    <div class="v">${v}</div>${sub ? `<div class="s">${esc(sub)}</div>` : ""}</div>`;
+}
+
+function fundView() {
+  if (!FUND) return `<div class="msg"><span class="spin"></span>Opening
+    ${esc(ENTLOAD?.name || "fund")}…</div>`;
+  if (FUND.error) return errorPanel(FUND.error, ENTLOAD?.name);
+
+  const f = FUND, st = f.stats || {};
+  const host = String(f.website || "").replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+  let body = `<div class="fhead">
+    ${bigLogo(f.name, f.website)}
+    <div style="min-width:0;flex:1">
+      <h1>${esc(f.name)}</h1>
+      <div class="fmeta">
+        ${f.website ? `<a href="${esc(f.website)}" target="_blank" rel="noopener">${esc(host)}</a>` : ""}
+        ${f.country ? ` · ${esc(f.country)}` : ""}
+        ${(f.industries || []).length ? ` · ${esc(f.industries.join(", ").toLowerCase().replace(/_/g, " "))}` : ""}
+      </div>
+    </div>
+    <span class="eacts">
+      <button class="btn" data-fscreen="${esc(f.name)}">Screen this fund</button>
+      <button class="btn" data-alertfor="${esc(f.name)}">Alert me</button>
+    </span>
+  </div>
+  <div class="tabs">${FUND_TABS.map((t, i) => {
+    const empty = (t === "Portfolio" && !f.has?.portfolio)
+      || (t === "Rounds" && !f.has?.rounds) || (t === "Exits" && !f.has?.exits)
+      || (t === "People" && !f.has?.people);
+    return `<button class="tab ${i === FUNDTAB ? "on" : ""} ${empty ? "thin" : ""}"
+      data-ftab="${i}">${esc(t)}${
+      t === "Portfolio" && st.investments ? ` <span>${st.investments}</span>` : ""}${
+      t === "Rounds" && st.rounds ? ` <span>${st.rounds}</span>` : ""}${
+      t === "Exits" && st.exits ? ` <span>${st.exits}</span>` : ""}${
+      t === "People" && st.people ? ` <span>${st.people}</span>` : ""}</button>`;
+  }).join("")}</div>`;
+
+  if (f.degraded) body += `<div class="verdict grey">${esc(f.degraded)}</div>`;
+
+  const T = FUND_TABS[FUNDTAB];
+  if (T === "Overview") {
+    body += (f.description ? `<p class="lede">${esc(f.description)}</p>` : "")
+      + `<div class="fstats">
+          ${fundStat("Investments", st.investments ?? "—")}
+          ${fundStat("Rounds on record", st.rounds ?? "—")}
+          ${fundStat("Led", st.led ?? "—", st.lead_rate != null ? pct(st.lead_rate) + " of rounds" : "")}
+          ${fundStat("Exits and M&A", st.exits ?? "—")}
+          ${fundStat("Headquarters", esc(f.country || "—"))}
+        </div>`
+      + (f.stage_mix?.length ? section("fo-stage", "Where they come in",
+          "share of the rounds we hold", `<div class="card">${bars(
+            f.stage_mix.map(([stage, n]) => [stage, n, "g", n]),
+            Math.max(...f.stage_mix.map(x => x[1])))}</div>`) : "")
+      + (f.portfolio?.length ? section("fo-top", "Portfolio highlights",
+          `${f.portfolio.length} companies`, `<div class="three">${
+            f.portfolio.slice(0, 6).map(portCard).join("")}</div>`) : "");
+  } else if (T === "Portfolio") {
+    body += f.portfolio?.length
+      ? `<div class="tbl"><table><thead><tr><th>Company</th>
+          <th class="num">Rounds</th><th>Last round</th><th>Alongside</th>
+        </tr></thead><tbody>${f.portfolio.map(c => `<tr data-open-co="${esc(c.name)}">
+          <td><div class="ent">${logo(c.name, c.website)}<div class="nm">${esc(c.name)}</div></div></td>
+          <td class="num">${c.rounds || "—"}</td>
+          <td class="nowrap">${c.last_stage ? `${esc(c.last_stage)} ${
+            esc(String(c.last_date || "").slice(0, 7))}` : "—"}</td>
+          <td class="sub">${esc((c.investors || []).filter(i =>
+            norm_(i) !== norm_(f.name)).slice(0, 3).join(", "))}</td>
+        </tr>`).join("")}</tbody></table></div>`
+      : emptyTab("INVESTED_IN", "no investments on this entity");
+  } else if (T === "Rounds") {
+    body += f.round_rows?.length
+      ? `<div class="tbl"><table><thead><tr><th>Stage</th><th>Role</th>
+        </tr></thead><tbody>${f.round_rows.map(r => `<tr style="cursor:default">
+          <td>${esc(r.stage)}</td>
+          <td>${r.lead ? badge("lead", "green") : `<span class="sub">${
+            esc((r.role || "investor").toLowerCase())}</span>`}</td>
+        </tr>`).join("")}</tbody></table></div>`
+      : emptyTab("PARTICIPATES_IN_FUNDING_ROUND", "no rounds on this entity");
+  } else if (T === "Exits") {
+    body += f.exits?.length
+      ? `<div class="tbl"><table><thead><tr><th>Event</th><th>Their role</th>
+        </tr></thead><tbody>${f.exits.map(x => `<tr style="cursor:default">
+          <td>${esc(x.name || "Corporate event")}</td>
+          <td>${x.role ? badge(String(x.role).toLowerCase(), "blue") : "—"}</td>
+        </tr>`).join("")}</tbody></table></div>`
+      : emptyTab("PARTICIPATES_IN_CORPORATE_EVENT", "nothing has come out yet, or Cala holds none");
+  } else if (T === "People") {
+    body += (f.people?.length
+      ? `<div class="fslist">${f.people.map(p => `
+          <button class="fsrow" data-fsid="${esc(p.id)}" data-fsnm="${esc(p.name)}">
+            <div><div class="nm">${esc(p.name)}</div>
+            <div class="d">${esc(p.role || "works here")}</div></div>
+            <span class="go">Founder signal →</span></button>`).join("")}</div>`
+      : emptyTab("WORKS_AT", "Cala holds nobody at this firm"))
+      + `<div class="sub" style="margin-top:var(--s2)">Cala's people coverage on
+         firms is thin. <button class="lnk" data-teamfor="${esc(f.website || f.name)}">Read
+         their own team page instead →</button></div>`
+      + teamPanel();
+  } else if (T === "News") {
+    body += newsTab(f.name);
+  }
+  return body;
+}
+
+const norm_ = x => String(x || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/* News: Cala's sourced answer, kept as claims with their documents and
+   stripped of the prose around them. A claim with a link is checkable. */
+let NEWS = null, NEWSFOR = null;
+
+async function loadNews(name) {
+  NEWSFOR = name; NEWS = { loading: true }; render();
+  try { NEWS = await (await fetch(`/news?name=${encodeURIComponent(name)}`)).json(); }
+  catch (e) { NEWS = { items: [], error: String(e.message) }; }
+  render();
+}
+
+function newsTab(name) {
+  if (NEWSFOR !== name) { loadNews(name); return `<div class="msg">
+    <span class="spin"></span>Asking Cala what has been written…</div>`; }
+  if (NEWS?.loading) return `<div class="msg" style="padding:30px">
+    <span class="spin"></span>Asking Cala what has been written about
+    ${esc(name)}…<br><span class="sub">About fifty seconds the first time,
+    then cached.</span></div>`;
+  if (NEWS?.error) return `<div class="emptywhy"><b>Could not read the news.</b>
+    ${esc(NEWS.error)}</div>`;
+  if (!NEWS?.items?.length) return emptyTab("knowledge/search",
+    "Cala returned no sourced claims for this firm");
+
+  const withDocs = NEWS.items.filter(i => i.documents?.length);
+  return `<div class="sub" style="margin-bottom:var(--s2);max-width:62ch;line-height:1.7">
+      ${NEWS.items.length} claims, ${withDocs.length} with a document behind them.
+      The prose Cala wrote around these has been dropped — a claim with a link
+      is checkable, a paragraph is not.</div>
+    <div class="newslist">${NEWS.items.map(i => `
+      <div class="newsitem">
+        <p>${esc(i.claim)}</p>
+        ${i.documents?.length
+          ? `<div class="newsdocs">${i.documents.map(d =>
+              `<a href="${esc(d.url)}" target="_blank" rel="noopener">${
+                esc(String(d.url).replace(/^https?:\/\/(www\.)?/, "").split("/")[0])}</a>`
+            ).join("")}</div>`
+          : `<div class="newsdocs"><span class="sub">no document on this claim</span></div>`}
+      </div>`).join("")}</div>`;
+}
+
+function portCard(c) {
+  return `<div class="card pcard" data-open-co="${esc(c.name)}">
+    <div class="ent">${logo(c.name, c.website)}
+      <div><div class="nm">${esc(c.name)}</div>
+      <div class="sb">${c.rounds ? `${c.rounds} rounds` : "no rounds cached"}</div></div></div>
+    ${c.last_stage ? `<div class="pmeta">${esc(c.last_stage)}
+      <span>${esc(String(c.last_date || "").slice(0, 7))}</span></div>` : ""}
+  </div>`;
+}
+
+function emptyTab(rel, why) {
+  return `<div class="emptywhy"><b>Nothing here.</b> ${esc(why)}.
+    <span class="sub">The edge we asked for was <code>${esc(rel)}</code>, and it
+    came back empty — which is a fact about the graph, not a failure to load.</span></div>`;
+}
+
 function render() {
   if (KBDMODE !== MODE) { KBD = -1; KBDMODE = MODE; kbdHint(false); }
   document.querySelectorAll("[data-mode]").forEach(b =>
@@ -1788,6 +1977,9 @@ function render() {
   } else if (MODE === "map") {
     parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
+  } else if (MODE === "fund") {
+    parts = [{ t: "Funds", go: 1 }, { t: FUND?.name || ENTLOAD?.name || "Fund" }];
+    html = fundView();
   } else if (MODE === "signal") {
     parts = [{ t: "Signals" }, { t: "Founder signal" }];
     html = signalView();
@@ -2632,7 +2824,8 @@ async function lookupEntity(term, kindHint) {
       return s;
     };
     const best = found.sort((a, b) => score(a) - score(b))[0];
-    return loadEntity(best.id, best.kind, best.name);
+    return best.kind === "fund" ? loadFund(best.id, best.name)
+      : loadEntity(best.id, best.kind, best.name);
   }
   MODE = "home"; render();
   const ab = $("#askbox");
@@ -2683,7 +2876,7 @@ async function routeAsk(text) {
     if (kind === "fund") {
       ASKWHY = { q, why: `that is a fund — ${why}`, confident: true, view: "lookup" };
       if (resolved?.entity_id)
-        return loadEntity(resolved.entity_id, "fund", resolved.name || q);
+        return loadFund(resolved.entity_id, resolved.name || q);
       return lookupEntity(resolved?.name || q, null);
     }
   }
@@ -2748,7 +2941,7 @@ function qsRender(data) {
     const r = data.results[i];
     $("#qspop").classList.remove("on");
     $("#qsq").value = "";
-    loadEntity(r.id, QKIND, r.name);
+    if (QKIND === "fund") loadFund(r.id, r.name); else loadEntity(r.id, QKIND, r.name);
   });
 }
 

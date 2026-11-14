@@ -108,3 +108,32 @@ def test_english_and_german_parking_pages_are_caught():
 
 def test_a_real_homepage_is_not_parked():
     assert W.is_parked(PAGE) is False
+
+
+def test_profile_shows_one_row_per_company():
+    """The graph can carry the same company under two ids."""
+    from app import profile as PR
+    e = {"id": "f", "name": "Fund", "properties": {},
+         "relationships": {"outgoing": {"INVESTED_IN": [
+             {"id": "a", "name": "Inven"}, {"id": "b", "name": "Inven Oy"},
+             {"id": "c", "name": "Aiven"}]}}}
+    got = PR.build(e)
+    assert [c["name"] for c in got["portfolio"]] == ["Aiven", "Inven"]
+
+
+def test_a_tab_with_nothing_in_it_says_so():
+    from app import profile as PR
+    got = PR.build({"id": "f", "name": "Fund", "properties": {}, "relationships": {}})
+    assert got["has"] == {"portfolio": False, "rounds": False,
+                          "exits": False, "people": False}
+
+
+def test_lead_rate_comes_from_the_native_flag():
+    from app import profile as PR
+    e = {"id": "f", "name": "F", "properties": {}, "relationships": {"outgoing": {
+        "PARTICIPATES_IN_FUNDING_ROUND": [
+            {"id": "1", "name": "Seed", "properties": {"is_lead": True}},
+            {"id": "2", "name": "Seed", "properties": {}},
+        ]}}}
+    got = PR.build(e)
+    assert got["stats"]["led"] == 1 and got["stats"]["lead_rate"] == 0.5

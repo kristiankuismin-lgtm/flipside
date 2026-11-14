@@ -816,6 +816,37 @@ body.neo-on .main{padding-right:380px}
   line-height:1.6;cursor:help;margin-bottom:var(--s2)}
 .quiet b{color:var(--ink)}
 .synlead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+
+/* --- fund profile: tabs, stats, portfolio --- */
+.fhead{display:flex;align-items:flex-start;gap:var(--s2);padding:var(--s3) 0 var(--s2)}
+.fhead h1{margin:0;font-size:24px;font-weight:620;letter-spacing:-.015em}
+.fmeta{margin-top:5px;font-size:12.5px;color:var(--faint)}
+.fmeta a{color:var(--blue);text-decoration:none}
+.fmeta a:hover{text-decoration:underline}
+.tab span{font:10px var(--mono);color:var(--faint);margin-left:3px}
+.tab.thin{opacity:.5}
+.fstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;margin:var(--s2) 0 var(--s3)}
+.fstat{padding:14px 16px;border:1px solid var(--line);border-radius:11px;
+  background:var(--panel);box-shadow:var(--sh)}
+.fstat .k{font:10px var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint)}
+.fstat .v{margin-top:6px;font:23px/1.1 var(--mono);font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.fstat .s{margin-top:4px;font:10.5px var(--mono);color:var(--faint)}
+.pcard{cursor:pointer;display:flex;flex-direction:column;gap:9px}
+.pcard:hover{border-color:var(--line2);background:var(--hover)}
+.pmeta{display:flex;align-items:baseline;gap:7px;font:11px var(--mono);
+  color:var(--dim);padding-top:8px;border-top:1px solid var(--line)}
+.pmeta span{color:var(--faint)}
+.newslist{display:flex;flex-direction:column;gap:11px}
+.newsitem{padding:13px 15px;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);box-shadow:var(--sh)}
+.newsitem p{margin:0;font-size:13.5px;line-height:1.65;color:var(--ink)}
+.newsdocs{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.newsdocs a{font:10.5px var(--mono);color:var(--blue);text-decoration:none;
+  background:var(--blue-bg);border-radius:5px;padding:3px 8px}
+.newsdocs a:hover{text-decoration:underline}
 </style>
 </head>
 <body>
