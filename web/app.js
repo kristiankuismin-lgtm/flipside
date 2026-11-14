@@ -533,7 +533,7 @@ function render() {
     parts = [{ t: "Ask" }];
     html = homeView();
   } else if (MODE === "map") {
-    parts = [{ t: "Slush 2026" }, { t: "Exhibitor map" }];
+    parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
   } else if (MODE === "accuracy") {
     parts = [{ t: "Method" }, { t: "Backtest" }];
@@ -588,7 +588,8 @@ fetch("/health").then(r => r.json()).then(h => {
   $("#ct-f").textContent = h.pool + " funds";
   $("#ct-i").textContent = h.conviction_n ? h.conviction_n + " cos" : "";
   fetch("/map").then(r => r.json()).then(m => {
-    if (m.placed) $("#ct-m").textContent = m.placed + " placed";
+    const t = (m.placed || 0) + (m.portfolio || []).length + (m.funds || []).length;
+    if (t) $("#ct-m").textContent = t + " placed";
   }).catch(() => {});
 }).catch(() => {});
 // Init runs at the very end of this file: homeView() reads CHIPS, which is a
@@ -627,14 +628,15 @@ function mapView() {
 
   const scored = MAP.points.filter(p => p.score != null).length;
   const st = MAP.status || {};
+  const total = MAP.placed + (MAP.portfolio || []).length + (MAP.funds || []).length;
   return stats(5, [
-    ["Slush exhibitors placed", MAP.placed],
-    ["Funded companies placed", (MAP.portfolio || []).length],
-    ["Funds placed", (MAP.funds || []).length],
+    ["On the map", total],
+    ["Slush exhibitors", MAP.placed],
+    ["Funded companies", (MAP.portfolio || []).length],
+    ["Funds", (MAP.funds || []).length],
     ["Exact street coordinates", MAP.exact],
-    ["Checked for funding", MAP.walked || 0],
   ])
-  + section("gmap", "Where the floor comes from",
+  + section("gmap", "Where the ecosystem is",
       `${MAP.placed} placed · ${MAP.unplaced} addresses we could not resolve`,
       `<div class="maproot">
         <div class="mapbox">
@@ -645,22 +647,22 @@ function mapView() {
             <button class="btn" data-fly="world">World</button>
           </div>
           <div class="mapctl" style="top:auto;bottom:11px;left:auto;right:11px">
-            <button class="btn ${MAPMODE === "co" ? "pri" : ""}" data-mm="co">Companies</button>
-            <button class="btn ${MAPMODE === "pf" ? "pri" : ""}" data-mm="pf">Funded</button>
-            <button class="btn ${MAPMODE === "fu" ? "pri" : ""}" data-mm="fu">Funds</button>
+            ${Object.entries(LAYER_META).map(([k, [lbl]]) =>
+              `<button class="btn ${LAYERS[k] ? "pri" : ""}" data-layer="${k}">${lbl}</button>`).join("")}
             <button class="btn ${MAPMODE === "pp" ? "pri" : ""}" data-mm="pp">People</button>
           </div>
           <div class="mapsearch"><span style="color:var(--faint)">⌕</span>
             <input id="mapq" autocomplete="off" placeholder="${
               MAPMODE === "pp" ? "Find a founder or investor"
-              : MAPMODE === "fu" ? "Filter funds, or type a city"
-              : MAPMODE === "pf" ? "Filter funded companies, or type a city"
-              : "Filter exhibitors, or type a city"}"></div>
+              : "Filter by name, sector or city"}"></div>
           <div class="maplegend">
+            <span class="sw"><i style="background:#8a8580"></i>● exhibitor</span>
+            <span class="sw"><i style="background:#8a8580;border-radius:3px"></i>■ funded</span>
+            <span class="sw"><i style="background:#c2614f;border-radius:2px;transform:rotate(45deg)"></i>◆ fund</span>
+            <span style="width:1px;height:12px;background:var(--line2)"></span>
             ${Object.entries(STATUS).map(([k, [c, lbl]]) =>
               `<span class="sw"><i style="background:${c}"></i>${lbl}${
                 MAP.status?.[k] ? ` (${MAP.status[k]})` : ""}</span>`).join("")}
-            <span class="sw"><i style="background:#c2614f"></i>fund</span>
             <span class="sw" id="precisenote"></span>
           </div>
         </div>
@@ -676,6 +678,14 @@ function mapView() {
    library is local; only the tiles need the network, and if they fail the
    markers still render over a plain background. */
 let ML = null, MLMARKERS = [], MAPMODE = "co", PPMARKER = null, PPTIMER = null, PLTIMER = null;
+/* Layers are shown together and toggled, not swapped: the question "where is
+   the ecosystem" is not answered by looking at one slice at a time. */
+let LAYERS = { ex: true, pf: true, fu: true };
+const LAYER_META = {
+  ex: ["Slush exhibitors", "circle"],
+  pf: ["Funded companies", "square"],
+  fu: ["Funds", "diamond"],
+};
 
 function fitTo(points) {
   if (!ML || !points.length) return;
@@ -754,9 +764,11 @@ function initMap() {
   // A precisely geocoded entity sits on its real address and is never moved.
   // Only city-centroid fallbacks are spread, and they are drawn hollow so the
   // map never implies a precision it does not have.
-  const layer = MAPMODE === "fu" ? (MAP.funds || [])
-              : MAPMODE === "pf" ? (MAP.portfolio || [])
-              : MAP.points;
+  const layer = [
+    ...(LAYERS.ex ? MAP.points : []),
+    ...(LAYERS.pf ? (MAP.portfolio || []) : []),
+    ...(LAYERS.fu ? (MAP.funds || []) : []),
+  ];
   const seen = {};
   for (const p of layer) {
     let lat = p.lat, lon = p.lon;
@@ -768,8 +780,9 @@ function initMap() {
     }
 
     const d = document.createElement("div");
-    d.className = "mkr";
     const isFund = p.kind === "fund";
+    const isPf = p.kind === "portfolio";
+    d.className = "mkr" + (isPf ? " sq" : isFund ? " di" : "");
     const col = isFund ? "#c2614f" : statusColor(p);
     const isPortfolio = p.kind === "portfolio";
     const sz = isFund ? 15 : (p.score != null ? 13 : 10);
@@ -791,8 +804,7 @@ function initMap() {
     d.onclick = () => sideList([p], p.name);
     MLMARKERS.push({ marker: m, el: d, p });
   }
-  sideList(layer, MAPMODE === "fu" ? "Funds"
-                : MAPMODE === "pf" ? "Funded companies" : "Slush exhibitors");
+  sideList(layer, "Everything on the map");
   const pn = $("#precisenote");
   if (pn && MAP.exact != null)
     pn.innerHTML = `<i style="background:transparent;border:2px dashed #9b958c"></i>city only (${MAP.placed - MAP.exact})`;
@@ -801,25 +813,35 @@ function initMap() {
     const f = FLY[b.dataset.fly]; ML.flyTo({ center: f.center, zoom: f.zoom, duration: 700 });
   });
   document.querySelectorAll("[data-mm]").forEach(b => b.onclick = () => {
-    MAPMODE = b.dataset.mm; render();
+    MAPMODE = MAPMODE === b.dataset.mm ? "co" : b.dataset.mm; render();
+  });
+  document.querySelectorAll("[data-layer]").forEach(b => b.onclick = () => {
+    const k = b.dataset.layer;
+    // Never let all three go off - an empty map is not a filter state.
+    if (LAYERS[k] && Object.values(LAYERS).filter(Boolean).length === 1) return;
+    LAYERS[k] = !LAYERS[k]; render();
   });
 
   const q = $("#mapq");
   if (!q) return;
   q.oninput = MAPMODE === "pp" ? peopleSearch : () => {
     const t = q.value.trim().toLowerCase();
-    const active = MAPMODE === "fu" ? (MAP.funds || [])
-                 : MAPMODE === "pf" ? (MAP.portfolio || []) : MAP.points;
+    const active = [
+      ...(LAYERS.ex ? MAP.points : []),
+      ...(LAYERS.pf ? (MAP.portfolio || []) : []),
+      ...(LAYERS.fu ? (MAP.funds || []) : []),
+    ];
     const shown = [];
     for (const { el, p } of MLMARKERS) {
       const hit = !t || p.name.toLowerCase().includes(t) ||
         (p.hq || "").toLowerCase().includes(t) ||
-        (p.industries || []).join(" ").toLowerCase().includes(t);
+        (p.industries || []).join(" ").toLowerCase().includes(t) ||
+        (p.description || "").toLowerCase().includes(t) ||
+        (p.cc || "").toLowerCase() === t;
       el.style.display = hit ? "" : "none";
       if (hit) shown.push(p);
     }
-    sideList(shown, t ? `Matching "${q.value.trim()}"`
-      : MAPMODE === "fu" ? "Funds" : MAPMODE === "pf" ? "Funded companies" : "Slush exhibitors");
+    sideList(shown, t ? `Matching "${q.value.trim()}"` : "Everything on the map");
     clearTimeout(PLTIMER);
     if (!t) { fitTo(active); return; }
     if (shown.length) {

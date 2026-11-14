@@ -358,7 +358,7 @@ def map_data():
 
 @app.get("/")
 def index():
-    return FileResponse(WEB / "index.html")
+    return FileResponse(WEB / "index.html", headers={"Cache-Control": "no-store"})
 
 
 @app.get("/app.js")

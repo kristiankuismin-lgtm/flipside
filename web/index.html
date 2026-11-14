@@ -263,6 +263,10 @@ tbody tr:hover{background:var(--panel2)}
   font-size:11.5px;color:var(--dim);display:flex;gap:13px;flex-wrap:wrap;box-shadow:var(--sh)}
 .maplegend .sw{display:inline-flex;align-items:center;gap:6px}
 .maplegend .sw i{width:9px;height:9px;border-radius:50%}
+.maplegend .sw.off{opacity:.35}
+.maplegend .sw{cursor:pointer;user-select:none}
+.mkr.sq{border-radius:4px}
+.mkr.di{border-radius:3px;transform:rotate(45deg)}
 .mkr{border-radius:50%;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
 .side{background:var(--panel);border:1px solid var(--line);border-radius:11px;box-shadow:var(--sh);
   overflow:hidden;position:sticky;top:64px;max-height:calc(100vh - 90px);display:flex;flex-direction:column}
@@ -339,7 +343,7 @@ tbody tr:hover{background:var(--panel2)}
     <button class="navitem" data-mode="founder"><span class="ic">◧</span>Founder<span class="ct" id="ct-f"></span></button>
     <button class="navitem" data-mode="investor"><span class="ic">◨</span>Investor<span class="ct" id="ct-i"></span></button>
     <div class="navsec">Evidence</div>
-    <button class="navitem" data-mode="map"><span class="ic">◉</span>Slush map<span class="ct" id="ct-m"></span></button>
+    <button class="navitem" data-mode="map"><span class="ic">◉</span>Map<span class="ct" id="ct-m"></span></button>
     <div class="navsec">Context</div>
     <div class="navitem" style="cursor:default"><span class="ic">◆</span>Slush 2026<span class="ct">18 Nov</span></div>
     <div class="navfoot">Slush 2026 · 18 Nov</div>
