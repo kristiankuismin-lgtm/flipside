@@ -31,15 +31,15 @@ async function loadHealth() {
   try { HEALTH = await (await fetch("/health")).json(); } catch (e) { return; }
   const el = $("#datamode");
   if (!el || !HEALTH) return;
-  // Say which it is. A demo running entirely from cache is a strength when
-  // stated and a problem when discovered.
+  // Only the state worth interrupting someone for. "Live" is the normal
+  // case and saying so every second of every page was a sidebar section
+  // nobody needed; running entirely from cache is a caveat that has to be
+  // stated rather than discovered mid-demo.
   el.innerHTML = HEALTH.cache_only
     ? `<span class="dm cached" title="No live calls at all — every figure comes from
          ${HEALTH.entities_cached} entities and ${HEALTH.rounds_cached} rounds already fetched">
-         ● Cached · ${HEALTH.entities_cached.toLocaleString()} entities</span>`
-    : `<span class="dm live" title="Live lookups enabled; ${HEALTH.entities_cached}
-         entities and ${HEALTH.rounds_cached} rounds are already cached">
-         ● Live · ${HEALTH.entities_cached.toLocaleString()} cached</span>`;
+         ● Offline · ${HEALTH.entities_cached.toLocaleString()} entities cached</span>`
+    : "";
 }
 let IFILTER = "all", FFILTER = "all";  // which KPI card is active
 
@@ -2060,8 +2060,11 @@ function fundView() {
                      st.financing_events ? `${st.financing_events} financing events, not counted here` : "")}
           ${fundStat("Typical cheque", ch.n ? money(ch.median) : "—",
                      ch.n ? `median of ${ch.n} with an amount` : "no amounts on record")}
-          ${fundStat("Headquarters", esc(f.country || "—"),
-                     f.country_is_presence ? "where they operate; no HQ edge" : "")}
+          ${fundStat("Headquarters",
+                     esc(f.city || f.country || "—"),
+                     f.city && f.country ? esc(f.country)
+                       : f.country_is_presence ? "where they operate; no HQ edge"
+                       : f.address ? esc(String(f.address).slice(0, 40)) : "")}
         </div>`
       + (f.deals_by_year?.length || f.stage_mix?.length || (f.sector_mix?.total)
         ? section("fo-focus", "What they invest in",
@@ -2253,8 +2256,27 @@ function newsTab(name) {
     then cached.</span></div>`;
   if (NEWS?.error) return `<div class="emptywhy"><b>Could not read the news.</b>
     ${esc(NEWS.error)}</div>`;
-  if (!NEWS?.items?.length) return emptyTab("knowledge/search",
-    "Cala returned no sourced claims for this firm");
+  if (!NEWS?.items?.length) {
+    const open = NEWS?.open || [];
+    if (!open.length) return emptyTab("knowledge/search",
+      `Cala returned no sourced claims for this firm${
+        NEWS?.open_error ? `, and the open index could not answer either —
+        ${esc(NEWS.open_error)}` : `, and nothing in the open news index
+        names them either`}`);
+    return `<div class="sub" style="margin-bottom:var(--s2);max-width:66ch;line-height:1.7">
+        <b>Cala has nothing written about this firm.</b> These came from
+        ${esc(NEWS.open_source || "an open news index")} instead — headlines
+        and where to read them, nothing republished. Weaker evidence than a
+        Cala claim: nobody has decided these articles are about the right
+        company, only that they name it.</div>
+      <div class="newslist">${open.map(i => `
+        <div class="newsitem">
+          <p><a href="${esc(i.url)}" target="_blank" rel="noopener">${esc(i.title)}</a></p>
+          <div class="newsdocs"><span class="sub">${esc(i.domain)}${
+            i.date ? ` · ${esc(i.date)}` : ""}${
+            i.via ? ` · via ${esc(i.via)}` : ""}</span></div>
+        </div>`).join("")}</div>`;
+  }
 
   const withDocs = NEWS.items.filter(i => i.documents?.length);
   return `<div class="sub" style="margin-bottom:var(--s2);max-width:62ch;line-height:1.7">

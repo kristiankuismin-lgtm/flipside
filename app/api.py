@@ -1454,6 +1454,26 @@ def fund_profile(entity_id: str):
     return out
 
 
+def _with_open_news(out: dict, name: str) -> dict:
+    """Fall back to the open index when Cala has nothing written about them.
+
+    Cala's claims are the better answer and come first - each carries the
+    document it was read from. But most of the 664 funds have none, and a
+    News tab that says "nothing" about a firm with a press page is reporting
+    our coverage rather than theirs. The two are kept apart and labelled,
+    because nobody has decided an open-index article is about the right
+    company and a Cala claim has been sourced.
+    """
+    if out.get("items"):
+        return out
+    from . import opennews as ON
+    r = ON.search(name, limit=10)
+    out["open"] = r.get("items") or []
+    out["open_error"] = r.get("error")
+    out["open_source"] = "GDELT, an open index of world news"
+    return out
+
+
 @app.get("/news")
 def news(name: str, year: str = ""):
     """What has been written about this firm lately, with the documents.
@@ -1472,7 +1492,12 @@ def news(name: str, year: str = ""):
     try:
         r = cala.search(q, allow_live=True, ttl=7 * 86400, timeout=90)
     except Exception as e:
-        return {"name": name, "items": [], "error": f"{type(e).__name__}: {str(e)[:110]}"}
+        # Cala could not answer at all. The open index still can, and a News
+        # tab that says "rate limited" is less useful than one that says
+        # what was written and where.
+        return _with_open_news(
+            {"name": name, "items": [],
+             "error": f"{type(e).__name__}: {str(e)[:110]}"}, name)
 
     ctx = {c.get("id"): c for c in (r.get("context") or [])}
     items, seen = [], set()
@@ -1489,8 +1514,8 @@ def news(name: str, year: str = ""):
                 if url and url not in [d["url"] for d in docs]:
                     docs.append({"url": url, "name": (nm or url)[:90]})
         items.append({"claim": text, "documents": docs[:3]})
-    return {"name": name, "items": items, "summary": r.get("content"),
-            "error": None}
+    return _with_open_news({"name": name, "items": items,
+                            "summary": r.get("content"), "error": None}, name)
 
 
 @app.get("/alert-rules")

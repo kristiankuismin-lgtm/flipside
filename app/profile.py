@@ -29,6 +29,21 @@ def _role(it: dict, key: str):
     return _val(it.get("properties"), key)
 
 
+def _city_of(addr):
+    """The city in a postal address, which is at the end of it, not the start.
+
+    Reuses the reader built for the near-me grouping, where splitting on the
+    first comma once filed a dozen funds under "PL 358".
+    """
+    if not addr:
+        return None
+    try:
+        from .near import city_of
+        return city_of(str(addr))
+    except Exception:                                 # noqa: BLE001
+        return None
+
+
 def build(e: dict, *, rounds_by_company: dict | None = None,
           domains: dict | None = None) -> dict:
     """{header, overview, portfolio, rounds, exits, people} for one fund."""
@@ -146,6 +161,11 @@ def build(e: dict, *, rounds_by_company: dict | None = None,
         "country": (hq[0].get("name") if hq
                     else (presence[0].get("name") if presence else None)),
         "country_is_presence": not hq and bool(presence),
+        # The city, read off the end of the address we hold. "Stockholm" is
+        # what a founder deciding whether to get on a train needs; "Sweden"
+        # is what the country edge happens to carry.
+        "city": _city_of(_val(props, "headquarters_address")
+                         or _val(props, "registered_address")),
         "presence": [p.get("name") for p in presence],
         "industries": [i.get("name") for i in industries],
         "stats": {
