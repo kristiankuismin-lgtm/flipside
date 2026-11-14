@@ -1545,6 +1545,44 @@ def moves_endpoint(limit: int = 40):
     return out
 
 
+@app.get("/scouts")
+def scouts(thesis: str = "", limit: int = 50):
+    """People who have built before and are sitting in somebody else's seat.
+
+    By the time there is a company and a deck, every fund has the same
+    information. The investors who are early knew the person.
+    """
+    from . import cache_index, scouts as SC
+    idx = cache_index.build()
+    people = [e for e in idx.values() if e.get("entity_type") == "Person"]
+    out = SC.rank(people, thesis=thesis, limit=limit,
+                  company_lookup=lambda k: idx.get(k)
+                  or DEPTH.entity(k, types=("Company", "Organization")))
+    out["coverage"]["people_in_cache"] = len(people)
+    return out
+
+
+@app.get("/scout-signal")
+def scout_signal(name: str, id: str = ""):
+    """What has happened to one watched person lately.
+
+    Two sources, both of which we are allowed to read: the moves their own
+    Cala record supports, and the open news index naming them. Not their
+    mail, not their LinkedIn.
+    """
+    from . import cache_index, moves as MV, opennews as ON
+    e = cache_index.get(id) if id else None
+    if e is None:
+        e = DEPTH.entity(name, types=("Person",))
+    out = {"name": name, "moves": [], "news": [], "news_error": None}
+    if e:
+        out["moves"] = MV.moves(e, rounds_by_company=_rounds_by_company())
+    r = ON.search(name, limit=6)
+    out["news"] = r.get("items") or []
+    out["news_error"] = r.get("error")
+    return out
+
+
 @app.get("/alert-rules")
 def alert_rules():
     from . import alerts as AL

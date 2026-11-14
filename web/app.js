@@ -684,6 +684,12 @@ function applyRoleChrome() {
   document.querySelectorAll("[data-ddrop]").forEach(b => b.onclick = e => {
     e.stopPropagation(); dealSet(b.dataset.ddrop, null);
   });
+  document.querySelectorAll("[data-scwatch]").forEach(b => b.onclick = () => {
+    const [id, ...rest] = b.dataset.scwatch.split("|");
+    scoutToggle(id, rest.join("|"));
+  });
+  const scf = $("#scform");
+  if (scf) scf.onsubmit = e => { e.preventDefault(); loadScouts($("#scq").value); };
   document.querySelectorAll("[data-role]").forEach(b =>
     b.classList.toggle("on", b.dataset.role === ROLE));
   const f = $("#navfounder"), i = $("#navinvestor");
@@ -708,6 +714,159 @@ async function loadConviction() {
   render();
 }
 
+/* ================================================= BEFORE THEY FOUND
+   By the time there is a company and a deck, every fund has the same
+   information and the round is a race. The investors who are early are
+   early because they knew the person.
+
+   So: a watchlist of people who have built before and are currently sitting
+   in somebody else's seat, ranked against a thesis, with the thing that
+   would change named on every row. Watch one and this checks their record
+   and the open news index for it.
+
+   What this does not do is read anyone's LinkedIn or anyone's mail. Those
+   are the signals an investor would most like and they are not ours to
+   take — the first is against LinkedIn's terms, the second is surveillance
+   of people who never asked to be watched. The panel says so rather than
+   leaving it to be assumed either way. */
+let SCOUTS = null, SCOUT_THESIS = "", SCOUTWATCH = {}, SCOUTSIG = {};
+
+function scoutKey() { return "flipside.watchlist"; }
+
+function scoutLoad() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(scoutKey()) || "{}");
+    if (raw && typeof raw === "object" && !Array.isArray(raw)) SCOUTWATCH = raw;
+  } catch (e) { SCOUTWATCH = {}; }
+}
+
+function scoutSave() {
+  try { localStorage.setItem(scoutKey(), JSON.stringify(SCOUTWATCH)); }
+  catch (e) { /* private window */ }
+}
+
+function scoutToggle(id, name) {
+  if (SCOUTWATCH[id]) delete SCOUTWATCH[id];
+  else { SCOUTWATCH[id] = { name, at: Date.now() }; loadScoutSignal(id, name); }
+  scoutSave(); render();
+}
+
+async function loadScouts(thesis) {
+  SCOUT_THESIS = thesis ?? SCOUT_THESIS;
+  SCOUTS = { loading: true }; render();
+  try {
+    SCOUTS = await (await fetch(
+      `/scouts?thesis=${encodeURIComponent(SCOUT_THESIS)}&limit=60`)).json();
+  } catch (e) { SCOUTS = { error: String(e.message), candidates: [] }; }
+  render();
+  for (const id of Object.keys(SCOUTWATCH)) {
+    if (!SCOUTSIG[id]) loadScoutSignal(id, SCOUTWATCH[id].name);
+  }
+}
+
+/* What has happened to a watched person lately: the moves their own record
+   supports, and the open news index naming them. */
+async function loadScoutSignal(id, name) {
+  SCOUTSIG[id] = { loading: true };
+  try {
+    SCOUTSIG[id] = await (await fetch(
+      `/scout-signal?name=${encodeURIComponent(name)}&id=${encodeURIComponent(id)}`)).json();
+  } catch (e) { SCOUTSIG[id] = { error: String(e.message) }; }
+  if (MODE === "scouts") render();
+}
+
+function scoutRow(c, watched) {
+  const sig = SCOUTSIG[c.id];
+  const fired = (sig?.moves || []).length || (sig?.news || []).length;
+  return `<div class="scrow ${watched ? "on" : ""}">
+    <button class="scwatch ${watched ? "on" : ""}" data-scwatch="${esc(c.id)}|${esc(c.name)}"
+      title="${watched ? "Stop watching" : "Watch this person"}">${watched ? "◉" : "○"}</button>
+    <div class="scmain">
+      <div class="scnm">${esc(c.name)}
+        ${c.match_specific?.length
+          ? badge(c.match_specific.join(", ") + " — your thesis", "green")
+          : c.match?.length ? `<span class="chip sm">${esc(c.match.join(", "))}</span>` : ""}
+        ${c.angel ? `<span class="chip sm">invests</span>` : ""}</div>
+      <div class="scwhy">${esc(c.why.join(" · "))}</div>
+      ${c.now_at?.length ? `<div class="scnow">now at
+        <b>${esc(c.now_at[0].name)}</b>${c.now_at[0].role
+          ? ` · ${esc(c.now_at[0].role)}` : ""}</div>` : ""}
+      ${c.founded_firms?.length ? `<div class="scnow sub">also started
+        ${esc(c.founded_firms.map(f => f.name).join(", "))} — a firm, not counted</div>` : ""}
+      ${watched ? `<div class="scsig">${
+        sig?.loading ? `<span class="spin"></span> checking their record…`
+        : sig?.error ? esc(sig.error)
+        : fired
+          ? [...(sig.moves || []).map(m =>
+                `<b>${esc(m.kind === "new_venture" ? "founded" : "moved to")}
+                 ${esc(m.company)}</b> — ${m.months_ago} months ago`),
+             ...(sig.news || []).slice(0, 2).map(n =>
+                `<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.title)}</a>
+                 <span class="sub">${esc(n.domain)}</span>`)].join("<br>")
+          : `<span class="sub">Nothing has changed on their record since you
+             started watching. Watching for: ${esc((c.watch_for || []).join("; "))}.${
+             sig?.news_error ? ` The open news index did not answer —
+             ${esc(sig.news_error)}` : ""}</span>`
+      }</div>` : `<div class="scwatchfor sub">Watch for: ${
+        esc((c.watch_for || [])[0] || "")}</div>`}
+    </div>
+    <div class="scsc">${c.score}</div>
+    <button class="btn sm" data-person="${esc(c.id)}" data-pname="${esc(c.name)}">Card</button>
+  </div>`;
+}
+
+function scoutsView() {
+  const watched = Object.keys(SCOUTWATCH);
+  const head = `<div class="runline">
+      <div class="rl1"><b>Before they found</b>
+        <span class="sub">· people who have built, sitting in someone else's seat</span></div>
+      <div class="rl2">${watched.length
+        ? `<span class="sub">${watched.length} on your watchlist</span>` : ""}</div>
+    </div>
+    <form class="scthesis" id="scform">
+      <input id="scq" placeholder="Your thesis — e.g. clinical software for hospitals"
+        value="${esc(SCOUT_THESIS)}" autocomplete="off">
+      <button class="btn pri" type="submit">Rank against it</button>
+    </form>`;
+
+  if (!SCOUTS) { loadScouts(SCOUT_THESIS); return head + `<div class="msg">
+    <span class="spin"></span>Reading the people we have records for…</div>`; }
+  if (SCOUTS.loading) return head + `<div class="msg" style="padding:30px">
+    <span class="spin"></span>Ranking…</div>`;
+  if (SCOUTS.error) return head + errorPanel(SCOUTS.error, "the watchlist");
+
+  const c = SCOUTS.coverage || {};
+  const rows = SCOUTS.candidates || [];
+  const onList = rows.filter(r => SCOUTWATCH[r.id]);
+  const rest = rows.filter(r => !SCOUTWATCH[r.id]);
+
+  return head
+    + kpis([
+      ["Candidates", c.candidates ?? 0, "all", "have founded or run something"],
+      ["Match your thesis", c.matched_specifically ?? 0, "match",
+       "on a market specific enough to mean something"],
+      ["On your watchlist", watched.length, "watch", "kept in this browser"],
+    ], "all", null)
+    + (onList.length ? section("scw", "Watching", `${onList.length}`,
+        `<div class="sclist">${onList.map(r => scoutRow(r, true)).join("")}</div>`) : "")
+    + section("scall", "Who could start something",
+        `${rows.length} of ${c.people_with_edges} people whose records we have read`,
+        rest.length
+          ? `<div class="sclist">${rest.map(r => scoutRow(r, false)).join("")}</div>`
+          : `<div class="emptywhy"><b>Nobody left.</b> Everyone we can see is
+              already on your watchlist.</div>`)
+    + `<div class="evfoot">
+        <b>What this reads, and what it will not.</b>
+        <span style="display:block;max-width:74ch;line-height:1.7;margin-top:6px">
+          Companies founded, roles held and their dates, from Cala; and the open
+          news index, when it names someone. It does not read LinkedIn — that is
+          against their terms — and it does not read anyone's mail. Those are the
+          signals you would most like and they are not ours to take. Ranked on
+          ${c.people_with_edges} people of the ${c.people_in_cache} we hold a name
+          for, and there is no backtest for this order.
+        </span></div>`;
+}
+
 function investorView() {
   if (!CONV || CONV.loading) return `<div class="msg" style="padding:40px">
     <span class="spin"></span>Reading who got backed again…</div>`;
@@ -721,13 +880,6 @@ function investorView() {
         <span class="sub">· ${CONV.scored ?? cs.length} of ${CONV.corpus ?? "?"} companies scored</span></div>
       <div class="rl2"><span class="sub">precomputed from Cala's round records</span>
         <button class="lnk" data-goto="accuracy">Does it predict?</button></div>
-    </div>
-    <div class="verdict grey" style="line-height:1.7">
-      <b>The one signal a deck cannot manufacture.</b> Everything a company
-      tells you is chosen. Whether the investors who already own a piece of it
-      put more money in is not — it costs them to send it, and they know what
-      you do not. This reads that off the round records: who came back, who
-      sat out, and whether the previous lead led again.
     </div>
     ${kpis([
       ["Scored", cs.length, "all", "two rounds and prior investors to compare"],
@@ -907,16 +1059,19 @@ function heroCard(inv, red, leads, warm) {
        <b>${esc(comps.slice(0, 2).join(" or "))}</b>. Do not send them your deck.`
     : "<b>No fund</b> on this list funds a competitor Cala can name.";
 
+  // With a conflict this names it. Without one there is nothing to add: the
+  // eyebrow above already says how many were screened against how many
+  // competitors, and repeating it is a line of furniture under the headline.
   const sub = red.length
     ? red.map(x => `<b>${esc(x.investor)}</b> &rarr; ${esc(x.backs.join(", "))}`).join(" &nbsp;·&nbsp; ")
-    : `${inv.length} screened against ${F.competitors.length} named competitors.`;
+    : "";
 
   return `<div class="hero ${red.length ? "warn" : "ok"}">
     <div class="herotop">
       <span class="herotag">${esc(F.company)} · ${esc(F.stage)} ·
         ${inv.length} screened · ${F.competitors.length} competitors</span>
       <h2>${head}</h2>
-      <p class="herosub">${sub}</p>
+      ${sub ? `<p class="herosub">${sub}</p>` : ""}
       <p class="herothen"><b>${clean.length}</b> funds are left.
         ${leads.length ? `<b>${leads.length}</b> of them lead at ${esc(F.stage)}.` : ""}
         ${warm.length ? `<b>${warm.length}</b> can be reached through someone you know.`
@@ -2902,6 +3057,9 @@ function render() {
   } else if (MODE === "investor") {
     parts = [{ t: "Your pipeline" }, { t: "Insider conviction" }];
     html = investorView();
+  } else if (MODE === "scouts") {
+    parts = [{ t: "Your pipeline", go: 1 }, { t: "Before they found" }];
+    html = scoutsView();
   } else if (MODE === "map") {
     parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
@@ -2939,6 +3097,8 @@ function render() {
   document.body.classList.toggle("has-picks", PICKED.size > 0 && MODE === "founder");
   const ctd = $("#ct-d");
   if (ctd) ctd.textContent = dealCount() ? `${dealCount()} in play` : "";
+  const ctw = $("#ct-w"), nw = Object.keys(SCOUTWATCH).length;
+  if (ctw) ctw.textContent = nw ? `${nw} watched` : "";
   $("#view").innerHTML = html;
   wire();
   kbdInit();
@@ -2995,6 +3155,12 @@ function render() {
   document.querySelectorAll("[data-ddrop]").forEach(b => b.onclick = e => {
     e.stopPropagation(); dealSet(b.dataset.ddrop, null);
   });
+  document.querySelectorAll("[data-scwatch]").forEach(b => b.onclick = () => {
+    const [id, ...rest] = b.dataset.scwatch.split("|");
+    scoutToggle(id, rest.join("|"));
+  });
+  const scf = $("#scform");
+  if (scf) scf.onsubmit = e => { e.preventDefault(); loadScouts($("#scq").value); };
   document.querySelectorAll("[data-role]").forEach(b =>
     b.onclick = () => setRole(b.dataset.role));
   document.querySelectorAll("[data-conv]").forEach(b =>
@@ -4209,6 +4375,7 @@ neoMount();
 // Apply the role the browser remembers before the first paint, so an
 // investor who reloads does not land on the founder's ask box.
 applyRoleChrome();
+scoutLoad();
 render();
 
 /* ================= ENTITY CARD (person / fund) ================= */

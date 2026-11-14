@@ -1186,6 +1186,31 @@ tr.picked{background:var(--accent-bg)}
 .mvrow:last-child{border-bottom:0}
 .mvrow>div:first-child{flex:1;min-width:0;line-height:1.5}
 .mvrow.new{background:var(--accent-bg)}
+
+/* Before they found: a watchlist of people, not companies. */
+.scthesis{display:flex;gap:var(--s2);margin-bottom:var(--s3)}
+.scthesis input{flex:1;min-width:0;padding:10px 13px;border:1px solid var(--line2);
+  border-radius:10px;background:var(--panel);font:13.5px var(--sans);color:var(--ink)}
+.scthesis input:focus{outline:0;border-color:var(--accent)}
+.sclist{border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  background:var(--panel)}
+.scrow{display:grid;grid-template-columns:28px 1fr 3.4rem auto;gap:var(--s2);
+  align-items:start;padding:12px 14px;border-bottom:1px solid var(--line)}
+.scrow:last-child{border-bottom:0}
+.scrow.on{background:var(--accent-bg)}
+.scwatch{border:0;background:none;color:var(--faint);font-size:14px;line-height:1.4;
+  padding:0}
+.scwatch:hover,.scwatch.on{color:var(--accent)}
+.scmain{min-width:0}
+.scnm{font-weight:580;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.scwhy{color:var(--dim);font-size:12.5px;line-height:1.55;margin-top:3px}
+.scnow{font-size:12.5px;margin-top:3px}
+.scwatchfor{font-size:11.5px;margin-top:4px}
+.scsig{margin-top:7px;padding:8px 10px;border-radius:8px;background:var(--hover);
+  font-size:12.5px;line-height:1.6}
+.scsig a{color:var(--accent-ink)}
+.scsc{text-align:right;font-variant-numeric:tabular-nums;font-weight:620}
+@media (max-width:720px){.scrow{grid-template-columns:24px 1fr auto}.scsc{display:none}}
 </style>
 </head>
 <body>
@@ -1219,6 +1244,7 @@ tr.picked{background:var(--accent-bg)}
     <div class="navrole" id="navinvestor" hidden>
       <div class="navsec">Your pipeline</div>
       <button class="navitem" data-mode="investor"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12.5 6 7l3 3 5-6.5"/><path d="M10.5 3.5H14v3.5"/></svg></span>Insider conviction<span class="ct" id="ct-i"></span></button>
+      <button class="navitem" data-mode="scouts"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg></span>Before they found<span class="ct" id="ct-w"></span></button>
       <button class="navitem" data-mode="map"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4.5 6 3l4 1.5L14 3v8.5L10 13 6 11.5 2 13z"/><path d="M6 3v8.5M10 4.5V13"/></svg></span>Where they are</button>
     </div>
   </aside>

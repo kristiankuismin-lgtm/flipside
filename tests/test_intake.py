@@ -145,3 +145,23 @@ def test_a_deck_title_still_wins_over_another_file(deck_bytes):
     docs = [intake.read(b"Some Other Heading\nmore text", "notes.txt"),
             intake.read(deck_bytes, "deck.pptx")]
     assert intake.profile("", docs)["name"] == "Gosta Labs"
+
+
+def test_a_sentence_typed_into_the_box_is_not_the_company_name():
+    """"we build a fintech company and looking for seed investors" is what
+    they do. It was being screened as the name and printed across the top
+    of every page."""
+    p = intake.profile("we build a fintech company and looking for seed "
+                       "investors. gostalabs.com", [])
+    assert p["name"] == "Gostalabs"          # from the website, not the sentence
+
+
+def test_a_real_name_on_the_first_line_is_still_taken():
+    p = intake.profile("Gosta Labs\nWe build clinical documentation software.", [])
+    assert p["name"] == "Gosta Labs"
+
+
+def test_a_name_with_an_article_in_it_survives():
+    """"The Raine Group" is a name; the article test must not eat it."""
+    p = intake.profile("Nightingale Health\nBlood tests.", [])
+    assert p["name"] == "Nightingale Health"

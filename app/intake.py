@@ -57,6 +57,11 @@ _NOT_A_COMPANY_HOST = re.compile(
 _EMAIL = re.compile(r"\b[\w.+-]+@([\w-]+\.[\w.-]+)\b")
 
 
+# A heading is a name, not a sentence: "Gosta Labs" is one, "We build
+# clinical documentation software" is not.
+_SENTENCEY = re.compile(r"[.!?]\s|\b(we|our|the|a|an|is|are|for|that)\b", re.I)
+
+
 @dataclass
 class Source:
     """Where one claim came from, precisely enough to check."""
@@ -227,11 +232,6 @@ def _domains(lines) -> list[tuple[str, str, str]]:
     return out
 
 
-# A heading is a name, not a sentence: "Gosta Labs" is one, "We build
-# clinical documentation software" is not.
-_SENTENCEY = re.compile(r"[.!?]\s|\b(we|our|the|a|an|is|are|for|that)\b", re.I)
-
-
 def _title_line(docs) -> tuple[str, str, str] | None:
     """The first substantial line of a document: the title slide, or the
     heading of a one-pager.
@@ -295,9 +295,14 @@ def profile(text: str, docs: list[Doc]) -> dict:
         claim("website", best, where, quote)
 
     # Name: what the founder typed first, or the title slide.
+    #
+    # Only if the first line reads like a name. Someone who types "we build a
+    # fintech company and looking for seed investors" has told us what they
+    # do, not what they are called, and screening a company by that sentence
+    # put it across the top of every page as if it were the name.
     if typed:
         first = typed[0][1]
-        if 2 <= len(first) <= 60:
+        if 2 <= len(first) <= 60 and not _SENTENCEY.search(first):
             claim("name", first.rstrip(" .,"), "what you wrote", first)
     if not out.get("name"):
         t = _title_line(docs)
