@@ -684,6 +684,8 @@ function applyRoleChrome() {
   document.querySelectorAll("[data-ddrop]").forEach(b => b.onclick = e => {
     e.stopPropagation(); dealSet(b.dataset.ddrop, null);
   });
+  document.querySelectorAll("[data-scack]").forEach(b =>
+    b.onclick = () => scoutAck(b.dataset.scack));
   document.querySelectorAll("[data-scwatch]").forEach(b => b.onclick = () => {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
@@ -729,26 +731,94 @@ async function loadConviction() {
    take — the first is against LinkedIn's terms, the second is surveillance
    of people who never asked to be watched. The panel says so rather than
    leaving it to be assumed either way. */
-let SCOUTS = null, SCOUT_THESIS = "", SCOUTWATCH = {}, SCOUTSIG = {};
+let SCOUTS = null, SCOUT_THESIS = "", SCOUTWATCH = {}, SCOUTSIG = {}, SCOUTBT = null;
 
-function scoutKey() { return "flipside.watchlist"; }
+/* The ranking graded against what people actually did next.
+   "No backtest" is a caveat anyone can ignore. The attempt, its sample size
+   and the one signal currently pointing the wrong way are harder to. */
+async function loadScoutBacktest() {
+  try { SCOUTBT = await (await fetch("/backtest-scouts")).json(); }
+  catch (e) { SCOUTBT = { ran: false, verdict: String(e.message) }; }
+  if (MODE === "scouts") render();
+}
 
-function scoutLoad() {
+function scoutBacktestBlock() {
+  if (!SCOUTBT) { loadScoutBacktest(); return ""; }
+  if (!SCOUTBT.ran) return "";
+  const sigs = SCOUTBT.signals || [];
+  const wrong = sigs.filter(s => s.with.rate != null && s.without.rate != null
+    && s.with.rate < s.without.rate);
+  return section("scbt", "Does this ranking predict anything?",
+    `cut at ${SCOUTBT.cutoff} · ${SCOUTBT.people_graded} people could be graded`,
+    `<div class="card">
+      <p style="margin:0 0 var(--s2);line-height:1.7">${esc(SCOUTBT.verdict)}</p>
+      <div class="tbl"><table><thead><tr><th>Signal</th>
+        <th class="num">Had it</th><th class="num">Founded again</th>
+        <th class="num">Without it</th></tr></thead><tbody>${sigs.map(x => `
+        <tr style="cursor:default">
+          <td>${esc(x.signal)}</td>
+          <td class="num">${x.with.n}</td>
+          <td class="num">${x.with.rate == null ? "—"
+            : `${Math.round(x.with.rate * 100)}%`}</td>
+          <td class="num">${x.without.rate == null ? "—"
+            : `${Math.round(x.without.rate * 100)}%`}</td>
+        </tr>`).join("")}</tbody></table></div>
+      ${wrong.length ? `<div class="emptywhy" style="margin-top:var(--s2)">
+        <b>${wrong.map(w => esc(w.signal)).join(", ")} currently points the
+        wrong way.</b> In this sample people with it founded again
+        <i>less</i> often. At these counts that is as likely to be noise as
+        signal — which is exactly why the weight stays as it is rather than
+        being tuned to twelve people.</div>` : ""}
+      <p class="sub" style="margin:var(--s2) 0 0;line-height:1.7">
+        Method: pick a year, score each person on evidence dated before it
+        only, then look at who founded something after. Anything undated is
+        excluded rather than assumed early — a FOUNDED edge with no date
+        might be from 2004 or last month, and guessing would be grading our
+        own homework.</p>
+    </div>`);
+}
+
+/* The watchlist lives on the server, not in this browser.
+   It has to: an alert is a diff against what we last saw, and a browser that
+   forgets between visits can only ever show you the same thing again. The
+   first check of a newly watched person is stored as a baseline and raises
+   nothing - everything about them is new to us and none of it is new to the
+   world. */
+let WATCH = { watching: [], unread: [] };
+
+async function scoutLoad() {
+  try { WATCH = await (await fetch("/watch")).json(); }
+  catch (e) { WATCH = { watching: [], unread: [], error: String(e.message) }; }
+  SCOUTWATCH = Object.fromEntries((WATCH.watching || []).map(w => [w.id, w]));
+  if (MODE === "scouts") render();
+}
+
+async function scoutToggle(id, name) {
+  const on = !!SCOUTWATCH[id];
+  SCOUTWATCH = { ...SCOUTWATCH };
+  if (on) delete SCOUTWATCH[id]; else SCOUTWATCH[id] = { id, name };
+  render();                                   // answer the click immediately
   try {
-    const raw = JSON.parse(localStorage.getItem(scoutKey()) || "{}");
-    if (raw && typeof raw === "object" && !Array.isArray(raw)) SCOUTWATCH = raw;
-  } catch (e) { SCOUTWATCH = {}; }
+    const r = await fetch(`/watch/${encodeURIComponent(id)}`
+      + (on ? "" : `?name=${encodeURIComponent(name)}`),
+      { method: on ? "DELETE" : "POST" });
+    WATCH = await r.json();
+    SCOUTWATCH = Object.fromEntries((WATCH.watching || []).map(w => [w.id, w]));
+  } catch (e) { /* the optimistic state is close enough to retry from */ }
+  render();
 }
 
-function scoutSave() {
-  try { localStorage.setItem(scoutKey(), JSON.stringify(SCOUTWATCH)); }
-  catch (e) { /* private window */ }
+async function scoutAck(pid) {
+  try {
+    const r = await fetch(`/watch-ack${pid ? `?pid=${encodeURIComponent(pid)}` : ""}`,
+      { method: "POST" });
+    WATCH = { ...WATCH, unread: (await r.json()).unread || [] };
+  } catch (e) { /* nothing to do */ }
+  render();
 }
 
-function scoutToggle(id, name) {
-  if (SCOUTWATCH[id]) delete SCOUTWATCH[id];
-  else { SCOUTWATCH[id] = { name, at: Date.now() }; loadScoutSignal(id, name); }
-  scoutSave(); render();
+function unreadFor(id) {
+  return (WATCH.unread || []).filter(u => u.id === id);
 }
 
 async function loadScouts(thesis) {
@@ -759,9 +829,7 @@ async function loadScouts(thesis) {
       `/scouts?thesis=${encodeURIComponent(SCOUT_THESIS)}&limit=60`)).json();
   } catch (e) { SCOUTS = { error: String(e.message), candidates: [] }; }
   render();
-  for (const id of Object.keys(SCOUTWATCH)) {
-    if (!SCOUTSIG[id]) loadScoutSignal(id, SCOUTWATCH[id].name);
-  }
+  scoutLoad();
 }
 
 /* What has happened to a watched person lately: the moves their own record
@@ -775,9 +843,20 @@ async function loadScoutSignal(id, name) {
   if (MODE === "scouts") render();
 }
 
+/* "3 hours ago" from a unix seconds stamp. */
+function since(ts) {
+  if (!ts) return "";
+  const m = Math.max(0, (Date.now() / 1000 - ts) / 60);
+  if (m < 2) return "just now";
+  if (m < 90) return `${Math.round(m)} minutes ago`;
+  const h = m / 60;
+  if (h < 36) return `${Math.round(h)} hours ago`;
+  return `${Math.round(h / 24)} days ago`;
+}
+
 function scoutRow(c, watched) {
-  const sig = SCOUTSIG[c.id];
-  const fired = (sig?.moves || []).length || (sig?.news || []).length;
+  const w = SCOUTWATCH[c.id];
+  const news = unreadFor(c.id);
   return `<div class="scrow ${watched ? "on" : ""}">
     <button class="scwatch ${watched ? "on" : ""}" data-scwatch="${esc(c.id)}|${esc(c.name)}"
       title="${watched ? "Stop watching" : "Watch this person"}">${watched ? "◉" : "○"}</button>
@@ -793,20 +872,16 @@ function scoutRow(c, watched) {
           ? ` · ${esc(c.now_at[0].role)}` : ""}</div>` : ""}
       ${c.founded_firms?.length ? `<div class="scnow sub">also started
         ${esc(c.founded_firms.map(f => f.name).join(", "))} — a firm, not counted</div>` : ""}
-      ${watched ? `<div class="scsig">${
-        sig?.loading ? `<span class="spin"></span> checking their record…`
-        : sig?.error ? esc(sig.error)
-        : fired
-          ? [...(sig.moves || []).map(m =>
-                `<b>${esc(m.kind === "new_venture" ? "founded" : "moved to")}
-                 ${esc(m.company)}</b> — ${m.months_ago} months ago`),
-             ...(sig.news || []).slice(0, 2).map(n =>
-                `<a href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.title)}</a>
-                 <span class="sub">${esc(n.domain)}</span>`)].join("<br>")
-          : `<span class="sub">Nothing has changed on their record since you
-             started watching. Watching for: ${esc((c.watch_for || []).join("; "))}.${
-             sig?.news_error ? ` The open news index did not answer —
-             ${esc(sig.news_error)}` : ""}</span>`
+      ${watched ? `<div class="scsig ${news.length ? "fresh" : ""}">${
+        news.length
+          ? news.map(u => `<div>${u.url
+              ? `<a href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.text)}</a>`
+              : `<b>${esc(u.text)}</b>`}
+              <span class="sub">${esc(since(u.first_seen))}</span></div>`).join("")
+            + `<button class="lnk" data-scack="${esc(c.id)}">Mark as read</button>`
+          : `<span class="sub">Nothing new since we started watching${
+              w?.checked ? `, last checked ${esc(since(w.checked))}` : ""}.
+             Watching for: ${esc((c.watch_for || []).join("; "))}.</span>`
       }</div>` : `<div class="scwatchfor sub">Watch for: ${
         esc((c.watch_for || [])[0] || "")}</div>`}
     </div>
@@ -820,8 +895,10 @@ function scoutsView() {
   const head = `<div class="runline">
       <div class="rl1"><b>Before they found</b>
         <span class="sub">· people who have built, sitting in someone else's seat</span></div>
-      <div class="rl2">${watched.length
-        ? `<span class="sub">${watched.length} on your watchlist</span>` : ""}</div>
+      <div class="rl2">${(WATCH.unread || []).length
+        ? `<button class="lnk" data-scack="">Mark all read</button>` : ""}
+        ${WATCH.last_sweep
+          ? `<span class="sub">last swept ${esc(since(WATCH.last_sweep))}</span>` : ""}</div>
     </div>
     <form class="scthesis" id="scform">
       <input id="scq" placeholder="Your thesis — e.g. clinical software for hospitals"
@@ -845,7 +922,12 @@ function scoutsView() {
       ["Candidates", c.candidates ?? 0, "all", "have founded or run something"],
       ["Match your thesis", c.matched_specifically ?? 0, "match",
        "on a market specific enough to mean something"],
-      ["On your watchlist", watched.length, "watch", "kept in this browser"],
+      ["On your watchlist", watched.length, "watch",
+       WATCH.sweep_every_minutes
+         ? `re-checked every ${WATCH.sweep_every_minutes} minutes`
+         : "kept on the server"],
+      ["New since you looked", (WATCH.unread || []).length, "new",
+       "a change on a watched record, not a reread of the same one"],
     ], "all", null)
     + (onList.length ? section("scw", "Watching", `${onList.length}`,
         `<div class="sclist">${onList.map(r => scoutRow(r, true)).join("")}</div>`) : "")
@@ -855,15 +937,22 @@ function scoutsView() {
           ? `<div class="sclist">${rest.map(r => scoutRow(r, false)).join("")}</div>`
           : `<div class="emptywhy"><b>Nobody left.</b> Everyone we can see is
               already on your watchlist.</div>`)
+    + scoutBacktestBlock()
     + `<div class="evfoot">
         <b>What this reads, and what it will not.</b>
         <span style="display:block;max-width:74ch;line-height:1.7;margin-top:6px">
           Companies founded, roles held and their dates, from Cala; and the open
-          news index, when it names someone. It does not read LinkedIn — that is
-          against their terms — and it does not read anyone's mail. Those are the
-          signals you would most like and they are not ours to take. Ranked on
+          news index, when it names someone. A watched person is re-read on a
+          timer and what you see is the <i>difference</i> since last time — the
+          first check is a baseline and raises nothing, because everything
+          about them is new to us and none of it is new to the world.
+          Nothing is emailed: there is no mail to send it from, and saying
+          otherwise would be the easiest sentence here to write and the least
+          true. It does not read LinkedIn — that is against their terms — and
+          it does not read anyone's mail. Ranked on
           ${c.people_with_edges} people of the ${c.people_in_cache} we hold a name
-          for, and there is no backtest for this order.
+          for. Whether the order predicts anything is tested above, not
+          asserted here.
         </span></div>`;
 }
 
@@ -3167,6 +3256,8 @@ function render() {
   document.querySelectorAll("[data-ddrop]").forEach(b => b.onclick = e => {
     e.stopPropagation(); dealSet(b.dataset.ddrop, null);
   });
+  document.querySelectorAll("[data-scack]").forEach(b =>
+    b.onclick = () => scoutAck(b.dataset.scack));
   document.querySelectorAll("[data-scwatch]").forEach(b => b.onclick = () => {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));

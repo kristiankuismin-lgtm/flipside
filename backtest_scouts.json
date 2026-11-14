@@ -1,0 +1,65 @@
+{
+ "cutoff": 2015,
+ "people_graded": 12,
+ "founded_after": 7,
+ "base_rate": 0.583,
+ "signals": [
+  {
+   "signal": "founded before",
+   "with": {
+    "n": 11,
+    "founded": 6,
+    "rate": 0.545,
+    "lower": 0.332
+   },
+   "without": {
+    "n": 1,
+    "founded": 1,
+    "rate": 1.0
+   }
+  },
+  {
+   "signal": "founded twice before",
+   "with": {
+    "n": 3,
+    "founded": 1,
+    "rate": 0.333,
+    "lower": 0.088
+   },
+   "without": {
+    "n": 9,
+    "founded": 6,
+    "rate": 0.667
+   }
+  },
+  {
+   "signal": "ran something",
+   "with": {
+    "n": 5,
+    "founded": 4,
+    "rate": 0.8,
+    "lower": 0.465
+   },
+   "without": {
+    "n": 7,
+    "founded": 3,
+    "rate": 0.429
+   }
+  },
+  {
+   "signal": "invests personally",
+   "with": {
+    "n": 0,
+    "founded": 0,
+    "rate": null,
+    "lower": null
+   },
+   "without": {
+    "n": 12,
+    "founded": 7,
+    "rate": 0.583
+   }
+  }
+ ],
+ "verdict": "Cannot tell. 12 people carry a dated founding, and a difference in rates is not readable below about 30. This is a statement about the record, not about the signal: the scores are computed from edges that mostly have no date on them, and a prediction cannot be graded against evidence it cannot place in time."
+}

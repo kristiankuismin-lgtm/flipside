@@ -11,3 +11,6 @@ website.sqlite
 seeds.txt
 harvest.log
 server.log
+wikidata.sqlite
+watchlist.sqlite
+opennews.sqlite

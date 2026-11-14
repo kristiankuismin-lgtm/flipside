@@ -1562,6 +1562,93 @@ def scouts(thesis: str = "", limit: int = 50):
     return out
 
 
+@app.post("/watch/{pid}")
+def watch_add(pid: str, name: str = ""):
+    from . import watchlist as WL
+    _start_watch_sweep()
+    WL.add(pid, name or pid)
+    _check_watched(pid, name or pid)
+    return {"watching": WL.watching(), "unread": WL.unread()}
+
+
+@app.delete("/watch/{pid}")
+def watch_remove(pid: str):
+    from . import watchlist as WL
+    WL.remove(pid)
+    return {"watching": WL.watching(), "unread": WL.unread()}
+
+
+@app.get("/watch")
+def watch_list(check: bool = False):
+    """Who is watched, and what has happened since you last acknowledged it.
+
+    `check=true` re-reads every watched person now. The background sweep
+    does the same thing on a timer, so the page is usually already current.
+    """
+    from . import watchlist as WL
+    _start_watch_sweep()
+    if check:
+        for w in WL.watching():
+            _check_watched(w["id"], w["name"])
+    return {"watching": WL.watching(), "unread": WL.unread(),
+            "last_sweep": _WATCH_SWEEP.get("at"),
+            "sweep_every_minutes": WATCH_EVERY // 60}
+
+
+@app.post("/watch-ack")
+def watch_ack(pid: str = ""):
+    from . import watchlist as WL
+    return {"cleared": WL.ack(pid or None), "unread": WL.unread()}
+
+
+def _check_watched(pid: str, name: str) -> list:
+    """Read one watched person and store what changed. Never raises."""
+    from . import cache_index, moves as MV, opennews as ON, watchlist as WL
+    try:
+        e = cache_index.get(pid) or DEPTH.entity(name, types=("Person",))
+        mv = MV.moves(e, rounds_by_company=_rounds_by_company()) if e else []
+        news = (ON.search(name, limit=6) or {}).get("items") or []
+        return WL.record(pid, mv, news)
+    except Exception:                                 # noqa: BLE001
+        return []
+
+
+# Every twenty minutes. The signals this reads change on the scale of weeks,
+# and the open news index rate-limits anonymous callers - sweeping harder
+# would find nothing more and be refused for it.
+WATCH_EVERY = 20 * 60
+_WATCH_SWEEP: dict = {}
+
+
+def _watch_sweep() -> None:
+    import threading
+    import time as _t
+    from . import watchlist as WL
+    while True:
+        _t.sleep(WATCH_EVERY)
+        try:
+            for w in WL.watching():
+                _check_watched(w["id"], w["name"])
+            _WATCH_SWEEP["at"] = _t.time()
+        except Exception:                             # noqa: BLE001
+            pass
+
+
+def _start_watch_sweep() -> None:
+    """Start the sweep once, on the first request that needs it.
+
+    FastAPI's on_event("startup") is deprecated and a lifespan handler would
+    be the modern hook, but this app has none and adding one to start a
+    daemon thread is more machinery than the thread is worth.
+    """
+    if _WATCH_SWEEP.get("thread"):
+        return
+    import threading
+    t = threading.Thread(target=_watch_sweep, daemon=True, name="watch-sweep")
+    t.start()
+    _WATCH_SWEEP["thread"] = t
+
+
 @app.get("/scout-signal")
 def scout_signal(name: str, id: str = ""):
     """What has happened to one watched person lately.
@@ -1581,6 +1668,20 @@ def scout_signal(name: str, id: str = ""):
     out["news"] = r.get("items") or []
     out["news_error"] = r.get("error")
     return out
+
+
+SCOUT_BACKTEST = ROOT / "backtest_scouts.json"
+
+
+@app.get("/backtest-scouts")
+def backtest_scouts():
+    """Does "likely to found" predict founding? The attempt, and its verdict."""
+    if not SCOUT_BACKTEST.exists():
+        return {"ran": False,
+                "verdict": "Not run yet."}
+    d = json.loads(SCOUT_BACKTEST.read_text())
+    d["ran"] = True
+    return d
 
 
 @app.get("/alert-rules")
