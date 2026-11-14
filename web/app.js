@@ -167,6 +167,14 @@ function wire() {
     if (go.brief) return openBrief(go.brief);
     if (go.filter) { FFILTER = go.filter; render(); }
   });
+  document.querySelectorAll("[data-plan]").forEach(b => b.onclick = e => {
+    e.stopPropagation(); planToggle(b.dataset.plan);
+  });
+  if ($("#planmd")) $("#planmd").onclick = () => {
+    planExport("copy"); $("#planmd").textContent = "Copied";
+  };
+  if ($("#plandl")) $("#plandl").onclick = () => planExport("download");
+  if ($("#planprint")) $("#planprint").onclick = () => planExport("print");
   document.querySelectorAll("[data-ev]").forEach(b => b.onclick = e => {
     e.stopPropagation();
     const [who, key] = b.dataset.ev.split("|");
@@ -201,7 +209,8 @@ async function runFounder() {
       stage: PENDING_STAGE || $("#st")?.value || "series a",
       limit: +($("#n")?.value || 14) })
   });
-  F = await r.json(); PENDING_CO = PENDING_STAGE = null; SEL = null; SYN = null; render();
+  F = await r.json(); PENDING_CO = PENDING_STAGE = null; SEL = null; SYN = null;
+  planLoad(); render();
   loadSyndicates(F.company, F.stage);
 }
 
@@ -260,6 +269,7 @@ function syndicateBlock() {
         <div class="synt"><div class="nm">${esc(s.lead)}</div>
           <div class="sb">${esc(s.lead_text || "")} · led ${s.rounds_led} rounds · ${esc(s.pace || "")}</div></div>
         ${badge("Lead", "green")}${s.enough ? "" : badge("Thin evidence", "amber")}
+        ${planButton(s.lead)}
         <button class="btn sm" data-brief="${esc(s.lead)}">Slush brief</button>
       </div>
       <div class="synms">${members}</div>
@@ -315,7 +325,8 @@ function founderList() {
       <td>${s.warm_path.label !== "⚪"
         ? `<button class="figure" data-ev="${esc(x.investor)}|warm_path">${
             badge(s.warm_path.text.replace(/^via /, ""), "blue")}</button>` : ""}</td>
-      <td class="tdact"><button class="btn sm" data-brief="${esc(x.investor)}">Brief</button></td>
+      <td class="tdact">${planButton(x.investor)}<button class="btn sm"
+        data-brief="${esc(x.investor)}" style="margin-left:5px">Brief</button></td>
     </tr>`;
   }).join("");
 
@@ -336,6 +347,7 @@ function founderList() {
                    conflict: "funds backing a competitor" }[FFILTER] || FFILTER)}</b>
         — ${shown.length} of ${inv.length}.
         <button class="btn sm" id="clearf">Clear</button></div>` : "")
+    + planSection()
     + section("ftable", "Target list", `${shown.length} of ${inv.length} screened`,
       `<div class="tbl"><table>
       <thead><tr><th class="w-rank"></th><th>Investor</th><th>Verdict</th><th class="num">Score</th>
@@ -982,6 +994,128 @@ function openEvidence(investor, key) {
   const close = () => w.remove();
   w.onclick = close;
   w.querySelector("#evclose").onclick = close;
+}
+
+/* ---------- the plan ----------
+   The hero card recommended and nothing collected. A founder works a
+   conference from a list they built, so the list has to be an object they
+   can add to, reorder by removing, and take away as one page.
+
+   Kept per company in localStorage: it survives a reload, which is the only
+   durability a hackathon demo actually needs, and it never leaves the
+   browser. */
+let PLAN = [];
+
+function planKey() { return `flipside.plan.${(F?.company || "").toLowerCase()}`; }
+
+function planLoad() {
+  try { PLAN = JSON.parse(localStorage.getItem(planKey()) || "[]"); }
+  catch (e) { PLAN = []; }
+  if (!Array.isArray(PLAN)) PLAN = [];
+}
+
+function planSave() {
+  try { localStorage.setItem(planKey(), JSON.stringify(PLAN)); } catch (e) { /* private mode */ }
+}
+
+function inPlan(name) { return PLAN.includes(name); }
+
+function planToggle(name) {
+  PLAN = inPlan(name) ? PLAN.filter(n => n !== name) : [...PLAN, name];
+  planSave(); render();
+}
+
+function planButton(name) {
+  const on = inPlan(name);
+  return `<button class="btn sm ${on ? "pri" : ""}" data-plan="${esc(name)}"
+    title="${on ? "Remove from your Slush plan" : "Add to your Slush plan"}">${
+    on ? "✓ In plan" : "+ Plan"}</button>`;
+}
+
+function planSection() {
+  if (!F || !PLAN.length) return "";
+  const rows = PLAN.map(n => F.investors.find(i => i.investor === n)).filter(Boolean);
+  const conflicted = rows.filter(x => x.signals.conflict.label === "🔴");
+  const warm = rows.filter(x => x.signals.warm_path.label !== "⚪");
+  return section("fplan", "Your Slush plan",
+    `${PLAN.length} ${PLAN.length === 1 ? "meeting" : "meetings"}`,
+    `<div class="planwrap">
+      <div class="planlist">${rows.map((x, i) => `
+        <div class="planrow">
+          <span class="n">${i + 1}</span>
+          ${logo(x.investor)}
+          <div style="min-width:0;flex:1">
+            <div class="nm">${esc(x.investor)}</div>
+            <div class="sb">${esc(x.signals.lead_rate.text || "lead rate unknown")}${
+              x.signals.warm_path.label !== "⚪"
+                ? ` · ${esc(x.signals.warm_path.text)}` : " · cold"}</div>
+          </div>
+          ${x.signals.conflict.label === "🔴" ? badge("conflict", "red") : ""}
+          <button class="btn sm" data-brief="${esc(x.investor)}">Brief</button>
+          <button class="btn sm" data-plan="${esc(x.investor)}">Remove</button>
+        </div>`).join("")}</div>
+      <div class="planfoot">
+        <span class="sub">${warm.length} warm · ${rows.length - warm.length} cold${
+          conflicted.length ? ` · <b style="color:var(--red)">${conflicted.length} backs a competitor</b>` : ""}</span>
+        <span style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn" id="planmd">Copy as markdown</button>
+          <button class="btn" id="plandl">Download .md</button>
+          <button class="btn pri" id="planprint">Print / PDF</button>
+        </span>
+      </div>
+    </div>`);
+}
+
+/* One page a founder can carry: the plan, why each fund is on it, and the
+   opener. Generated from the same figures the screen shows. */
+function planMarkdown() {
+  const L = [];
+  L.push(`# Slush plan — ${F.company}`, "");
+  L.push(`${F.stage} · Slush 2026, 18 November · ${PLAN.length} meetings`);
+  L.push(`Screened ${F.investors.length} funds${
+    F.fetched_at ? ` · data retrieved ${String(F.fetched_at).replace("T", " ").slice(0, 16)} UTC` : ""}`);
+  L.push("");
+  PLAN.forEach((n, i) => {
+    const x = F.investors.find(v => v.investor === n);
+    if (!x) return;
+    const s = x.signals, b = x.breakdown || {};
+    L.push(`## ${i + 1}. ${x.investor}${x.score != null ? `  —  ${x.score}/100` : ""}`);
+    if (s.conflict.label === "🔴")
+      L.push(`> **Do not pitch.** Backs ${(x.backs || []).join(", ")}.`, "");
+    L.push(`- Lead rate: ${s.lead_rate.text || "unknown"}`);
+    L.push(`- Follow-on: ${s.follow_on.text || "unknown"}`);
+    L.push(`- Pace: ${s.dry_powder.text || "unknown"}`);
+    L.push(`- Route: ${s.warm_path.label !== "⚪" ? s.warm_path.text : "cold — no shared cap table"}`);
+    if (b.months_since_activity != null)
+      L.push(`- Last active: ${b.months_since_activity} months ago${b.stale ? " (stale)" : ""}`);
+    const syn = (SYN?.syndicates || []).find(y => y.lead === x.investor);
+    if (syn?.members?.length)
+      L.push(`- Syndicate: ${syn.members.map(m =>
+        `${m.name} (joins ${Math.round((m.share || 0) * 100)}% of rounds they lead)`).join(", ")}`);
+    L.push("");
+  });
+  L.push("---", "", "Generated by Flipside from Cala's knowledge graph.",
+         "Every figure above opens its underlying rounds in the app.");
+  return L.join("\n");
+}
+
+function planExport(kind) {
+  const md = planMarkdown();
+  if (kind === "copy") return navigator.clipboard.writeText(md);
+  if (kind === "print") {
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(`<pre style="font:13px/1.65 ui-monospace,Menlo,monospace;
+      white-space:pre-wrap;padding:40px;max-width:720px;margin:auto">${
+      md.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]))}</pre>`);
+    w.document.close(); w.print();
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([md], { type: "text/markdown" }));
+  a.download = `slush-plan-${(F.company || "plan").toLowerCase().replace(/\s+/g, "-")}.md`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 }
 
 function render() {
