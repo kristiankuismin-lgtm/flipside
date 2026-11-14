@@ -31,15 +31,44 @@ function section(id, title, hint, body) {
     <div class="secb ${closed}" data-secb="${id}">${body}</div></div>`;
 }
 
-function bars(rows, max) {
+/* A bar is only informative next to something. Four bars at 60-75% all read
+   "high" until you can see where the other funds sit, so every row can carry
+   a benchmark tick and the chart says what the tick means. */
+function bars(rows, max, opts = {}) {
   const m = max ?? Math.max(...rows.map(r => r[1] || 0), 1);
-  return rows.map(([lbl, v, cls, disp]) => `<div class="barrow">
-    <span class="lbl">${esc(lbl)}</span>
-    <span class="bart"><i class="${cls || ""}" style="width:${Math.round(100 * (v || 0) / m)}%"></i></span>
-    <span class="pc">${esc(disp ?? (v == null ? "—" : v))}</span></div>`).join("");
+  const body = rows.map(([lbl, v, cls, disp, mark]) => {
+    const w = Math.round(100 * (v || 0) / m);
+    const unknown = v == null;
+    return `<div class="barrow${unknown ? " unk" : ""}">
+      <span class="lbl">${esc(lbl)}</span>
+      <span class="bart">
+        ${unknown ? `<span class="nodata">not in the graph</span>`
+                  : `<i class="${cls || ""}" style="width:${w}%"></i>`}
+        ${mark != null ? `<b class="tick" style="left:${Math.round(100 * mark / m)}%"
+            title="peer median ${Math.round(mark * 100)}%"></b>` : ""}
+      </span>
+      <span class="pc">${esc(disp ?? (unknown ? "—" : v))}</span></div>`;
+  }).join("");
+  return body + (opts.note ? `<div class="barnote">${opts.note}</div>` : "");
 }
 
-function donut(parts, size = 118) {
+/* The median of whatever the screen actually looked at. Unknowns are left
+   out rather than counted as zero, which would drag every benchmark down. */
+function median(xs) {
+  const v = xs.filter(x => x != null).sort((a, b) => a - b);
+  if (!v.length) return null;
+  const i = Math.floor(v.length / 2);
+  return v.length % 2 ? v[i] : (v[i - 1] + v[i]) / 2;
+}
+
+function peerMedians() {
+  const inv = F?.investors || [];
+  const of = k => median(inv.map(x => x.signals[k]?.value));
+  return { lead_rate: of("lead_rate"), follow_on: of("follow_on"),
+           next_round: of("next_round"), n: inv.length };
+}
+
+function donut(parts, size = 118, opts = {}) {
   const tot = parts.reduce((a, p) => a + p.v, 0) || 1, R = size / 2, r = R * .64;
   let a0 = -Math.PI / 2, paths = "";
   for (const p of parts) {
@@ -60,7 +89,17 @@ function donut(parts, size = 118) {
       stroke="${p.c}" stroke-width="${R * .5}"/>`;
     a0 = a1;
   }
-  return `<div class="donutwrap"><svg width="${size}" height="${size}">${paths}</svg>
+  // A ring with a legend makes the reader do the division. The headline
+  // number is the first slice as a share of the whole, stated in the middle,
+  // which is the thing the chart is actually about.
+  const lead = parts.find(x => x.v) || parts[0] || { v: 0 };
+  const share = tot ? Math.round(100 * (parts[0]?.v || 0) / tot) : null;
+  const centre = opts.centre ?? (share == null ? "—" : share + "%");
+  const sub = opts.sub ?? (parts[0] ? parts[0].k : "");
+  return `<div class="donutwrap"><div class="dring">
+      <svg width="${size}" height="${size}">${paths}</svg>
+      <div class="dval"><b>${esc(String(centre))}</b><span>${esc(String(sub))}</span></div>
+    </div>
     <div class="legend">${parts.filter(p => p.v).map(p => `<div><i style="background:${p.c}"></i>
       ${esc(p.k)} <span style="color:var(--faint)">${p.v}</span></div>`).join("")}</div></div>`;
 }
@@ -323,12 +362,28 @@ function founderEntity() {
         ["New investments / 6mo", s.dry_powder.label === "⚪" ? "—" : (s.dry_powder.text.match(/^(\d+)/)?.[1] ?? "—"), "mono"],
         ["Warm route", s.warm_path.label === "⚪" ? "none" : s.warm_path.text.replace(/^via /, "")],
       ])
-      + section("fo-sig", "Signal strength", "", `<div class="card">${bars([
-          ["Lead rate", s.lead_rate.value, s.lead_rate.label === "🟢" ? "g" : s.lead_rate.label === "🟡" ? "a" : s.lead_rate.value == null ? "n" : "r", pct(s.lead_rate.value)],
-          ["Follow-on", s.follow_on.value, s.follow_on.label === "🟢" ? "g" : s.follow_on.label === "🟡" ? "a" : s.follow_on.value == null ? "n" : "r", pct(s.follow_on.value)],
-          ["Portfolio progression", s.next_round.value, s.next_round.label === "🟢" ? "g" : "a", pct(s.next_round.value)],
-          ["Deployment pace", Math.min(s.dry_powder.value ?? 0, 1), s.dry_powder.label === "🟢" ? "g" : s.dry_powder.label === "🟡" ? "a" : "r", s.dry_powder.label === "⚪" ? "—" : "ok"],
-        ], 1)}</div>`)
+      + (() => {
+          const pm = peerMedians();
+          const col = sg => sg.label === "🟢" ? "g" : sg.label === "🟡" ? "a"
+            : sg.value == null ? "n" : "r";
+          // Deployment pace is a count, not a share. Putting it on a 0-1 axis
+          // with three percentages made a full bar mean "ok" and nothing else.
+          const paceN = s.dry_powder.label === "⚪" ? null
+            : +(String(s.dry_powder.text).match(/^(\d+)/)?.[1] ?? 0);
+          return section("fo-sig", "Signal strength",
+            `against the ${pm.n} funds in this screen`, `<div class="card">${bars([
+              ["Leads at your stage", s.lead_rate.value, col(s.lead_rate), pct(s.lead_rate.value), pm.lead_rate],
+              ["Follows on", s.follow_on.value, col(s.follow_on), pct(s.follow_on.value), pm.follow_on],
+              ["Portfolio progression", s.next_round.value, col(s.next_round), pct(s.next_round.value), pm.next_round],
+            ], 1, { note: `Tick marks the median of the ${pm.n} funds screened — a bar
+                   to the right of it beats the list, not an absolute standard.` })}
+            <div class="paceline">
+              <span class="lbl">Deployment pace</span>
+              <span class="pacev ${s.dry_powder.label === "🟢" ? "g" : s.dry_powder.label === "🟡" ? "a" : s.dry_powder.label === "⚪" ? "n" : "r"}">${
+                paceN == null ? "not in the graph" : `${paceN} new investments in 6 months`}</span>
+              <span class="pacesub">${esc(String(s.dry_powder.text || "").replace(/^[^(]*/, "").replace(/[()]/g, "")) || ""}</span>
+            </div></div>`);
+        })()
       + (fm.description ? `<p class="lede">${esc(fm.description)}</p>` : "")
       + (fm.hq ? section("fo-reg", "Registered", "",
           `<div class="card"><div style="font-size:13.5px">${esc(fm.hq)}</div>
@@ -696,7 +751,7 @@ const VIEW_W = { lon0: -170, lon1: 180, lat0: -55, lat1: 75 };
 let GEOVIEW = "eu";
 
 async function loadMap() {
-  $("#view").innerHTML = `<div class="msg"><span class="spin"></span>Placing exhibitors…</div>`;
+  $("#view").innerHTML = `<div class="msg"><span class="spin"></span>Placing the graph…</div>`;
   MAP = await (await fetch("/map")).json(); render();
 }
 
@@ -739,12 +794,13 @@ function mapView() {
               ${Object.entries(LAYER_META).map(([k, [lbl, shape]]) =>
                 `<button class="tgl ${LAYERS[k] ? "on" : ""}" data-layer="${k}">
                    <i class="${shape === "circle" ? "ci" : shape === "square" ? "sq" : "di"}"></i>${lbl}</button>`).join("")}
-              <button class="tgl ${MAPMODE === "pp" ? "on" : ""}" data-mm="pp">People</button>
             </span>
             <span class="mapsearch"><span style="color:var(--faint)">⌕</span>
               <input id="mapq" autocomplete="off" placeholder="${
-                MAPMODE === "pp" ? "Find a founder or investor"
-                : "Filter by name, sector or city"}"></span>
+                MAPMODE === "pp" ? "Type a founder or investor name"
+                : "Filter by name, sector or city"}">
+              <button class="tgl seg ${MAPMODE === "pp" ? "on" : ""}" data-mm="pp"
+                title="Search people instead of filtering the map">People</button></span>
             <span class="grp" style="margin-left:auto">
               <button class="tgl ${MYLOC ? "on" : ""}" id="nearme" title="Find what is around you">
                 <svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor"
@@ -770,7 +826,7 @@ function mapView() {
           <div class="tip" id="tip"></div>
         </div>
         <div class="side">
-          <div class="sidehd"><h3 id="sidet">Exhibitors</h3>
+          <div class="sidehd"><h3 id="sidet">On the map</h3>
             <div class="s" id="sides">Click a pin, or filter to narrow the list</div></div>
           <div class="sidebody" id="sideb"></div>
         </div>
@@ -783,7 +839,10 @@ function mapView() {
 let ML = null, MLMARKERS = [], MAPMODE = "co", PPMARKER = null, PPTIMER = null, PLTIMER = null;
 /* Layers are shown together and toggled, not swapped: the question "where is
    the ecosystem" is not answered by looking at one slice at a time. */
-let LAYERS = { ex: true, pf: true, fu: true };
+/* Exhibitors are off by default on purpose. 676 pre-funding stands drown out
+   the 173 funds and 270 funded companies, and "where is the ecosystem" is not
+   answered by a conference floorplan. */
+let LAYERS = { ex: false, pf: true, fu: true };
 /* Where the founder is standing. The browser asks for consent and the
    coordinate is used for one request: we never store it and never hand it to
    an IP-geolocation service, which would mean telling a third party where the
@@ -834,7 +893,7 @@ const FLY = {
 };
 
 function sideList(points, title) {
-  $("#sidet").textContent = title || "Exhibitors";
+  $("#sidet").textContent = title || "On the map";
   $("#sides").textContent = `${points.length} shown`;
   $("#sideb").innerHTML = points.length ? points.slice(0, 60).map((p, i) => `
     <div class="sideitem" data-open-ent="${i}">
@@ -1096,9 +1155,14 @@ function initMap() {
   if (MAPMODE === "pp") {
     MLMARKERS.forEach(({ el }) => el.style.opacity = ".25");
     $("#sidet").textContent = "Find a person";
-    $("#sides").textContent = "Cala holds no address on a person — we locate them through the company they work at";
-    $("#sideb").innerHTML = `<div class="msg" style="padding:26px">
-      Type a founder or investor name.</div>`;
+    $("#sides").textContent = "People are searched, not plotted";
+    $("#sideb").innerHTML = `<div class="msg" style="padding:24px;text-align:left;line-height:1.7">
+      Cala holds no address on a Person, and no participant list for Slush is
+      made of people — all 2,000 entries are companies. So there is no people
+      layer to draw.<br><br>
+      Type a name and we resolve it the only way the graph allows:
+      <b>person → founded / works at → company → headquarters</b>, and the pin
+      says which company produced it.</div>`;
   }
 }
 
