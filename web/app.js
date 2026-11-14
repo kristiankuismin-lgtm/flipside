@@ -193,10 +193,10 @@ async function runFounder() {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       company: PENDING_CO || $("#co")?.value || F?.company || "Gosta Labs",
-      stage: $("#st")?.value || "series a",
+      stage: PENDING_STAGE || $("#st")?.value || "series a",
       limit: +($("#n")?.value || 14) })
   });
-  F = await r.json(); PENDING_CO = null; SEL = null; SYN = null; render();
+  F = await r.json(); PENDING_CO = PENDING_STAGE = null; SEL = null; SYN = null; render();
   loadSyndicates(F.company, F.stage);
 }
 
@@ -368,7 +368,8 @@ function heroCard(inv, red, leads, warm) {
       ${warm.length ? "" : `<p class="herosub">No warm route reaches any of them,
         so the floor at Slush is the introduction.</p>`}
     </div>
-    <div class="heroacts">${acts.slice(0, 3).map(([t, why, go], i) => `
+    <div class="heroacts" style="grid-template-columns:repeat(${
+      Math.max(acts.length, 1)},1fr)">${acts.slice(0, 3).map(([t, why, go], i) => `
       <button class="heroact" data-hero="${i}">
         <span class="n">${i + 1}</span>
         <span><b>${esc(t)}</b><em>${esc(why)}</em></span></button>`).join("")}</div>
@@ -1608,6 +1609,7 @@ function routeAsk(text) {
 
   MODE = "founder"; SEL = null;
   PENDING_CO = intent.term || q;
+  PENDING_STAGE = intent.stage || null;
   render();
   runFounder();
 }
@@ -1630,7 +1632,7 @@ function askTrace() {
   </div>`;
 }
 
-let PENDING_CO = null;
+let PENDING_CO = null, PENDING_STAGE = null;
 
 /* ================= QUICK SEARCH ================= */
 let QKIND = "fund", QTIMER = null;

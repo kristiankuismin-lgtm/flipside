@@ -49,5 +49,16 @@ is(askIntent("Gosta Labs").view, "founder", "bare name");
 is(askIntent("Gosta Labs").confident, false, "bare name is not a confident parse");
 is(askIntent("").view, null, "empty");
 
+// A sentence names a company and a stage; both used to be thrown away.
+is(askIntent("I'm raising a Series A for Gosta Labs").term, "Gosta Labs", "company out of a sentence");
+is(askIntent("I'm raising a Series A for Gosta Labs").stage, "series a", "stage out of a sentence");
+is(askIntent("we are raising seed for Neko Health").term, "Neko Health", "we are raising seed");
+is(askIntent("raising for Gosta Labs").term, "Gosta Labs", "short form");
+is(askIntent("Gosta Labs Series A").term, "Gosta Labs", "company then stage");
+is(askIntent("Gosta Labs Series A").stage, "series a", "stage after the name");
+is(askIntent("Gosta Labs").term, "Gosta Labs", "bare name survives intact");
+is(askIntent("Gosta Labs").stage, null, "no stage claimed when none given");
+is(askIntent("screen my investor list").term, "screen my investor list", "nothing to extract");
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

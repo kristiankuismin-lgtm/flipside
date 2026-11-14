@@ -46,6 +46,32 @@
     ]],
   ];
 
+  // "I'm raising a Series A for Gosta Labs" names a company and a stage.
+  // Passing the whole sentence through as the company put the sentence in
+  // the company field and left the stage dropdown on its default.
+  const STAGE = /\b(pre-?seed|seed|series\s+([a-d]))\b/i;
+  const LEADIN = new RegExp(
+    "^(?:(?:i'?m|i am|we'?re|we are|i|we)\\s+)?" +
+    "(?:looking\\s+to\\s+|planning\\s+to\\s+|about\\s+to\\s+)?" +
+    "(?:raising|raise)\\s+" +
+    "(?:a\\s+|an\\s+|the\\s+|my\\s+|our\\s+)?" +
+    "(?:pre-?seed|seed|series\\s+[a-d])?\\s*(?:round)?\\s*" +
+    "(?:for|at|with)?\\s*", "i");
+  const TRAILER = /\s*(?:'s)?\s*(?:round|raise)?\s*[.?!]*$/i;
+
+  function parseSubject(text) {
+    const stageHit = STAGE.exec(text);
+    const stage = stageHit
+      ? (stageHit[2] ? `series ${stageHit[2].toLowerCase()}`
+                     : stageHit[1].toLowerCase().replace("preseed", "pre-seed"))
+      : null;
+    let company = text.replace(LEADIN, "");
+    if (stageHit) company = company.replace(STAGE, " ");
+    company = company.replace(/\b(?:for|at|round|raising|raise)\b/gi, " ")
+                     .replace(TRAILER, "").replace(/\s+/g, " ").trim();
+    return { company: company || null, stage };
+  }
+
   const VERB = /^(?:find|open|look\s+up|search\s+for|show\s+me|who\s+is|who\s+are|what\s+is|tell\s+me\s+about)\s+/i;
   const PERSONISH = /\b(?:founder|ceo|cto|partner|person|people|who\s+is)\b/i;
   const FUNDISH = /\b(?:ventures?|capital|partners?|fund|invest|equity|vc)\b/i;
@@ -76,8 +102,10 @@
     // A bare name is the commonest input of all and matches nothing. Screening
     // it is the right default, but say so rather than pretending we parsed it.
     if (best === 0) {
-      return { view: "founder", term: text, confident: false,
-               why: `read as a company to screen investors for` };
+      const bare = parseSubject(text);
+      return { view: "founder", term: bare.company || text, stage: bare.stage,
+               confident: false,
+               why: "read as a company to screen investors for" };
     }
 
     if (view === "lookup") {
@@ -108,11 +136,17 @@
       };
     }
 
-    const why = {
-      map: "showing the map",
-      investor: "reading the graph from the investor side",
-      founder: "screening investors",
-    }[view];
+    if (view === "founder") {
+      const { company, stage } = parseSubject(text);
+      return {
+        view, term: company || text, stage, confident: best >= 4,
+        why: company && company !== text
+          ? `screening investors for ${company}${stage ? ` at ${stage}` : ""}`
+          : "screening investors",
+      };
+    }
+    const why = { map: "showing the map",
+                  investor: "reading the graph from the investor side" }[view];
     return { view, term: text, confident: best >= 4, why };
   }
 
