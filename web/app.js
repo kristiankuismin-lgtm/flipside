@@ -1054,7 +1054,14 @@ function heroCard(inv, red, leads, warm) {
     "three sentences, each one a number you can check", { brief: best.lead }]);
   HEROACTS = acts.slice(0, 3);
 
-  const head = red.length
+  // "No fund backs a competitor" and "we could not ask who your competitors
+  // are" produce the same empty list and are opposite claims. The exclusion
+  // is this product's headline; stating it from a failed lookup would be the
+  // worst thing on the page.
+  const blind = !!F.competitors_error && !F.competitors?.length;
+  const head = blind
+    ? "<b>We could not check this.</b> The competitor lookup failed, so nothing below has been excluded."
+    : red.length
     ? `<b>${red.length} of ${inv.length}</b> funds on this list already fund
        <b>${esc(comps.slice(0, 2).join(" or "))}</b>. Do not send them your deck.`
     : "<b>No fund</b> on this list funds a competitor Cala can name.";
@@ -1062,17 +1069,22 @@ function heroCard(inv, red, leads, warm) {
   // With a conflict this names it. Without one there is nothing to add: the
   // eyebrow above already says how many were screened against how many
   // competitors, and repeating it is a line of furniture under the headline.
-  const sub = red.length
+  const sub = blind
+    ? `${esc(String(F.competitors_error).replace(/^\w+Error: /, ""))}
+       The ranking below is still computed from the rounds we hold — it is the
+       exclusion that is missing, and that is the half you cannot do yourself.`
+    : red.length
     ? red.map(x => `<b>${esc(x.investor)}</b> &rarr; ${esc(x.backs.join(", "))}`).join(" &nbsp;·&nbsp; ")
     : "";
 
-  return `<div class="hero ${red.length ? "warn" : "ok"}">
+  return `<div class="hero ${blind ? "blind" : red.length ? "warn" : "ok"}">
     <div class="herotop">
       <span class="herotag">${esc(F.company)} · ${esc(F.stage)} ·
-        ${inv.length} screened · ${F.competitors.length} competitors</span>
+        ${inv.length} screened · ${blind ? "competitors unknown"
+          : `${F.competitors.length} competitors`}</span>
       <h2>${head}</h2>
       ${sub ? `<p class="herosub">${sub}</p>` : ""}
-      <p class="herothen"><b>${clean.length}</b> funds are left.
+      <p class="herothen">${blind ? "" : `<b>${clean.length}</b> funds are left.`}
         ${leads.length ? `<b>${leads.length}</b> of them lead at ${esc(F.stage)}.` : ""}
         ${warm.length ? `<b>${warm.length}</b> can be reached through someone you know.`
           : "None can be reached warm."}</p>
