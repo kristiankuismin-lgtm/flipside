@@ -330,8 +330,15 @@ def health():
             n = len(json.loads(CONVICTION.read_text()).get("companies") or [])
         except Exception:
             n = 0
+    from . import cache_index
+    idx = cache_index.stats()
     return {"ok": True, "cache_only": cala.CACHE_ONLY, "has_key": bool(cala.KEY),
-            "pool": len(_investor_pool()), "conviction_n": n}
+            "pool": len(_investor_pool()), "conviction_n": n,
+            # What the product is actually standing on, so the UI can say it
+            # rather than implying everything is live.
+            "entities_cached": idx["entities"],
+            "people_cached": idx["by_type"].get("Person", 0),
+            "rounds_cached": sum(len(v or []) for v in _rounds_by_company().values())}
 
 
 @app.get("/backtest")

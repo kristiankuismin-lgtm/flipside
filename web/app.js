@@ -8,6 +8,22 @@ const initials = s => (s || "?").replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/)
 
 let MODE = "home", F = null, I = null, SEL = null, TAB = 0;
 let SYN = null;                        // /syndicates, filled after the screen
+let HEALTH = null;                     // what the product is standing on
+
+async function loadHealth() {
+  try { HEALTH = await (await fetch("/health")).json(); } catch (e) { return; }
+  const el = $("#datamode");
+  if (!el || !HEALTH) return;
+  // Say which it is. A demo running entirely from cache is a strength when
+  // stated and a problem when discovered.
+  el.innerHTML = HEALTH.cache_only
+    ? `<span class="dm cached" title="No live calls at all — every figure comes from
+         ${HEALTH.entities_cached} entities and ${HEALTH.rounds_cached} rounds already fetched">
+         ● Cached · ${HEALTH.entities_cached.toLocaleString()} entities</span>`
+    : `<span class="dm live" title="Live lookups enabled; ${HEALTH.entities_cached}
+         entities and ${HEALTH.rounds_cached} rounds are already cached">
+         ● Live · ${HEALTH.entities_cached.toLocaleString()} cached</span>`;
+}
 let IFILTER = "all", FFILTER = "all";  // which KPI card is active
 
 /* A number nobody can act on is decoration. Each card is a filter, and the
@@ -2321,6 +2337,7 @@ function wireQuickSearch() {
 }
 
 wireQuickSearch();
+loadHealth();
 render();
 
 /* ================= ENTITY CARD (person / fund) ================= */
