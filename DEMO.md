@@ -73,7 +73,19 @@ Point at the **Age** column.
 
 Click the **Bridges** card — the list filters to 20.
 
-## 2:30 — Where the data comes from (20s)
+## 2:15 — Does it actually work? (20s)
+
+Click **Does it work? · 498** in the sidebar.
+
+> "Companies where at least half the prior investors came back progressed to a
+> later stage 49% of the time, against a 39% base rate. Ranking instead by
+> 'whoever invests most' — the first thing anyone would try — gets 41%. Our
+> 10.2 points of lift against their 2.8, on 498 companies.
+>
+> And the row where it reverses, in single-investor cap tables, is in the
+> product. We did not filter it out."
+
+## 2:35 — Where the data comes from (15s)
 
 Open any fund profile.
 
@@ -107,7 +119,12 @@ suffixes, which turned "NORRSKEN COMPANY LIMITED" into an exact match for
 "Norrsken" and ranked a British construction firm above Norrsken VC.
 
 **What doesn't work?** Cala credits ran out mid-build, so live lookups return
-402. Everything demoed above runs from the 6,418 entities already cached, and
-the product says when a profile is degraded rather than failing. Pre-emption
-detection needs round sizes we don't have; the founder-signal score has no
-backtest.
+402. Everything demoed above runs from the 6,418 entities already cached —
+`CALA_CACHE_ONLY=1 python rehearse.py` walks the whole demo path in 2 seconds
+with no network at all, which is how we know the pitch cannot stall.
+
+Three things the product says about itself rather than hiding: pre-emption
+detection is starved, not absent (of 837 round records only 58 carry an
+amount); the orphan detector can never fire, because Cala has no headcount
+series for private companies; and the founder signal has no backtest, unlike
+the other two readings.

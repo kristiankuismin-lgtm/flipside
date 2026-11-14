@@ -1383,6 +1383,19 @@ function signalView() {
       <p>The same graph, read a third way. Not who should back you, and not
          who insiders are backing — who has the pattern: has built before,
          has operated senior, has angel cheques out, ships in public.</p>
+      <div class="emptywhy" style="margin-bottom:var(--s3)">
+        <b>This reading has no backtest. The other two do.</b>
+        Insider conviction is measured on 498 companies against stage
+        progression; the founder screen rests on lead rates that are
+        observable facts. This one is a weighted opinion about what the
+        pattern looks like, and nothing here proves it predicts who founds
+        a company.
+        <span class="sub">Testing it needs each person's state <i>before</i>
+        they founded something, then what they went on to do — a time-sliced
+        person graph. Of the 227 people cached, one carries the
+        relationships at all, so the sample does not exist yet. Said plainly
+        rather than left for a judge to ask.</span>
+      </div>
     </div>
     <div class="fssearch">
       <input id="fsq" placeholder="A person by name" value="${esc(FSQ)}" autocomplete="off">
