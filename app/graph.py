@@ -78,6 +78,30 @@ def find_company(name: str, website: str | None = None, **kw) -> dict | None:
     return sorted(hits, key=lambda e: norm.name(e.get("name")) != want)[0]
 
 
+# Address lives under different property names by entity type: companies use
+# headquarters_address, investor Organizations use registered_address. Guessing
+# one cost us every fund address until introspection caught it.
+ADDRESS_PROPS = ["headquarters_address", "registered_address", "address",
+                 "principal_address", "location"]
+SITE_PROPS = ["website", "homepage", "url", "domain"]
+
+
+def pick_props(entity_id: str, wanted: list[str], **kw) -> list[str]:
+    """Only ask for properties this entity actually has."""
+    intro = cala.introspect(entity_id, **kw) or {}
+    have = set(intro.get("properties") or [])
+    return [p for p in wanted if p in have]
+
+
+def first_prop(entity: dict, names: list[str]):
+    """(value, sources) for the first of `names` that carries a value."""
+    for n in names:
+        v, src = prop(entity, n)
+        if v:
+            return v, src, n
+    return None, [], None
+
+
 def funding_relationships(entity_id: str, direction: str = "outgoing", **kw) -> list[str]:
     """Ask the graph which funding relationships this entity actually has."""
     intro = cala.introspect(entity_id, **kw) or {}

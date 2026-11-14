@@ -15,6 +15,7 @@ from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel
 
 from . import metrics as M, conflict as C, warmpath as W
+from . import norm
 from .cala_client import CacheMiss, CalaError
 from .company_rounds import company_history
 from .extract import investor_rounds
@@ -46,6 +47,17 @@ class Req(BaseModel):
     description: str = ""
     investors: list[str] | None = None
     my_investors: list[str] | None = None
+
+
+def _investor_meta() -> dict:
+    """Firmographics resolved from Cala's Organization entities."""
+    f = ROOT / "investor_domains.json"
+    if not f.exists():
+        return {}
+    try:
+        return json.loads(f.read_text())
+    except ValueError:
+        return {}
 
 
 def _investor_pool() -> list[str]:
@@ -109,13 +121,38 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
     sig["conflict"] = C.detect(company, desc, comps or [], port or [])
     edges = C.matches(comps or [], port or [])
 
+    meta = _investor_meta().get(inv) or {}
     fit = {"stage": 1.0, "sector": 0.8, "geo": 0.9, "check": 0.8}
     depth = evidence_depth(len(rounds))
     # Ilman riittavaa otosta pisteet olisivat harhaanjohtavia: nayta se.
     score = None if depth == "riittamaton" else M.score(fit, sig)
+    # Portfolio highlights: the companies this firm actually led into, newest
+    # first, so the card shows what they do rather than only how they behave.
+    led = [r for r in sorted(rounds, key=lambda x: x.date, reverse=True)
+           if norm.matches(inv, r.leads)]
+    by_sector = {}
+    for c in (port or []):
+        sec = (c.get("sector") or "Unknown").strip() or "Unknown"
+        by_sector[sec] = by_sector.get(sec, 0) + 1
+
     return {"investor": inv, "score": score, "rounds_seen": len(rounds),
             "evidence_depth": depth, "portfolio_size": len(port or []),
             "backs": [e["competitor"] for e in edges],
+            "firm": {"website": meta.get("website"), "hq": meta.get("hq"),
+                     "hq_field": meta.get("hq_field"), "founded": meta.get("founded"),
+                     "employees": meta.get("employees"),
+                     "description": meta.get("description"),
+                     "entity_type": meta.get("entity_type"),
+                     "hq_source": meta.get("hq_source")},
+            "portfolio": [{"name": c["name"], "sector": c.get("sector", "")}
+                          for c in (port or [])[:60]],
+            "sectors": sorted(by_sector.items(), key=lambda kv: -kv[1])[:8],
+            "led_rounds": [{"company": r.company, "stage": r.stage,
+                            "date": str(r.date),
+                            "amount": r.amount_eur} for r in led[:9]],
+            "recent_rounds": [{"company": r.company, "stage": r.stage, "date": str(r.date),
+                               "amount": r.amount_eur, "led": norm.matches(inv, r.leads)}
+                              for r in sorted(rounds, key=lambda x: x.date, reverse=True)[:14]],
             "signals": {k: asdict(v) for k, v in sig.items()}, "notes": notes}
 
 
@@ -213,9 +250,38 @@ def map_data():
                     "industries": (p.get("industries") or [])[:2],
                     "score": conv.get(p["name"].lower()),
                     "source": p.get("hq_source")})
+    # Second layer: the funds themselves. The map is about where capital and
+    # companies sit, not only who booked a stand at Slush.
+    funds = []
+    fpath = ROOT / "investor_domains.json"
+    if fpath.exists():
+        try:
+            dom = json.loads(fpath.read_text())
+        except ValueError:
+            dom = {}
+        for name, v in dom.items():
+            hq = v.get("hq")
+            if not hq:
+                continue
+            fine = geocode.lookup(hq, cache_only=True)
+            loc = geo.locate(hq)
+            if fine:
+                lat, lon, precise = fine["lat"], fine["lon"], True
+            elif loc:
+                lat, lon, precise = loc[0], loc[1], False
+            else:
+                continue
+            funds.append({"name": name, "lat": lat, "lon": lon,
+                          "cc": (loc or (0, 0, "??"))[2], "precise": precise,
+                          "hq": hq, "website": v.get("website"),
+                          "description": (v.get("description") or "")[:200],
+                          "founded": v.get("founded"), "employees": v.get("employees"),
+                          "source": v.get("hq_source"), "kind": "fund"})
+
     return {"event": "Slush 2026", "event_date": "2026-11-18",
             "total_exhibitors": len(profs), "profiles_fetched": len(ok),
-            "placed": len(pts), "exact": exact, "unplaced": unplaced, "points": pts}
+            "placed": len(pts), "exact": exact, "unplaced": unplaced,
+            "points": pts, "funds": funds}
 
 
 @app.get("/")

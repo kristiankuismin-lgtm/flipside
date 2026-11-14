@@ -1,42 +1,200 @@
 {
- "Byfounders": {
-  "website": "byfounders.vc",
+ "Lifeline Ventures": {
+  "website": "lifelineventures.com",
+  "hq": "Pursimiehenkatu 26 C (7th floor) 00150 Helsinki, Finland",
+  "hq_field": "registered_address",
+  "description": "Finnish venture capital firm headquartered in Helsinki.",
+  "founded": null,
+  "employees": null,
+  "id": "476a73ac-afa2-4713-9f73-188bc7ec0b95",
+  "entity_type": "Organization",
+  "hq_source": "https://www.lifelineventures.com/contact-our-team"
+ },
+ "Inventure": {
+  "website": null,
+  "hq": "Lapinlahdenkatu 16, Helsinki, Southern Finland FI",
+  "hq_field": "registered_address",
+  "description": "a Finnish investment firm headquartered in Helsinki",
+  "founded": null,
+  "employees": 36,
+  "id": "fd3ba350-0e55-40b5-96e3-013994777fdc",
+  "entity_type": "Organization",
+  "hq_source": "https://www.openvc.app/fund/Inventure"
+ },
+ "Maki.vc": {
+  "website": null,
   "hq": null,
-  "description": "is an early-stage venture capital fund based in Copenhagen, Denmark, that backs tech founders in the Nordics and Baltics.",
-  "id": "20003112-87a9-4ac0-be1a-bc97efecf19e",
+  "hq_field": null,
+  "description": "a venture capital firm that provides funding to companies",
+  "founded": null,
+  "employees": null,
+  "id": "8f0ff46d-d609-4ce0-b719-85f739b92ca3",
   "entity_type": "Organization",
   "hq_source": null
+ },
+ "Icebreaker.vc": {
+  "website": "icebreaker.vc",
+  "hq": null,
+  "hq_field": null,
+  "description": "Nordic early-stage VC firm backing teams at the earliest stages with \u20ac120M Fund III.",
+  "founded": null,
+  "employees": null,
+  "id": "70fb3317-cd8c-4c52-aa86-66502789bce3",
+  "entity_type": "Company",
+  "hq_source": null
+ },
+ "Kima Ventures": {
+  "website": "kimaventures.com",
+  "hq": "16 RUE DE LA VILLE L'EVEQUE, PARIS, FR-75C, 75008, FR",
+  "hq_field": "headquarters_address",
+  "description": "Venture capital firm based in Paris, founded in 2010 by Xavier Niel.",
+  "founded": "2010-02-26",
+  "employees": null,
+  "id": "df646c9d-947b-400d-8242-39d0e879430a",
+  "entity_type": "Company",
+  "hq_source": "https://search.gleif.org/#/record/969500SSZ2S39DMW4521"
+ },
+ "Felix Capital": {
+  "website": "felixcap.com",
+  "hq": "27 Beak Street, London, England, W1F 9RU",
+  "hq_field": "registered_address",
+  "description": "A London\u2011based venture capital firm.",
+  "founded": null,
+  "employees": 4,
+  "id": "ffddbaec-8888-4d34-8888-cd30c0856db3",
+  "entity_type": "Organization",
+  "hq_source": "https://find-and-update.company-information.service.gov.uk/company/OC394386"
+ },
+ "Dawn Capital": {
+  "website": null,
+  "hq": "London",
+  "hq_field": "registered_address",
+  "description": "European venture capital firm based in London that invests in technology startups.",
+  "founded": null,
+  "employees": 48,
+  "id": "c3fc864e-098c-49b1-8375-fca6acdf1bcf",
+  "entity_type": "Organization",
+  "hq_source": "https://www.thesaasnews.com/news/onum-secures-28-million-in-series-a"
+ },
+ "Frontline Ventures": {
+  "website": "frontline.vc",
+  "hq": "85 Newman Street, London, 4th Floor, W1T 3EU",
+  "hq_field": "registered_address",
+  "description": "London\u2011based private\u2011equity and venture\u2011capital investment firm",
+  "founded": null,
+  "employees": 23,
+  "id": "e8b34529-bf05-49ca-9728-d87c2bdac7bb",
+  "entity_type": "Organization",
+  "hq_source": "https://find-and-update.company-information.service.gov.uk/company/BR018748"
+ },
+ "Hoxton Ventures": {
+  "website": null,
+  "hq": null,
+  "hq_field": null,
+  "description": "A venture capital firm that participated in Preply's Series C funding round and has invested in companies such as Formance.",
+  "founded": null,
+  "employees": null,
+  "id": "df688dce-68f4-4d17-af72-d4f6a173a322",
+  "entity_type": "Organization",
+  "hq_source": null
+ },
+ "Byfounders": {
+  "website": "byfounders.vc",
+  "hq": "Kanonbaadsvej 2, 1437 Copenhagen, Denmark",
+  "hq_field": "registered_address",
+  "description": "is an early-stage venture capital fund based in Copenhagen, Denmark, that backs tech founders in the Nordics and Baltics.",
+  "founded": null,
+  "employees": null,
+  "id": "20003112-87a9-4ac0-be1a-bc97efecf19e",
+  "entity_type": "Organization",
+  "hq_source": "https://regnskaber.cvrapi.dk/09223814/amNsb3VkczovLzAzLzVjLzM4LzY4L2Q2YTgtNDEyMC1iYjcyLTM3YjE2ODFiNjFmMQ.pdf"
  },
  "Nordic Makers": {
   "website": "startupguide.com",
   "hq": null,
+  "hq_field": null,
   "description": "Copenhagen-based venture capital fund investing in Nordic startups.",
+  "founded": null,
+  "employees": null,
   "id": "6f66e249-4cb9-4acd-8bfe-abe679a9c797",
   "entity_type": "Company",
   "hq_source": null
  },
  "Creandum": {
   "website": "creandum.com",
-  "hq": null,
+  "hq": "Box 7068, 103 86 Stockholm, Sweden",
+  "hq_field": "registered_address",
   "description": "venture capital firm based in Stockholm, Sweden, founded by Stefan Lindeberg and focusing on fintech startups",
+  "founded": null,
+  "employees": 52,
   "id": "6ba00a20-2cb4-4559-8fe2-f39484a9e5f6",
   "entity_type": "Organization",
-  "hq_source": null
+  "hq_source": "https://lei.bloomberg.com/leis/view/549300LI7KBY0ROO3M90"
  },
  "Northzone": {
   "website": null,
-  "hq": null,
+  "hq": "Elsley Court 1st Floor, 20-22 Great Titchfield Street, London, United Kingdom, W1W 8BE",
+  "hq_field": "registered_address",
   "description": "a London\u2011based venture capital firm founded in 2006 that invests in fintech companies",
+  "founded": "2006-01-01",
+  "employees": 676,
   "id": "208d7baa-10cd-4a73-825b-5bd3e827f79f",
   "entity_type": "Organization",
-  "hq_source": null
+  "hq_source": "https://find-and-update.company-information.service.gov.uk/company/07880610"
  },
  "EQT Ventures": {
   "website": null,
   "hq": null,
+  "hq_field": null,
   "description": "A venture capital firm.",
+  "founded": null,
+  "employees": null,
   "id": "d6cf13e1-92ff-4567-bd72-30316f2498e5",
   "entity_type": "Organization",
   "hq_source": null
+ },
+ "Index Ventures": {
+  "website": "indexventures.com",
+  "hq": "5-8 Lower John St, London, Greater London, W1F 9DY, United Kingdom",
+  "hq_field": "headquarters_address",
+  "description": "a London\u2011based venture capital firm founded in 1996 that invests in fintech and retail sectors",
+  "founded": "1996-01-01",
+  "employees": null,
+  "id": "4a7ccd5d-1310-46b0-bd42-4ff8b409acc5",
+  "entity_type": "Company",
+  "hq_source": "https://www.zoominfo.com/c/index-ventures-llp/351711868"
+ },
+ "Speedinvest": {
+  "website": "speedinvest.com",
+  "hq": "Nordbergstra\u00dfe 1/1/71, Wien, AT-9, 1090, AT",
+  "hq_field": "headquarters_address",
+  "description": "A Vienna-based Austrian venture\u2011capital firm founded in 2011.",
+  "founded": "2011-05-19",
+  "employees": null,
+  "id": "94e0ca6a-4e39-4181-bd84-11f264d0aa62",
+  "entity_type": "Company",
+  "hq_source": "https://search.gleif.org/#/record/984500A1L4B81ABB7772"
+ },
+ "LocalGlobe": {
+  "website": "localglobe.vc",
+  "hq": "1 Brill Place, London, London NW1 1EL, GB",
+  "hq_field": "headquarters_address",
+  "description": "London-based venture capital fund investing in early-stage tech, media, mobile, fintech, and transportation startups since 1999.",
+  "founded": null,
+  "employees": null,
+  "id": "1516c337-36cb-4357-ba0c-03b9c6c0d0e0",
+  "entity_type": "Company",
+  "hq_source": "https://prospeo.io/c/localglobe"
+ },
+ "Seedcamp": {
+  "website": "seedcamp.com",
+  "hq": "727-729 High Road, London, England, N12 0BP",
+  "hq_field": "registered_address",
+  "description": "a London\u2011based seed\u2011stage venture capital firm founded in 2007",
+  "founded": "2007-09-11",
+  "employees": 200,
+  "id": "d2d11954-6bab-5ac9-8684-a54406623104",
+  "entity_type": "Organization",
+  "hq_source": "https://find-and-update.company-information.service.gov.uk/company/06367351"
  }
 }

@@ -98,9 +98,9 @@ function wire() {
   });
 }
 
-function entityHeader(name, sub, meta, tabs, acts) {
+function entityHeader(name, sub, meta, tabs, acts, domain) {
   return `<div class="ehd"><div class="ehdtop">
-      ${bigLogo(name)}
+      ${bigLogo(name, domain)}
       <div><h1>${esc(name)}</h1><div class="emeta">${meta}</div></div>
       <span class="eacts">${acts || ""}</span></div>
     <div class="tabs">${tabs.map((t, i) =>
@@ -205,12 +205,24 @@ function founderEntity() {
   const x = F.investors.find(i => i.investor === SEL);
   if (!x) { SEL = null; return founderList(); }
   const s = x.signals, c = s.conflict;
-  const tabs = ["Overview", "Signals", "Conflict", "Evidence"];
-  const meta = `${x.rounds_seen} rounds in Cala · ${x.portfolio_size || 0} portfolio companies
-    · ${badge(x.evidence_depth === "hyva" ? "well covered" : x.evidence_depth === "ohut" ? "thin coverage" : "insufficient",
-      x.evidence_depth === "hyva" ? "green" : x.evidence_depth === "ohut" ? "amber" : "grey")}`;
+  const tabs = ["Overview", "Portfolio", "Signals", "Conflict", "Evidence"];
+  const fm = x.firm || {};
+  const meta = [
+    fm.website ? `<a href="https://${esc(String(fm.website).replace(/^https?:\/\//, ""))}"
+      target="_blank" rel="noopener">${esc(String(fm.website).replace(/^https?:\/\//, ""))}</a>` : "",
+    fm.hq ? esc(String(fm.hq).split(",").slice(-2).join(",").trim()) : "",
+    fm.founded ? "founded " + esc(String(fm.founded).slice(0, 4)) : "",
+    fm.employees ? esc(fm.employees) + " people" : "",
+    `${x.rounds_seen} rounds in Cala`,
+    `${x.portfolio_size || 0} portfolio`,
+    badge(x.evidence_depth === "hyva" ? "well covered"
+      : x.evidence_depth === "ohut" ? "thin coverage" : "insufficient",
+      x.evidence_depth === "hyva" ? "green" : x.evidence_depth === "ohut" ? "amber" : "grey"),
+  ].filter(Boolean).join(" · ");
   let body = entityHeader(x.investor, "", meta, tabs,
-    `<button class="btn" onclick="window.print()">Export brief</button>`);
+    `<button class="btn" id="composeit">Compose intro</button>
+     <button class="btn" onclick="window.print()">Export brief</button>`,
+    fm.website);
 
   if (TAB === 0) {
     body += (c.label === "🔴"
@@ -233,6 +245,11 @@ function founderEntity() {
           ["Portfolio progression", s.next_round.value, s.next_round.label === "🟢" ? "g" : "a", pct(s.next_round.value)],
           ["Deployment pace", Math.min(s.dry_powder.value ?? 0, 1), s.dry_powder.label === "🟢" ? "g" : s.dry_powder.label === "🟡" ? "a" : "r", s.dry_powder.label === "⚪" ? "—" : "ok"],
         ], 1)}</div>`)
+      + (fm.description ? `<p class="lede">${esc(fm.description)}</p>` : "")
+      + (fm.hq ? section("fo-reg", "Registered", "",
+          `<div class="card"><div style="font-size:13.5px">${esc(fm.hq)}</div>
+           <div class="sub" style="margin:6px 0 0">from Cala's <code>${esc(fm.hq_field || "address")}</code>
+           ${fm.hq_source ? `· <a href="${esc(fm.hq_source)}" target="_blank" rel="noopener">source</a>` : ""}</div></div>`) : "")
       + section("fo-prof", "Firm profile", "",
           badgeGroup([
             ["Verdict", [c.label === "🔴" ? "Do not pitch"
@@ -263,12 +280,45 @@ function founderEntity() {
           `<div class="card"><ul class="reasons">${questions(x).map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>`);
   }
   if (TAB === 1) {
+    const led = x.led_rounds || [], rec = x.recent_rounds || [], port = x.portfolio || [];
+    const money = a => a ? "€" + (a / 1e6).toFixed(a >= 1e7 ? 0 : 1) + "M" : "—";
+    body += stats(4, [
+      ["Portfolio companies", x.portfolio_size || 0, "mono"],
+      ["Rounds in Cala", x.rounds_seen, "mono"],
+      ["Rounds they led", led.length ? `${led.length}+` : "—", "mono"],
+      ["Sectors", (x.sectors || []).length || "—", "mono"],
+    ]);
+    if (led.length) body += section("fp-led", "Led these rounds", "", `<div class="hl">${
+      led.map(r => `<div class="hlc"><div class="hlhd">${logo(r.company)}
+        <div style="min-width:0"><div class="nm">${esc(r.company)}</div>
+          <div class="sb">${esc(r.date)}</div></div>${badge(r.stage || "round", "purple")}</div>
+        <div class="hlm"><div><div class="k">Round size</div><div class="v">${money(r.amount)}</div></div>
+          <div><div class="k">Role</div><div class="v">Lead</div></div></div></div>`).join("")}</div>`);
+    if ((x.sectors || []).length) body += section("fp-sec", "Where they invest", "",
+      `<div class="two"><div class="card">${bars((x.sectors || []).map(([k, v]) =>
+        [k, v, "", v]))}</div>
+        <div class="card"><h4>Most recent activity</h4><div class="sub">newest first</div>
+        ${rec.slice(0, 8).map(r => `<div class="barrow" style="grid-template-columns:1fr 70px 56px">
+          <span class="lbl">${esc(r.company)}</span>
+          <span class="pc" style="text-align:left">${esc(r.stage || "")}</span>
+          <span class="pc">${r.led ? badge("led", "green") : esc(String(r.date).slice(0, 7))}</span>
+        </div>`).join("")}</div></div>`);
+    if (port.length) body += section("fp-port", "Portfolio", `${x.portfolio_size} companies in Cala`,
+      `<div class="hl">${port.slice(0, 24).map(c => `<div class="hlc ${
+        x.backs?.includes(c.name) ? "red" : ""}">
+        <div class="hlhd">${logo(c.name)}<div style="min-width:0">
+          <div class="nm">${esc(c.name)}</div><div class="sb">${esc(c.sector || "")}</div></div>
+        ${x.backs?.includes(c.name) ? badge("competitor", "red") : ""}</div></div>`).join("")}</div>`);
+    if (!led.length && !port.length)
+      body += `<div class="msg">No portfolio detail cached for this firm yet.</div>`;
+  }
+  if (TAB === 2) {
     body += Object.entries(s).map(([k, sig]) => `<div class="card" style="margin-bottom:9px">
       <h4>${esc(SIGLBL[k] || k)}</h4>
       <div class="sub">n=${sig.n} · confidence ${esc(sig.confidence)}</div>
       <div>${sig.label} ${esc(sig.text)}</div>${evidence(sig.evidence)}</div>`).join("");
   }
-  if (TAB === 2) {
+  if (TAB === 3) {
     body += x.backs?.length
       ? `<div class="verdict red"><b>Backs ${x.backs.length} of your competitors.</b></div>
          <div class="hl">${x.backs.map(b => `<div class="hlc red"><div class="hlhd">${logo(b)}
@@ -282,7 +332,7 @@ function founderEntity() {
         ${x.backs?.includes(co.name) ? badge("in portfolio", "red") : ""}</div>
         ${co.what ? `<div class="sb" style="color:var(--faint);font-size:11.5px">${esc(co.what.slice(0, 120))}</div>` : ""}</div>`).join("")}</div>`);
   }
-  if (TAB === 3) {
+  if (TAB === 4) {
     body += `<p class="lede">Every number on this page is computed from Cala's knowledge graph.
       Text is generated only where the figures already exist — a sentence containing a number the
       metrics do not support is rejected before it is shown.</p>`
@@ -565,9 +615,9 @@ function mapView() {
 
   const scored = MAP.points.filter(p => p.score != null).length;
   return stats(5, [
-    ["Exhibitors at Slush 2026", MAP.total_exhibitors],
-    ["Profiles resolved", MAP.profiles_fetched],
-    ["Placed on the map", MAP.placed],
+    ["Companies placed", MAP.placed],
+    ["Funds placed", (MAP.funds || []).length],
+    ["Exact street coordinates", MAP.exact],
     ["Address not placeable", MAP.unplaced],
     ["Scored for conviction", scored],
   ])
@@ -583,16 +633,20 @@ function mapView() {
           </div>
           <div class="mapctl" style="top:auto;bottom:11px;left:auto;right:11px">
             <button class="btn ${MAPMODE === "co" ? "pri" : ""}" data-mm="co">Companies</button>
+            <button class="btn ${MAPMODE === "fu" ? "pri" : ""}" data-mm="fu">Funds</button>
             <button class="btn ${MAPMODE === "pp" ? "pri" : ""}" data-mm="pp">People</button>
           </div>
           <div class="mapsearch"><span style="color:var(--faint)">⌕</span>
-            <input id="mapq" autocomplete="off" placeholder="${MAPMODE === "pp"
-              ? "Find a founder or investor" : "Filter companies on the map"}"></div>
+            <input id="mapq" autocomplete="off" placeholder="${
+              MAPMODE === "pp" ? "Find a founder or investor"
+              : MAPMODE === "fu" ? "Filter funds, or type a city"
+              : "Filter companies, or type a city"}"></div>
           <div class="maplegend">
             <span class="sw"><i style="background:#2d7a4f"></i>conviction ≥70</span>
             <span class="sw"><i style="background:#90610a"></i>55–70</span>
             <span class="sw"><i style="background:#b03628"></i>&lt;55</span>
             <span class="sw"><i style="background:#9b958c"></i>not enough rounds</span>
+            <span class="sw"><i style="background:#c2614f"></i>fund</span>
             <span class="sw" id="precisenote"></span>
           </div>
         </div>
@@ -656,6 +710,9 @@ function sideList(points, title) {
             style="margin-left:5px">${p.score}</span>` : ""}</div>
       <div class="d">${esc(p.hq || "")}${p.industries?.length
         ? " · " + esc(p.industries.join(", ")) : ""}</div>
+      ${p.description ? `<div class="d">${esc(p.description.slice(0, 130))}</div>` : ""}
+      ${p.founded ? `<div class="d">founded ${esc(String(p.founded).slice(0, 4))}${
+        p.employees ? ` · ${esc(p.employees)} people` : ""}</div>` : ""}
       ${p.website ? `<div class="d"><a href="${esc(p.website)}" target="_blank"
          rel="noopener">${esc(String(p.website).replace(/^https?:\/\//, ""))}</a></div>` : ""}
       ${p.source ? `<div class="d"><span class="srank">SOURCE</span><a href="${esc(p.source)}"
@@ -674,11 +731,12 @@ function initMap() {
   });
   ML.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
 
-  // A precisely geocoded company sits on its real address and is never moved.
+  // A precisely geocoded entity sits on its real address and is never moved.
   // Only city-centroid fallbacks are spread, and they are drawn hollow so the
   // map never implies a precision it does not have.
+  const layer = MAPMODE === "fu" ? (MAP.funds || []) : MAP.points;
   const seen = {};
-  for (const p of MAP.points) {
+  for (const p of layer) {
     let lat = p.lat, lon = p.lon;
     if (!p.precise) {
       const k = `${p.lat},${p.lon}`;
@@ -689,10 +747,12 @@ function initMap() {
 
     const d = document.createElement("div");
     d.className = "mkr";
-    const sz = p.score != null ? 13 : 10;
+    const isFund = p.kind === "fund";
+    const col = isFund ? "#c2614f" : scoreColor(p.score);
+    const sz = isFund ? 15 : (p.score != null ? 13 : 10);
     d.style.cssText = p.precise
-      ? `width:${sz}px;height:${sz}px;background:${scoreColor(p.score)}`
-      : `width:${sz}px;height:${sz}px;background:transparent;border:2px dashed ${scoreColor(p.score)};opacity:.7`;
+      ? `width:${sz}px;height:${sz}px;background:${col}${isFund ? ";box-shadow:0 0 0 5px rgba(194,97,79,.18)" : ""}`
+      : `width:${sz}px;height:${sz}px;background:transparent;border:2px dashed ${col};opacity:.75`;
     const m = new maplibregl.Marker({ element: d })
       .setLngLat([lon, lat])
       .setPopup(new maplibregl.Popup({ offset: 14, closeButton: false }).setHTML(
@@ -704,7 +764,7 @@ function initMap() {
     d.onclick = () => sideList([p], p.name);
     MLMARKERS.push({ marker: m, el: d, p });
   }
-  sideList(MAP.points);
+  sideList(layer, MAPMODE === "fu" ? "Funds" : "Companies");
   const pn = $("#precisenote");
   if (pn && MAP.exact != null)
     pn.innerHTML = `<i style="background:transparent;border:2px dashed #9b958c"></i>city only (${MAP.placed - MAP.exact})`;
@@ -720,6 +780,7 @@ function initMap() {
   if (!q) return;
   q.oninput = MAPMODE === "pp" ? peopleSearch : () => {
     const t = q.value.trim().toLowerCase();
+    const active = MAPMODE === "fu" ? (MAP.funds || []) : MAP.points;
     const shown = [];
     for (const { el, p } of MLMARKERS) {
       const hit = !t || p.name.toLowerCase().includes(t) ||
@@ -728,9 +789,9 @@ function initMap() {
       el.style.display = hit ? "" : "none";
       if (hit) shown.push(p);
     }
-    sideList(shown, t ? `Matching "${q.value.trim()}"` : "Exhibitors");
+    sideList(shown, t ? `Matching "${q.value.trim()}"` : (MAPMODE === "fu" ? "Funds" : "Companies"));
     clearTimeout(PLTIMER);
-    if (!t) { ML.flyTo({ ...FLY.eu, duration: 600 }); return; }
+    if (!t) { fitTo(active); return; }
     if (shown.length) {
       // Frame whatever matched, so typing a city both filters and zooms.
       fitTo(shown);
