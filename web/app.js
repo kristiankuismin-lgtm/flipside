@@ -3639,6 +3639,14 @@ async function runIntake() {
   const text = $("#askbox")?.value || "";
   if (!text.trim() && !INTAKE.files.length) { $("#askbox")?.focus(); return; }
   INTAKE = { ...INTAKE, profile: null, steps: [], state: "reading" };
+  // Describing a round you are raising is the founder side of the graph,
+  // whichever side the browser last remembered. Leaving the role alone left
+  // the sidebar offering insider conviction next to a founder's ranking.
+  if (ROLE !== "founder") {
+    ROLE = "founder";
+    try { localStorage.setItem("flipside.role", ROLE); } catch { /* private */ }
+    applyRoleChrome();
+  }
   MODE = "brief"; render();
 
   const fd = new FormData();
