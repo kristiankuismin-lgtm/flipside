@@ -502,6 +502,9 @@ function paintReachMap() {
       ? `<span class="spin"></span> Placing them…`
       : REACHMAP.error ? esc(REACHMAP.error)
       : `${REACHMAP.points?.length || 0} of ${PICKED.size} placed${
+          (REACHMAP.points || []).some(x => x.precision === "country")
+            ? ` · ${(REACHMAP.points || []).filter(x => x.precision === "country").length}
+                of them by country only (the hollow ring)` : ""}${
           REACHMAP?.missing?.length
             ? ` · ${REACHMAP.missing.length} with no address in Cala: ${
                 REACHMAP.missing.slice(0, 3).map(esc).join(", ")}` : ""}
@@ -525,12 +528,18 @@ function paintReachMap() {
   for (const p of REACHMAP.points) {
     if (p.lon == null || p.lat == null) continue;
     const d = document.createElement("div");
-    d.className = "rpin" + (p.nearby ? " near" : "");
-    d.title = `${p.name}${p.city ? " · " + p.city : ""}`;
+    d.className = "rpin" + (p.nearby ? " near" : "")
+      + (p.precision === "country" ? " loose" : "");
+    d.title = p.precision === "country"
+      ? `${p.name} — country only, this pin is ${p.cc || "the country"}, not the office`
+      : `${p.name}${p.city ? " · " + p.city : ""}`;
     d.textContent = initials(p.name);
     const m = new maplibregl.Marker({ element: d }).setLngLat([p.lon, p.lat])
       .setPopup(new maplibregl.Popup({ offset: 14 })
-        .setHTML(`<b>${esc(p.name)}</b><br>${esc(p.city || p.country || "")}`))
+        .setHTML(`<b>${esc(p.name)}</b><br>${esc(p.hq || p.city || p.country || "")}${
+          p.precision === "country"
+            ? `<br><i>country only — Cala has no address for them, so this pin
+               is the country, not the office</i>` : ""}`))
       .addTo(RMAP);
     RMARKERS.push(m); bounds.extend([p.lon, p.lat]);
   }
@@ -2267,7 +2276,8 @@ async function openPerson(id, name) {
     return;
   }
 
-  const op = c.operator || {}, net = c.network || {}, dom = c.domain || {};
+  const op = c.operator || {}, net = c.network || {}, dom = c.domain || {},
+        ang = c.angel || {};
   const conf = c.confidence || {};
   const role = (c.works_at || [])[0];
 
@@ -2291,6 +2301,13 @@ async function openPerson(id, name) {
         <div class="pcstat"><span class="k">Can introduce</span>
           <span class="v">${net.count ?? 0}</span>
           <span class="s">${net.boards || 0} boards · ${net.personal_cheques || 0} cheques</span></div>
+        <div class="pcstat"><span class="k">Invests personally</span>
+          <span class="v ${ang.is_angel ? "hit" : ""}">${
+            ang.is_angel ? (ang.round_count || ang.company_count) : "no"}</span>
+          <span class="s">${ang.is_angel
+            ? `${ang.round_count ? "rounds of their own" : "companies, undated"}${
+                ang.last_year ? `, last ${esc(ang.last_year)}` : ""}`
+            : "no personal cheque on record"}</span></div>
         <div class="pcstat"><span class="k">Your market</span>
           <span class="v ${dom.matched?.length ? "hit" : ""}">${
             dom.matched?.length ? "yes" : "no"}</span>
@@ -2301,6 +2318,29 @@ async function openPerson(id, name) {
       </div>
 
       ${c.description ? `<p class="lede" style="margin:var(--s2) 0">${esc(c.description)}</p>` : ""}
+
+      ${(c.titles || []).length ? `<div class="pctitles">${c.titles.map(t =>
+        `<span class="chip sm">${esc(t.title)} · ${esc(t.name)}${
+          t.since ? ` since ${esc(String(t.since).slice(0, 4))}` : ""}</span>`).join(" ")}
+        <div class="sub" style="margin-top:6px">Held in Cala's graph, not read
+          off a team page.</div></div>` : ""}
+
+      ${block("Writes their own cheques", ang.is_angel
+        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
+             A partner who has only deployed the fund's money needs the
+             partnership to say yes. One who has put their own in has decided
+             alone before.</div>
+           <div class="pclist">${[
+             ...(ang.rounds || []).map(r => ({ name: r.name, tag: r.role || "took part",
+                                               yr: String(r.date || "").slice(0, 4) })),
+             ...(ang.companies || []).map(n => ({ name: n, tag: "their cheque", yr: "" })),
+           ].slice(0, 10).map(x => `<div class="pcrow"><b>${esc(x.name)}</b>
+              <span class="tag">${esc(x.tag)}</span>
+              ${x.yr ? `<span class="yr">${esc(x.yr)}</span>` : ""}</div>`).join("")}</div>`
+        : "", ang.is_angel
+             ? `${ang.round_count} round${ang.round_count === 1 ? "" : "s"}, ${
+                 ang.company_count} compan${ang.company_count === 1 ? "y" : "ies"}`
+             : "")}
 
       ${block("Has built", (op.founded || []).length || (op.operated || []).length
         ? `<div class="pclist">${[

@@ -998,6 +998,7 @@ body.neo-on .main{padding-right:380px}
 .pfbad{padding:12px 18px;background:var(--accent-bg);color:var(--accent-ink);
   font-size:12.5px;line-height:1.6}
 .chip.sm{padding:3px 9px;font-size:11.5px;box-shadow:none}
+.pctitles{margin:var(--s2) 0}
 
 .rsn{max-height:48vh;overflow:auto;border:1px solid var(--line);border-radius:12px;
   background:var(--panel);padding:6px 0}
@@ -1063,6 +1064,10 @@ tr.picked{background:var(--accent-bg)}
   display:grid;place-items:center;font:600 9.5px/1 var(--sans);
   border:2px solid #fff;box-shadow:var(--sh);cursor:pointer}
 .rpin.near{background:var(--panel);color:var(--dim);border-color:var(--line2)}
+/* Country-only: we know the country and not the street, and a solid pin on
+   the capital claims a precision we do not have. */
+.rpin.loose{background:var(--accent-bg);color:var(--accent-ink);
+  border-style:dashed;border-color:var(--accent)}
 @media (max-width:980px){.reachgrid{grid-template-columns:1fr}
   .reachmap{position:static}.rmap{height:40vh}}
 

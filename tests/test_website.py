@@ -161,10 +161,19 @@ def test_candidates_try_the_hyphenated_shape():
     assert "project-a.com" in W.candidates("Project A Ventures")
 
 
-def test_candidates_try_every_shape_at_com_before_any_at_io():
+def test_candidates_go_breadth_first_by_tld_not_by_name_shape():
+    """Every shape at .com before any shape at the next TLD. Depth-first
+    would spend the whole budget on one shape's long TLD tail."""
     c = W.candidates("Coatue Management")
-    first_io = next(i for i, d in enumerate(c) if d.endswith(".io"))
-    assert all(d.endswith(".com") for d in c[:first_io])
+    first_non_com = next(i for i, d in enumerate(c) if not d.endswith(".com"))
+    assert all(d.endswith(".com") for d in c[:first_non_com])
+    assert first_non_com >= 2        # more than one shape was tried at .com
+
+
+def test_the_vc_tld_is_reached_for_a_name_with_several_shapes():
+    """fabric.vc is Fabric Ventures. With .vc fifth in the list and a cap of
+    eight, it was never fetched."""
+    assert "fabric.vc" in W.candidates("Fabric Ventures")
 
 
 def test_the_full_name_is_tried_before_the_short_stem():

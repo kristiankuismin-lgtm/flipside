@@ -179,7 +179,11 @@ def profile(site: str | None, **kw) -> dict:
 _SLUG_DROP = re.compile(
     r"\b(gmbh|ab|oy|oyj|a/s|as|aps|ltd|limited|llc|inc|plc|sa|nv|bv|kb|ky|"
     r"holding|holdings|group|company|co)\b", re.I)
-TLDS = ["com", "io", "ai", "co", "vc", "net"]
+# .vc sits second because it is the most self-identifying TLD a fund can
+# have: fabric.vc is Fabric Ventures and nothing else. It used to be fifth,
+# which meant that for any name with more than one candidate shape the list
+# was truncated before .vc was ever fetched.
+TLDS = ["com", "vc", "io", "ai", "co", "net"]
 CC_TLD = {"DE": "de", "FI": "fi", "SE": "se", "NO": "no", "DK": "dk",
           "NL": "nl", "FR": "fr", "ES": "es", "IT": "it", "PL": "pl",
           "EE": "ee", "LV": "lv", "LT": "lt", "GB": "co.uk", "IE": "ie",
@@ -309,7 +313,9 @@ def candidates(name: str, cc: str | None = None) -> list[str]:
             if d not in seen:
                 seen.add(d)
                 out.append(d)
-    return out[:8]
+    # Eight was too few once a name produced three shapes: the whole list
+    # was spent on .com and .vc before anything else was tried.
+    return out[:14]
 
 
 def discover(name: str, cc: str | None = None, *, fetcher=None,

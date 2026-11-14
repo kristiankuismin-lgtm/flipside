@@ -165,3 +165,43 @@ def test_build_reads_tenure_off_the_person_row():
     row = _C.build(inv, people)["rows"][0]
     assert row["signals"]["years_at_firm"] > 5
     assert any("at the firm" in w for w in row["bonus_why"])
+
+
+# ------------------------------------------------------ invests personally
+def test_an_angel_scores_and_says_how_many_rounds():
+    pts, why = _C.person_bonus({"angel": True, "angel_rounds": 2,
+                                "angel_last_year": "2025"})
+    assert pts > 0
+    assert why == ["invests personally — 2 rounds, last in 2025"]
+
+
+def test_angel_with_no_evidence_behind_it_scores_nothing():
+    """The flag alone is not evidence; the rounds or companies are."""
+    assert _C.person_bonus({"angel": True}) == (0.0, [])
+
+
+def test_angel_saturates():
+    many = _C.person_bonus({"angel": True, "angel_rounds": 40})[0]
+    full = _C.person_bonus({"angel": True, "angel_rounds": _C.ANGEL_FULL})[0]
+    assert many == full == _C.PERSON_WEIGHTS["angel"]
+
+
+def test_angel_is_worth_less_than_being_in_your_market():
+    assert _C.PERSON_WEIGHTS["angel"] < _C.PERSON_WEIGHTS["market"]
+
+
+def test_an_undated_personal_cheque_does_not_invent_a_year_or_a_round():
+    """INVESTED_IN names a company and carries no date. Calling that "a
+    round" claims a precision the edge does not have."""
+    why = _C.person_bonus({"angel": True, "angel_companies": 3})[1]
+    assert why == ["invests personally — 3 companies"]
+
+
+def test_one_personal_cheque_reads_as_one_company():
+    assert _C.person_bonus({"angel": True, "angel_companies": 1})[1] == [
+        "invests personally — 1 company"]
+
+
+def test_dated_rounds_are_called_rounds():
+    assert _C.person_bonus({"angel": True, "angel_rounds": 1})[1] == [
+        "invests personally — 1 round"]

@@ -677,8 +677,18 @@ def map_data():
                 lat, lon, cc, precise = alt["lat"], alt["lon"], alt["cc"], False
                 hq_registry, hq = hq, alt["label"]
                 disputed_funds.append({"name": name, "why": why})
+            # A fund we know only the country of sits on the capital, which
+            # looks exactly as precise as a street address. Say which it is.
+            if v.get("hq_precision") == "country":
+                precise = False
+                note = note or (
+                    f"Cala names {hq} as where this firm is, with no address. "
+                    f"The pin is the country, not the office.")
             funds.append({"name": name, "id": v.get("id"), "lat": lat, "lon": lon,
-                          "cc": cc, "precise": precise, "hq_note": note,
+                          "cc": cc, "precise": precise,
+                          "precision": "country" if v.get("hq_precision") == "country"
+                                       else ("street" if precise else "city"),
+                          "hq_note": note,
                           "hq_why": why,
                           "hq": hq, "hq_registry": hq_registry,
                           "website": v.get("website"),
@@ -1630,13 +1640,28 @@ def call_list(req: Req):
     A screen says which firms are worth approaching; it does not say who to
     write to, and a fund is not a person.
     """
-    from . import calllist as CL
+    from concurrent.futures import ThreadPoolExecutor
+    from . import calllist as CL, progress as PG
     scored = analyze(req)
     want = [x for x in scored["investors"]
             if (x.get("signals") or {}).get("conflict", {}).get("label") != "\U0001f534"][:10]
-    people = {}
-    for x in want:
-        people[norm.name(x["investor"])] = _people_for_fund(x["investor"])
+
+    # One firm at a time meant ten sequential rounds of discover-the-site,
+    # fetch-the-team-page, parse-it: six seconds each, a minute for the list.
+    # These are fetches of ten different hosts, not ten hits on one rate
+    # limit, so there is no reason to queue them behind each other.
+    key = PG.key_for(req.company, req.stage)
+    PG.step(key, f"Finding who to contact at {len(want)} firms",
+            "Cala first, then each firm's own team page", layer="web",
+            because="A fund is not a person. The firm decides most of the "
+                    "order, but you cannot send a deck to a firm.")
+    with ThreadPoolExecutor(max_workers=min(8, max(1, len(want)))) as ex:
+        found = list(ex.map(lambda x: (norm.name(x["investor"]),
+                                       _people_for_fund(x["investor"])), want))
+    people = dict(found)
+    named = sum(1 for v in people.values() if v)
+    PG.step(key, f"{sum(len(v) for v in people.values())} people at {named} firms",
+            layer="web")
     out = CL.build(scored["investors"], people, stage=req.stage)
     out["company"] = req.company
     out["stage"] = req.stage
@@ -1647,10 +1672,18 @@ PERSON_CARD_PROPS = ["name", "description", "linkedin_url", "personal_website",
                      "birth_date", "place_of_birth", "aliases"]
 # Surveyed across ten VC people, commonest first, so a thin record costs
 # nothing and a full one is complete.
-PERSON_CARD_RELS = ["WORKS_AT", "IS_MEMBER_OF", "STUDIED_AT", "INVESTED_IN",
-                    "FOUNDED", "IS_CEO_OF", "IS_COO_OF", "IS_CSO_OF",
-                    "IS_CFO_OF", "IS_BOARD_MEMBER_OF", "RECEIVED_AWARD",
-                    "SPOKE_AT", "HAS_NATIONALITY"]
+# Every outgoing edge the harvest has actually seen on a Person, commonest
+# first. Asking for one an entity does not have comes back empty and costs
+# nothing, so the full list is strictly better than the subset this was.
+# PARTICIPATES_IN_FUNDING_ROUND is the addition that matters: it is how we
+# learn a partner writes their own cheques.
+PERSON_CARD_RELS = ["WORKS_AT", "FOUNDED", "INVESTED_IN", "IS_MEMBER_OF",
+                    "IS_BOARD_MEMBER_OF", "PARTICIPATES_IN_FUNDING_ROUND",
+                    "STUDIED_AT", "IS_CEO_OF", "RECEIVED_AWARD", "SPOKE_AT",
+                    "HAS_NATIONALITY", "IS_EXECUTIVE_OF", "IS_CTO_OF",
+                    "IS_CFO_OF", "IS_COO_OF", "IS_CSO_OF",
+                    "IS_GENERAL_PARTNER_OF", "IS_MANAGING_DIRECTOR_OF",
+                    "IS_VICEPRESIDENT_OF"]
 
 
 @app.get("/person/{entity_id}")
@@ -1722,7 +1755,15 @@ def _person_signals(name: str, firm: str, words: set) -> dict | None:
         or any(norm.name(o["name"]) == firm_key for o in card["operator"]["operated"])
 
     op = card["operator"]
+    ang = card["angel"]
+    title = (card.get("titles") or [{}])[0]
     return {"id": hit["id"], "linked_to_firm": linked,
+            "angel": ang["is_angel"],
+            "angel_rounds": ang["round_count"],
+            "angel_companies": ang["company_count"],
+            "angel_last_year": ang["last_year"],
+            "graph_title": title.get("title"),
+            "graph_title_at": title.get("name"),
             "market_match": card["domain"]["matched"],
             "market_via": [v["name"] for v in (card["domain"].get("via") or [])][:2],
             "years_building": op.get("years_building"),

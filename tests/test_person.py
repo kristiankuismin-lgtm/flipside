@@ -115,3 +115,54 @@ def test_a_company_that_cannot_be_fetched_is_skipped_not_fatal():
     def boom(_id):
         raise RuntimeError("no")
     assert P.enrich_markets(c, boom)["domain"]["matched"] == []
+
+
+# ------------------------------------------------ does this person angel?
+def _p(**rels):
+    return {"id": "x", "name": "A Person", "entity_type": "Person",
+            "properties": {}, "relationships": {"outgoing": rels}}
+
+
+def _co(name, **props):
+    return {"id": name.lower(), "name": name, "entity_type": "Company",
+            "properties": props}
+
+
+def test_a_partner_who_has_never_invested_personally_is_not_an_angel():
+    card = P.build(_p(WORKS_AT=[_co("Creandum", role="Partner")]))
+    assert card["angel"]["is_angel"] is False
+    assert card["angel"]["round_count"] == 0
+
+
+def test_personal_rounds_make_someone_an_angel():
+    """A partner who has put their own money in has decided alone before."""
+    card = P.build(_p(PARTICIPATES_IN_FUNDING_ROUND=[
+        _co("Seed round", event_date="2024-03-01"),
+        _co("Series A", event_date="2025-06-02")]))
+    a = card["angel"]
+    assert a["is_angel"] and a["round_count"] == 2
+    assert a["last_year"] == "2025"
+    assert a["active_years"] == ["2024", "2025"]
+
+
+def test_personal_cheques_count_even_with_no_dated_rounds():
+    card = P.build(_p(INVESTED_IN=[_co("Wolt"), _co("Oura")]))
+    a = card["angel"]
+    assert a["is_angel"] and a["company_count"] == 2
+    assert set(a["companies"]) == {"Wolt", "Oura"}
+    assert a["last_year"] is None          # no dates, and we do not invent one
+
+
+def test_a_title_held_in_the_graph_is_kept_with_its_start_date():
+    """A scraped page says "Partner". This says it with a date behind it."""
+    card = P.build(_p(IS_GENERAL_PARTNER_OF=[
+        _co("Northzone", valid_since="2018-01-01")]))
+    t = card["titles"][0]
+    assert t["title"] == "General Partner" and t["name"] == "Northzone"
+    assert t["since"] == "2018-01-01"
+
+
+def test_titles_are_ordered_strongest_first():
+    card = P.build(_p(IS_VICEPRESIDENT_OF=[_co("B")],
+                       IS_GENERAL_PARTNER_OF=[_co("A")]))
+    assert [t["title"] for t in card["titles"]] == ["General Partner", "Vice President"]

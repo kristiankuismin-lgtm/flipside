@@ -59,6 +59,17 @@ def markets_in(text: str) -> set[str]:
     return {m for m, words in MARKETS.items() if any(w in low for w in words)}
 NETWORK_EDGES = ["IS_MEMBER_OF", "IS_BOARD_MEMBER_OF", "INVESTED_IN"]
 
+# Titles a person holds at a firm, strongest first. A scraped team page says
+# "Partner"; these say it in the graph, with a start date. One of the harvest's
+# findings was that Cala models each of these as its own edge rather than as a
+# role string, so asking only for WORKS_AT loses the seniority entirely.
+PARTNER_EDGES = [
+    ("IS_GENERAL_PARTNER_OF", "General Partner"),
+    ("IS_MANAGING_DIRECTOR_OF", "Managing Director"),
+    ("IS_EXECUTIVE_OF", "Executive"),
+    ("IS_VICEPRESIDENT_OF", "Vice President"),
+]
+
 # What a legal check would need, named so its absence is specific rather
 # than a shrug. None of these exist on a Person entity in Cala today.
 LEGAL_EDGES_WE_LOOKED_FOR = ["SANCTIONED_BY", "PARTY_TO", "SUBJECT_OF",
@@ -95,6 +106,8 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
     studied = _rel(e, "STUDIED_AT")
     awards = _rel(e, "RECEIVED_AWARD")
     works = _rel(e, "WORKS_AT")
+    rounds = _rel(e, "PARTICIPATES_IN_FUNDING_ROUND")
+    titled = [(label, it) for edge, label in PARTNER_EDGES for it in _rel(e, edge)]
 
     # Operator: the thing a founder most wants to know about an investor.
     years = [y for y in (_year(f) for f in founded) if y]
@@ -126,6 +139,31 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
                "boards": sum(1 for n in net if n["via"] == "board"),
                "personal_cheques": sum(1 for n in net if n["via"] == "invested")}
 
+    # Angel: do they write their own cheques?
+    #
+    # A founder reads this differently from everything else on the card. A
+    # partner who has only ever deployed the fund's money needs the whole
+    # partnership to say yes. One who has put their own in has decided
+    # alone before, and can again - and a personal cheque is a way into a
+    # round that a fund's process cannot move fast enough for.
+    #
+    # Two edges say it: INVESTED_IN on the person, and the rounds they
+    # personally took part in. They overlap, so the rounds are counted
+    # separately and the companies are deduped against the network above.
+    angel_rounds = [{"name": r.get("name"), "id": r.get("id"),
+                     "date": _val(r.get("properties"), "event_date"),
+                     "role": _val(r.get("properties"), "role")} for r in rounds]
+    angel_years = sorted({str(x["date"])[:4] for x in angel_rounds if x.get("date")})
+    angel = {
+        "companies": [n["name"] for n in net if n["via"] == "invested"][:8],
+        "company_count": sum(1 for n in net if n["via"] == "invested"),
+        "rounds": angel_rounds[:8],
+        "round_count": len(angel_rounds),
+        "active_years": angel_years[-4:],
+        "last_year": angel_years[-1] if angel_years else None,
+    }
+    angel["is_angel"] = bool(angel["company_count"] or angel["round_count"])
+
     # Domain: are they in the founder's market? Compared as markets rather
     # than as words, and across everything they have touched - the company
     # they ran counts as much as one they wrote a cheque to.
@@ -151,8 +189,13 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
         "nationality": [n.get("name") for n in _rel(e, "HAS_NATIONALITY")],
         "works_at": [{"name": w.get("name"), "id": w.get("id"),
                       "role": _val(w.get("properties"), "role")} for w in works],
+        # A title held in the graph, not quoted off a page.
+        "titles": [{"name": it.get("name"), "id": it.get("id"), "title": label,
+                    "since": _val(it.get("properties"), "valid_since")}
+                   for label, it in titled],
         "operator": operator,
         "network": network,
+        "angel": angel,
         "domain": domain,
         "recognition": [{"name": a.get("name"), "year": _year(a),
                          "category": _val(a.get("properties"), "category")}

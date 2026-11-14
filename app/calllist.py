@@ -65,11 +65,16 @@ def _reason(inv: dict, stage: str) -> str:
 # ties between people at firms worth calling.
 PERSON_WEIGHTS = {
     "market": 14,     # they have been in your market - the strongest of these
+    "angel": 11,      # they have written their own cheque, not only the fund's
     "operator": 10,   # they have built or run something themselves
     "tenure": 8,      # how long they have been at this firm
     "network": 6,     # doors they can open beyond their own cheque
     "verified": 4,    # a Cala Person entity rather than a name on a page
 }
+# Personal rounds above which more stops counting. Someone with four is an
+# active angel; someone with forty is a fund of one, and not more reachable
+# for it.
+ANGEL_FULL = 4
 NETWORK_FULL = 8      # intro surface above which more stops counting
 # Years at the firm above which more stops counting. A partner of six years
 # has whatever standing the firm gives; a partner of sixteen has no more say
@@ -130,6 +135,22 @@ def person_bonus(signals: dict | None) -> tuple[float, list[str]]:
     elif signals.get("operator"):
         pts += PERSON_WEIGHTS["operator"] * 0.6
         why.append("has operated, year unknown")
+    # A partner who invests personally has decided alone before, and can
+    # again. It is the difference between needing a partnership to say yes
+    # and needing one person to.
+    ar = signals.get("angel_rounds") or 0
+    ac = signals.get("angel_companies") or 0
+    if signals.get("angel") and (ar or ac):
+        n = max(ar, ac)
+        pts += PERSON_WEIGHTS["angel"] * min(n, ANGEL_FULL) / ANGEL_FULL
+        # Say which evidence it is. A round we can date; a company on their
+        # INVESTED_IN edge we usually cannot, and calling that "a round"
+        # claims a precision the edge does not carry.
+        unit = "round" if ar else "company" if n == 1 else "companies"
+        last = signals.get("angel_last_year")
+        why.append(f"invests personally — {n} {unit}"
+                   + ("s" if ar and n != 1 else "")
+                   + (f", last in {last}" if last else ""))
     yrs = signals.get("years_at_firm")
     if yrs is not None:
         pts += PERSON_WEIGHTS["tenure"] * min(yrs, TENURE_FULL) / TENURE_FULL
