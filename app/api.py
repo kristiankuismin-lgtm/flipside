@@ -862,6 +862,57 @@ def website(site: str, name: str = ""):
                             status_code=200)
 
 
+@app.get("/enrich")
+def enrich(name: str, entity_id: str = "", cc: str = ""):
+    """Everything we can say about a company when Cala has only its name.
+
+    Three public sources, in order of how much they prove: a registry record
+    (GLEIF/PRH/Brreg - an identifier, not a guess), the rounds already in our
+    own cached corpus, and the company's own homepage. Each result carries
+    how it was obtained, because "we found this by trying andercore.com and
+    the page calls itself ANDERCORE" is a weaker claim than an LEI.
+    """
+    from . import datasets as DS, norm, website as W
+    out = {"name": name, "registry": None, "rounds": [], "site": None,
+           "site_how": None}
+
+    # 1. Registry: a legal identifier is the strongest thing here.
+    try:
+        g = DS.gleif(name)
+    except Exception:
+        g = None
+    if g:
+        out["registry"] = {**g, "source_name": "GLEIF"}
+        cc = cc or g.get("country") or ""
+
+    # 2. Rounds we already hold, keyed on the normalised name. An entity with
+    #    no Cala edges can still appear in a cached round.
+    rs = _rounds_by_company().get(norm.name(name)) or \
+        _rounds_by_company().get((name or "").strip().lower()) or []
+    out["rounds"] = [{"date": r.get("date"), "stage": r.get("stage"),
+                      "investors": (r.get("investors") or [])[:6]} for r in rs][:8]
+
+    # 3. A website: the one we already know, else one we can verify.
+    known = _domains().get((name or "").strip().lower())
+    if known:
+        out["site"], out["site_how"] = W.normalise(known), "on record"
+    else:
+        try:
+            d = W.discover(name, cc or None)
+        except Exception:
+            d = None
+        if d:
+            out["site"] = d["site"]
+            out["site_how"] = (f"found by trying {d['domain']}; the page calls "
+                               f"itself \u201c{d['title']}\u201d")
+    if out["site"]:
+        try:
+            out["homepage"] = W.profile(out["site"], timeout=8)
+        except Exception:
+            out["homepage"] = None
+    return out
+
+
 @app.get("/connectors")
 def connectors(limit: int = 12):
     """Funds whose handoffs spread widest - the bridges in this network."""

@@ -53,3 +53,58 @@ def test_url_normalisation():
     assert W.normalise("https://gosta.fi/about?x=1") == "https://gosta.fi"
     assert W.normalise("") is None and W.normalise(None) is None
     assert W.normalise("not a url") is None
+
+
+# ---- finding a site when no source carries one ----
+def test_slug_drops_the_legal_form():
+    assert W.slug("Andercore GmbH") == "andercore"
+    assert W.slug("Planhat AB") == "planhat"
+    assert W.slug("Gosta Labs Oy") == "gostalabs"
+
+
+def test_candidates_put_the_country_tld_first():
+    c = W.candidates("Andercore GmbH", "DE")
+    assert c[0] == "andercore.de" and "andercore.com" in c
+    assert W.candidates("AB", "SE") == []          # too short to guess on
+    # A four-letter name matches too many unrelated domains for a title check
+    # to prove anything: "Bliq" found bliq.ai, a different company.
+    assert W.candidates("Bliq", "DE") == []
+
+
+def test_a_candidate_is_only_used_when_the_page_claims_the_name():
+    pages = {
+        "andercore.de": "<html><head><title>Domain parked</title></head></html>",
+        "andercore.com": "<html><head><title>ANDERCORE | Solar wholesale</title></head></html>",
+    }
+    got = W.discover("Andercore GmbH", "DE", fetcher=lambda d: pages.get(d),
+                     use_cache=False)
+    assert got["domain"] == "andercore.com" and got["verified"] is True
+
+
+def test_an_unverified_guess_is_never_returned():
+    """A wrong logo and a wrong description are worse than none."""
+    pages = {d: "<html><head><title>Buy this domain</title></head></html>"
+             for d in W.candidates("Andercore GmbH", "DE")}
+    assert W.discover("Andercore GmbH", "DE", fetcher=lambda d: pages.get(d),
+                      use_cache=False) is None
+
+
+def test_a_parked_domain_is_not_a_homepage():
+    """bliq.com carries the name "bliq" in its title and is a page selling
+    the domain. The name check alone accepts it, so it cannot be alone."""
+    parked = ("<html><head><title>blickfeld.com&nbsp;-&nbsp;T\u00e4m\u00e4 WWW-sivu on "
+              "myynniss\u00e4.&nbsp;-&nbsp;blickfeld L\u00e4hteet ja tiedot.</title></head>"
+              "<body>osta t\u00e4m\u00e4 verkkotunnus</body></html>")
+    assert W.is_parked(parked) is True
+    assert W.discover("Blickfeld", "DE", fetcher=lambda d: parked, use_cache=False) is None
+
+
+def test_english_and_german_parking_pages_are_caught():
+    for t in ("Buy this domain", "This domain is for sale",
+              "Diese Domain zu verkaufen", "Parked free at Sedoparking"):
+        html = f"<html><head><title>{t}</title></head><body>{t} {'x' * 300}</body></html>"
+        assert W.is_parked(html) is True, t
+
+
+def test_a_real_homepage_is_not_parked():
+    assert W.is_parked(PAGE) is False

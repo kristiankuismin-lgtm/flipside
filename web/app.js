@@ -1701,17 +1701,84 @@ let ENT = null, ENTLOAD = null;
 async function loadEntity(id, kind, name) {
   MODE = "entity"; SEL = null; TAB = 0;
   ENTLOAD = { id, kind, name };
-  ENT = null; SITE = null; render();
+  ENT = null; SITE = null; ENR = null; render();
   try {
     ENT = await (await fetch(`/entity/${id}?kind=${kind}`)).json();
   } catch (e) { ENT = { error: String(e.message) }; }
   render();
-  loadSite(ENT?.properties?.website?.value);
+  const site = ENT?.properties?.website?.value;
+  loadSite(site);
+  // A profile with no edges and no properties is the common case now that
+  // live lookups are refused. Go and find what the public record holds.
+  const thin = !(ENT?.groups || []).length || !Object.keys(ENT?.properties || {}).length;
+  if (ENT?.name && !ENT?.error && kind !== "people" && thin)
+    loadEnrich(ENT.name, (ENT.properties?.headquarters_address?.value || "").slice(-2));
 }
 
 /* The company's own homepage, fetched after the profile is already up.
    It is the only source here that updates between funding announcements. */
 let SITE = null;
+
+/* When Cala holds only a name, say what the public record holds. */
+let ENR = null;
+
+async function loadEnrich(name, cc) {
+  const want = ENT?.id;
+  ENR = { loading: true }; render();
+  try {
+    const r = await fetch(`/enrich?name=${encodeURIComponent(name)}${
+      cc ? `&cc=${encodeURIComponent(cc)}` : ""}`);
+    const j = await r.json();
+    if (ENT?.id !== want) return;
+    ENR = j;
+  } catch (e) { ENR = { error: String(e.message) }; }
+  render();
+}
+
+function enrichSection() {
+  if (!ENR) return "";
+  if (ENR.loading) return section("e-enr", "Public record", "",
+    `<div class="msg" style="padding:20px"><span class="spin"></span>Checking registries and the open web…</div>`);
+  if (ENR.error) return "";
+
+  const reg = ENR.registry;
+  const hp = ENR.homepage;
+  if (!reg && !ENR.site && !(ENR.rounds || []).length) {
+    return section("e-enr", "Public record", "nothing found",
+      `<div class="msg" style="padding:20px;text-align:left;line-height:1.7">
+        No registry record under this name, no cached round, and no homepage we
+        could verify. That is three sources saying nothing, not one failing.</div>`);
+  }
+
+  return section("e-enr", "Public record",
+    [reg && "registry", ENR.site && "homepage",
+     (ENR.rounds || []).length && "rounds"].filter(Boolean).join(" · "),
+    `<div class="card">
+      ${reg ? `<div class="pubrow">
+        <span class="pk">${esc(reg.source_name)}</span>
+        <span><b>${esc(reg.name)}</b> · ${esc(reg.status)} · ${esc(reg.city || "")},
+          ${esc(reg.country || "")}<br>
+          <span class="sub">${esc(reg.address || "")} · LEI
+            <a href="${esc(reg.url)}" target="_blank" rel="noopener">${esc(reg.lei)}</a></span>
+        </span></div>` : ""}
+      ${ENR.site ? `<div class="pubrow">
+        <span class="pk">Website</span>
+        <span><a href="${esc(ENR.site)}" target="_blank" rel="noopener">${
+          esc(ENR.site.replace(/^https?:\/\//, ""))}</a>
+          ${hp?.title ? `<br><b>${esc(hp.title)}</b>` : ""}
+          ${hp?.tagline ? `<br>${esc(hp.tagline)}` : ""}
+          <br><span class="sub">${esc(ENR.site_how || "")}</span></span></div>` : ""}
+      ${hp?.signals?.length ? `<div class="sitesigs">${hp.signals.map(sg => `
+        <a class="sitesig" href="${esc(sg.url)}" target="_blank" rel="noopener">
+          <b>${esc(sg.text)}</b><span>${esc(sg.why)}</span></a>`).join("")}</div>` : ""}
+      ${(ENR.rounds || []).length ? `<div class="pubrow">
+        <span class="pk">Rounds</span>
+        <span>${ENR.rounds.map(r => `${esc(r.stage || "round")} ${
+          esc(String(r.date || "").slice(0, 7))}${r.investors?.length
+            ? ` — ${esc(r.investors.join(", "))}` : ""}`).join("<br>")}
+        <br><span class="sub">from rounds already cached from Cala</span></span></div>` : ""}
+    </div>`);
+}
 
 async function loadSite(url) {
   if (!url) { SITE = null; return; }
@@ -1833,7 +1900,7 @@ function entityView() {
         rel="noopener" style="font-size:12px"> source</a>` : ""}</p>`;
 
   body += stats(5, statRow.map(([k, v]) => [k, v, "mono"]));
-  if (!isPerson) body += siteSection();
+  if (!isPerson) body += siteSection() + enrichSection();
   body += exitsBlock(ENT.id, ENT.name, ENT.kind);
   if (!isPerson) body += pipelineBlock(ENT.name);
   if (OPEN["bio"] === undefined) OPEN["bio"] = false;   // long: collapsed first
@@ -1857,8 +1924,12 @@ function entityView() {
       </div>`).join("")}</div>`);
   }
 
-  if (!(ENT.groups || []).length)
-    body += `<div class="msg">Cala holds this entity but no connections we surface here.
+  // Only say the graph is empty when the public record came up empty too -
+  // otherwise this line sits underneath an LEI and a homepage contradicting it.
+  const foundElsewhere = ENR && !ENR.loading &&
+    (ENR.registry || ENR.site || (ENR.rounds || []).length);
+  if (!(ENT.groups || []).length && !foundElsewhere)
+    body += `<div class="msg">No relationships on this entity in Cala.
       Unknown is not zero.</div>`;
 
   return body + "</div>";

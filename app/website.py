@@ -16,6 +16,7 @@ from the word "careers" appearing once is not a fact about headcount.
 """
 from __future__ import annotations
 
+import json
 import re
 import sqlite3
 import time
@@ -111,7 +112,13 @@ def fetch(site: str | None, *, cache_only: bool = False, timeout: float = 8.0) -
 
 
 def _clean(s: str) -> str:
-    return re.sub(r"\s+", " ", _TAG.sub(" ", s or "")).strip()
+    """Strip tags, collapse whitespace, and decode entities.
+
+    Titles arrive as "Instant Quotes &amp; Delivery", and rendering that
+    literally is how a product looks unfinished.
+    """
+    import html as _html
+    return re.sub(r"\s+", " ", _html.unescape(_TAG.sub(" ", s or ""))).strip()
 
 
 def read(html: str | None, base: str | None = None) -> dict:
@@ -163,3 +170,115 @@ def profile(site: str | None, **kw) -> dict:
     out["site"] = url
     out["fetched"] = html is not None
     return out
+
+
+# --- finding a site when no source carries one -------------------------------
+# Guessing "andercore.com" is not evidence. Fetching it and finding the
+# company's own name in the page is. Every candidate is verified before it is
+# used, and a failure is cached too so we try each name only once.
+_SLUG_DROP = re.compile(
+    r"\b(gmbh|ab|oy|oyj|a/s|as|aps|ltd|limited|llc|inc|plc|sa|nv|bv|kb|ky|"
+    r"holding|holdings|group|company|co)\b", re.I)
+TLDS = ["com", "io", "ai", "co", "vc", "net"]
+CC_TLD = {"DE": "de", "FI": "fi", "SE": "se", "NO": "no", "DK": "dk",
+          "NL": "nl", "FR": "fr", "ES": "es", "IT": "it", "PL": "pl",
+          "EE": "ee", "LV": "lv", "LT": "lt", "GB": "co.uk", "IE": "ie",
+          "CH": "ch", "AT": "at", "BE": "be", "PT": "pt", "CZ": "cz"}
+
+
+MIN_SLUG = 6      # below this, a name match proves too little
+
+
+def slug(name: str) -> str:
+    """'Andercore GmbH' -> 'andercore'. Legal form is not part of a domain."""
+    s = _SLUG_DROP.sub(" ", name or "")
+    s = re.sub(r"[^A-Za-z0-9]+", "", s)
+    return s.lower()
+
+
+# A parked domain carries the company's name in its title by definition, so
+# the name check alone accepts it. bliq.com is "bliq.com - Tama WWW-sivu on
+# myynnissa" - a page selling the domain, not the company.
+_PARKED = re.compile(
+    r"(?:domain|www-sivu|sivusto|dom\u00e4n|domein|domaine)[^.]{0,40}"
+    r"(?:for sale|is for sale|on myynniss|till salu|te koop|zu verkaufen|\u00e0 vendre)"
+    r"|buy this domain|this domain (?:is|may be) for sale|parked (?:free )?(?:at|by)"
+    r"|sedoparking|afternic|dan\.com|hugedomains|undeveloped\.com"
+    r"|t\u00e4m\u00e4 www-sivu on myynniss\u00e4"
+    r"|\bdomain (?:name )?(?:parking|broker)\b", re.I)
+
+
+def is_parked(html: str) -> bool:
+    """A page selling the domain is not the company's homepage."""
+    if not html:
+        return True
+    head = _clean((_TITLE.search(html) or [None, ""])[1])
+    body = _clean(html)[:4000]
+    return bool(_PARKED.search(head) or _PARKED.search(body))
+
+
+def _mentions(html: str, name: str) -> bool:
+    """Does this page claim to be this company?
+
+    Compares the page title and og:site_name against the name with spacing
+    and legal form removed, so 'Andercore' matches 'ANDERCORE | Solar'.
+    """
+    want = slug(name)
+    if len(want) < MIN_SLUG:
+        return False
+    head = (_TITLE.search(html or "") or [None, ""])[1]
+    og = re.search(r'property=["\']og:site_name["\'][^>]*content=["\'](.*?)["\']',
+                   html or "", re.I)
+    hay = slug(_clean(head) + " " + (og.group(1) if og else ""))
+    return want in hay
+
+
+def candidates(name: str, cc: str | None = None) -> list[str]:
+    base = slug(name)
+    if len(base) < MIN_SLUG:
+        return []
+    tlds = list(TLDS)
+    if cc and CC_TLD.get(cc.upper()):
+        tlds.insert(0, CC_TLD[cc.upper()])
+    seen, out = set(), []
+    for t in tlds:
+        d = f"{base}.{t}"
+        if d not in seen:
+            seen.add(d)
+            out.append(d)
+    return out[:5]
+
+
+def discover(name: str, cc: str | None = None, *, fetcher=None,
+             cache_only: bool = False, use_cache: bool = True) -> dict | None:
+    """A verified homepage for a company we have no website for.
+
+    Returns {site, domain, title, verified} or None. `verified` is always
+    True - an unverified candidate is never returned, because a wrong logo
+    and a wrong description are worse than none.
+    """
+    key = f"discover:{slug(name)}:{(cc or '').upper()}"
+    if use_cache:
+        hit = _cached(key)
+        if hit is not None:
+            return json.loads(hit) if hit else None
+    if cache_only:
+        return None
+
+    get = fetcher or (lambda d: fetch(d, timeout=6))
+    for dom in candidates(name, cc):
+        try:
+            html = get(dom)
+        except Exception:
+            continue
+        if not html or is_parked(html) or not _mentions(html, name):
+            continue
+        found = {"site": normalise(dom), "domain": dom,
+                 "title": _clean((_TITLE.search(html) or [None, ""])[1])[:140],
+                 "verified": True}
+        if use_cache:
+            _store(key, json.dumps(found))
+        return found
+    if use_cache:
+        _store(key, "")    # remember the miss; do not retry every page load
+    return None
