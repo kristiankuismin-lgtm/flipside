@@ -1296,6 +1296,7 @@ function entityView() {
 
   body += stats(5, statRow.map(([k, v]) => [k, v, "mono"]));
   body += exitsBlock(ENT.id, ENT.name, ENT.kind);
+  if (!isPerson) body += pipelineBlock(ENT.name);
   if (OPEN["bio"] === undefined) OPEN["bio"] = false;   // long: collapsed first
   body += bioBlock(ENT.name, ENT.kind);
 
@@ -1658,4 +1659,54 @@ function exitsBlock(id, name, kind) {
       ${x.source ? `<a class="srcline" href="${esc(x.source)}" target="_blank"
         rel="noopener">${esc(String(x.source).replace(/^https?:\/\/(www\.)?/, "").split("/")[0])}</a>` : ""}
     </div>`).join("")}</div>`);
+}
+
+
+/* ================= WHERE THIS FUND TAKES YOU ================= */
+/* Every other signal scores an investor in isolation. This is a transition in
+   the graph - investor on round k, lead of round k+1 - and it is the question
+   a founder is actually deciding: if I take this money, who leads my next
+   round? Computed from rounds already cached, so it costs no Cala calls. */
+const PIPE = {};
+
+function pipelineBlock(name) {
+  const d = PIPE[name];
+  if (d === undefined) {
+    PIPE[name] = null;
+    fetch(`/pipeline?investor=${encodeURIComponent(name)}`)
+      .then(r => r.json()).then(j => { PIPE[name] = j; render(); })
+      .catch(() => { PIPE[name] = { observations: 0 }; render(); });
+  }
+  if (!d) return "";
+  if (!d.observations) return "";
+
+  const max = Math.max(...d.next_leads.map(r => r.count), 1);
+  const spread = d.concentration != null && d.concentration < 0.25;
+  return section("pipe", "Where this fund takes you",
+    `${d.observations} handoffs to ${d.distinct_leads} distinct leads`,
+    `<div class="two">
+      <div class="card">
+        <h4>Who leads the next round</h4>
+        <div class="sub">${d.enough
+          ? (spread ? "Spreads widely — this fund is not feeding one successor."
+                    : "Concentrated — companies tend to go the same way next.")
+          : "Too few observations to read as a pattern."}</div>
+        ${d.next_leads.map(r => `<div class="barrow">
+          <span class="lbl">${esc(r.name)}</span>
+          <span class="bart"><i class="g" style="width:${Math.round(100 * r.count / max)}%"></i></span>
+          <span class="pc">${r.count}×</span></div>`).join("")}
+      </div>
+      <div class="card">
+        <h4>Who they invest alongside</h4>
+        <div class="sub">same cap table, counted across every cached round</div>
+        ${(d.co_investors || []).slice(0, 7).map(c => `<div class="barrow"
+            style="grid-template-columns:1fr 54px">
+          <span class="lbl">${esc(c.name)}</span>
+          <span class="pc">${c.count}×</span></div>`).join("")
+          || `<div class="sub">No shared rounds on record.</div>`}
+        ${d.led_into?.observations ? `<div class="sub" style="margin-top:12px">
+          Leads into companies first backed by ${esc((d.led_into.from || [])
+            .slice(0, 3).map(f => f.name).join(", "))}.</div>` : ""}
+      </div>
+    </div>`);
 }

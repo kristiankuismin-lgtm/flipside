@@ -596,6 +596,41 @@ def registry(name: str, rounds: str = ""):
     return out
 
 
+_PIPE = None
+
+
+def _pipeline():
+    """The handoff graph, built once from everything cached."""
+    global _PIPE
+    if _PIPE is None:
+        from . import pipeline as P
+        _PIPE = P.build(_rounds_by_company())
+    return _PIPE
+
+
+@app.get("/pipeline")
+def pipeline(investor: str):
+    """Where does this fund hand companies on to?
+
+    Every other signal scores an investor in isolation. This is a transition
+    in the graph - investor on round k, lead of round k+1 - and it answers the
+    question a founder is actually deciding: if I take this money, who leads
+    my next round?
+    """
+    from . import pipeline as P
+    g = _pipeline()
+    return {**P.where_it_takes_you(g, investor),
+            "led_into": P.who_leads_into(g, investor),
+            "co_investors": P.co_investors(g, investor)}
+
+
+@app.get("/connectors")
+def connectors(limit: int = 12):
+    """Funds whose handoffs spread widest - the bridges in this network."""
+    from . import pipeline as P
+    return {"connectors": P.connectors(_pipeline(), limit)}
+
+
 @app.get("/exits")
 def exits(entity_id: str, name: str = "", kind: str = "fund", limit: int = 12):
     """Did money ever come out?
