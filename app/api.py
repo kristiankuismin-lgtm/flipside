@@ -1107,7 +1107,7 @@ def team(site: str = "", name: str = ""):
         return {"ok": False, "site": None, "people": [],
                 "why": "no website on record for this name"}
     try:
-        return TM.read(url, timeout=9)
+        return TM.read_deep(url, timeout=9)
     except Exception as e:
         return {"ok": False, "site": url, "people": [],
                 "why": f"{type(e).__name__}: {str(e)[:90]}"}

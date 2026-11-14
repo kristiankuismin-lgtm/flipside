@@ -83,3 +83,96 @@ def test_a_title_fragment_is_not_a_second_person():
 def test_an_organisation_name_fragment_is_rejected():
     got = T.people("<li>Voima Ventures’ New Chief Financial Officer</li>", "u")
     assert all("Ventures" not in p["name"] for p in got)
+
+
+# ---- every source the site actually offers ----
+LD = """<html><head>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Organization","name":"Gosta",
+ "employee":[{"@type":"Person","name":"Mara Linnard","jobTitle":"Co-founder and CTO"},
+             {"@type":"Person","name":"Solo"}]}
+</script></head><body></body></html>"""
+
+MICRO = """<ul>
+<li itemscope itemtype="https://schema.org/Person">
+  <span itemprop="name">Ola Nystrom</span>
+  <span itemprop="jobTitle">Chief Executive Officer</span>
+</li></ul>"""
+
+
+def test_structured_data_is_read_when_a_site_publishes_it():
+    got = T.from_jsonld(LD, "https://g.fi")
+    assert [p["name"] for p in got] == ["Mara Linnard"]   # one-word name dropped
+    assert got[0]["role"] == "founder" and got[0]["via"] == "json-ld"
+
+
+def test_microdata_is_read_too():
+    got = T.from_microdata(MICRO, "u")
+    assert got[0]["name"] == "Ola Nystrom" and got[0]["role"] == "ceo"
+
+
+def test_candidate_pages_are_ranked_and_capped():
+    html = """<a href="/about">About</a><a href="/team">Team</a>
+              <a href="/leadership">Leadership</a><a href="/company">Company</a>"""
+    got = T.candidate_pages(html, "https://g.fi")
+    assert got[0].endswith("/team") or got[0].endswith("/leadership")
+    assert all(u.startswith("https://g.fi") for u in got)
+    assert len(got) <= T.MAX_PAGES
+
+
+def test_a_richer_reading_wins_the_merge():
+    """The same person from two readers keeps the one that says more."""
+    thin = [{"name": "Mara Linnard", "role": "person", "quote": "Mara Linnard", "via": "a"}]
+    rich = [{"name": "Mara Linnard", "role": "founder",
+             "quote": "Mara Linnard, Co-founder and CTO", "via": "b"}]
+    merged = T._merge([thin, rich])
+    assert len(merged) == 1 and merged[0]["role"] == "founder"
+
+
+def test_the_same_person_spelled_with_a_title_is_not_two_people():
+    merged = T._merge([[{"name": "Mara Linnard Co-founder", "role": "founder",
+                         "quote": "x", "via": "a"}],
+                       [{"name": "Mara Linnard", "role": "founder",
+                         "quote": "xx", "via": "b"}]])
+    assert len(merged) == 1
+
+
+def test_read_deep_reports_what_each_page_yielded(monkeypatch):
+    """An empty result has to be attributable, not merely empty."""
+    pages = {"https://g.fi": '<a href="/team">Team</a>',
+             "https://g.fi/team": "<li>Mara Linnard — Co-founder</li>"}
+    monkeypatch.setattr(T.W, "fetch", lambda u, **k: pages.get(T.W.normalise(u) if u in pages else u))
+    monkeypatch.setattr(T.W, "normalise", lambda u: u if str(u).startswith("http") else "https://g.fi")
+    got = T.read_deep("https://g.fi", follow_bios=False)
+    assert [p["name"] for p in got["people"]] == ["Mara Linnard"]
+    assert any(pg["url"].endswith("/team") and pg["people"] == 1 for pg in got["pages"])
+
+
+def test_a_label_before_a_colon_is_not_the_person_after_it():
+    """A portfolio listing reads "Company CEO: Person". Taking the first
+    capitalised run turns 24 portfolio companies into 24 staff."""
+    block = "<li>Coherence Quantum CEO: Aashish Sah Founders: Aashish Sah</li>"
+    names = [p["name"] for p in T.people(block, "u")]
+    assert "Coherence Quantum" not in names
+    assert "CRACI Corporation" not in [n for n in names]
+
+
+def test_the_plural_founders_heading_is_not_a_surname():
+    got = [p["name"] for p in T.people("<li>Founders Founder Wellbeing</li>", "u")]
+    assert got == []
+
+
+def test_an_organisation_in_a_persons_title_is_not_a_second_person():
+    """"Hélène Huby Cofounder and CEO of The Exploration Company" names one
+    person and one company."""
+    got = [p["name"] for p in
+           T.people("<li>Hélène Huby Cofounder and CEO of The Exploration Company</li>", "u")]
+    assert got == ["Hélène Huby"]
+
+
+def test_a_person_named_before_a_title_survives_the_label_rule():
+    """"Meet Anni Harju: ... Chief Financial Officer" is a person then a
+    title. An earlier version of the label rule threw her away."""
+    got = [p["name"] for p in T.people(
+        "<li>Meet Anni Harju: Voima Ventures’ New Chief Financial Officer</li>", "u")]
+    assert got == ["Anni Harju"]

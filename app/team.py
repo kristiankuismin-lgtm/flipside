@@ -63,6 +63,7 @@ TITLE_WORD = re.compile(
     r"^(?:co-?founder|founder|ceo|cto|coo|cfo|cmo|cpo|chair(?:man|woman|person)?|"
     r"head|vp|president|director|partner|lead|board|member|officer|chief|"
     r"advisor|adviser|advisory|special|general|managing|senior|junior|"
+    r"founders|cofounder|cofounders|wellbeing|portfolio|"
     r"associate|principal|analyst|operating|venture|investment|"
     # Sentence furniture that is capitalised on a team page: "Meet Anni Harju",
     # "Introducing Cristina Koehn", "Jan Goetz ... IQM Read more".
@@ -74,6 +75,8 @@ TITLE_WORD = re.compile(
 # appear in one.
 ORGWORD = re.compile(
     r"\b(?:ventures?|capital|partners?|fund|invest\w*|equity|holdings?|group|"
+    r"compan(?:y|ies)|corporation|technolog\w+|labs?|systems?|solutions?|"
+    r"industries|institute|foundation|university|collective|studio|agency|"
     r"oy|oyj|ab|a/s|aps|gmbh|ltd|llc|inc|plc)\b", re.I)
 
 
@@ -146,6 +149,8 @@ def people(html: str | None, page_url: str | None) -> list[dict]:
             cand = _trim_name(raw)
             if not cand or NOT_A_NAME.search(cand) or cand.lower() in seen:
                 continue
+            if _is_label(block, cand):
+                continue
             # The quote check: the claim must be literally on the page, as
             # one sentence, with the name and the role together in it.
             quote = _sentence_with(block, cand)
@@ -158,6 +163,33 @@ def people(html: str | None, page_url: str | None) -> list[dict]:
             if len(out) >= MAX_PEOPLE:
                 return out
     return out
+
+
+# "Coherence Quantum CEO: Aashish Sah" is a company label, a role and then a
+# person. Taking the first capitalised run before the role word reads the
+# company as the person, which is how a portfolio listing becomes 24 staff.
+LABELLED = re.compile(r"\b([A-Z][\w'\u2019\-]*(?:\s+[A-Z][\w'\u2019\-]*){0,2})\s*:\s*$")
+
+
+def _is_label(block: str, name: str) -> bool:
+    """Is this candidate a heading for somebody else?
+
+    The portfolio-listing shape is "Coherence Quantum CEO: Aashish Sah" - a
+    company, a role, then the person. The tell is a role word sitting between
+    the candidate and the colon.
+
+    Not every name before a colon is a label: "Meet Anni Harju: Voima
+    Ventures' New Chief Financial Officer" puts the person first and the
+    title after, and an earlier version of this rule threw her away.
+    """
+    i = block.find(name)
+    if i < 0:
+        return False
+    gap = block[i + len(name):i + len(name) + 26]
+    m = re.match(r"([^:]{0,24}):", gap)
+    if not m:
+        return False
+    return any(rx.search(m.group(1)) for _label, rx in ROLES)
 
 
 def _sentence_with(text: str, name: str) -> str | None:
@@ -186,3 +218,175 @@ def read(site: str | None, **kw) -> dict:
     found = people(page, url)
     return {"ok": True, "site": base, "team_url": url, "people": found,
             "why": None if found else "no name and role appeared in the same sentence"}
+
+
+# --- reading every source a company actually offers --------------------------
+# Checked before building: of five VC sites sampled, none published JSON-LD
+# Person or schema.org microdata, and none kept people in an embedded JSON
+# payload. The people are in plain HTML. Both structured readers are kept
+# anyway because they are cheap and correct where a site does have them, and
+# the result says which reader produced each person.
+import json as _json
+
+MAX_PAGES = 5
+MAX_BIOS = 6
+
+_JSONLD = re.compile(
+    r'<script[^>]+type="application/ld\+json"[^>]*>(.*?)</script>', re.S | re.I)
+_MICRO = re.compile(
+    r'itemtype="[^"]*schema\.org/Person"(.*?)(?=itemtype=|</(?:div|li|article)>)',
+    re.S | re.I)
+_ITEMPROP = re.compile(r'itemprop="(name|jobTitle)"[^>]*>([^<]{2,80})<', re.I)
+
+
+def candidate_pages(html: str | None, base: str | None) -> list[str]:
+    """Every page on the company's own domain that might name people."""
+    if not html or not base:
+        return []
+    host = urlparse(base).netloc.lower()
+    hits: list[tuple[int, str]] = []
+    seen = set()
+    for href, text in W._LINK.findall(html):
+        if href.startswith(("mailto:", "tel:", "javascript:", "#")):
+            continue
+        absolute = urljoin(base, href).split("#")[0].rstrip("/")
+        if urlparse(absolute).netloc.lower() != host or absolute in seen:
+            continue
+        path = urlparse(absolute).path
+        label = W._clean(text)
+        if not (TEAM_HINTS.search(path) or TEAM_TEXT.search(label)):
+            continue
+        seen.add(absolute)
+        # A dedicated people page before a general company page.
+        rank = 0 if re.search(r"/(?:team|people|leadership|founders|management)",
+                              path, re.I) else 1
+        hits.append((rank, absolute))
+    hits.sort()
+    return [u for _, u in hits][:MAX_PAGES]
+
+
+def _walk_jsonld(node, out: list[dict], url: str | None):
+    if isinstance(node, list):
+        for x in node:
+            _walk_jsonld(x, out, url)
+        return
+    if not isinstance(node, dict):
+        return
+    types = node.get("@type")
+    types = types if isinstance(types, list) else [types]
+    if any(str(t).lower() == "person" for t in types if t):
+        name = node.get("name")
+        if isinstance(name, str) and len(name.split()) >= 2:
+            role = node.get("jobTitle") or node.get("description") or ""
+            out.append({"name": name.strip(),
+                        "role": _role_of(str(role)) or "person",
+                        "quote": str(role)[:200].strip() or name.strip(),
+                        "source": url, "via": "json-ld"})
+    for v in node.values():
+        if isinstance(v, (dict, list)):
+            _walk_jsonld(v, out, url)
+
+
+def _role_of(text: str) -> str | None:
+    return next((label for label, rx in ROLES if rx.search(text or "")), None)
+
+
+def from_jsonld(html: str | None, url: str | None) -> list[dict]:
+    """People a site publishes as structured data. Exact when present."""
+    out: list[dict] = []
+    for blob in _JSONLD.findall(html or ""):
+        try:
+            _walk_jsonld(_json.loads(blob), out, url)
+        except (ValueError, TypeError):
+            continue
+    return out
+
+
+def from_microdata(html: str | None, url: str | None) -> list[dict]:
+    """schema.org/Person marked up inline."""
+    out = []
+    for chunk in _MICRO.findall(html or ""):
+        props = dict((k.lower(), W._clean(v)) for k, v in _ITEMPROP.findall(chunk))
+        name = props.get("name")
+        if not name or len(name.split()) < 2:
+            continue
+        title = props.get("jobtitle", "")
+        out.append({"name": name, "role": _role_of(title) or "person",
+                    "quote": (f"{name} — {title}" if title else name)[:200],
+                    "source": url, "via": "microdata"})
+    return out
+
+
+def _merge(groups: list[list[dict]]) -> list[dict]:
+    """One row per person, keeping the reading with the most to say."""
+    best: dict[str, dict] = {}
+    for group in groups:
+        for p in group:
+            trimmed = _trim_name(p["name"]) or p["name"]
+            key = re.sub(r"[^a-z]", "", trimmed.lower())
+            if len(key) < 5:
+                continue
+            p = {**p, "name": trimmed}
+            cur = best.get(key)
+            if cur is None:
+                best[key] = p
+                continue
+            # A named role beats "person"; a longer quote beats a shorter one.
+            better = (p["role"] != "person", len(p.get("quote") or ""))
+            worse = (cur["role"] != "person", len(cur.get("quote") or ""))
+            if better > worse:
+                best[key] = p
+    return sorted(best.values(), key=lambda p: (p["role"] == "person", p["name"]))
+
+
+def read_deep(site: str | None, *, follow_bios: bool = True, **kw) -> dict:
+    """Every page on the company's own site that names people.
+
+    Reports what each page yielded and which reader produced each person, so
+    an empty result is attributable rather than just empty.
+    """
+    base = W.normalise(site)
+    home = W.fetch(site, **kw)
+    if not home:
+        return {"ok": False, "site": base, "pages": [], "people": [],
+                "why": "the homepage did not answer"}
+
+    urls = candidate_pages(home, base) or []
+    pages, groups = [], []
+    # The homepage itself sometimes names the founders.
+    for url, html in [(base, home)] + [(u, W.fetch(u, **kw)) for u in urls]:
+        if not html:
+            pages.append({"url": url, "people": 0, "why": "did not answer"})
+            continue
+        found = _merge([from_jsonld(html, url), from_microdata(html, url),
+                        [{**p, "via": "page text"} for p in people(html, url)]])
+        groups.append(found)
+        pages.append({"url": url, "people": len(found),
+                      "why": None if found else "no name and role in one sentence"})
+
+    merged = _merge(groups)
+
+    # Follow a few person pages for the sentence a listing never has room for.
+    if follow_bios and merged:
+        host = urlparse(base).netloc.lower()
+        for p in merged[:MAX_BIOS]:
+            link = _bio_link(home, urls, p["name"], base, host, **kw)
+            if link:
+                p["bio_url"] = link
+    return {"ok": True, "site": base, "pages": pages, "people": merged,
+            "why": None if merged else "no page on this site names a person with a role"}
+
+
+def _bio_link(home, urls, name, base, host, **kw):
+    """A dedicated page for this person, if the site has one."""
+    slug = re.sub(r"[^a-z]+", "-", name.lower()).strip("-")
+    if len(slug) < 5:
+        return None
+    for src in [home] + [W.fetch(u, cache_only=True, **kw) for u in urls]:
+        for href, _text in W._LINK.findall(src or ""):
+            absolute = urljoin(base, href).split("#")[0]
+            if urlparse(absolute).netloc.lower() != host:
+                continue
+            if slug in absolute.lower():
+                return absolute
+    return None

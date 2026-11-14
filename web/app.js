@@ -1409,24 +1409,43 @@ function teamPanel() {
     <span class="spin"></span>Reading ${esc(TEAM.q)}'s own pages…</div>`;
 
   const host = String(TEAM.site || "").replace(/^https?:\/\//, "");
+  const pages = TEAM.pages || [];
+  const tried = `<div class="teampages">${pages.map(pg => `
+    <span class="pg ${pg.people ? "hit" : ""}" title="${esc(pg.why || "")}">
+      ${esc(String(pg.url).replace(/^https?:\/\/[^/]*/, "") || "/")}
+      <b>${pg.people}</b></span>`).join("")}</div>`;
+
   if (!TEAM.people?.length) return `<div class="emptywhy" style="margin-top:var(--s2)">
     <b>Nothing we could quote.</b> ${esc(TEAM.why || "")}
-    ${TEAM.team_url ? `<br>Read <a href="${esc(TEAM.team_url)}" target="_blank"
-      rel="noopener">${esc(String(TEAM.team_url).replace(/^https?:\/\//, ""))}</a>.` : ""}
+    ${pages.length ? `<div style="margin-top:9px">Pages read: ${tried}</div>` : ""}
     <span class="sub">A name without a role in the same sentence is not a claim
       the page made, so it is dropped rather than guessed at.</span></div>`;
 
+  const byRole = {};
+  for (const p of TEAM.people) (byRole[p.role] ||= []).push(p);
+  const order = ["founder", "ceo", "cto", "coo", "cfo", "chair", "head", "person"];
+
   return `<div class="teamwrap">
-    <div class="teamhd">${TEAM.people.length} people
-      <a href="${esc(TEAM.team_url)}" target="_blank" rel="noopener">${esc(host)}</a>
-      names on its own page</div>
-    ${TEAM.people.map(p => `<div class="teamrow">
-      <span class="av">${esc(initials(p.name))}</span>
-      <div style="min-width:0;flex:1">
-        <div class="nm">${esc(p.name)} ${badge(p.role, p.role === "founder" ? "green" : "grey")}</div>
-        <div class="q">“${esc(p.quote)}”</div></div>
-      <button class="btn sm" data-fsname="${esc(p.name)}">Signal →</button>
-    </div>`).join("")}
+    <div class="teamhd">
+      <b>${TEAM.people.length} people</b> named by
+      <a href="${esc(TEAM.site)}" target="_blank" rel="noopener">${esc(host)}</a>
+      across ${pages.length} page${pages.length === 1 ? "" : "s"}
+      ${tried}
+    </div>
+    ${order.filter(r => byRole[r]).map(r => `
+      <div class="teamgrp">${esc(r === "person" ? "named, role unclear" : r)}
+        <span>${byRole[r].length}</span></div>
+      ${byRole[r].map(p => `<div class="teamrow">
+        <span class="av">${esc(initials(p.name))}</span>
+        <div style="min-width:0;flex:1">
+          <div class="nm">${esc(p.name)}
+            <span class="via">${esc(p.via || "page text")}</span></div>
+          <div class="q">“${esc(p.quote)}”</div>
+          ${p.bio_url ? `<a class="q bio" href="${esc(p.bio_url)}" target="_blank"
+            rel="noopener">their own page &rarr;</a>` : ""}
+        </div>
+        <button class="btn sm" data-fsname="${esc(p.name)}">Signal</button>
+      </div>`).join("")}`).join("")}
     <div class="teamfoot">Every line is quoted from the page, which is the
       company speaking about itself. Names and roles only — contact details are
       dropped even where the page shows them, and no profile aggregator or
