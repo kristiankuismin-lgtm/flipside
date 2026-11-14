@@ -30,3 +30,19 @@ def test_unplaceable_returns_none_not_a_guess():
 def test_diacritic_free_aliases():
     assert locate("Göteborg, Sweden")[2] == "SE"
     assert locate("Køge, Denmark")[2] == "DK"
+
+
+def test_self_contradicting_addresses_are_detected():
+    """Cala has a company at "San Fransisco, France"; Nominatim finds a real
+    place by that name in Toulon. The geocode is right, the address is not."""
+    from app.geo import contradicts
+    assert contradicts("San Fransisco, France", "FR") == "US"
+    assert contradicts("London, Germany", "DE") == "GB"
+
+
+def test_consistent_addresses_pass():
+    from app.geo import contradicts
+    assert contradicts("Espoo, Finland", "FI") is None
+    assert contradicts("Keilaniementie 1, Espoo", "FI") is None
+    assert contradicts(None, "FI") is None
+    assert contradicts("Somewhere", None) is None

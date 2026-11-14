@@ -7,6 +7,7 @@ const initials = s => (s || "?").replace(/[^A-Za-z0-9 ]/g, "").split(/\s+/)
   .slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "?";
 
 let MODE = "home", F = null, I = null, SEL = null, TAB = 0;
+let SYN = null;                        // /syndicates, filled after the screen
 const OPEN = {};                       // collapsed section memory
 
 /* ---------- small builders ---------- */
@@ -118,7 +119,83 @@ async function runFounder() {
       stage: $("#st")?.value || "series a",
       limit: +($("#n")?.value || 14) })
   });
-  F = await r.json(); PENDING_CO = null; SEL = null; render();
+  F = await r.json(); PENDING_CO = null; SEL = null; SYN = null; render();
+  loadSyndicates(F.company, F.stage);
+}
+
+/* The screen answers "who". A round needs "who, with whom, through whom".
+   Fetched after the list is already on screen: it re-runs the scoring
+   server-side, and the founder should not sit through that twice. */
+async function loadSyndicates(company, stage) {
+  const want = company;
+  SYN = { loading: true };
+  if (MODE === "founder" && !SEL) render();
+  try {
+    const r = await fetch("/syndicates", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company, stage, limit: 14 })
+    });
+    const j = await r.json();
+    if (F && F.company !== want) return;        // founder moved on; drop it
+    SYN = j;
+  } catch (e) { SYN = { error: String(e) }; }
+  if (MODE === "founder" && !SEL) render();
+}
+
+function syndicateBlock() {
+  if (!SYN) return "";
+  if (SYN.loading) return section("fsyn", "Round architect", "",
+    `<div class="msg"><span class="spin"></span>Assembling syndicates from the round graph…</div>`);
+  if (SYN.error || !(SYN.syndicates || []).length) return section("fsyn", "Round architect", "",
+    `<div class="msg">No fund on this list both leads at your stage and has funds that
+      repeatedly follow it. That is a finding about this list, not an empty state.</div>`);
+
+  const backers = SYN.your_backers || [];
+  const anyWarm = SYN.syndicates.some(s => (s.warm_paths || []).length);
+  // A warm route to a fund that never leads is still worth naming: it explains
+  // why the header count says 1 while no syndicate here has a route.
+  const leads = new Set(SYN.syndicates.map(s => s.lead));
+  const elsewhere = (F?.investors || []).filter(x =>
+    x.signals.warm_path.label !== "⚪" && !leads.has(x.investor)).slice(0, 3);
+  const cards = SYN.syndicates.map(s => {
+    const members = s.members.map(m => `<div class="synm">
+      ${logo(m.name)}<div><div class="nm">${esc(m.name)}</div>
+      <div class="sb">joined ${m.joined} of the ${s.rounds_led} rounds they led${
+        m.share != null ? ` · ${pct(m.share)}` : ""}</div></div></div>`).join("");
+
+    // When nothing is warm, one honest line at the top beats the same
+    // sentence repeated under every card.
+    const p = (s.warm_paths || [])[0];
+    const route = p ? `<div class="synp"><b>Ask ${esc(p.via)}.</b> ${
+        p.through.map(t => `${esc(t.company)}${t.when ? ` (${esc(String(t.when).slice(0, 7))})` : ""}`).join(", ")
+      } — they sat on that cap table with ${esc(s.lead)}, so the intro is one hop.</div>`
+      : anyWarm ? `<div class="synp cold">No shared cap table with ${esc(s.lead)} — cold approach.</div>`
+      : "";
+
+    return `<div class="syn">
+      <div class="synh" data-open="${esc(s.lead)}">
+        ${logo(s.lead)}
+        <div class="synt"><div class="nm">${esc(s.lead)}</div>
+          <div class="sb">${esc(s.lead_text || "")} · led ${s.rounds_led} rounds · ${esc(s.pace || "")}</div></div>
+        ${badge("Lead", "green")}${s.enough ? "" : badge("Thin evidence", "amber")}
+      </div>
+      <div class="synms">${members}</div>
+      ${route}</div>`;
+  }).join("");
+
+  return section("fsyn", "Round architect",
+    `${SYN.syndicates.length} assemblable syndicate${SYN.syndicates.length > 1 ? "s" : ""}`,
+    `<div class="synlead">One lead, plus the funds that actually show up when that lead leads —
+       which is not the same as the funds it merely shares cap tables with.</div>
+     ${anyWarm ? "" : `<div class="verdict grey">No warm route to any of these leads.
+       Nothing in the cached graph puts ${backers.length ? esc(backers.join(", ")) : "your backers"}
+       and these funds on the same cap table, so every intro here starts cold —
+       which is exactly what the Slush floor is for.${elsewhere.length ? `
+       The warm ${elsewhere.length > 1 ? "routes you do have go" : "route you do have goes"}
+       to ${elsewhere.map(e => `<b>${esc(e.investor)}</b> (${esc(e.signals.warm_path.text)})`).join(", ")} —
+       ${elsewhere.length > 1 ? "funds that do not" : "a fund that does not"} lead at your stage,
+       so ${elsewhere.length > 1 ? "they are" : "it is"} a door in, not a lead.` : ""}</div>`}
+     <div class="syns">${cards}</div>`);
 }
 
 function founderList() {
@@ -155,6 +232,7 @@ function founderList() {
     ["Warm routes found", inv.filter(x => x.signals.warm_path.label !== "⚪").length],
   ]) + (red.length ? `<div class="verdict red"><b>${red.length} fund${red.length > 1 ? "s" : ""} in your
       list already back a competitor.</b> ${red.map(x => `${esc(x.investor)} → ${esc(x.backs.join(", "))}`).join(" · ")}</div>` : "")
+    + syndicateBlock()
     + section("ftable", "Target list", "", `<div class="tbl"><table>
       <thead><tr><th></th><th>Investor</th><th>Verdict</th><th style="text-align:right">Score</th>
       <th style="text-align:right">Lead</th><th style="text-align:right">Follow-on</th>

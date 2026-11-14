@@ -134,3 +134,35 @@ def locate(address: str | None) -> tuple[float, float, str] | None:
         if re.search(rf"\b{re.escape(country)}\b", text):
             return v
     return None
+
+
+# A city whose name is strongly associated with one country. Used to catch
+# addresses that contradict themselves: Cala has a company at "San Fransisco,
+# France", and Nominatim obligingly found a place by that name near Toulon.
+# The geocode is right; the address is wrong, and plotting it confidently
+# would put a US company in Provence.
+CITY_COUNTRY = {
+    "san francisco": "US", "san fransisco": "US", "new york": "US",
+    "palo alto": "US", "mountain view": "US", "boston": "US", "seattle": "US",
+    "austin": "US", "los angeles": "US", "chicago": "US", "miami": "US",
+    "london": "GB", "cambridge": "GB", "oxford": "GB", "manchester": "GB",
+    "paris": "FR", "berlin": "DE", "munich": "DE", "hamburg": "DE",
+    "amsterdam": "NL", "stockholm": "SE", "helsinki": "FI", "espoo": "FI",
+    "oslo": "NO", "copenhagen": "DK", "zurich": "CH", "vienna": "AT",
+    "madrid": "ES", "barcelona": "ES", "lisbon": "PT", "milan": "IT",
+    "dublin": "IE", "warsaw": "PL", "tallinn": "EE", "singapore": "SG",
+}
+
+
+def contradicts(address: str | None, resolved_cc: str | None) -> str | None:
+    """Return the expected country code when the address contradicts itself.
+
+    None means no contradiction detected - which is not the same as correct.
+    """
+    if not address or not resolved_cc:
+        return None
+    text = address.lower()
+    for city, cc in CITY_COUNTRY.items():
+        if re.search(rf"\b{re.escape(city)}\b", text) and cc != resolved_cc:
+            return cc
+    return None

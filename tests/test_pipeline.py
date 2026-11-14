@@ -64,3 +64,78 @@ def test_name_variants_are_one_fund():
     g = P.build({"X": [R("2020-01", ["Index Ventures LLP"]),
                        R("2021-01", ["index ventures"], ["Accel"])]})
     assert P.where_it_takes_you(g, "Index Ventures")["observations"] == 1
+
+
+# --- syndicates and warm paths ------------------------------------------------
+SYN = P.build({
+    "A": [R("2021-01", ["Big Lead", "Follower One", "Follower Two"], ["Big Lead"])],
+    "B": [R("2021-06", ["Big Lead", "Follower One"], ["Big Lead"])],
+    "C": [R("2022-01", ["Big Lead", "Follower One", "Follower Two"], ["Big Lead"])],
+    # Near Fund shares cap tables with Big Lead but never joins a round it leads
+    "D": [R("2022-06", ["Near Fund", "Big Lead"], ["Near Fund"])],
+    "E": [R("2023-01", ["Voima Ventures", "Big Lead"], ["Big Lead"])],
+})
+
+
+def test_syndicate_picks_who_joins_rounds_this_fund_leads():
+    s = P.syndicate(SYN, "Big Lead")
+    names = [m["name"] for m in s["members"]]
+    assert s["rounds_led"] == 4 and s["enough"] is True
+    assert names[0] == "Follower One"          # 3 of 4 led rounds
+    assert s["members"][0]["joined"] == 3
+
+
+def test_a_fund_that_only_shares_cap_tables_is_not_a_syndicate_member():
+    """Near Fund co-invests with Big Lead but never follows its lead."""
+    s = P.syndicate(SYN, "Big Lead", size=3)
+    assert "Near Fund" not in [m["name"] for m in s["members"]]
+
+
+def test_existing_backers_can_be_excluded():
+    s = P.syndicate(SYN, "Big Lead", exclude={"Follower One"})
+    assert "Follower One" not in [m["name"] for m in s["members"]]
+
+
+def test_a_fund_that_has_barely_led_is_flagged():
+    thin = P.build({"X": [R("2021-01", ["Quiet Fund", "Someone Else"], ["Quiet Fund"])]})
+    assert P.syndicate(thin, "Quiet Fund")["enough"] is False
+
+
+def test_warm_path_names_the_company_that_connects_them():
+    rbc = {"E": [R("2023-01", ["Voima Ventures", "Big Lead"], ["Big Lead"])]}
+    paths = P.warm_path(SYN, ["Voima Ventures"], "Big Lead", rbc)
+    assert len(paths) == 1
+    assert paths[0]["via"] == "Voima Ventures"
+    assert paths[0]["through"][0]["company"] == "E"
+
+
+def test_no_shared_company_means_no_path():
+    rbc = {"Z": [R("2023-01", ["Someone", "Another"], ["Someone"])]}
+    assert P.warm_path(SYN, ["Voima Ventures"], "Big Lead", rbc) == []
+
+
+def test_a_fund_is_not_a_route_to_itself():
+    rbc = {"E": [R("2023-01", ["Big Lead"], ["Big Lead"])]}
+    assert P.warm_path(SYN, ["Big Lead"], "Big Lead", rbc) == []
+
+
+def test_angels_are_not_syndicate_members():
+    """An angel is a real investor but not a fund a founder can assemble."""
+    from app.pipeline import looks_like_a_fund as f
+    assert f("Index Ventures") and f("Coparion") and f("Picus Capital")
+    assert f("Supercell Oy") and f("Y Combinator")
+    assert not f("Christian Grobe (co-founder of Billie)")
+    assert not f("Ilkka Paananen")
+    assert not f("Niklas Zennstrom")
+    assert f("Follower One")   # a shape rule would wrongly call this a person
+    assert not f("Kai-Uwe Mokros (MD of Zalando Payments)")
+    assert not f("Jane Doe (Head of Product)")
+    assert not f("Dr. Hans Mueller")
+    assert not f("Philippe Teixeira da Mota")   # particle, not a fourth name
+
+
+def test_syndicate_members_exclude_people():
+    g = P.build({"A": [R("2021-01", ["Big Lead", "Real Capital", "Jane Smith"], ["Big Lead"])],
+                 "B": [R("2021-06", ["Big Lead", "Real Capital", "Jane Smith"], ["Big Lead"])]})
+    names = [m["name"] for m in P.syndicate(g, "Big Lead", size=3)["members"]]
+    assert "Real Capital" in names and "Jane Smith" not in names

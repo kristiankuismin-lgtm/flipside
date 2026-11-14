@@ -178,6 +178,14 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
     port, err = _safe(C.portfolio, inv)
     if err:
         notes.append(f"portfolio: {err}")
+    # A firm with 30 rounds does not have a zero portfolio - the portfolio
+    # query just returned nothing. Fall back to the companies those rounds
+    # name, and say which way we counted.
+    port_from_rounds = sorted({r.company for r in rounds if r.company})
+    portfolio_source = "portfolio query"
+    if not port and port_from_rounds:
+        port = [{"name": n, "sector": ""} for n in port_from_rounds]
+        portfolio_source = "companies in known rounds"
     sig["conflict"] = C.detect(company, desc, comps or [], port or [])
     edges = C.matches(comps or [], port or [])
 
@@ -197,6 +205,7 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
 
     return {"investor": inv, "score": score, "rounds_seen": len(rounds),
             "evidence_depth": depth, "portfolio_size": len(port or []),
+            "portfolio_source": portfolio_source,
             "backs": [e["competitor"] for e in edges],
             "firm": {"website": meta.get("website"), "hq": meta.get("hq"),
                      "hq_field": meta.get("hq_field"), "founded": meta.get("founded"),
@@ -323,6 +332,10 @@ def map_data():
                   "none" if n_rounds == 0 else
                   "once" if n_rounds == 1 else "multiple")
         last = (w["rounds"][-1] if w and w["rounds"] else None)
+        conflict = geo.contradicts(hq, cc)
+        if conflict:
+            unplaced += 1          # the address disagrees with itself: do not plot
+            continue
         pts.append({"name": p["name"], "id": p.get("id"),
                     "lat": lat, "lon": lon, "cc": cc,
                     "precise": precise, "hq": hq, "website": p.get("website"),
@@ -622,6 +635,49 @@ def pipeline(investor: str):
     return {**P.where_it_takes_you(g, investor),
             "led_into": P.who_leads_into(g, investor),
             "co_investors": P.co_investors(g, investor)}
+
+
+@app.post("/syndicates")
+def syndicates(req: Req):
+    """Three-fund syndicates a founder could actually assemble.
+
+    A ranked list of investors is a shopping list. A round is a syndicate: one
+    lead and the funds that reliably join when that lead leads - which is a
+    different relationship from generic co-investment, and only visible in the
+    round graph.
+
+    Each one carries the two-hop route in: your backer, the company you both
+    sat on, and the target lead.
+    """
+    from . import pipeline as P
+    g = _pipeline()
+    rbc = _rounds_by_company()
+
+    p = PRESETS.get(req.company.strip().lower(), {})
+    mine = req.my_investors or p.get("my_investors", [])
+    scored = analyze(req)
+    out = []
+    for x in scored["investors"]:
+        s = x["signals"]
+        # A lead that is conflicted, dormant or barely leads is not a lead.
+        if s["conflict"]["label"] == "🔴" or x["score"] is None:
+            continue
+        if s["lead_rate"]["label"] in ("🔴", "⚪") or s["dry_powder"]["label"] == "🔴":
+            continue
+        syn = P.syndicate(g, x["investor"], exclude=set(mine), size=2)
+        if not syn["members"]:
+            continue
+        paths = P.warm_path(g, mine, x["investor"], rbc)
+        out.append({"lead": x["investor"], "score": x["score"],
+                    "lead_rate": s["lead_rate"]["value"],
+                    "lead_text": s["lead_rate"]["text"],
+                    "pace": s["dry_powder"]["text"],
+                    "rounds_led": syn["rounds_led"], "enough": syn["enough"],
+                    "members": syn["members"], "warm_paths": paths[:2]})
+        if len(out) >= 5:
+            break
+    return {"company": req.company, "stage": req.stage,
+            "your_backers": mine, "syndicates": out}
 
 
 @app.get("/connectors")

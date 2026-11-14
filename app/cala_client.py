@@ -59,7 +59,7 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
              interactive=False):
     global last_meta
     if not KEY:
-        raise CalaError("CALA_API_KEY puuttuu. Hae avain console.cala.ai -> API keys.")
+        raise CalaError("CALA_API_KEY is not set. Get a key at console.cala.ai -> API keys.")
 
     k = _key(f"{method} {path}", payload)
     if use_cache:
