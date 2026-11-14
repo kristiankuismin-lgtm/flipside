@@ -603,6 +603,11 @@ let ROLE = (() => { try { return localStorage.getItem("flipside.role") || "found
 let CONV = null;
 
 function applyRoleChrome() {
+  // An investor opening the map wants the companies; a founder wants the
+  // funds. Both can turn the other layer on, but neither should have to.
+  LAYERS = ROLE === "investor"
+    ? { ex: false, pf: true, fu: false }
+    : { ex: false, pf: false, fu: true };
   document.querySelectorAll("[data-deal]").forEach(b => b.onclick = e => {
     e.stopPropagation();
     const n = b.dataset.deal;
@@ -1396,7 +1401,7 @@ function dealsView() {
   if (!F) return `<div class="msg">Run a screen first — the pipeline is the
     funds that survived it.</div>`;
   const names = Object.keys(DEALS);
-  if (!names.length) return `<div class="msg" style="padding:40px">
+  if (!names.length) return watchBlock() + `<div class="msg" style="padding:40px">
     Nothing in the pipeline yet.<br>
     <span class="sub">Add funds from the ranking or the call list. It is kept
     in this browser only — nothing is sent anywhere.</span>
@@ -1433,6 +1438,7 @@ function dealsView() {
       <div class="rl2"><span class="sub">kept in this browser only</span>
         <button class="lnk" data-goto="founder">Back to the ranking</button></div>
     </div>
+    ${watchBlock()}
     <div class="deals">${STAGES.map(([k, label, hint]) => {
       const col = names.filter(n => (DEALS[n].stage || "todo") === k);
       return `<div class="dcol">
@@ -2378,19 +2384,25 @@ async function enrichCalls() {
 
 /* Alerts as a destination, not only a modal: the forward half of the
    exclusion deserves a page of its own. */
-function watchView() {
-  if (!F) return `<div class="msg">Run a screen first — there is nothing to
-    watch until there is a list.</div>`;
-  if (!ALERTRULES) { loadAlertRules().then(render); return `<div class="msg">
-    <span class="spin"></span>Loading the rules…</div>`; }
+/* What changed under the funds you are actually tracking.
+   This used to be a destination of its own called Watch, which asked a
+   founder to go and look at a page about funds they had already decided
+   about. The alert that matters is the one on a fund sitting in Diligence,
+   so it lives on the pipeline, next to the card it is about. */
+function watchBlock() {
+  if (!ALERTRULES) { loadAlertRules().then(render); return ""; }
   if (!ALERTS) runAlerts();
-  return `<div class="sub" style="max-width:64ch;line-height:1.7;margin-bottom:var(--s3)">
-      A conflict you already know about is a fact. The one that changes whether
-      you can pitch somebody is the competitor round that has not happened yet —
-      and every investor in it joins your exclusion the day it closes.</div>`
-    + section("wrules", "What to watch", `${(ALERTON || new Set()).size} rules on`,
-        alertRulesPane())
-    + section("wnow", "What it catches now", "", alertResultsPane());
+  const n = (ALERTON || new Set()).size;
+  return section("wnow", "What changed since you added these",
+      `${n} rule${n === 1 ? "" : "s"} on`,
+      `<div class="sub" style="max-width:66ch;line-height:1.7;margin-bottom:var(--s2)">
+         A conflict you already know about is a fact. The one that changes
+         whether you can pitch somebody is the competitor round that has not
+         happened yet — and every investor in it joins your exclusion the day
+         it closes.</div>`
+      + alertResultsPane()
+      + `<details class="alrules"><summary>Which rules are on</summary>${
+          alertRulesPane()}</details>`);
 }
 
 /* The same rows the call list page shows, without the page furniture: in
@@ -2656,9 +2668,6 @@ function render() {
   } else if (MODE === "map") {
     parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
-  } else if (MODE === "watch") {
-    parts = [{ t: "Your raise", go: 1 }, { t: "Watch" }];
-    html = watchView();
   } else if (MODE === "reach") {
     parts = [{ t: "Your raise", go: 1 }, { t: F?.company || "", go: 1 },
              { t: "Who to call" }];
@@ -2851,15 +2860,52 @@ function mapView() {
   const scored = MAP.points.filter(p => p.score != null).length;
   const st = MAP.status || {};
   const total = MAP.placed + (MAP.portfolio || []).length + (MAP.funds || []).length;
-  return stats(5, [
-    ["On the map", total],
-    ["Slush exhibitors", MAP.placed],
-    ["Funded companies", (MAP.portfolio || []).length],
-    ["Funds", (MAP.funds || []).length],
-    ["Exact street coordinates", MAP.exact],
-  ])
-  + section("gmap", "Where the ecosystem is",
-      `${MAP.placed} placed · ${MAP.unplaced} addresses we could not resolve`,
+
+  // The same map answers two questions. A founder is asking which of these
+  // they can walk to and pitch; an investor is asking where the companies
+  // their own kind keep backing actually are. Same pins, different framing,
+  // different defaults.
+  const mine = ROLE === "founder" && F
+    ? (F.investors || []).filter(i =>
+        (MAP.funds || []).some(f => norm_(f.name) === norm_(i.investor)))
+    : [];
+  const head = ROLE === "investor"
+    ? [`Where the companies are`,
+       `${(MAP.portfolio || []).length} funded companies · ${scored} with a conviction score`]
+    : F
+      ? [`Where the funds you screened are`,
+         `${mine.length} of your ${(F.investors || []).length} placed · `
+         + `${MAP.unplaced} addresses we could not resolve`]
+      : [`Where the ecosystem is`,
+         `${MAP.placed} placed · ${MAP.unplaced} addresses we could not resolve`];
+
+  const kpi = ROLE === "investor"
+    ? [["Funded companies", (MAP.portfolio || []).length],
+       ["With a conviction score", scored],
+       ["Funds", (MAP.funds || []).length],
+       ["Exact street coordinates", MAP.exact],
+       ["Country only", (MAP.funds || []).filter(f => f.precision === "country").length]]
+    : F
+      ? [["Your funds on the map", mine.length],
+         ["Cannot pitch", mine.filter(i => i.signals.conflict.label === "\u{1F534}").length],
+         ["Lead at your stage", mine.filter(i => i.signals.lead_rate.label === "\u{1F7E2}").length],
+         ["In your pipeline", dealCount()],
+         ["Exact street coordinates", MAP.exact]]
+      : [["On the map", total],
+         ["Slush exhibitors", MAP.placed],
+         ["Funded companies", (MAP.portfolio || []).length],
+         ["Funds", (MAP.funds || []).length],
+         ["Exact street coordinates", MAP.exact]];
+
+  return stats(5, kpi)
+  + (ROLE === "founder" && F ? `<div class="maplegend">
+      <span><i style="background:#3f7d53"></i>leads at your stage</span>
+      <span><i style="background:#c2614f"></i>on your list</span>
+      <span><i style="background:#b4442f"></i>backs a competitor — do not pitch</span>
+      <span><i style="background:#b9b2a8"></i>not screened</span>
+      <span><i class="dash"></i>city or country only, not a street</span>
+    </div>` : "")
+  + section("gmap", head[0], head[1],
       `<div class="maproot">
         <div class="mapbox">
           <div class="mapbar">
@@ -2874,9 +2920,9 @@ function mapView() {
                 : "Filter by name, sector or city"}">
               <button class="tgl seg ${MAPMODE === "pp" ? "on" : ""}" data-mm="pp"
                 title="Search people instead of filtering the map">People</button></span>
-            ${PLAN.length ? `<span class="grp">
+            ${dealCount() ? `<span class="grp">
               <button class="tgl ${PLANONLY ? "on" : ""}" id="planonly"
-                title="Show only the funds in your Slush plan">★ My plan (${PLAN.length})</button>
+                title="Show only the funds in your pipeline">★ In play (${dealCount()})</button>
             </span>` : ""}
             <span class="grp" style="margin-left:auto">
               <button class="tgl ${MYLOC ? "on" : ""}" id="nearme" title="Find what is around you">
@@ -3101,6 +3147,20 @@ function nearPanel() {
     }).join("")}`).join("");
 }
 
+/* A fund pin, coloured by the verdict this founder's screen gave it.
+   Without a screen every fund is the same colour, which is correct - we have
+   not judged them yet. With one, the map answers the question the founder
+   came with rather than showing them an atlas. */
+function fundPinColour(p) {
+  if (ROLE !== "founder" || !F) return "#c2614f";
+  const key = norm_(p.name);
+  const x = (F.investors || []).find(i => norm_(i.investor) === key);
+  if (!x) return "#b9b2a8";                       // not on your list
+  if (x.signals.conflict.label === "\u{1F534}") return "#b4442f";   // cannot pitch
+  if (x.signals.lead_rate.label === "\u{1F7E2}") return "#3f7d53";  // leads your stage
+  return "#c2614f";
+}
+
 function initMap() {
   const el = document.getElementById("mlmap");
   if (!el || !window.maplibregl || !MAP?.points) return;
@@ -3126,7 +3186,8 @@ function initMap() {
   ];
   // A plan turns the map into a route card. Matching is loose because the
   // corpus spells fund names several ways.
-  const planKeys = new Set(PLAN.map(n => n.toLowerCase().replace(/[^a-z0-9]/g, "")));
+  const planKeys = new Set(Object.keys(DEALS)
+    .map(n => n.toLowerCase().replace(/[^a-z0-9]/g, "")));
   if (PLANONLY && planKeys.size) {
     const hit = layer.filter(p =>
       planKeys.has((p.name || "").toLowerCase().replace(/[^a-z0-9]/g, "")));
@@ -3149,7 +3210,7 @@ function initMap() {
     const isFund = p.kind === "fund";
     const isPf = p.kind === "portfolio";
     d.className = "mkr" + (isPf ? " sq" : isFund ? " di" : "");
-    const col = isFund ? "#c2614f" : statusColor(p);
+    const col = isFund ? fundPinColour(p) : statusColor(p);
     const isPortfolio = p.kind === "portfolio";
     const sz = isFund ? 15 : (p.score != null ? 13 : 10);
     d.style.cssText = p.precise
@@ -3171,7 +3232,7 @@ function initMap() {
     MLMARKERS.push({ marker: m, el: d, p });
   }
   sideList(layer, PLANONLY && planKeys.size
-    ? `Your plan on the map (${layer.length} of ${PLAN.length} placeable)`
+    ? `Your pipeline on the map (${layer.length} of ${Object.keys(DEALS).length} placeable)`
     : "Everything on the map");
   const pn = $("#precisenote");
   if (pn && MAP.exact != null)
