@@ -220,7 +220,7 @@ function founderEntity() {
       x.evidence_depth === "hyva" ? "green" : x.evidence_depth === "ohut" ? "amber" : "grey"),
   ].filter(Boolean).join(" · ");
   let body = entityHeader(x.investor, "", meta, tabs,
-    `<button class="btn" id="composeit">Compose intro</button>
+    `<button class="btn" id="composeit">${GMAIL_ICON}Compose intro</button>
      <button class="btn" onclick="window.print()">Export brief</button>`,
     fm.website);
 
@@ -358,6 +358,15 @@ function questions(x) {
 }
 
 /* ================= INVESTOR ================= */
+const GMAIL_ICON = `<svg width="15" height="12" viewBox="0 0 48 36" aria-hidden="true"
+  style="vertical-align:-1px;margin-right:6px">
+  <path fill="#4285F4" d="M4 36h8V18L0 9v23a4 4 0 0 0 4 4z"/>
+  <path fill="#34A853" d="M36 36h8a4 4 0 0 0 4-4V9l-12 9z"/>
+  <path fill="#FBBC04" d="M36 4v14l12-9V6a5 5 0 0 0-8-4z"/>
+  <path fill="#EA4335" d="M12 18V4l12 9 12-9v14L24 27z"/>
+  <path fill="#C5221F" d="M0 6v3l12 9V4L8 2a5 5 0 0 0-8 4z"/>
+</svg>`;
+
 const STRUCT = { "pre-emption": ["Pre-emption", "green"], "healthy": ["Healthy up-round", "blue"],
   "bridge": ["Bridge / extension", "red"], "unknown": ["Structure unknown", "grey"] };
 
@@ -1042,16 +1051,88 @@ function homeView() {
   </div>`;
 }
 
-/* Route free text. Keywords first, otherwise treat it as a company name. */
+/* Route free text.
+   "show me lifeline ventures" is a lookup, not a company raising a round -
+   the earlier version screened investors for a company literally named
+   "show me lifeline ventures". A leading verb means: find this entity. */
+const LOOKUP_VERB = /^\s*(find|show(\s+me)?|look\s*up|search(\s+for)?|who\s+is|what\s+is|tell\s+me\s+about|open|go\s+to)\b[:,]?\s*/i;
+const PERSON_HINT = /\b(founder|ceo|cto|person|people|who)\b/i;
+
+/* Search both kinds and pick by match quality, not by a fixed order.
+   Trying funds first opened an Organization called "Ilkka Paananen" and
+   skipped the Person entity that carries the whole profile. */
+const FUNDISH = /\b(ventures?|capital|partners?|fund|invest|equity|holdings?|ab|oy|gmbh|ltd|llp|inc)\b/i;
+let LOOKUP_PARTIAL = "";
+
+async function lookupEntity(term, kindHint) {
+  $("#view").innerHTML = `<div class="msg"><span class="spin"></span>Looking up ${esc(term)}…</div>`;
+  const kinds = kindHint ? [kindHint] : ["people", "fund"];
+  const want = term.trim().toLowerCase();
+  const found = [], failed = [];
+  for (const kind of kinds) {
+    try {
+      const r = await (await fetch(`/search?q=${encodeURIComponent(term)}&kind=${kind}`)).json();
+      if (r.error) { failed.push(kind); continue; }
+      for (const x of (r.results || []).slice(0, 3)) found.push({ ...x, kind });
+    } catch { failed.push(kind); }
+  }
+  // If one kind failed we are ranking on half the evidence. Say so rather
+  // than quietly returning the wrong sort of entity: a rate-limited people
+  // search once sent "find ilkka paananen" to an Organization of that name.
+  LOOKUP_PARTIAL = failed.length && found.length
+    ? `${failed.map(k => k === "people" ? "People" : "Fund").join(" and ")} search was
+       rate-limited — this result was picked from the other half only.`
+    : "";
+  if (found.length) {
+    const score = x => {
+      const nm = (x.name || "").toLowerCase();
+      let s = 0;
+      if (nm === want) s -= 4;                       // exact name wins
+      else if (nm.startsWith(want)) s -= 2;
+      // A name with no company-ish word is far more likely to be a person.
+      if (x.kind === "people" && !FUNDISH.test(term)) s -= 2;
+      if (x.kind === "fund" && FUNDISH.test(term)) s -= 2;
+      if (x.type === "Person" && !FUNDISH.test(term)) s -= 1;
+      return s;
+    };
+    const best = found.sort((a, b) => score(a) - score(b))[0];
+    return loadEntity(best.id, best.kind, best.name);
+  }
+  MODE = "home"; render();
+  const ab = $("#askbox");
+  if (ab) {
+    ab.value = term;
+    $("#view").insertAdjacentHTML("beforeend",
+      `<div class="home" style="padding-top:0"><div class="verdict grey">
+        Nothing in Cala matched <b>${esc(term)}</b>. Try a company you are raising
+        for, or a fund or person by name.</div></div>`);
+  }
+}
+
 function routeAsk(text) {
   const q = (text || "").trim();
   if (!q) return;
   const low = q.toLowerCase();
-  if (/\b(map|slush floor|where|location|geograph)/.test(low)) { MODE = "map"; SEL = null; return MAP ? render() : loadMap(); }
-  if (/\b(accur|backtest|valid|proof|evidence|work\b)/.test(low)) { MODE = "accuracy"; SEL = null; return BT ? render() : loadBacktest(); }
-  if (/\b(conviction|insider|double|doubling|orphan|deal ?flow|silent|unannounced|raising)/.test(low)) { MODE = "investor"; SEL = null; return I ? render() : loadInvestor(); }
+
+  if (/\b(map|where|location|geograph)/.test(low)) {
+    MODE = "map"; SEL = null; return MAP ? render() : loadMap();
+  }
+  if (/\b(conviction|insider|double|doubling|orphan|deal ?flow|silent|unannounced|raising)/.test(low)) {
+    MODE = "investor"; SEL = null; return I ? render() : loadInvestor();
+  }
+
+  // A leading verb means "find this", not "screen investors for this".
+  const m = q.match(LOOKUP_VERB);
+  if (m) {
+    const term = q.slice(m[0].length).trim();
+    if (term.length >= 2) {
+      return lookupEntity(term, PERSON_HINT.test(low) && !/ventures|capital|partners/i.test(term)
+        ? "people" : null);
+    }
+  }
+
   MODE = "founder"; SEL = null;
-  PENDING_CO = q;                     // picked up by runFounder
+  PENDING_CO = q;
   render();
   runFounder();
 }
@@ -1139,6 +1220,8 @@ const rankChip = r => r ? `<span class="bdg ${RANKCLS[r] || "b-grey"}"
 
 function entityView() {
   if (!ENT) return `<div class="msg"><span class="spin"></span>Opening ${esc(ENTLOAD?.name || "profile")}…</div>`;
+  const warn = LOOKUP_PARTIAL
+    ? `<div class="verdict grey" style="margin-bottom:14px">${esc(LOOKUP_PARTIAL)}</div>` : "";
   if (ENT.error) return `<div class="msg">Could not open this profile.<br>
     <span style="color:var(--dim)">${esc(ENT.error)}</span></div>`;
 
@@ -1175,7 +1258,7 @@ function entityView() {
       ${bigLogo(ENT.name, val("website"))}
       <div style="min-width:0"><h1>${esc(ENT.name)}</h1><div class="emeta">${meta}</div></div>
       <span class="eacts">
-        <button class="btn" id="composeit">Compose intro</button>
+        <button class="btn" id="composeit">${GMAIL_ICON}Compose intro</button>
         ${isPerson ? "" : `<button class="btn" id="screenit">Screen this fund</button>`}
         <button class="btn" onclick="window.print()">Export</button></span>
     </div><div class="tabs">
@@ -1185,6 +1268,7 @@ function entityView() {
 
   if (isPerson && TAB === 1) return body + founderSignalTab() + "</div>";
 
+  body += warn + bioBlock(ENT.name, ENT.kind);
   if (val("description"))
     body += `<p class="lede">${esc(val("description"))}
       ${src("description") ? `<a href="${esc(src("description"))}" target="_blank"
@@ -1199,7 +1283,13 @@ function entityView() {
           <div style="min-width:0"><div class="nm">${esc(it.name)}</div>
             <div class="sb">${esc(it.role || it.type || "")}</div></div>
           ${rankChip(it.rank)}</div>
-        ${it.source ? `<div class="ev" style="margin-top:4px"><div>
+        ${it.rounds != null ? `<div class="hlm">
+          <div><div class="k">Rounds raised</div><div class="v">${it.rounds}</div></div>
+          ${it.last_round ? `<div><div class="k">Latest</div><div class="v">${
+            esc(it.last_round.stage || "")} ${esc(String(it.last_round.date || "").slice(0, 7))}</div></div>` : ""}
+        </div>${it.investors?.length ? `<div class="sub" style="margin:7px 0 0">backed by ${
+          esc(it.investors.join(", "))}</div>` : ""}` : ""}
+        ${it.source ? `<div class="ev" style="margin-top:7px"><div>
           <a href="${esc(it.source)}" target="_blank" rel="noopener">${
             esc(String(it.source).replace(/^https?:\/\/(www\.)?/, "").slice(0, 46))}</a></div></div>` : ""}
       </div>`).join("")}</div>`);
@@ -1254,7 +1344,7 @@ function openCompose() {
   w.className = "scrim on";
   w.innerHTML = `<div class="composebox" onclick="event.stopPropagation()">
     <div class="sidehd"><h3>Compose to ${esc(name)}</h3>
-      <div class="s">Opens in your own mail client — nothing is sent from Flipside</div></div>
+      <div class="s">Opens a prefilled Gmail draft — nothing is sent from Flipside</div></div>
     <div style="padding:15px">
       <div class="fld" style="margin-bottom:11px"><label>To</label>
         <input id="cto" placeholder="name@fund.com" style="width:100%"></div>
@@ -1264,8 +1354,9 @@ function openCompose() {
         <textarea id="cbody" rows="11" style="width:100%;border:1px solid var(--line2);
           border-radius:8px;padding:11px">${esc(d.body)}</textarea></div>
       <div style="display:flex;gap:8px;margin-top:13px">
-        <button class="btn pri" id="cmail">Open in mail client</button>
+        <button class="btn pri" id="cmail">${GMAIL_ICON}Open in Gmail</button>
         <button class="btn" id="ccopy">Copy</button>
+        <button class="btn" id="cmailto">Other mail app</button>
         <button class="btn" id="cclose" style="margin-left:auto">Close</button>
       </div>
       <div class="s" style="margin-top:10px;color:var(--faint);font-size:11.5px">
@@ -1277,7 +1368,15 @@ function openCompose() {
   w.querySelector("#cclose").onclick = close;
   w.querySelector("#cmail").onclick = () => {
     const to = w.querySelector("#cto").value.trim();
-    location.href = `mailto:${encodeURIComponent(to)}?subject=${
+    const sub = encodeURIComponent(w.querySelector("#csub").value);
+    const body = encodeURIComponent(w.querySelector("#cbody").value);
+    // Gmail's compose window, prefilled. Nothing is sent from here - the
+    // message leaves from the user's own account, after they have read it.
+    window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${
+      encodeURIComponent(to)}&su=${sub}&body=${body}`, "_blank", "noopener");
+  };
+  w.querySelector("#cmailto").onclick = () => {
+    location.href = `mailto:${encodeURIComponent(w.querySelector("#cto").value.trim())}?subject=${
       encodeURIComponent(w.querySelector("#csub").value)}&body=${
       encodeURIComponent(w.querySelector("#cbody").value)}`;
   };
@@ -1460,5 +1559,37 @@ function evidenceBlock(investor, competitor) {
       <div class="sub" style="margin:12px 0 0">Ranked by who published it:
         a regulator's filing, then one of the parties speaking for itself,
         then commentary about them.</div>
+    </div>`);
+}
+
+
+/* ================= SOURCED BACKGROUND ================= */
+/* The graph says what someone is connected to. This says what is written
+   about them, with every claim pointing at the document it came from. */
+const BIO = {};
+
+function bioBlock(name, kind) {
+  const key = kind + "|" + name;
+  const d = BIO[key];
+  if (d === undefined) {
+    BIO[key] = null;
+    fetch(`/bio?name=${encodeURIComponent(name)}&kind=${encodeURIComponent(kind)}`)
+      .then(r => r.json()).then(j => { BIO[key] = j; render(); })
+      .catch(e => { BIO[key] = { error: String(e.message) }; render(); });
+  }
+  if (!d) return section("bio-l", "Background", "",
+    `<div class="card"><div class="sub"><span class="spin"></span>Reading what is
+     published about ${esc(name)}…</div></div>`);
+  if (d.error || !(d.claims || []).length) return "";
+
+  const txt = (d.answer || "").replace(/\*\*/g, "").replace(/^#+\s*/gm, "");
+  return section("bio", "Background", `${(d.docs || []).length} sources`,
+    `<div class="card">
+      <div style="font-size:13.6px;line-height:1.65;white-space:pre-wrap">${esc(txt.slice(0, 900))}</div>
+      <div style="margin-top:14px">${(d.claims || []).filter(c => c.docs.length).slice(0, 6)
+        .map(c => `<div class="ev"><div>${esc(c.text)}</div>
+          ${c.docs.slice(0, 2).map(x => `<div><span class="srank">${esc(x.rank)}</span>
+            <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.name.slice(0, 66))}</a></div>`).join("")}
+        </div>`).join("")}</div>
     </div>`);
 }

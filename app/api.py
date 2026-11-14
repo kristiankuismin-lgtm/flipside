@@ -410,7 +410,7 @@ def search(q: str, kind: str = "fund", limit: int = 8):
 # Which relationships to surface, in display order, per entity kind.
 PERSON_RELS = ["IS_CEO_OF", "FOUNDED", "WORKS_AT", "IS_MEMBER_OF",
                "INVESTED_IN", "PARTICIPATES_IN_FUNDING_ROUND", "STUDIED_AT",
-               "SPOKE_AT", "RECEIVED_AWARD"]
+               "SPOKE_AT", "RECEIVED_AWARD", "FEATURED_IN", "HAS_NATIONALITY"]
 FUND_RELS = ["INVESTED_IN", "PARTICIPATES_IN_FUNDING_ROUND", "IS_ULTIMATE_PARENT",
              "HAS_SUBSIDIARY", "OPERATES_IN_INDUSTRY", "PARTICIPATES_IN_EVENT"]
 PERSON_PROPS = ["name", "description", "linkedin_url", "birth_date"]
@@ -463,8 +463,24 @@ def entity_profile(entity_id: str, kind: str = "fund"):
         if items:
             groups.append({"rel": r, "label": REL_LABEL.get(r, r.title()), "items": items})
 
+    # Enrich every company an edge points at with what that company went on to
+    # do. "Founded X" is thin; "Founded X, which raised four rounds" is a
+    # profile. The funding data is already cached, so this costs nothing.
+    rbc = _rounds_by_company()
+    for g in groups:
+        for it in g["items"]:
+            rs = rbc.get((it.get("name") or "").strip().lower())
+            if rs is None:
+                continue
+            it["rounds"] = len(rs)
+            if rs:
+                last = rs[-1]
+                it["last_round"] = {"stage": last.get("stage"), "date": last.get("date")}
+                it["investors"] = (last.get("investors") or [])[:4]
+
     return {"id": entity_id, "kind": kind, "name": e.get("name"),
-            "entity_type": e.get("entity_type"), "properties": out_props, "groups": groups}
+            "entity_type": e.get("entity_type"), "properties": out_props,
+            "groups": groups}
 
 
 def cala_introspect(eid):
@@ -527,6 +543,25 @@ def registry(name: str, rounds: str = ""):
         out["cala"] = None
         out.setdefault("errors", {})["cala"] = type(e).__name__
     return out
+
+
+@app.get("/bio")
+def bio(name: str, kind: str = "people"):
+    """A sourced narrative. Cheap depth: one search, every claim cited."""
+    from . import sourcing as SR
+    n = (name or "").strip()
+    if len(n) < 3:
+        return {"name": n, "claims": [], "docs": []}
+    q = (f"Who is {n}? What have they founded, where do they work, what have "
+         f"they invested in, and what are they known for? Cite sources."
+         if kind == "people" else
+         f"What is {n}, what do they invest in, and what are they known for? "
+         f"Cite sources.")
+    try:
+        return SR.explain(q, subjects=(n,), allow_live=True, ttl=7 * 86400)
+    except Exception as e:
+        return JSONResponse({"error": f"{type(e).__name__}: {str(e)[:110]}",
+                             "claims": [], "docs": []}, status_code=200)
 
 
 @app.get("/founder-signal/{entity_id}")
