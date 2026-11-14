@@ -4305,5 +4305,281 @@
   "id": "1dfe0649-99e1-49b0-9020-01d40b03d6ff",
   "name": "HOPE MACY LTD",
   "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "1e192291-c310-5743-9fe3-f0efa5356a9f",
+  "name": "u012 Inc.",
+  "hq": "London, Ontario, Canada",
+  "website": "u012.io",
+  "description": "u012 Inc. engineers Web3-native fintech infrastructure with institutional-grade decentralized protocols.",
+  "founded": "2025-01-01",
+  "industries": [
+   "FINTECH"
+  ],
+  "hq_source": "https://www.linkedin.com/company/u012-inc/about/"
+ },
+ {
+  "id": "1e2d2f95-330b-4300-8aa8-f44d1399dfc1",
+  "name": "DATABREEZE S.R.L.",
+  "hq": "VIA PORZIO, 4, NAPOLI, IT-NA, 80143, IT",
+  "website": "databreeze.it",
+  "description": "BI governance, development and AI tools: CoCoBI (multi-platform BI governance, generative BI, BI as code) and OpenBI (vendor-neutral BI standard plus an MCP server).",
+  "founded": "2025-01-09",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://search.gleif.org/#/record/815600F3507BA9479925"
+ },
+ {
+  "id": "1e3f3dbd-f5d3-598c-8bdd-72ad379b2374",
+  "name": "Q4US Oy",
+  "hq": "Oulu, Finland",
+  "website": "universaltruss.ai",
+  "description": "Q4US builds custom software for industry; its Universal Truss AI (UTAI) product is an AI-powered cloud-based SaaS application that optimises truss management operations for the truss industry.",
+  "founded": "2020-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/q4usdev"
+ },
+ {
+  "id": "1e4c8b99-30d8-4f91-842d-3d0b58efc0d7",
+  "name": "Nuet",
+  "hq": "Dover, United States",
+  "website": "nuet.ai",
+  "description": "Nuet is your parent assistant \u2014 it gathers events from emails, photos, and voice, organises your family calendar, and surfaces what you need to know. No charge for 7 days.",
+  "founded": null,
+  "industries": [
+   "SOFTWARE_AND_SERVICES",
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://nuet.ai/"
+ },
+ {
+  "id": "1e66721e-3046-5c5c-84fb-37987d4b43f5",
+  "name": "VAELLA",
+  "hq": "Helsinki, Finland",
+  "website": "vaella.com",
+  "description": "VAELLA\u00e2\u0080\u0099s privacy-first Vision AI sees how people move through the world\u00e2\u0080\u0099s busiest spaces \u00e2\u0080\u0094 real-time intelligence for stations, airports and terminals.",
+  "founded": "2026-05-25",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/vaella/"
+ },
+ {
+  "id": "1e90959a-5ced-49f7-804e-1146f0a0d87b",
+  "name": "STRGY AI",
+  "hq": "Helsinki, Finland",
+  "website": "strgy.com",
+  "description": "STRGY AI helps companies create and maintain strategic alignment. Move from static documents to a living strategy with North Star, Pillars, Goals, and Initiatives.",
+  "founded": "2025-08-27",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/109070263"
+ },
+ {
+  "id": "1ea0ab18-342a-511b-953f-a3964e0be7ee",
+  "name": "Vivox AI",
+  "hq": "London , United Kingdom",
+  "website": "vivox.ai",
+  "description": "Our pre-trained AI agents automate manual, repetitive tasks traditionally handled by Level 1 analysts, including AML, adverse media monitoring, sanctions screening reviews, KYC/KYB onboarding, and...",
+  "founded": "2023-01-01",
+  "industries": [
+   "FINTECH"
+  ],
+  "hq_source": "https://www.linkedin.com/company/vivox-ai/"
+ },
+ {
+  "id": "1ec6b8b6-1f0c-5d1b-9a90-c0b5bb8122d0",
+  "name": "Leapter",
+  "hq": "Weimar, Germany",
+  "website": "leapter.com",
+  "description": "Leapter is an agentic development platform for business logic. Turn policies, calculations, and decision criteria into executable diagrams teams can approve.",
+  "founded": "2025-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.leapter.com/impressum/"
+ },
+ {
+  "id": "1edb4398-b0dd-5fef-9eb3-d5925ffb2096",
+  "name": "Qentin",
+  "hq": "Munich, Germany",
+  "website": "qentin.io",
+  "description": "Qentin fragt nach, statt zu raten. Ein paar Fragen, dann steht der Film. \u00dcber alle Streamingdienste, die du schon bezahlst.",
+  "founded": null,
+  "industries": [
+   "NEWS_AND_INFORMATION"
+  ],
+  "hq_source": "https://qentin.io/"
+ },
+ {
+  "id": "1ee19b2e-0c52-4e51-976a-f1e79fb7f6ff",
+  "name": "Augment Mobility Ab",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "1eee20de-d655-541b-8315-e0634ce7a5eb",
+  "name": "Digistructum.com",
+  "hq": "Vilnius, Lithuania",
+  "website": "digistructum.com",
+  "description": "Digistructum designs, builds, and implements AI-driven digital solutions for construction companies. Predictive analytics, BIM data management, real-time project controls, and construction digitali...",
+  "founded": "2023-01-01",
+  "industries": [
+   "CONSTRUCTION_AND_ENGINEERING"
+  ],
+  "hq_source": "https://www.linkedin.com/company/digistructum-com/"
+ },
+ {
+  "id": "1ef5af11-ffd2-5ffe-9d4b-b5c034b5b5e3",
+  "name": "Atapley Europe Oy",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "1ef61bcb-7598-55d2-8657-b286930fa5d0",
+  "name": "Digiotouch",
+  "hq": "Tallinn, Estonia",
+  "website": "digiotouch.ai",
+  "description": "AI meeting assistant that reads your slides. Meeting notes go to Slack, Notion and your CRM, plus live translation in 130+ languages. GDPR-compliant, EU-built.",
+  "founded": "2018-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/digiotouch-ou"
+ },
+ {
+  "id": "1f0505cd-0078-5176-94ec-8eff57a20094",
+  "name": "BaseComp AI",
+  "hq": "Boston, United States",
+  "website": "basecomp.ai",
+  "description": "A Boston-based software and services company.",
+  "founded": null,
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://basecomp.ai/"
+ },
+ {
+  "id": "1f3f7908-2c7b-566f-a7fd-7000263c57c5",
+  "name": "Detectivio AB",
+  "hq": "G\u00f6teborg, Sweden",
+  "website": "detectivio.com",
+  "description": "Developing technology for non-contact detection and quantification of  fundamental human physiology metrics used in healthcare and beyond.",
+  "founded": "2018-01-01",
+  "industries": [
+   "PHARMACEUTICALS"
+  ],
+  "hq_source": "https://www.linkedin.com/company/detectivio/"
+ },
+ {
+  "id": "1fc43a29-f408-4647-a731-a8cde24eaa8d",
+  "name": "Exobiosphere",
+  "hq": null,
+  "website": "exobiosphere.com",
+  "description": "A biotechnology and aerospace and defense company.",
+  "founded": "2024-01-01",
+  "industries": [
+   "BIOTECHNOLOGY",
+   "AEROSPACE_AND_DEFENSE",
+   "AEROSPACE_AND_DEFENSE"
+  ],
+  "hq_source": null
+ },
+ {
+  "id": "1fc65aa8-0466-5052-aa4e-3e0d1fe86b8d",
+  "name": "Earthian AI",
+  "hq": "Amsterdam, Netherlands",
+  "website": "earthianai.com",
+  "description": "Earthian AI is building the financial inference layer that prices risk directly into capital. Today's financial systems rely on aggregated data. Earthian reasons over assets and risks to generate p...",
+  "founded": "2024-01-01",
+  "industries": [
+   "FINTECH"
+  ],
+  "hq_source": "https://www.linkedin.com/company/earthianaii"
+ },
+ {
+  "id": "1fcc478b-b872-50bc-8afe-9692bb83cbed",
+  "name": "R3ACH",
+  "hq": "Montreal, Canada",
+  "website": "r3ach.app",
+  "description": "R3ACH turns events in Montr\u00e9al and Boston into plans with your friends: when a friend swipes the same event, the group chat opens. Free on iPhone and Android.",
+  "founded": "2025-12-01",
+  "industries": [
+   "TELECOMMUNICATIONS"
+  ],
+  "hq_source": "https://www.linkedin.com/company/r3achapp/"
+ },
+ {
+  "id": "1fdcd6fd-f6cd-4239-97e0-749702bac16e",
+  "name": "Windhill Capital GmbH",
+  "hq": "12 Unterdorfstrasse, Pf\u00e4ffikon, CH-SZ, 8808, CH",
+  "website": "teyolabs.com",
+  "description": "Teyo Labs is an AI venture studio that finds, funds, and builds AI-native ventures in B2B SaaS and financial systems. Based in Z\u00fcrich, working globally.",
+  "founded": "2017-01-30",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://search.gleif.org/#/record/9845002E8449C7283048"
+ },
+ {
+  "id": "1feeaefd-2e2e-5de5-b7fa-a65d385594eb",
+  "name": "VibeSell",
+  "hq": "Zurich, Switzerland",
+  "website": "vibesell.ai",
+  "description": "Close more deals with real-time AI guidance during your customer meetings. VibeSell surfaces what you need, when you need it.",
+  "founded": "2025-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/vibesell/"
+ },
+ {
+  "id": "200de668-933c-46ee-8a01-735fa68a6063",
+  "name": "COPIA ENERGY LTD",
+  "hq": "London, United Kingdom",
+  "website": "copia.energy",
+  "description": "Copia installs smart batteries at your site. Charge overnight when electricity is cheap, then power your building during expensive peak hours.",
+  "founded": "2025-06-09",
+  "industries": [
+   "RENEWABLE_ENERGY",
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://copia.energy/"
+ },
+ {
+  "id": "202099da-e18b-5805-bddc-db0fd4294dad",
+  "name": "MelaQytiNova",
+  "hq": "Vilnius, Lithuania",
+  "website": "melaqitynova.com",
+  "description": "MelaQytiNova develops circular biomaterials from Black Soldier Fly biomass, beginning with melanin. Discover our development progress, biomaterials and collaboration opportunities.",
+  "founded": null,
+  "industries": [
+   "BIOTECHNOLOGY"
+  ],
+  "hq_source": "https://melaqitynova.com/"
+ },
+ {
+  "id": "2033d999-f5e5-557e-83a3-705567500128",
+  "name": "DCR Technologies",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "203f6f4c-2332-5de9-8471-e528083219ad",
+  "name": "Kallion",
+  "error": "CalaError: Rate limit"
+ },
+ {
+  "id": "205d4f0e-0bee-5923-baae-edf97085df72",
+  "name": "Swell.to",
+  "hq": "Oxford, United Kingdom",
+  "website": "swell.to",
+  "description": "Swell runs your Meta and Google ads end-to-end. Autonomous spend, creative, and attribution \u2014 trained on your data, working 24/7.",
+  "founded": "2026-01-01",
+  "industries": [
+   "SOFTWARE_AND_SERVICES"
+  ],
+  "hq_source": "https://www.linkedin.com/company/moreswell/"
  }
 ]

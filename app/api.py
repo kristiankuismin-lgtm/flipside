@@ -49,6 +49,40 @@ class Req(BaseModel):
     my_investors: list[str] | None = None
 
 
+_DOMAINS = None
+
+
+def _domains() -> dict:
+    """company (lowercased) -> website, from everything already fetched.
+
+    Relationship edges carry no website, so a logo would always fall back to a
+    monogram. These files already hold the domains.
+    """
+    global _DOMAINS
+    if _DOMAINS is not None:
+        return _DOMAINS
+    out = {}
+    def add(name, web):
+        if name and web:
+            out.setdefault(str(name).strip().lower(), web)
+    for fname, walk in (
+        ("slush_profiles.json", lambda d: ((r.get("name"), r.get("website")) for r in d)),
+        ("portfolio_places.json", lambda d: ((k, v.get("website")) for k, v in d.items())),
+        ("investor_domains.json", lambda d: ((k, v.get("website")) for k, v in d.items())),
+        ("fund_universe.json", lambda d: ((k, v.get("website")) for k, v in d.items())),
+    ):
+        f = ROOT / fname
+        if not f.exists():
+            continue
+        try:
+            for n, w in walk(json.loads(f.read_text())):
+                add(n, w)
+        except (ValueError, AttributeError, TypeError):
+            pass
+    _DOMAINS = out
+    return out
+
+
 _ROUNDS_BY_CO = None
 
 
@@ -301,12 +335,21 @@ def map_data():
     # Second layer: the funds themselves. The map is about where capital and
     # companies sit, not only who booked a stand at Slush.
     funds = []
-    fpath = ROOT / "investor_domains.json"
-    if fpath.exists():
+    dom = {}
+    # The hand-typed list first, then every investor the cached rounds name -
+    # 664 firms that actually appear in this ecosystem rather than 30 someone
+    # remembered. Later keys win, so the broader file fills the gaps.
+    for fname in ("investor_domains.json", "fund_universe.json"):
+        fpath = ROOT / fname
+        if not fpath.exists():
+            continue
         try:
-            dom = json.loads(fpath.read_text())
+            for k, v in json.loads(fpath.read_text()).items():
+                if v.get("hq") or k not in dom:
+                    dom[k] = {**dom.get(k, {}), **v}
         except ValueError:
-            dom = {}
+            pass
+    if True:
         for name, v in dom.items():
             hq = v.get("hq")
             if not hq:
@@ -324,7 +367,9 @@ def map_data():
                           "hq": hq, "website": v.get("website"),
                           "description": (v.get("description") or "")[:200],
                           "founded": v.get("founded"), "employees": v.get("employees"),
-                          "source": v.get("hq_source"), "kind": "fund"})
+                          "rounds_seen": v.get("seen"),
+                          "source": v.get("hq_source") or v.get("source"),
+                          "kind": "fund"})
 
     # Third layer: the funded universe. Slush 2026 is the only event in Cala
     # with a participant list, so "more events" was a dead end - but the
@@ -469,9 +514,13 @@ def entity_profile(entity_id: str, kind: str = "fund"):
     # do. "Founded X" is thin; "Founded X, which raised four rounds" is a
     # profile. The funding data is already cached, so this costs nothing.
     rbc = _rounds_by_company()
+    doms = _domains()
     for g in groups:
         for it in g["items"]:
-            rs = rbc.get((it.get("name") or "").strip().lower())
+            key = (it.get("name") or "").strip().lower()
+            if doms.get(key):
+                it["website"] = doms[key]
+            rs = rbc.get(key)
             if rs is None:
                 continue
             it["rounds"] = len(rs)

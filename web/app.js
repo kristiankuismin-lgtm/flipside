@@ -1298,20 +1298,19 @@ function entityView() {
 
   for (const g of ENT.groups || []) {
     body += section("ent-" + g.rel, g.label, `${g.items.length} on record`,
-      `<div class="hl">${g.items.map(it => `<div class="hlc">
-        <div class="hlhd">${logo(it.name)}
+      `<div class="hl tight">${g.items.map(it => `<div class="hlc">
+        <div class="hlhd">${logo(it.name, it.website)}
           <div style="min-width:0"><div class="nm">${esc(it.name)}</div>
             <div class="sb">${esc(it.role || it.type || "")}</div></div>
           ${rankChip(it.rank)}</div>
-        ${it.rounds != null ? `<div class="hlm">
-          <div><div class="k">Rounds raised</div><div class="v">${it.rounds}</div></div>
-          ${it.last_round ? `<div><div class="k">Latest</div><div class="v">${
-            esc(it.last_round.stage || "")} ${esc(String(it.last_round.date || "").slice(0, 7))}</div></div>` : ""}
-        </div>${it.investors?.length ? `<div class="sub" style="margin:7px 0 0">backed by ${
-          esc(it.investors.join(", "))}</div>` : ""}` : ""}
-        ${it.source ? `<div class="ev" style="margin-top:7px"><div>
-          <a href="${esc(it.source)}" target="_blank" rel="noopener">${
-            esc(String(it.source).replace(/^https?:\/\/(www\.)?/, "").slice(0, 46))}</a></div></div>` : ""}
+        ${it.rounds != null ? `<div class="facts">
+          <span><b>${it.rounds}</b> round${it.rounds === 1 ? "" : "s"}</span>
+          ${it.last_round ? `<span>${esc(it.last_round.stage || "")} ${
+            esc(String(it.last_round.date || "").slice(0, 7))}</span>` : ""}
+        </div>${it.investors?.length ? `<div class="with">with ${
+          esc(it.investors.slice(0, 3).join(", "))}</div>` : ""}` : ""}
+        ${it.source ? `<a class="srcline" href="${esc(it.source)}" target="_blank"
+          rel="noopener">${esc(String(it.source).replace(/^https?:\/\/(www\.)?/, "").split("/")[0])}</a>` : ""}
       </div>`).join("")}</div>`);
   }
 

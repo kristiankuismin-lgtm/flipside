@@ -16,6 +16,9 @@ Order is deliberate:
 import json, os, subprocess, sys, time
 
 STAGES = [
+    # Funds first: 13 on the map against 664 named in the rounds we hold was
+    # the widest gap between what we had and what we were showing.
+    ("Fund universe",    ["resolve_funds.py", "250", "1.4"]),
     ("Slush profiles",   ["fetch_slush_profiles.py", "2", "2000"]),
     ("Portfolio places", ["map_portfolio.py", "900", "1.5"]),
     ("Exhibitor rounds", ["score_exhibitors.py", "2000", "1.2"]),
@@ -33,6 +36,7 @@ def counts():
         ("profiles", "slush_profiles.json", lambda d: sum(1 for r in d if not r.get("error"))),
         ("placed", "portfolio_places.json", lambda d: sum(1 for v in d.values() if v.get("lat"))),
         ("walked", "exhibitor_rounds.json", len),
+        ("funds", "fund_universe.json", lambda d: sum(1 for v in d.values() if v.get("lat"))),
     ):
         try:
             out[name] = fn(json.load(open(path)))
