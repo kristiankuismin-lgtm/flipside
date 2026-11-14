@@ -349,6 +349,20 @@ def analyze(req: Req):
                 because="The screen still runs: competitors are found from the "
                         "description, and the ranking is about the funds. But "
                         "nothing here is anchored to your company record.")
+    # Before anything is ranked: is this the round they are actually
+    # raising? A Series B list built off a seed is wrong in the way that
+    # costs a founder the week.
+    from . import stagecheck as SCK
+    own = _rounds_by_company().get(norm.name(req.company)) or []
+    stage_note = SCK.check(own, req.stage)
+    stale_note = SCK.stale(own)
+    PG.step(key, f"Checking {req.stage} against your own rounds",
+            stage_note["says"][:160],
+            layer="cala" if own else "derived",
+            because="A fund that only writes cheques at one stage will not "
+                    "start with yours, and the funds at the stage you are "
+                    "actually at would not be on this list.")
+
     PG.step(key, "Asking Cala who competes with you",
             "the slow one \u2014 about a minute", layer="cala",
             because="This is a question about meaning, not a lookup: it reads "
@@ -405,6 +419,8 @@ def analyze(req: Req):
                  f"{'' if warm == 1 else 's'}")
     from datetime import datetime, timezone
     return {"company": req.company, "stage": req.stage,
+            "stage_check": stage_note, "stage_stale": stale_note,
+            "own_rounds": own[-4:],
             # Every claim in the UI is datable: a number with no retrieval
             # time cannot be checked, only believed.
             "fetched_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -1067,6 +1083,8 @@ def syndicates(req: Req):
         if len(out) >= 5:
             break
     return {"company": req.company, "stage": req.stage,
+            "stage_check": stage_note, "stage_stale": stale_note,
+            "own_rounds": own[-4:],
             "your_backers": mine, "syndicates": out}
 
 
@@ -1727,6 +1745,8 @@ def alerts(req: Req):
     # Every investor in a competitor's recent round is tomorrow's exclusion.
     would_exclude = sorted({i for c in comp for i in c["investors"]})
     return {"company": req.company, "stage": req.stage,
+            "stage_check": stage_note, "stage_stale": stale_note,
+            "own_rounds": own[-4:],
             "hits": hits, "competitor_rounds": comp,
             "would_exclude": would_exclude,
             "high": sum(1 for h in hits if h["severity"] == "high") + len(comp),

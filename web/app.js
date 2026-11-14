@@ -1168,7 +1168,19 @@ function heroCard(inv, red, leads, warm) {
     ? red.map(x => `<b>${esc(x.investor)}</b> &rarr; ${esc(x.backs.join(", "))}`).join(" &nbsp;·&nbsp; ")
     : "";
 
-  return `<div class="hero ${blind ? "blind" : red.length ? "warn" : "ok"}">
+  // Said before the ranking, because if the stage is wrong the ranking is
+  // the wrong list and reading it carefully is wasted care.
+  const sc = F.stage_check || {};
+  const stageNote = sc.severity && sc.severity !== "ok"
+    ? `<div class="stagenote ${esc(sc.severity)}">
+         <b>${sc.severity === "warn" ? "Check the stage."
+             : sc.severity === "unknown" ? "We could not check the stage."
+             : "About the stage."}</b> ${esc(sc.says)}
+         ${F.stage_stale ? ` ${esc(F.stage_stale.says)}` : ""}
+       </div>`
+    : "";
+
+  return stageNote + `<div class="hero ${blind ? "blind" : red.length ? "warn" : "ok"}">
     <div class="herotop">
       <span class="herotag">${esc(F.company)} · ${esc(F.stage)} ·
         ${inv.length} screened · ${blind ? "competitors unknown"
