@@ -635,7 +635,6 @@ function founderList() {
     : FFILTER === "conflict" ? red : inv;
 
   return askTrace() + searchPanel() + heroCard(inv, red, leads, warm)
-    + syndicateBlock()
     + kpis([
       ["Investors screened", inv.length, "all", "two or more rounds on record"],
       ["Lead at your stage", leads.length, "lead", `led a ${F.stage} in the last three years`],
@@ -646,19 +645,23 @@ function founderList() {
                    conflict: "funds backing a competitor" }[FFILTER] || FFILTER)}</b>
         — ${shown.length} of ${inv.length}.
         <button class="btn sm" id="clearf">Clear</button></div>` : "")
-    + section("fmap", "Who funds your competitors",
-        `${(F.edges || []).length} link${(F.edges || []).length === 1 ? "" : "s"} · two hops in Cala's graph`,
-        conflictMap())
-    + planSection()
-    + pickBar()
+    // The table comes before the evidence for it, because the next thing a
+    // founder does is tick the funds they want. Reading who co-invests with
+    // whom is how you check the order; picking is how you use it.
     + section("ftable", "Who is left",
-      `${shown.length} of ${inv.length} screened · tick the ones you want`,
+      `${shown.length} of ${inv.length} screened · tick the ones you want to reach`,
       `<div class="tbl"><table>
       <thead><tr><th class="w-pick">${pickAllBox(shown)}</th>
       <th class="w-rank"></th><th>Investor</th><th>Verdict</th><th class="num">Score</th>
       <th class="num">Lead</th><th class="num">Follow-on</th>
       <th>Pace</th><th>Conflict</th><th>Route</th><th class="w-act"></th></tr></thead>
       <tbody>${rowsFor(shown)}</tbody></table></div>`)
+    + pickBar()
+    + planSection()
+    + syndicateBlock()
+    + section("fmap", "Who funds your competitors",
+        `${(F.edges || []).length} link${(F.edges || []).length === 1 ? "" : "s"} · two hops in Cala's graph`,
+        conflictMap())
     + `<div class="evfoot">
         <b>Evidence and experiments.</b> Not part of the answer above, kept
         because they are how it was checked.
