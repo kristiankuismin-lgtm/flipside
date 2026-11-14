@@ -327,9 +327,9 @@ async function loadSyndicates(company, stage) {
 
 function syndicateBlock() {
   if (!SYN) return "";
-  if (SYN.loading) return section("fsyn", "Round architect", "",
+  if (SYN.loading) return section("fsyn", "Who has been in their rounds", "",
     `<div class="msg"><span class="spin"></span>Assembling syndicates from the round graph…</div>`);
-  if (SYN.error || !(SYN.syndicates || []).length) return section("fsyn", "Round architect", "",
+  if (SYN.error || !(SYN.syndicates || []).length) return section("fsyn", "Who has been in their rounds", "",
     `<div class="msg">No fund on this list both leads at your stage and has funds that
       repeatedly follow it. That is a finding about this list, not an empty state.</div>`);
 
@@ -344,7 +344,7 @@ function syndicateBlock() {
     const members = s.members.map(m => `<div class="synm">
       ${logo(m.name)}<div><div class="nm">${esc(m.name)}</div>
       <div class="sb"><button class="figure" data-syn="${esc(s.lead)}|${esc(m.name)}"
-        title="The rounds behind this">joined ${m.joined} of the ${s.rounds_led} rounds
+        title="The rounds behind this">was in ${m.joined} of the ${s.rounds_led} rounds
         they led${m.share != null ? ` · ${pct(m.share)}` : ""}</button></div></div></div>`).join("");
 
     // When nothing is warm, one honest line at the top beats the same
@@ -371,14 +371,16 @@ function syndicateBlock() {
       ${route}</div>`;
   }).join("");
 
-  return section("fsyn", "Round architect",
-    `${SYN.syndicates.length} assemblable syndicate${SYN.syndicates.length > 1 ? "s" : ""}`,
-    `<div class="synlead">One lead, plus the funds that actually show up when that lead leads —
-       which is not the same as the funds it merely shares cap tables with.</div>
+  return section("fsyn", "Who has been in their rounds",
+    `${SYN.syndicates.length} lead${SYN.syndicates.length > 1 ? "s" : ""} with a co-investment record`,
+    `<div class="synlead">Funds that have been in rounds this lead led — a
+       different relationship from sharing a cap table, and a record of what
+       happened, not a forecast of what will.
+       <a class="lnk" href="#" data-goto="accuracy">We tested whether it
+       predicts the next round. It does not.</a></div>
      ${anyWarm ? "" : `<div class="verdict grey">No warm route to any of these leads.
        Nothing in the cached graph puts ${backers.length ? esc(backers.join(", ")) : "your backers"}
-       and these funds on the same cap table, so every intro here starts cold —
-       which is exactly what the Slush floor is for.${elsewhere.length ? `
+       and these funds on the same cap table, so every introduction here starts cold.${elsewhere.length ? `
        The warm ${elsewhere.length > 1 ? "routes you do have go" : "route you do have goes"}
        to ${elsewhere.map(e => `<b>${esc(e.investor)}</b> (${esc(e.signals.warm_path.text)})`).join(", ")} —
        ${elsewhere.length > 1 ? "funds that do not" : "a fund that does not"} lead at your stage,
@@ -454,7 +456,16 @@ function founderList() {
       <th>Pace</th><th>Conflict</th><th>Route</th><th class="w-act"></th></tr></thead>
       <tbody>${rowsFor(shown)}</tbody></table></div>`)
     + section("fmap", "Conflict map",
-      `${(F.edges || []).length} fund–competitor links`, conflictMap());
+      `${(F.edges || []).length} fund–competitor links`, conflictMap())
+    + `<div class="evfoot">
+        <b>Evidence and experiments.</b> Not part of the answer above, kept
+        because they are how it was checked.
+        <span>
+          <button class="lnk" data-goto="accuracy">Does the signal work?</button>
+          <button class="lnk" data-goto="investor">Insider conviction</button>
+          <button class="lnk" data-goto="map">Where these funds are</button>
+          <button class="lnk" data-goto="signal">Founder signal (untested)</button>
+        </span></div>`;
 }
 
 /* The conclusion first, then what to do about it. Six KPI cards, a banner, a
@@ -466,8 +477,8 @@ function heroCard(inv, red, leads, warm) {
   const top = inv.find(x => x.signals.conflict.label !== "🔴" && x.score != null);
   const acts = [];
   if (best) acts.push([`Open with ${best.lead}`,
-    `leads at your stage and ${best.members[0]?.name} joins ${
-      Math.round((best.members[0]?.share || 0) * 100)}% of the rounds they lead`,
+    `leads at your stage; ${best.members[0]?.name} was in ${
+      Math.round((best.members[0]?.share || 0) * 100)}% of the rounds they led`,
     { brief: best.lead }]);
   if (warm.length) acts.push([`Ask ${warm[0].signals.warm_path.text.replace(/^via /, "")} for an intro`,
     `the only warm route in this list — it reaches ${warm[0].investor}`,
@@ -483,18 +494,20 @@ function heroCard(inv, red, leads, warm) {
 
   HEROACTS = acts.slice(0, 3);
   const line = best
-    ? `Build the round around <b>${esc(best.lead)}</b>, with <b>${
-        esc(best.members.map(m => m.name).join(" and "))}</b> following them in.`
+    ? `<b>${esc(best.lead)}</b> can lead this round. <b>${
+        esc(best.members.map(m => m.name).join(" and "))}</b> have been in rounds
+       they led before.`
     : leads.length
       ? `<b>${leads.length}</b> of ${inv.length} funds screened actually lead at ${esc(F.stage)}.`
       : `No fund in this list leads at ${esc(F.stage)} — that is the finding.`;
 
   return `<div class="hero">
     <div class="herotop">
-      <span class="herotag">Slush 2026 · 18 Nov · ${esc(F.company)} · ${esc(F.stage)}</span>
+      <span class="herotag">${esc(F.company)} · ${esc(F.stage)} · ${
+        F.investors.length} funds screened</span>
       <h2>${line}</h2>
       ${warm.length ? "" : `<p class="herosub">No warm route reaches any of them,
-        so the floor at Slush is the introduction.</p>`}
+        so every approach here starts cold.</p>`}
     </div>
     <div class="heroacts" style="grid-template-columns:repeat(${
       Math.max(acts.length, 1)},1fr)">${acts.slice(0, 3).map(([t, why, go], i) => `
@@ -2477,6 +2490,31 @@ function accuracyView() {
           <div class="big" style="color:var(--green)">${pct(b.previous_lead_returned.rate)}</div></div>
         <div class="card"><h4>Previous lead absent</h4><div class="sub">n=${b.previous_lead_absent.n}</div>
           <div class="big" style="color:var(--red)">${pct(b.previous_lead_absent.rate)}</div></div>
+      </div>`)
+  + section("acc4", "What we tested and could not show",
+      "the round architect does not predict the next round",
+      `<div class="emptywhy" style="max-width:none">
+        <b>We tested our own most distinctive feature and it failed.</b>
+        "Who has been in rounds this fund led" is a record. We asked whether
+        it also forecasts — build the graph from rounds before a cutoff, then
+        check whether the top predicted co-investor actually turned up in
+        rounds that fund led afterwards.
+        <div class="tbl" style="margin:11px 0">
+          <table><thead><tr><th>Cutoff</th><th class="num">Held-out rounds</th>
+          <th class="num">Architect</th><th class="num">Co-investment baseline</th>
+          <th class="num">Lift</th></tr></thead><tbody>
+          <tr><td>2023-01</td><td class="num">57</td><td class="num">3.5%</td>
+            <td class="num">5.3%</td><td class="num" style="color:var(--red)">−1.8pp</td></tr>
+          <tr><td>2024-01</td><td class="num">35</td><td class="num">2.9%</td>
+            <td class="num">5.7%</td><td class="num" style="color:var(--red)">−2.8pp</td></tr>
+          <tr><td>2025-01</td><td class="num">25</td><td class="num">0.0%</td>
+            <td class="num">8.0%</td><td class="num" style="color:var(--red)">−8.0pp</td></tr>
+          </tbody></table></div>
+        Below the naive baseline at every cutoff. 63 held-out rounds across 21
+        leads is thin, so this is "not demonstrated" rather than "disproven" —
+        but it is certainly not predictive, and the product no longer says it
+        is. The co-investment record stayed; the forecast came out.
+        <span class="sub">Run it yourself: <code>python backtest_syndicate.py</code></span>
       </div>`)
   + section("acc3", "Controlled for cap-table size",
       "return fraction is mechanically tied to how many investors were already on the register",

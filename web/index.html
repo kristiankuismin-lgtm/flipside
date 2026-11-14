@@ -792,6 +792,12 @@ body.neo-on .main{padding-right:380px}
 .teamrow .bio{display:inline-block;margin-top:3px;color:var(--blue);
   font-style:normal;text-decoration:none}
 .teamrow .bio:hover{text-decoration:underline}
+
+.evfoot{display:flex;flex-direction:column;gap:9px;margin-top:var(--s4);
+  padding:var(--s2);border-top:1px solid var(--line);font-size:12.5px;
+  color:var(--faint);line-height:1.6}
+.evfoot b{color:var(--dim);font-weight:550}
+.evfoot span{display:flex;flex-wrap:wrap;gap:16px}
 </style>
 </head>
 <body>
@@ -812,11 +818,9 @@ body.neo-on .main{padding-right:380px}
     </div>
     <button class="navitem on" data-mode="home"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7l6-4.5L14 7v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/></svg></span>Ask</button>
     <div class="navsec">Raising</div>
-    <button class="navitem" data-mode="founder"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 9.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M2.5 14a5.5 5.5 0 0 1 11 0"/></svg></span>Slush plan<span class="ct" id="ct-f"></span></button>
-    <div class="navsec">Signals</div>
+    <button class="navitem" data-mode="founder"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 9.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M2.5 14a5.5 5.5 0 0 1 11 0"/></svg></span>Your round<span class="ct" id="ct-f"></span></button>
+    <div class="navsec">Evidence</div>
     <button class="navitem" data-mode="investor"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12.5l3.5-4 3 2.5L14 4"/><path d="M10.5 4H14v3.5"/></svg></span>Insider conviction<span class="ct" id="ct-i"></span></button>
-    <button class="navitem" data-mode="signal"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.8l1.9 3.9 4.3.6-3.1 3 .7 4.3L8 11.6l-3.8 2 .7-4.3-3.1-3 4.3-.6z"/></svg></span>Founder signal</button>
-    <button class="navitem" data-mode="map"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2.5L2 4v9.5L6 12l4 1.5 4-1.5V2.5L10 4z"/><path d="M6 2.5V12M10 4v9.5"/></svg></span>Map<span class="ct" id="ct-m"></span></button>
     <div class="navsec">Context</div>
     <div class="navitem" style="cursor:default" id="datamode"></div>
     <div class="navitem" style="cursor:default"><span class="ic"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="3.5" width="11" height="10" rx="1.5"/><path d="M2.5 6.5h11M5.5 2v3M10.5 2v3"/></svg></span>Slush 2026<span class="ct">18 Nov</span></div>
