@@ -1268,6 +1268,77 @@ function kbdInit() {
 
 let KBDMODE = null;
 
+/* ---------- the third reading ----------
+   The same graph read a third way: not "who should back you" and not "who
+   are insiders backing", but who looks like someone who starts things,
+   before they have started one. It was reachable only from inside a person
+   profile, which is to say barely reachable at all. */
+let FSQ = "", FSRES = null, FSTIMER = null;
+
+const FS_SUGGEST = ["Ilkka Paananen", "Niklas Zennstrom", "Miki Kuusi",
+                    "Risto Siilasmaa", "Peter Sarlin"];
+
+async function fsSearch(q) {
+  FSQ = q;
+  if (!q || q.trim().length < 2) { FSRES = null; return render(); }
+  FSRES = { loading: true }; render();
+  try {
+    FSRES = await (await fetch(`/search?q=${encodeURIComponent(q.trim())}&kind=people`)).json();
+  } catch (e) { FSRES = { results: [], error: String(e.message) }; }
+  render();
+}
+
+function signalView() {
+  const picked = FSIG && FSIGFOR;
+  return `<div class="fswrap">
+    <div class="fshd">
+      <h2>Who looks like a founder before they are one?</h2>
+      <p>The same graph, read a third way. Not who should back you, and not
+         who insiders are backing — who has the pattern: has built before,
+         has operated senior, has angel cheques out, ships in public.</p>
+    </div>
+    <div class="fssearch">
+      <input id="fsq" placeholder="A person by name" value="${esc(FSQ)}" autocomplete="off">
+      <div class="fschips">${FS_SUGGEST.map(n =>
+        `<button class="chip sm" data-fsname="${esc(n)}">${esc(n)}</button>`).join("")}</div>
+    </div>
+    ${fsResults()}
+    ${picked ? `<div class="fsresult">${founderSignalPanel()}</div>` : ""}
+  </div>`;
+}
+
+function fsResults() {
+  if (!FSRES) return "";
+  if (FSRES.loading) return `<div class="msg" style="padding:20px">
+    <span class="spin"></span>Searching people…</div>`;
+  if (FSRES.error) return `<div class="msg" style="padding:20px">${esc(FSRES.error)}</div>`;
+  if (!FSRES.results?.length) return `<div class="msg" style="padding:20px">
+    No one by that name in the graph we hold.</div>`;
+  return `<div class="fslist">${FSRES.results.map(r => `
+    <button class="fsrow" data-fsid="${esc(r.id)}" data-fsnm="${esc(r.name)}">
+      <div><div class="nm">${esc(r.name)}</div>
+      <div class="d">${esc(r.description || "Person")}</div></div>
+      <span class="go">Read signal →</span></button>`).join("")}</div>`;
+}
+
+/* The tab body, lifted out so the standalone view and the person profile
+   render the same thing rather than two drifting copies. */
+function founderSignalPanel() {
+  const f = FSIG;
+  if (!f) return `<div class="msg"><span class="spin"></span>Reading the graph…</div>`;
+  if (f.error) return `<div class="msg">${esc(f.error)}</div>`;
+  if (f.score === null) {
+    // The common case right now: we hold the name but never fetched the
+    // edges, and the edges are the whole signal.
+    return `<div class="emptywhy"><b>Not enough of the graph to read.</b>
+      ${esc((f.reasons || [])[0] || "")}
+      We hold this person's name but not their relationships — founded,
+      works at, invested in — and those edges are the entire signal. One
+      live lookup fills it in.</div>`;
+  }
+  return founderSignalBody();
+}
+
 function render() {
   if (KBDMODE !== MODE) { KBD = -1; KBDMODE = MODE; kbdHint(false); }
   document.querySelectorAll("[data-mode]").forEach(b =>
@@ -1283,6 +1354,9 @@ function render() {
   } else if (MODE === "map") {
     parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
+  } else if (MODE === "signal") {
+    parts = [{ t: "Signals" }, { t: "Founder signal" }];
+    html = signalView();
   } else if (MODE === "accuracy") {
     parts = [{ t: "Method" }, { t: "Backtest" }];
     html = accuracyView();
@@ -1304,6 +1378,17 @@ function render() {
   if (KBD >= 0 && KBD >= kbdRows().length) { KBD = -1; kbdHint(false); }
   if (KBD >= 0) kbdPaint();
   if (MODE === "map" && MAP?.points) setTimeout(initMap, 30);
+  const fsq = $("#fsq");
+  if (fsq) {
+    fsq.oninput = () => { clearTimeout(FSTIMER);
+      FSTIMER = setTimeout(() => fsSearch(fsq.value), 280); };
+  }
+  document.querySelectorAll("[data-fsname]").forEach(b => b.onclick = () => {
+    const i = $("#fsq"); if (i) i.value = b.dataset.fsname;
+    fsSearch(b.dataset.fsname);
+  });
+  document.querySelectorAll("[data-fsid]").forEach(b => b.onclick = () =>
+    loadFounderSignal(b.dataset.fsid, b.dataset.fsnm));
   document.querySelectorAll("[data-lens]").forEach(b => b.onclick = () => {
     LENS = b.dataset.lens;
     const v = $("#askbox")?.value || "";
@@ -2686,15 +2771,12 @@ async function loadFounderSignal(id, name) {
 function founderSignalTab() {
   if (FSIGFOR !== ENT.id) { loadFounderSignal(ENT.id, ENT.name); return `<div class="msg">
     <span class="spin"></span>Reading the graph…</div>`; }
-  if (!FSIG) return `<div class="msg"><span class="spin"></span>Reading the graph…</div>`;
-  if (FSIG.error) return `<div class="msg">${esc(FSIG.error)}</div>`;
+  return founderSignalPanel();
+}
 
+function founderSignalBody() {
   const f = FSIG, gh = f.github, comps = (f.components || []).filter(c => c.counted);
   const uncounted = (f.components || []).filter(c => !c.counted);
-
-  if (f.score === null) return `<div class="verdict grey">
-    <b>Not enough to read.</b> ${esc((f.reasons || [])[0] || "")}</div>`;
-
   const max = Math.max(...comps.map(c => c.contribution), 1);
   return stats(4, [
     ["Founder signal", f.score, "mono"],
