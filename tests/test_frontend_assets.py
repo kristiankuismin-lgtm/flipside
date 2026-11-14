@@ -52,7 +52,10 @@ def test_every_view_mode_has_a_way_in():
     # inside a view, which is where the backtest belongs - next to the
     # ranking it validates rather than as a peer of it.
     inline = set(re.findall(r'data-goto="([a-z]+)"', JS))
-    # "entity" and "fund" are reached by opening a profile from a search
-    # result or a table row; "pp" is a map sub-mode.
-    unreachable = modes - nav - inline - {"entity", "fund", "pp"}
+    # Four modes are reached by doing something rather than by navigating:
+    # "entity" and "fund" by opening a profile from a search result or a table
+    # row, "pp" is a map sub-mode, "brief" is where the ask box lands while it
+    # reads what the founder brought, and "reach" is where the pick bar goes
+    # once funds are ticked. Each has a visible control; none has a front door.
+    unreachable = modes - nav - inline - {"entity", "fund", "pp", "brief", "reach"}
     assert not unreachable, f"no nav entry for: {sorted(unreachable)}"

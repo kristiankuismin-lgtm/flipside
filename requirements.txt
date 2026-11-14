@@ -5,3 +5,7 @@ pydantic
 numpy
 python-dotenv
 pytest
+python-pptx
+openpyxl
+pypdf
+python-multipart

@@ -188,6 +188,44 @@ CC_TLD = {"DE": "de", "FI": "fi", "SE": "se", "NO": "no", "DK": "dk",
 
 MIN_SLUG = 6      # below this, a name match proves too little
 
+# Words a fund puts at the end of its name and leaves out of its domain.
+# "Coatue Management" is coatue.com; "Project A Ventures" is project-a.com.
+# Dropping them produces a second, shorter stem to try and to verify against.
+_TAIL_DROP = re.compile(
+    r"\s*\b(ventures?|partners?|capital|management|investments?|invest|"
+    r"equity|advisors?|associates|vc|fund|funds|group)\b\s*$", re.I)
+
+
+# A stem made only of these proves nothing: "ventures" is in the title of
+# every venture firm's homepage. "AB Ventures" loses "AB" to the legal-form
+# filter and would otherwise be matched on the word "ventures" alone.
+_GENERIC_ONLY = re.compile(
+    r"^(ventures?|partners?|capital|management|investments?|invest|equity|"
+    r"advisors?|associates|fund|funds|group|holdings?)+$", re.I)
+
+
+def stems(name: str) -> list[str]:
+    """The name, and the name with its fund-ish tail words removed.
+
+    Both are long enough to be evidence on their own; anything shorter than
+    MIN_SLUG is dropped, because matching "abc" in a page title proves
+    nothing about whose page it is - and so is anything made only of the
+    words every fund has in its name.
+    """
+    out, seen = [], set()
+    cur = (name or "").strip()
+    for _ in range(3):
+        sl = slug(cur)
+        if (len(sl) >= MIN_SLUG and sl not in seen
+                and not _GENERIC_ONLY.match(sl)):
+            seen.add(sl)
+            out.append(sl)
+        nxt = _TAIL_DROP.sub("", cur).strip()
+        if nxt == cur:
+            break
+        cur = nxt
+    return out
+
 
 def slug(name: str) -> str:
     """'Andercore GmbH' -> 'andercore'. Legal form is not part of a domain."""
@@ -217,36 +255,61 @@ def is_parked(html: str) -> bool:
     return bool(_PARKED.search(head) or _PARKED.search(body))
 
 
-def _mentions(html: str, name: str) -> bool:
-    """Does this page claim to be this company?
+def _mentions(html: str, name: str) -> str | None:
+    """Does this page claim to be this company, and on what strength?
 
     Compares the page title and og:site_name against the name with spacing
-    and legal form removed, so 'Andercore' matches 'ANDERCORE | Solar'.
+    and legal form removed, so "Andercore" matches "ANDERCORE | Solar".
+
+    Returns "full" when the whole name is in the title, "stem" when only the
+    distinctive head of it is - coatue.com says "Coatue", not "Coatue
+    Management". A stem match is weaker evidence and is labelled, not hidden:
+    it is good enough to hang a logo on and not good enough to assert an
+    address from.
     """
-    want = slug(name)
-    if len(want) < MIN_SLUG:
-        return False
+    want = stems(name)
+    if not want:
+        return None
     head = (_TITLE.search(html or "") or [None, ""])[1]
     og = re.search(r'property=["\']og:site_name["\'][^>]*content=["\'](.*?)["\']',
                    html or "", re.I)
     hay = slug(_clean(head) + " " + (og.group(1) if og else ""))
-    return want in hay
+    for i, w in enumerate(want):
+        if w in hay:
+            return "full" if i == 0 else "stem"
+    return None
 
 
 def candidates(name: str, cc: str | None = None) -> list[str]:
-    base = slug(name)
-    if len(base) < MIN_SLUG:
+    """Domains worth fetching for this name, most likely first.
+
+    Three shapes, because funds use all three: the whole name run together,
+    the name with its tail words dropped, and the words hyphenated. Every one
+    of them is still fetched and checked before it is believed.
+    """
+    bases = list(stems(name))
+    words = [w for w in re.split(r"[^A-Za-z0-9]+", name or "") if w]
+    if len(words) > 1:
+        hyph = "-".join(w.lower() for w in words)
+        hyph_short = "-".join(w.lower() for w in
+                              re.split(r"[^A-Za-z0-9]+", _TAIL_DROP.sub("", name or "")) if w)
+        for h in (hyph_short, hyph):
+            if len(h.replace("-", "")) >= MIN_SLUG and h not in bases:
+                bases.append(h)
+    if not bases:
         return []
     tlds = list(TLDS)
     if cc and CC_TLD.get(cc.upper()):
         tlds.insert(0, CC_TLD[cc.upper()])
     seen, out = set(), []
+    # Breadth first: the .com of every shape before the .io of any of them.
     for t in tlds:
-        d = f"{base}.{t}"
-        if d not in seen:
-            seen.add(d)
-            out.append(d)
-    return out[:5]
+        for b in bases:
+            d = f"{b}.{t}"
+            if d not in seen:
+                seen.add(d)
+                out.append(d)
+    return out[:8]
 
 
 def discover(name: str, cc: str | None = None, *, fetcher=None,
@@ -271,11 +334,18 @@ def discover(name: str, cc: str | None = None, *, fetcher=None,
             html = get(dom)
         except Exception:
             continue
-        if not html or is_parked(html) or not _mentions(html, name):
+        if not html or is_parked(html):
+            continue
+        how = _mentions(html, name)
+        if not how:
             continue
         found = {"site": normalise(dom), "domain": dom,
                  "title": _clean((_TITLE.search(html) or [None, ""])[1])[:140],
-                 "verified": True}
+                 # "full" means the page title carries the whole name; "stem"
+                 # means it carries only the distinctive head of it. Both were
+                 # fetched and read, but they are not equally strong and the
+                 # caller is told which it got.
+                 "verified": True, "match": how}
         if use_cache:
             _store(key, json.dumps(found))
         return found

@@ -109,10 +109,11 @@ a:hover{text-decoration:underline}
 
 /* ---------------- home ---------------- */
 .home{max-width:740px;margin:0 auto;padding:13vh 20px 60px}
-.homehd{display:flex;align-items:center;justify-content:center;gap:11px;margin-bottom:26px}
+.homehd{text-align:center;margin-bottom:26px}
 .homehd .sq{width:34px;height:34px;border-radius:9px;background:var(--accent);
   display:grid;place-items:center;font:700 16px var(--sans);color:#fff}
-.homehd h1{margin:0;font-size:31px;font-weight:620;letter-spacing:-.035em}
+.homehd h1{margin:0 0 10px;font-size:32px;font-weight:620;letter-spacing:-.035em}
+.homesub{margin:0 auto;max-width:54ch;font-size:14.5px;line-height:1.65;color:var(--dim)}
 .ask{background:var(--panel);border:1px solid var(--line2);border-radius:14px;
   box-shadow:var(--sh2);padding:4px 4px 4px 0;transition:border-color .15s}
 .ask:focus-within{border-color:var(--accent)}
@@ -703,6 +704,9 @@ tbody tr.dim td{opacity:.5}
 .neotab .sq{width:22px;height:22px;border-radius:7px;background:var(--accent);
   color:#fff;font:700 11px/22px var(--sans);text-align:center}
 body.neo-on .neotab{display:none}
+/* The pick bar is sticky at the bottom of the ranking; the Neo pill lives in
+   the same corner and was sitting on top of its primary button. */
+body.has-picks .neotab{bottom:78px}
 
 .neo{position:fixed;right:0;top:0;bottom:0;width:380px;max-width:92vw;
   display:none;flex-direction:column;background:var(--panel);
@@ -960,6 +964,114 @@ body.neo-on .main{padding-right:380px}
 .dcovb i{display:block;height:100%;background:var(--accent);border-radius:3px}
 .dcovn{text-align:right;font-variant-numeric:tabular-nums;color:var(--dim)}
 @media (max-width:640px){.dcov{grid-template-columns:1fr 2.5rem}.dcovb{display:none}}
+
+/* ---------------------------------------------------------------- intake */
+.ask textarea{min-height:92px}
+.attach{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;
+  color:var(--dim);cursor:pointer;padding:5px 10px;border-radius:8px;
+  border:1px dashed var(--line2)}
+.attach:hover{color:var(--ink);border-color:var(--accent);background:var(--accent-bg)}
+.attach .clip{font-size:15px;line-height:1}
+.bfiles{display:flex;flex-wrap:wrap;gap:7px;padding:0 16px 8px}
+.bfile{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;
+  background:var(--hover);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.bfi{font:600 9.5px/1 var(--mono,var(--sans));letter-spacing:.06em;color:var(--accent-ink);
+  background:var(--accent-bg);border-radius:4px;padding:3px 5px}
+.bfn{max-width:20ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bfx{border:0;background:none;color:var(--faint);font-size:15px;line-height:1;padding:0 2px}
+.bfx:hover{color:var(--ink)}
+.askalt{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;
+  align-items:center;margin-top:22px}
+
+.intakewrap{max-width:860px;margin:0 auto;padding:40px 20px 60px}
+.pfcard{padding:0;overflow:hidden;margin:18px 0 22px}
+.pfhd{padding:13px 18px;border-bottom:1px solid var(--line);font-weight:600;
+  font-size:13px;letter-spacing:.01em}
+.pfrow{display:grid;grid-template-columns:minmax(0,9rem) 1fr minmax(0,13rem);
+  gap:var(--s2);padding:10px 18px;border-bottom:1px solid var(--line);align-items:baseline}
+.pfrow:last-child{border-bottom:0}
+.pfrow.thin{opacity:.6}
+.pfk{color:var(--dim);font-size:12.5px}
+.pfv{min-width:0;line-height:1.55}
+.pfs{font-size:11.5px;color:var(--faint);text-align:right;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pfbad{padding:12px 18px;background:var(--accent-bg);color:var(--accent-ink);
+  font-size:12.5px;line-height:1.6}
+.chip.sm{padding:3px 9px;font-size:11.5px;box-shadow:none}
+
+.rsn{max-height:48vh;overflow:auto;border:1px solid var(--line);border-radius:12px;
+  background:var(--panel);padding:6px 0}
+.rstep{display:grid;grid-template-columns:18px 4.6rem 1fr auto;gap:10px;
+  align-items:baseline;padding:7px 16px;font-size:13px}
+.rstep.done{color:var(--dim)}
+.rstep.now{color:var(--ink)}
+.rtick{color:var(--accent);font-size:11px}
+.rstep.now .rtick::before{content:"";display:inline-block;width:7px;height:7px;
+  border-radius:50%;background:var(--accent);animation:rpulse 1s infinite}
+@keyframes rpulse{0%,100%{opacity:1}50%{opacity:.25}}
+.rlay{font:600 9.5px/1 var(--sans);letter-spacing:.07em;text-transform:uppercase;
+  border-radius:4px;padding:4px 6px;text-align:center;white-space:nowrap}
+.l-you{background:#efe9df;color:#6b5b43}
+.l-cala{background:var(--accent-bg);color:var(--accent-ink)}
+.l-web{background:#e6eef0;color:#38606b}
+.l-derived{background:#eceaf2;color:#55507a}
+.rtx{min-width:0;line-height:1.5}
+.rwhy{display:block;color:var(--faint);font-size:12px;line-height:1.55;margin-top:2px;
+  max-width:70ch}
+.rel{color:var(--faint);font-size:11.5px;font-variant-numeric:tabular-nums}
+@media (max-width:640px){.rstep{grid-template-columns:16px 1fr auto}.rlay{display:none}
+  .pfrow{grid-template-columns:1fr}.pfs{text-align:left}}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);
+  background:var(--ink);color:var(--bg,#fff);padding:11px 16px;border-radius:10px;
+  font-size:13px;box-shadow:var(--sh2);z-index:90;transition:opacity .4s}
+.toast.go{opacity:0}
+
+/* ------------------------------------------------- pick, and the reach view */
+.w-pick{width:34px}
+.pick{width:17px;height:17px;border-radius:5px;border:1.5px solid var(--line2);
+  background:var(--panel);display:grid;place-items:center;font-size:10px;
+  color:#fff;line-height:1}
+.pick:hover{border-color:var(--accent)}
+.pick.on{background:var(--accent);border-color:var(--accent)}
+.nopick{color:var(--faint)}
+tr.picked{background:var(--accent-bg)}
+
+.pickbar{position:sticky;bottom:14px;z-index:41;display:flex;align-items:center;
+  gap:var(--s2);margin:var(--s3) 0;padding:11px 14px;border-radius:12px;
+  background:var(--ink);color:#fff;box-shadow:var(--sh2)}
+.pickbar .pkn{font-weight:620;white-space:nowrap}
+.pickbar .pknames{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap;opacity:.72;font-size:12.5px}
+.pickbar .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}
+.pickbar .btn:hover{background:rgba(255,255,255,.12)}
+.pickbar .btn.primary{background:var(--accent);border-color:var(--accent)}
+.pickbar .btn.primary:hover{background:var(--accent-ink)}
+
+.reachhd{display:flex;align-items:flex-start;gap:var(--s3);margin-bottom:var(--s3)}
+.reachhd h2{margin:0 0 6px;font-size:19px;letter-spacing:-.02em}
+.reachhd p{margin:0;max-width:62ch;line-height:1.65}
+.reachhd .btn{margin-left:auto;white-space:nowrap}
+.reachgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,25rem);
+  gap:var(--s3);align-items:start}
+.reachlist{min-width:0}
+.reachmap{position:sticky;top:var(--s3)}
+.rmap{height:60vh;min-height:360px;border-radius:12px;overflow:hidden;
+  border:1px solid var(--line);background:var(--panel)}
+.rmapfoot{margin-top:9px;font-size:12px;color:var(--dim);line-height:1.6}
+.rpin{width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;
+  display:grid;place-items:center;font:600 9.5px/1 var(--sans);
+  border:2px solid #fff;box-shadow:var(--sh);cursor:pointer}
+.rpin.near{background:var(--panel);color:var(--dim);border-color:var(--line2)}
+@media (max-width:980px){.reachgrid{grid-template-columns:1fr}
+  .reachmap{position:static}.rmap{height:40vh}}
+
+/* The line that replaced the re-run form above the ranking. */
+.runline{display:flex;align-items:baseline;gap:var(--s3);flex-wrap:wrap;
+  padding:0 0 var(--s3);border-bottom:1px solid var(--line);margin-bottom:var(--s3)}
+.rl1{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;font-size:16px}
+.rl1 b{letter-spacing:-.015em}
+.rl2{margin-left:auto;display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
 </style>
 </head>
 <body>

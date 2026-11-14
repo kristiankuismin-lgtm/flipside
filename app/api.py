@@ -10,7 +10,7 @@ import os
 from dataclasses import asdict
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import BaseModel
@@ -57,15 +57,27 @@ class Req(BaseModel):
 _DOMAINS = None
 
 
+_DOMAIN_STAMP = None
+
+
 def _domains() -> dict:
     """company (lowercased) -> website, from everything already fetched.
 
     Relationship edges carry no website, so a logo would always fall back to a
     monogram. These files already hold the domains.
+
+    Rebuilt when one of those files changes, because the domain resolver runs
+    alongside the server and its output should reach the page it is for
+    without a restart.
     """
-    global _DOMAINS
-    if _DOMAINS is not None:
+    global _DOMAINS, _DOMAIN_STAMP
+    files = ["slush_profiles.json", "portfolio_places.json",
+             "investor_domains.json", "fund_universe.json"]
+    stamp = tuple((ROOT / f).stat().st_mtime if (ROOT / f).exists() else 0
+                  for f in files)
+    if _DOMAINS is not None and _DOMAIN_STAMP == stamp:
         return _DOMAINS
+    _DOMAIN_STAMP = stamp
     out = {}
     def add(name, web):
         if name and web:
@@ -280,13 +292,21 @@ def analyze(req: Req):
     cq = p.get("query") or req.company
     desc = req.description or p.get("desc", "")
 
-    PG.step(key, f"Resolving {req.company} in Cala's graph")
+    PG.step(key, f"Reading {req.company}", desc[:140], layer="you",
+            because="What you build decides who your competitors are, and "
+                    "your competitors decide which investors are closed to you.")
+    PG.step(key, f"Resolving {req.company} in Cala's graph", layer="cala")
     comps, cerr = _safe(C.competitors, cq)
-    PG.step(key, f"Found {len(comps or [])} named competitors",
-            ", ".join(c.get("name", "") for c in (comps or [])[:4]))
+    PG.step(key, f"Cala names {len(comps or [])} competitors",
+            ", ".join(c.get("name", "") for c in (comps or [])[:4]), layer="cala",
+            because="An investor already in one of these has a reason not to "
+                    "take your call, whatever they say on it.")
     pool = req.investors or _investor_pool()[: req.limit]
     mine = req.my_investors or p.get("my_investors", [])
-    PG.step(key, f"Screening {len(pool)} funds")
+    PG.step(key, f"Screening {len(pool)} funds", layer="derived",
+            because="Each one is checked against those competitors before "
+                    "anything else, because exclusion is cheaper to be sure of "
+                    "than fit.")
 
     # Yhteinen yhtiohistoria-indeksi lampimia reitteja varten. Kootaan kerran
     # kaikkien sijoittajien portfolioyhtioista - vain cachesta.
@@ -299,15 +319,25 @@ def analyze(req: Req):
                 all_rounds.extend(h)
         if n % 3 == 0 or n == len(pool):
             PG.step(key, f"Read {n} of {len(pool)} fund histories",
-                    f"{len(all_rounds)} rounds so far")
+                    f"{len(all_rounds)} rounds so far", layer="cala")
     histories = W.index_histories(all_rounds)
-    PG.step(key, f"Indexed {len(all_rounds)} rounds for warm routes")
+    PG.step(key, f"Indexed {len(all_rounds)} rounds for warm routes",
+            layer="derived",
+            because="A fund that has been in a round with one of your existing "
+                    "backers is an introduction, not a cold email.")
 
     out = []
     for n, i in enumerate(pool, 1):
         out.append(analyze_one(i, req.company, desc, req.stage, comps, histories, mine))
         if n % 4 == 0 or n == len(pool):
-            PG.step(key, f"Scored {n} of {len(pool)} funds")
+            last = out[-1]
+            PG.step(key, f"Scored {n} of {len(pool)} funds",
+                    f"{last['investor']}: "
+                    f"{'unranked - too little evidence' if last['score'] is None else last['score']}",
+                    layer="derived",
+                    because="A fund with too few rounds on record stays "
+                            "unranked rather than scoring zero, because we do "
+                            "not know that it is bad - we know that we cannot tell.")
     # Unranked (insufficient evidence) always last, never mixed in.
     out.sort(key=lambda x: (x["score"] is None, -(x["score"] or 0), x["investor"]))
     # Kilpailija <-> rahasto -kaaret konfliktikarttaa varten.
@@ -323,6 +353,76 @@ def analyze(req: Req):
             "fetched_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "competitors": comps or [], "competitors_error": cerr,
             "edges": edges, "investors": out}
+
+
+@app.post("/intake")
+async def intake_endpoint(text: str = Form(""),
+                          files: list[UploadFile] = File(default=[])):
+    """What the founder brought, turned into something the graph can take.
+
+    A founder arriving with a round to raise already has the material. Asking
+    them to retype it into a search box is asking them to summarise themselves
+    worse than their deck does - so this takes the deck, the spreadsheet or
+    the PDF, and pulls out the handful of fields the screen needs.
+
+    Returns the profile with the line of the slide each field came from, plus
+    the first reasoning steps, so the founder can see what we understood
+    before we spend ninety seconds acting on it.
+    """
+    from . import intake as IN, progress as PG
+
+    docs = []
+    for f in files or []:
+        if not f.filename:
+            continue
+        docs.append(IN.read(await f.read(), f.filename))
+
+    prof = IN.profile(text, docs)
+    key = PG.key_for(prof.get("name") or text or "intake", prof.get("stage") or "")
+    PG.start(key, prof.get("name") or "your company")
+
+    for d in docs:
+        if d.error:
+            PG.step(key, f"Could not read {d.name}", d.error, layer="you")
+        else:
+            PG.step(key, f"Read {d.name}", f"{len(d.lines)} lines of {d.kind}",
+                    layer="you")
+    if text.strip():
+        PG.step(key, "Read what you wrote", f"{len(text.split())} words", layer="you")
+
+    for fld, label, why in (
+        ("name", "company", "The name is what we look up in Cala."),
+        ("website", "website", "A website resolves to one company; a name "
+                               "resolves to every namesake in the registry."),
+        ("stage", "round", "Stage decides which funds are even relevant - a "
+                           "seed fund in a Series A is a waste of your week."),
+        ("round_size", "round size", "A fund that has never written a cheque "
+                                     "this size will not start with yours."),
+    ):
+        if prof.get(fld):
+            src = (prof.get("sources") or {}).get(fld) or {}
+            PG.step(key, f"{label.capitalize()}: {prof[fld]}",
+                    f"from {src.get('where', 'what you wrote')}", layer="you",
+                    because=why)
+    if prof.get("markets"):
+        PG.step(key, "Market: " + ", ".join(prof["markets"]), layer="derived",
+                because="Matched against the same vocabulary we read investors "
+                        "with, so 'clinical documentation' and 'digital health "
+                        "care provider' can be seen to be the same market.")
+    if not prof.get("name"):
+        PG.step(key, "No company name found", "tell us the name or the website",
+                layer="you")
+
+    prof["run_key"] = key
+    prof["steps"] = PG.get(key)["steps"]
+    return prof
+
+
+@app.get("/reasoning")
+def reasoning(key: str = "", company: str = "", stage: str = ""):
+    """The live log of what the screen is doing and why."""
+    from . import progress as PG
+    return PG.get(key or PG.key_for(company, stage))
 
 
 @app.get("/health")

@@ -137,3 +137,59 @@ def test_lead_rate_comes_from_the_native_flag():
         ]}}}
     got = PR.build(e)
     assert got["stats"]["led"] == 1 and got["stats"]["lead_rate"] == 0.5
+
+
+# ------------------------------------------------- names funds actually use
+def test_stems_drop_the_fund_ish_tail():
+    """coatue.com is Coatue Management's site; coatuemanagement.com is not."""
+    assert W.stems("Coatue Management") == ["coatuemanagement", "coatue"]
+    assert W.stems("Bessemer Venture Partners")[-1] == "bessemer"
+
+
+def test_stems_keep_a_name_that_has_no_tail():
+    assert W.stems("Creandum") == ["creandum"]
+
+
+def test_stems_never_return_something_too_short_to_be_evidence():
+    """"Lead Edge Capital" must not be matched on "lead"."""
+    assert all(len(s) >= W.MIN_SLUG for s in W.stems("Lead Edge Capital"))
+    assert W.stems("AB Ventures") == []
+
+
+def test_candidates_try_the_hyphenated_shape():
+    """Project A Ventures is project-a.com."""
+    assert "project-a.com" in W.candidates("Project A Ventures")
+
+
+def test_candidates_try_every_shape_at_com_before_any_at_io():
+    c = W.candidates("Coatue Management")
+    first_io = next(i for i, d in enumerate(c) if d.endswith(".io"))
+    assert all(d.endswith(".com") for d in c[:first_io])
+
+
+def test_the_full_name_is_tried_before_the_short_stem():
+    """lifelineventures.com must be fetched before lifeline.com, or a
+    namesake wins on a shorter string."""
+    c = W.candidates("Lifeline Ventures")
+    assert c.index("lifelineventures.com") < c.index("lifeline.com")
+
+
+def test_a_full_title_match_is_reported_as_full():
+    html = "<title>Creandum | Venture capital</title>"
+    assert W._mentions(html, "Creandum") == "full"
+
+
+def test_a_stem_only_title_match_is_reported_as_stem():
+    """The caller needs to know it got the weaker kind of evidence."""
+    html = "<title>Coatue</title>"
+    assert W._mentions(html, "Coatue Management") == "stem"
+
+
+def test_an_unrelated_page_matches_nothing():
+    assert W._mentions("<title>Acme Plumbing</title>", "Coatue Management") is None
+
+
+def test_discover_labels_how_it_matched():
+    pages = {"coatue.com": "<title>Coatue</title>"}
+    d = W.discover("Coatue Management", fetcher=lambda x: pages.get(x), use_cache=False)
+    assert d["domain"] == "coatue.com" and d["match"] == "stem"

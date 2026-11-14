@@ -195,6 +195,12 @@ function wire() {
     else IFILTER = IFILTER === k ? "all" : k;
     render();
   });
+  const so = $("#startover");
+  if (so) so.onclick = () => {
+    F = null; SEL = null; CALLS = null; PICKED = new Set();
+    INTAKE = { files: [], profile: null, state: "idle" };
+    MODE = "home"; render();
+  };
   const cf = $("#clearf");
   if (cf) cf.onclick = () => { FFILTER = IFILTER = "all"; render(); };
   document.querySelectorAll("[data-hero]").forEach(b => b.onclick = () => {
@@ -404,6 +410,170 @@ function syndicateBlock() {
      <div class="syns">${cards}</div>`);
 }
 
+/* ===================================================== PICK AND REACH
+   A screen ends with a ranking, which is an opinion. What a founder needs
+   next is a week of work: who to contact, in what order, and which of them
+   they could walk to. So the ranking is selectable, and the selection
+   becomes a call list with the map beside it.
+
+   Funds that back a competitor cannot be picked at all. Letting a founder
+   build a week around one of them would undo the only thing this product
+   does that nothing else does. */
+let PICKED = new Set();
+
+function pickAllBox(shown) {
+  const able = shown.filter(x => x.signals.conflict.label !== "\u{1F534}");
+  const all = able.length && able.every(x => PICKED.has(x.investor));
+  return `<button class="pick ${all ? "on" : ""}" data-pickall="1"
+    title="${all ? "Clear the list" : `Add all ${able.length} that are not blocked`}"
+    >${all ? "\u2713" : ""}</button>`;
+}
+
+function pickBar() {
+  if (!PICKED.size) return "";
+  const n = PICKED.size;
+  return `<div class="pickbar">
+    <div class="pkn">${n} fund${n === 1 ? "" : "s"} on your list</div>
+    <div class="pknames">${[...PICKED].slice(0, 4).map(esc).join(" · ")}${
+      n > 4 ? ` · +${n - 4}` : ""}</div>
+    <button class="btn" data-pickclear="1">Clear</button>
+    <button class="btn primary" id="buildcalls">Who do I call, and where are they?</button>
+  </div>`;
+}
+
+async function buildReach() {
+  if (!PICKED.size || !F) return;
+  const picks = [...PICKED];
+  MODE = "reach"; CALLS = { loading: true }; REACHMAP = { loading: true };
+  render();
+  // The map is a /map read and lands in under a second; the call list is a
+  // re-screen and takes a minute. Starting them together means the founder
+  // has something true on screen while the slow half runs.
+  loadReachMap(picks);
+  try {
+    CALLS = await (await fetch("/call-list", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company: F.company, stage: F.stage,
+                             investors: picks, limit: picks.length })
+    })).json();
+  } catch (e) { CALLS = { error: String(e.message), rows: [] }; }
+  render();
+  if (CALLS.rows?.length) enrichCalls();
+}
+
+/* The map answers a question the list cannot: which of these people are in
+   the city you are already in next week. */
+let REACHMAP = null;
+async function loadReachMap(picks) {
+  REACHMAP = { loading: true };
+  if (MODE === "reach") paintReachMap();
+  try {
+    const d = await (await fetch("/map")).json();
+    const want = new Set(picks.map(norm_));
+    const pts = (d.funds || []).filter(f => want.has(norm_(f.name)));
+    REACHMAP = { points: pts, missing: picks.filter(p =>
+      !pts.some(x => norm_(x.name) === norm_(p))) };
+  } catch (e) { REACHMAP = { error: String(e.message), points: [] }; }
+  if (MODE === "reach") paintReachMap();
+}
+
+function reachView() {
+  if (!F) return `<div class="msg">Run a screen first — the list is built from
+    the funds that survived it.</div>`;
+  return `<div class="reachhd">
+      <div><h2>${esc(F.company)} · ${PICKED.size} fund${PICKED.size === 1 ? "" : "s"} you picked</h2>
+      <p class="sub">Who to call at each one, and where they are. The order is
+        the fund's score plus what we know about the person — a partner who
+        has been in your market, has built something, has been there long
+        enough to champion a cheque, and can introduce you onward.</p></div>
+      <button class="btn" data-goto="founder">Back to the screen</button>
+    </div>
+    <div class="reachgrid">
+      <div class="reachlist">${reachList()}</div>
+      <div class="reachmap"><div id="reachmap" class="rmap"></div>
+        <div class="rmapfoot" id="rmapfoot"></div></div>
+    </div>`;
+}
+
+function paintReachMap() {
+  const foot = $("#rmapfoot");
+  if (foot) {
+    foot.innerHTML = (!REACHMAP || REACHMAP.loading)
+      ? `<span class="spin"></span> Placing them…`
+      : REACHMAP.error ? esc(REACHMAP.error)
+      : `${REACHMAP.points?.length || 0} of ${PICKED.size} placed${
+          REACHMAP?.missing?.length
+            ? ` · ${REACHMAP.missing.length} with no address in Cala: ${
+                REACHMAP.missing.slice(0, 3).map(esc).join(", ")}` : ""}
+         <button class="lnk" id="nearme">Find funds near me</button>`;
+  }
+  const el = $("#reachmap");
+  if (!el || !REACHMAP?.points?.length || typeof maplibregl === "undefined") return;
+  if (!RMAP) {
+    RMAP = new maplibregl.Map({
+      container: el, style: "https://tiles.openfreemap.org/styles/positron",
+      center: [12, 54], zoom: 3, attributionControl: false,
+    });
+    RMAP.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+  }
+  RMARKERS.forEach(m => m.remove()); RMARKERS = [];
+  const bounds = new maplibregl.LngLatBounds();
+  for (const p of REACHMAP.points) {
+    if (p.lon == null || p.lat == null) continue;
+    const d = document.createElement("div");
+    d.className = "rpin" + (p.nearby ? " near" : "");
+    d.title = `${p.name}${p.city ? " · " + p.city : ""}`;
+    d.textContent = initials(p.name);
+    const m = new maplibregl.Marker({ element: d }).setLngLat([p.lon, p.lat])
+      .setPopup(new maplibregl.Popup({ offset: 14 })
+        .setHTML(`<b>${esc(p.name)}</b><br>${esc(p.city || p.country || "")}`))
+      .addTo(RMAP);
+    RMARKERS.push(m); bounds.extend([p.lon, p.lat]);
+  }
+  if (!bounds.isEmpty()) RMAP.fitBounds(bounds, { padding: 56, maxZoom: 9, duration: 600 });
+}
+let RMAP = null, RMARKERS = [];
+
+/* "Near me" on the reach map. The coordinate comes from the browser with the
+   founder's consent, is used for one request, and is never stored or sent
+   anywhere else - no IP lookup service sees where they are. */
+function nearMeOnReach() {
+  const foot = $("#rmapfoot");
+  if (!navigator.geolocation) {
+    if (foot) foot.innerHTML = "This browser will not share a location.";
+    return;
+  }
+  if (foot) foot.innerHTML = `<span class="spin"></span> Asking your browser where you are…`;
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude: lat, longitude: lon } = pos.coords;
+    try {
+      const d = await (await fetch(`/near?lat=${lat}&lon=${lon}&radius_km=400&kind=fund`
+        + `&company=${encodeURIComponent(F?.company || "")}`)).json();
+      const picks = new Set([...PICKED].map(norm_));
+      REACHMAP = {
+        ...REACHMAP,
+        points: [...(REACHMAP?.points || []),
+                 ...(d.results || []).filter(x => !picks.has(norm_(x.name)))
+                   .map(x => ({ ...x, nearby: true }))],
+        near: { count: (d.results || []).length, km: 400 },
+      };
+      paintReachMap();
+      const f = $("#rmapfoot");
+      if (f) f.innerHTML = `${d.count || 0} funds within 400 km of you${
+        d.city ? ` · ${esc(d.city)}` : ""} — the hollow pins are ones you have
+        not picked.`;
+    } catch (e) {
+      const f = $("#rmapfoot");
+      if (f) f.textContent = String(e.message);
+    }
+  }, err => {
+    const f = $("#rmapfoot");
+    if (f) f.textContent = err.code === 1
+      ? "You declined the location prompt, so the map stays as it is."
+      : "Your browser could not get a location.";
+  }, { timeout: 8000 });
+}
+
 function founderList() {
   if (!F) return searchPanel() + `<div class="msg">Run diligence to screen your target list.</div>`;
   const inv = F.investors, red = inv.filter(x => x.signals.conflict.label === "🔴");
@@ -413,7 +583,15 @@ function founderList() {
       : x.score === null ? badge("No data", "grey")
       : s.lead_rate.label === "🟢" && s.dry_powder.label !== "🔴" ? badge("Strong", "green")
       : badge("Care", "amber");
-    return `<tr data-open="${esc(x.investor)}">
+    const picked = PICKED.has(x.investor);
+    const blocked = c.label === "\u{1F534}";
+    return `<tr data-open="${esc(x.investor)}" class="${picked ? "picked" : ""}">
+      <td class="w-pick">${blocked
+        ? `<span class="nopick" title="Backs a competitor — building a list
+             around them is the mistake this product exists to stop">\u2014</span>`
+        : `<button class="pick ${picked ? "on" : ""}" data-pick="${esc(x.investor)}"
+             title="${picked ? "Remove from your list" : "Add to your list"}"
+             >${picked ? "\u2713" : ""}</button>`}</td>
       <td class="rank">${i + 1}</td>
       <td><div class="ent">${logo(x.investor)}<div><div class="nm">${esc(x.investor)}</div>
         <div class="sb">${x.rounds_seen} rounds · ${x.portfolio_size || 0} portfolio</div></div></div></td>
@@ -468,9 +646,12 @@ function founderList() {
         `${(F.edges || []).length} link${(F.edges || []).length === 1 ? "" : "s"} · two hops in Cala's graph`,
         conflictMap())
     + planSection()
-    + section("ftable", "Who is left", `${shown.length} of ${inv.length} screened`,
+    + pickBar()
+    + section("ftable", "Who is left",
+      `${shown.length} of ${inv.length} screened · tick the ones you want`,
       `<div class="tbl"><table>
-      <thead><tr><th class="w-rank"></th><th>Investor</th><th>Verdict</th><th class="num">Score</th>
+      <thead><tr><th class="w-pick">${pickAllBox(shown)}</th>
+      <th class="w-rank"></th><th>Investor</th><th>Verdict</th><th class="num">Score</th>
       <th class="num">Lead</th><th class="num">Follow-on</th>
       <th>Pace</th><th>Conflict</th><th>Route</th><th class="w-act"></th></tr></thead>
       <tbody>${rowsFor(shown)}</tbody></table></div>`)
@@ -540,14 +721,31 @@ function heroCard(inv, red, leads, warm) {
 
 let HEROACTS = [];
 
+/* What this screen was run on, and where it came from.
+   This used to be a form - company, round, target count, Run - sitting above
+   the answer on every render. The brief already said all of it, and a form
+   the founder has already filled in is furniture: it pushed the one thing
+   this product knows below the fold. What is left is the sentence, the
+   provenance, and a way back. */
 function searchPanel() {
-  return `<div class="search">
-    <div class="fld"><label>Company raising</label><input id="co" value="${esc(F?.company || "Gosta Labs")}"></div>
-    <div class="fld"><label>Round</label><select id="st">
-      <option>pre-seed</option><option>seed</option><option selected>series a</option></select></div>
-    <div class="fld"><label>Targets</label><select id="n">
-      <option>8</option><option selected>14</option><option>20</option><option>30</option></select></div>
-    <div class="fld"><label>&nbsp;</label><button class="btn pri" id="go">Run diligence</button></div>
+  const p = F?.profile;
+  const src = p?.sources?.name?.file;
+  return `<div class="runline">
+    <div class="rl1">
+      <b>${esc(F?.company || "")}</b>
+      <span class="sub">· ${esc(F?.stage || "series a")}</span>
+      ${p?.round_size ? `<span class="sub">· raising ${
+        (p.round_size / 1e6).toFixed(1).replace(/\.0$/, "")}M ${
+        esc(p.round_currency || "EUR")}</span>` : ""}
+      ${(p?.markets || []).map(m => `<span class="chip sm">${esc(m)}</span>`).join("")}
+    </div>
+    <div class="rl2">
+      ${src && src !== "what you wrote"
+        ? `<span class="sub">read from ${esc(src)}</span>`
+        : p ? `<span class="sub">from what you wrote</span>` : ""}
+      ${p ? `<button class="lnk" data-goto="brief">See how we read it</button>` : ""}
+      <button class="lnk" id="startover">Start over</button>
+    </div>
   </div>`;
 }
 
@@ -1936,6 +2134,24 @@ function watchView() {
     + section("wnow", "What it catches now", "", alertResultsPane());
 }
 
+/* The same rows the call list page shows, without the page furniture: in
+   the reach view the map is carrying the context the KPI cards would. */
+function reachList() {
+  if (CALLS?.loading) return `<div class="msg" style="padding:30px">
+    <span class="spin"></span>Finding who to contact at each firm…<br>
+    <span class="sub">Cala first, then each firm\u2019s own team page.</span></div>`;
+  if (CALLS?.error) return `<div class="emptywhy"><b>Could not build it.</b>
+    ${esc(CALLS.error)}</div>`;
+  const rows = CALLS?.rows || [];
+  if (!rows.length) return `<div class="emptywhy"><b>Nobody to call.</b>
+    None of the funds you picked came back with a named contact — neither Cala
+    nor their own team page had one.</div>`;
+  const skipped = (CALLS.skipped || []).filter(x => x.why === "no contact found");
+  return `<div class="calllist">${rows.map(callRow).join("")}</div>`
+    + (skipped.length ? `<div class="sub" style="margin-top:var(--s2)">
+        No name found at ${skipped.map(x => esc(x.fund)).join(", ")}.</div>` : "");
+}
+
 function callsView() {
   if (!F) return `<div class="msg">Run a screen first — the call list is built
     from the funds that survive it.</div>`;
@@ -2140,12 +2356,19 @@ function render() {
   } else if (MODE === "home") {
     parts = [{ t: "Ask" }];
     html = homeView();
+  } else if (MODE === "brief") {
+    parts = [{ t: "Ask", go: 1 }, { t: INTAKE.profile?.name || "Reading your brief" }];
+    html = intakeView();
   } else if (MODE === "map") {
     parts = [{ t: "Map" }, { t: "Companies, funds and people" }];
     html = mapView();
   } else if (MODE === "watch") {
     parts = [{ t: "Your raise", go: 1 }, { t: "Watch" }];
     html = watchView();
+  } else if (MODE === "reach") {
+    parts = [{ t: "Your raise", go: 1 }, { t: F?.company || "", go: 1 },
+             { t: "Who to call" }];
+    html = reachView();
   } else if (MODE === "calls") {
     parts = [{ t: "Your raise", go: 1 }, { t: "Call list" }];
     html = callsView();
@@ -2169,6 +2392,7 @@ function render() {
   crumb(parts);
   $("#baracts").innerHTML = MODE === "founder" && !SEL && F
     ? `<button class="btn" id="go2">Re-run</button>` : "";
+  document.body.classList.toggle("has-picks", PICKED.size > 0 && MODE === "founder");
   $("#view").innerHTML = html;
   wire();
   kbdInit();
@@ -2191,23 +2415,59 @@ function render() {
   });
   document.querySelectorAll("[data-fsid]").forEach(b => b.onclick = () =>
     loadFounderSignal(b.dataset.fsid, b.dataset.fsnm));
-  document.querySelectorAll("[data-lens]").forEach(b => b.onclick = () => {
-    LENS = b.dataset.lens;
-    const v = $("#askbox")?.value || "";
+  document.querySelectorAll("[data-pick]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const n = b.dataset.pick;
+    PICKED.has(n) ? PICKED.delete(n) : PICKED.add(n);
     render();
-    const ab2 = $("#askbox");
-    if (ab2) { ab2.value = v; ab2.focus(); }
   });
+  document.querySelectorAll("[data-pickall]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const able = (F?.investors || []).filter(x =>
+      x.signals.conflict.label !== "\u{1F534}");
+    const all = able.length && able.every(x => PICKED.has(x.investor));
+    PICKED = all ? new Set() : new Set(able.map(x => x.investor));
+    render();
+  });
+  document.querySelectorAll("[data-pickclear]").forEach(b =>
+    b.onclick = () => { PICKED = new Set(); render(); });
+  const bc = $("#buildcalls");
+  if (bc) bc.onclick = () => buildReach();
+  if (MODE === "reach") { paintReachMap(); }
+  const nm = $("#nearme");
+  if (nm) nm.onclick = () => nearMeOnReach();
   document.querySelectorAll("[data-q]").forEach(b =>
     b.onclick = () => routeAsk(b.dataset.q));
   const ab = $("#askbox");
   if (ab) {
     ab.focus();
+    // A brief is a paragraph, so Enter has to make a newline. Cmd/Ctrl+Enter
+    // sends, which is what every box people type paragraphs into does.
     ab.onkeydown = e => {
-      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); routeAsk(ab.value); }
+      if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); runIntake(); }
     };
-    $("#asksend").onclick = () => routeAsk(ab.value);
+    const sendBtn = $("#asksend");
+    if (sendBtn) sendBtn.onclick = () => runIntake();
   }
+  const fi = $("#askfiles");
+  if (fi) fi.onchange = () => {
+    const text = $("#askbox")?.value || "";
+    for (const f of fi.files) {
+      if (f.size > MAX_FILE_MB * 1024 * 1024) {
+        toast(`${f.name} is ${(f.size / 1048576).toFixed(0)} MB — we read up to ${MAX_FILE_MB} MB.`);
+        continue;
+      }
+      INTAKE.files.push({ name: f.name, size: f.size, file: f });
+    }
+    render();
+    const ab2 = $("#askbox"); if (ab2) { ab2.value = text; ab2.focus(); }
+  };
+  document.querySelectorAll("[data-rmfile]").forEach(b => b.onclick = () => {
+    const text = $("#askbox")?.value || "";
+    INTAKE.files.splice(+b.dataset.rmfile, 1);
+    render();
+    const ab2 = $("#askbox"); if (ab2) ab2.value = text;
+  });
   const cm = $("#composeit");
   if (cm) cm.onclick = () => (MODE === "founder" && F && !ENT)
     ? openBrief(SEL) : openCompose();
@@ -2917,39 +3177,210 @@ const CHIPS = [
   ["◉", "Where are these funds?", "map"],
 ];
 
-/* Which side of the graph the question is asked from. "Auto" reads the
-   question and the name; the other two are the user overruling that, which
-   they must be able to do - "lifeline ventures" is a fund, and screening
-   investors for it is not a thing anyone wanted. */
-let LENS = "auto";
-const LENSES = [
-  ["auto", "Auto", "read the question"],
-  ["founder", "I'm raising", "screen investors for a company"],
-  ["lookup", "Look up", "open a fund or person profile"],
-];
+
+
+/* ============================================================ INTAKE
+   A founder arriving with a round to raise already has the material. The
+   old ask box took a company name and nothing else, which asked them to
+   summarise themselves worse than their deck already does.
+
+   So: a paragraph, or a deck, or a spreadsheet, or all three. We read it,
+   say what we understood and which slide we read it off, and only then
+   spend ninety seconds on the graph. The reasoning is shown while it runs
+   and kept afterwards, because a founder who cannot see why a fund ranked
+   where it did has no reason to believe the order. */
+let INTAKE = { files: [], profile: null, state: "idle" };
+
+/* A refusal the user needs to see but does not need to dismiss: a file too
+   large to read, dropped before it costs them the upload. */
+function toast(msg) {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add("go"), 2600);
+  setTimeout(() => el.remove(), 3200);
+}
+
+const LAYER_LABEL = {
+  you: "what you brought", cala: "Cala's graph",
+  web: "the open web", derived: "our arithmetic",
+};
+const MAX_FILE_MB = 20;
+
+function intakeFilesRow() {
+  if (!INTAKE.files.length) return "";
+  return `<div class="bfiles">${INTAKE.files.map((f, i) => `
+    <span class="bfile"><span class="bfi">${esc(fileIcon(f.name))}</span>
+      <span class="bfn">${esc(f.name)}</span>
+      <span class="sub">${(f.size / 1024).toFixed(0)} KB</span>
+      <button class="bfx" data-rmfile="${i}" title="Remove">×</button></span>`).join("")}</div>`;
+}
+
+function fileIcon(name) {
+  const e = (name.split(".").pop() || "").toLowerCase();
+  return e === "pdf" ? "PDF" : e.startsWith("ppt") ? "DECK"
+    : e.startsWith("xls") || e === "csv" ? "SHEET" : "TXT";
+}
 
 function homeView() {
   return `<div class="home">
-    <div class="homehd"><span class="sq">F</span><h1>What are you looking at today?</h1></div>
-    <div class="lens">${LENSES.map(([k, label, why]) =>
-      `<button class="lensbtn ${LENS === k ? "on" : ""}" data-lens="${k}" title="${esc(why)}">
-         ${esc(label)}</button>`).join("")}</div>
+    <div class="homehd">
+      <h1>Who should you be talking to?</h1>
+      <p class="homesub">Tell Flipside what you are building and what you are
+        raising. It reads Cala's graph for the investors who can actually lead
+        it — and, just as usefully, the ones who cannot.</p>
+    </div>
+
     <div class="ask">
-      <textarea id="askbox" rows="2" placeholder="${
-        LENS === "investor" ? "A theme or just press Run — e.g. &quot;who is raising quietly?&quot;"
-        : LENS === "lookup" ? "A fund or person by name — e.g. &quot;Lifeline Ventures&quot;"
-        : LENS === "founder" ? "The company you're raising for — e.g. &quot;Gosta Labs, Series A&quot;"
-        : "A company you're raising for, a fund you're meeting, or just ask — try &quot;Gosta Labs&quot;"
-      }"></textarea>
+      <textarea id="askbox" rows="4" placeholder="We build clinical documentation software that writes patient notes from the consultation. Raising a €4.5M Series A. gostalabs.com"></textarea>
+      ${intakeFilesRow()}
       <div class="askfoot">
-        <span class="lenshint">${esc((LENSES.find(l => l[0] === LENS) || [])[2] || "")}</span>
-        <button class="send" id="asksend" title="Run">↑</button>
+        <label class="attach" title="Deck, spreadsheet, PDF or text — up to ${MAX_FILE_MB} MB each">
+          <input type="file" id="askfiles" multiple hidden
+            accept=".pdf,.pptx,.ppt,.xlsx,.xlsm,.csv,.txt,.md">
+          <span class="clip">+</span> Add your deck or numbers</label>
+        <button class="send" id="asksend" title="Read it">↑</button>
       </div>
     </div>
-    <div class="chips">${CHIPS.map(([ic, label, q]) =>
-      `<button class="chip" data-q="${esc(q)}"><span class="ic">${ic}</span>${esc(label)}</button>`).join("")}</div>
+
+    <div class="askalt">
+      <span class="sub">Or go straight to</span>
+      ${CHIPS.map(([ic, label, q]) =>
+        `<button class="chip" data-q="${esc(q)}"><span class="ic">${ic}</span>${esc(label)}</button>`).join("")}
+    </div>
   </div>`;
 }
+
+/* What we understood, each field pointing at the line it came from. A
+   profile with no provenance is a guess wearing a suit. */
+function profileCard(p) {
+  const field = (k, label) => {
+    const v = p[k], src = (p.sources || {})[k];
+    if (!v) return `<div class="pfrow thin"><div class="pfk">${esc(label)}</div>
+      <div class="pfv sub">not found</div><div class="pfs"></div></div>`;
+    const shown = k === "round_size"
+      ? `${(v / 1e6).toFixed(1).replace(/\.0$/, "")}M ${esc(p.round_currency || "EUR")}`
+      : esc(String(v));
+    return `<div class="pfrow"><div class="pfk">${esc(label)}</div>
+      <div class="pfv">${shown}</div>
+      <div class="pfs">${src ? `<span title="${esc(src.quote)}">${esc(src.file)}
+        ${src.where !== src.file ? "· " + esc(src.where) : ""}</span>` : ""}</div></div>`;
+  };
+  const bad = (p.files || []).filter(f => f.error);
+  return `<div class="card pfcard">
+    <div class="pfhd">What we understood</div>
+    ${field("name", "Company")}
+    ${field("website", "Website")}
+    ${field("description", "What you build")}
+    ${field("stage", "Round")}
+    ${field("round_size", "Raising")}
+    <div class="pfrow"><div class="pfk">Market</div>
+      <div class="pfv">${(p.markets || []).length
+        ? p.markets.map(m => `<span class="chip sm">${esc(m)}</span>`).join(" ")
+        : `<span class="sub">none of our vocabulary matched</span>`}</div>
+      <div class="pfs"></div></div>
+    ${bad.length ? `<div class="pfbad">${bad.map(f =>
+      `<b>${esc(f.name)}</b> — ${esc(f.error)}`).join("<br>")}</div>` : ""}
+  </div>`;
+}
+
+/* The reasoning, grouped by where each line came from. The layers are kept
+   apart on purpose: "Cala holds 16 rounds" and "their site lists a partner"
+   are not equally strong, and a founder deciding whether to trust the
+   ranking needs to see which one carried it. */
+function reasoningPanel(steps, done) {
+  if (!steps?.length) return `<div class="rsn"><div class="rstep now">
+    <span class="rtick"></span><span class="rtx">Starting…</span></div></div>`;
+  return `<div class="rsn" id="rsn">${steps.map((x, i) => {
+    const last = i === steps.length - 1 && !done;
+    return `<div class="rstep ${last ? "now" : "done"}">
+      <span class="rtick">${last ? "" : "✓"}</span>
+      <span class="rlay l-${esc(x.layer || "derived")}"
+        title="${esc(LAYER_LABEL[x.layer] || "")}">${esc(x.layer || "derived")}</span>
+      <span class="rtx">${esc(x.text)}${x.detail
+        ? ` <span class="sub">${esc(x.detail)}</span>` : ""}${x.because
+        ? `<span class="rwhy">${esc(x.because)}</span>` : ""}</span>
+      <span class="rel">${x.t}s</span></div>`;
+  }).join("")}</div>`;
+}
+
+function intakeView() {
+  const p = INTAKE.profile;
+  return `<div class="intakewrap">
+    <div class="pghd">${INTAKE.state === "done" ? "" : `<span class="spin"></span>`}
+      ${INTAKE.state === "reading" ? "Reading what you brought"
+        : INTAKE.state === "screening"
+          ? `Reading Cala's graph for <b>${esc(p?.name || "your company")}</b>`
+          : "Done"}</div>
+    ${p ? profileCard(p) : ""}
+    ${reasoningPanel(INTAKE.steps, INTAKE.state === "done")}
+  </div>`;
+}
+
+async function runIntake() {
+  const text = $("#askbox")?.value || "";
+  if (!text.trim() && !INTAKE.files.length) { $("#askbox")?.focus(); return; }
+  INTAKE = { ...INTAKE, profile: null, steps: [], state: "reading" };
+  MODE = "brief"; render();
+
+  const fd = new FormData();
+  fd.append("text", text);
+  for (const f of INTAKE.files) fd.append("files", f.file, f.name);
+
+  let p;
+  try {
+    p = await (await fetch("/intake", { method: "POST", body: fd })).json();
+  } catch (e) {
+    INTAKE.state = "done";
+    $("#view").innerHTML = errorPanel(String(e.message), "your brief");
+    return;
+  }
+  INTAKE.profile = p; INTAKE.steps = p.steps || []; INTAKE.state = "screening";
+  render();
+
+  // Nothing to look up is a dead end we should say out loud rather than
+  // screening an empty name and returning an empty list.
+  if (!p.name) { INTAKE.state = "done"; return render(); }
+
+  PENDING_CO = p.name;
+  PENDING_STAGE = p.stage || "series a";
+  startReasoning(p.run_key);
+  const r = await fetch("/analyze", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      company: p.name, stage: p.stage || "series a",
+      description: p.description || "", limit: 14 })
+  });
+  stopReasoning();
+  F = await r.json();
+  F.profile = p;
+  PENDING_CO = PENDING_STAGE = null; SEL = null; SYN = null;
+  INTAKE.state = "done";
+  MODE = "founder"; planLoad(); FCONTRA = {}; render();
+  loadSyndicates(F.company, F.stage);
+  loadFounderContradictions();
+}
+
+let RSNTIMER = null;
+function startReasoning(key) {
+  stopReasoning();
+  RSNTIMER = setInterval(async () => {
+    try {
+      const d = await (await fetch(`/reasoning?key=${encodeURIComponent(key)}`)).json();
+      if (d.steps?.length) {
+        INTAKE.steps = d.steps;
+        const el = $("#rsn");
+        if (el) {
+          el.outerHTML = reasoningPanel(d.steps, d.done);
+          const n = $("#rsn"); if (n) n.scrollTop = n.scrollHeight;
+        }
+      }
+      if (d.done) stopReasoning();
+    } catch (e) { /* the run is what matters, not its narration */ }
+  }, 600);
+}
+function stopReasoning() { if (RSNTIMER) clearInterval(RSNTIMER); RSNTIMER = null; }
 
 /* Route free text.
    "show me lifeline ventures" is a lookup, not a company raising a round -
