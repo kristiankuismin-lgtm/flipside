@@ -118,3 +118,85 @@ def test_konflikti_nollaa_pisteet():
 
 def test_score_ei_kaadu_puuttuviin_signaaleihin():
     assert M.score({"stage": 1, "sector": 1, "geo": 1, "check": 1}, {}) > 0
+
+
+# ---- score robustness -------------------------------------------------------
+def _sig(name, value, n, label="🟢"):
+    return M.Signal(name, value, label, "", n, "Medium")
+
+
+FIT = {"stage": 1.0, "sector": 1.0, "geo": 1.0, "check": 1.0}
+
+
+def test_a_single_observation_does_not_beat_a_long_record():
+    """1-of-1 is a 100% lead rate and almost no evidence."""
+    lucky = {"lead_rate": _sig("lead_rate", 1.0, 1)}
+    proven = {"lead_rate": _sig("lead_rate", 0.667, 9)}
+    assert M.score(FIT, proven) > M.score(FIT, lucky)
+
+
+def test_the_bound_penalises_small_samples_and_never_flatters_a_zero():
+    """Why not shrinkage: a prior of 0.25 lifted 0-of-2 to 0.17, and a fund
+    that has never led a Series A ranked first for a Series A."""
+    assert M.wilson_lower(1.0, 1) < M.wilson_lower(0.667, 9)   # 1-of-1 < 6-of-9
+    assert M.wilson_lower(0.0, 2) == 0.0                       # a zero stays a zero
+    assert M.wilson_lower(1.0, 1000) == pytest.approx(1.0, abs=0.02)
+    assert M.wilson_lower(None, 10) == 0.0 and M.wilson_lower(0.5, 0) == 0.0
+
+
+def test_a_fund_that_never_leads_does_not_outrank_one_that_does():
+    never = {"lead_rate": _sig("lead_rate", 0.0, 2, "🔴")}
+    often = {"lead_rate": _sig("lead_rate", 0.8, 5)}
+    assert M.score(FIT, often) > M.score(FIT, never)
+
+
+def test_an_unknown_signal_is_not_scored_as_zero():
+    """The mistake this codebase refuses to make: "no follow-on data" and
+    "never follows on" are different claims."""
+    unknown = {"lead_rate": _sig("lead_rate", 0.6, 10),
+               "follow_on": M.Signal("follow_on", None, M.NO_DATA, "", 0, "Low")}
+    zero = {"lead_rate": _sig("lead_rate", 0.6, 10),
+            "follow_on": _sig("follow_on", 0.0, 10, "🔴")}
+    assert M.score(FIT, unknown) > M.score(FIT, zero)
+
+
+def test_coverage_discounts_a_score_built_on_one_signal():
+    thin = {"lead_rate": _sig("lead_rate", 0.6, 10)}
+    full = {"lead_rate": _sig("lead_rate", 0.6, 10),
+            "follow_on": _sig("follow_on", 0.6, 10),
+            "next_round": _sig("next_round", 0.6, 10),
+            "dry_powder": _sig("dry_powder", 0.6, 10)}
+    assert M.score(FIT, full) > M.score(FIT, thin)
+
+
+def test_quality_reports_how_much_was_known():
+    q, cov = M.quality({"lead_rate": _sig("lead_rate", 0.6, 10)})
+    assert cov == pytest.approx(0.30)
+    q2, cov2 = M.quality({})
+    assert cov2 == 0.0 and q2 == 0.0      # nothing known earns no quality
+
+
+def test_a_conflict_still_zeroes_the_score():
+    sig = {"lead_rate": _sig("lead_rate", 0.9, 20),
+           "conflict": M.Signal("conflict", None, "🔴", "backs a competitor", 1, "High")}
+    assert M.score(FIT, sig) == 0
+
+
+def test_a_fund_that_has_never_led_at_this_stage_is_discounted():
+    """The founder is ranking candidates to LEAD. "Led 0 of 9 Series A
+    rounds" is close to an answer, not one weak signal among several."""
+    never = {"lead_rate": _sig("lead_rate", 0.0, 9, "🔴")}
+    assert M.lead_factor(never) == M.NON_LEAD_FACTOR
+    some = {"lead_rate": _sig("lead_rate", 0.2, 9, "🟡")}
+    assert M.lead_factor(some) == 1.0
+
+
+def test_too_few_rounds_is_not_evidence_of_not_leading():
+    """0 of 2 and "we have barely looked" are the same observation."""
+    assert M.lead_factor({"lead_rate": _sig("lead_rate", 0.0, 2, "🔴")}) == 1.0
+
+
+def test_an_unknown_lead_rate_is_never_penalised():
+    unknown = {"lead_rate": M.Signal("lead_rate", None, M.NO_DATA, "", 0, "Low")}
+    assert M.lead_factor(unknown) == 1.0
+    assert M.lead_factor({}) == 1.0

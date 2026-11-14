@@ -179,10 +179,98 @@ def warm_path(paths: list[dict]) -> Signal:
 
 
 # ---- Score -------------------------------------------------------------------
+# How much of the quality score each signal carries when it is known, and what
+# to assume about it before the evidence says otherwise.
+QUALITY_WEIGHTS = {"lead_rate": .30, "follow_on": .30,
+                   "next_round": .20, "dry_powder": .20}
+# Ranking by a rate when sample sizes differ needs a lower confidence bound,
+# not a raw rate and not shrinkage toward a prior.
+#
+# Shrinkage was the first attempt and it failed in a way worth recording:
+# pulling toward a prior of 0.25 lifts a fund that led 0 of 2 rounds up to
+# 0.17, and Icebreaker.vc - which has never led a Series A in this data -
+# ranked first for a founder raising a Series A. A prior that pulls upward
+# flatters exactly the funds a founder must not pick as a lead.
+#
+# The Wilson lower bound only ever penalises small samples. 1-of-1 scores
+# below 6-of-9 because one observation proves little, while 0-of-2 stays at
+# the bottom, where it belongs.
+# z=1.0 leaves 1-of-1 and 6-of-9 tied to three decimal places, which is not
+# an ordering so much as a coin flip. At 1.5 the long record wins clearly
+# (0.42 against 0.31) and a strong short one still places above both (4-of-5
+# scores 0.47), which is the behaviour a founder would expect.
+Z = 1.5
+
+
+def wilson_lower(value: float | None, n: int, z: float = Z) -> float:
+    """Lower bound of the confidence interval on a rate."""
+    if value is None:
+        return 0.0
+    n = max(0, int(n or 0))
+    if n == 0:
+        return 0.0
+    p = min(max(float(value), 0.0), 1.0)
+    z2 = z * z
+    centre = p + z2 / (2 * n)
+    margin = z * ((p * (1 - p) + z2 / (4 * n)) / n) ** 0.5
+    return max(0.0, (centre - margin) / (1 + z2 / n))
+
+
+def quality(sig: dict) -> tuple[float, float]:
+    """(quality score 0-1, share of the weight that was actually known).
+
+    Unknown signals are left out and the remaining weights renormalised. The
+    old version read `sig[k].value or 0`, which scored "we have no follow-on
+    data" identically to "this fund never follows on" - the one mistake this
+    codebase refuses to make everywhere else.
+    """
+    num = den = known = 0.0
+    for k, w in QUALITY_WEIGHTS.items():
+        s = sig.get(k)
+        if s is None or s.value is None:
+            continue
+        v = min(float(s.value), 1.0) if k == "dry_powder" else float(s.value)
+        num += w * wilson_lower(v, getattr(s, "n", 0) or 0)
+        den += w
+        known += w
+    if den == 0:
+        # Nothing known at all. evidence_depth upstream decides whether this
+        # fund is rankable; here it simply earns no quality.
+        return 0.0, 0.0
+    return num / den, known / sum(QUALITY_WEIGHTS.values())
+
+
+# Enough stage rounds to conclude something from a zero. Below this, "never
+# led" and "we have barely looked" are the same observation.
+LEAD_EVIDENCE_N = 3
+NON_LEAD_FACTOR = 0.65
+
+
+def lead_factor(sig: dict[str, Signal]) -> float:
+    """Discount a fund that demonstrably does not lead at this stage.
+
+    The founder is ranking candidates to LEAD a round, so "led 0 of 9 Series
+    A rounds" is not a weak signal among several - it is close to an answer.
+    An unknown lead rate is left alone: unknown is not zero, here as
+    everywhere else.
+    """
+    s = sig.get("lead_rate")
+    if s is None or s.value is None:
+        return 1.0
+    if (getattr(s, "n", 0) or 0) < LEAD_EVIDENCE_N:
+        return 1.0           # too few rounds to read anything into a zero
+    return NON_LEAD_FACTOR if s.value == 0 else 1.0
+
+
 def score(fit: dict, sig: dict[str, Signal]) -> float:
     f = .35 * fit["stage"] + .30 * fit["sector"] + .20 * fit["geo"] + .15 * fit["check"]
-    g = lambda k: (sig[k].value or 0) if k in sig else 0
-    q = .3 * g("lead_rate") + .3 * g("follow_on") + .2 * g("next_round") + .2 * min(g("dry_powder"), 1)
+    q, coverage = quality(sig)
     c = sig.get("conflict")
     cm = 0 if c and c.label == "🔴" else .7 if c and c.label == "🟡" else 1
-    return round(100 * f * (.5 + .5 * q) * cm * (1 + .15 * g("warm_path")), 1)
+    warm = sig.get("warm_path")
+    wv = (warm.value or 0) if warm and warm.value is not None else 0
+    # A score built on one known signal should not sit next to one built on
+    # four as though they were the same claim.
+    conf = 0.85 + 0.15 * coverage
+    return round(100 * f * (.5 + .5 * q) * cm * lead_factor(sig)
+                 * (1 + .15 * wv) * conf, 1)
