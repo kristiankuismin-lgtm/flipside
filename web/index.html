@@ -171,7 +171,18 @@ tbody tr:hover{background:var(--panel2)}
   border:1px solid var(--line);flex-shrink:0;object-fit:contain;padding:2px}
 .ent .nm{font-weight:570}
 .ent .sb{font:10.5px var(--mono);color:var(--faint)}
-.num{font:13px var(--mono);text-align:right}
+/* One rule decides alignment for a column, so the header can never drift
+   away from the cells under it. Tabular figures stop the digits dancing. */
+.num{font:13px var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+th.num{text-align:right}
+table{table-layout:auto}
+.w-rank{width:34px}
+.w-date{width:110px}
+.w-flags{width:1%;white-space:nowrap}
+.w-act{width:1%}
+.flags{text-align:right;white-space:nowrap}
+.flags .bdg{margin-left:4px}
+.tdact{text-align:right;white-space:nowrap;width:1%}
 
 /* ---------------- badges ---------------- */
 .bdg{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11.5px;
@@ -344,6 +355,26 @@ tbody tr:hover{background:var(--panel2)}
   box-shadow:var(--sh2);width:min(620px,96vw);max-height:92vh;overflow-y:auto}
 .msg{padding:52px 20px;text-align:center;color:var(--faint);font-size:13.5px}
 
+/* --- what Ask did with your question --- */
+.asktrace{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:14px;
+  padding:9px 13px;border:1px solid var(--line);border-radius:9px;
+  background:var(--panel);font-size:12px;color:var(--dim)}
+.asktrace .q{font-weight:560;color:var(--ink)}
+.asktrace .arrow{color:var(--faint)}
+.asktrace .why{color:var(--accent-ink)}
+.asktrace .alt{margin-left:auto;color:var(--faint);font-size:11.5px}
+.lnk{background:none;border:0;padding:0;font:inherit;color:var(--blue);
+  cursor:pointer;text-decoration:underline}
+.lnk.x{color:var(--faint);text-decoration:none;font-size:15px;line-height:1}
+
+/* Map chrome: the attribution stays (ODbL), but muted into the frame. */
+.maplibregl-ctrl-attrib{background:transparent!important;font-size:9.5px!important;
+  padding:0 6px!important;margin:0 4px 3px 0!important}
+.maplibregl-ctrl-attrib a{color:var(--faint)!important;text-decoration:none}
+.maplibregl-ctrl-attrib-button{display:none!important}
+.maplibregl-ctrl-bottom-left{opacity:.55}
+.maplibregl-ctrl-bottom-left:hover{opacity:1}
+
 /* --- conflict flow --- */
 .cmap{overflow-x:auto}
 .cmap svg{display:block;width:100%;min-width:720px;height:auto}
@@ -384,11 +415,11 @@ tbody tr:hover{background:var(--panel2)}
 .sitesig b{font-size:12.5px;color:var(--ink);font-weight:570}
 .sitesig span{font:10.5px var(--mono);color:var(--faint)}
 .dring{position:relative;display:inline-flex}
-.dval{position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;pointer-events:none;text-align:center}
-.dval b{font:17px/1 var(--mono);font-weight:600;color:var(--ink)}
-.dval span{margin-top:3px;font:9px var(--mono);letter-spacing:.05em;
-  text-transform:uppercase;color:var(--faint);max-width:72px;line-height:1.25}
+.dval{position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;pointer-events:none}
+.dval b{font:16px/1 var(--mono);font-weight:600;color:var(--ink);
+  font-variant-numeric:tabular-nums}
+.legend{max-width:160px}
 .paceline{display:flex;align-items:baseline;gap:10px;margin-top:14px;
   padding-top:13px;border-top:1px solid var(--line)}
 .paceline .lbl{width:150px;flex:none;font-size:12.5px;color:var(--dim)}
@@ -537,5 +568,6 @@ tbody tr:hover{background:var(--panel2)}
 <link rel="stylesheet" href="maplibre-gl.css">
 <script src="maplibre-gl.js"></script>
 <script src="world.js"></script>
+<script src="ask.js"></script>
 <script src="app.js"></script>
 </body></html>

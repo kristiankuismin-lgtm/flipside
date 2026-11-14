@@ -79,7 +79,8 @@ function peerMedians() {
 }
 
 function donut(parts, size = 118, opts = {}) {
-  const tot = parts.reduce((a, p) => a + p.v, 0) || 1, R = size / 2, r = R * .64;
+  const tot = parts.reduce((a, p) => a + p.v, 0) || 1, R = size / 2, r = R * .70;
+  const thick = R * .34;
   let a0 = -Math.PI / 2, paths = "";
   for (const p of parts) {
     if (!p.v) continue;
@@ -88,7 +89,7 @@ function donut(parts, size = 118, opts = {}) {
     // arc between two identical points draws nothing. Use a circle instead.
     if (frac > 0.999) {
       paths += `<circle cx="${R}" cy="${R}" r="${r}" fill="none"
-        stroke="${p.c}" stroke-width="${R * .5}"/>`;
+        stroke="${p.c}" stroke-width="${thick}"/>`;
       a0 += 2 * Math.PI;
       continue;
     }
@@ -96,7 +97,7 @@ function donut(parts, size = 118, opts = {}) {
     const x0 = R + r * Math.cos(a0), y0 = R + r * Math.sin(a0);
     const x1 = R + r * Math.cos(a1), y1 = R + r * Math.sin(a1);
     paths += `<path d="M${x0} ${y0} A${r} ${r} 0 ${big} 1 ${x1} ${y1}" fill="none"
-      stroke="${p.c}" stroke-width="${R * .5}"/>`;
+      stroke="${p.c}" stroke-width="${thick}"/>`;
     a0 = a1;
   }
   // A ring with a legend makes the reader do the division. The headline
@@ -105,10 +106,9 @@ function donut(parts, size = 118, opts = {}) {
   const lead = parts.find(x => x.v) || parts[0] || { v: 0 };
   const share = tot ? Math.round(100 * (parts[0]?.v || 0) / tot) : null;
   const centre = opts.centre ?? (share == null ? "—" : share + "%");
-  const sub = opts.sub ?? (parts[0] ? parts[0].k : "");
   return `<div class="donutwrap"><div class="dring">
       <svg width="${size}" height="${size}">${paths}</svg>
-      <div class="dval"><b>${esc(String(centre))}</b><span>${esc(String(sub))}</span></div>
+      <div class="dval"><b>${esc(String(centre))}</b></div>
     </div>
     <div class="legend">${parts.filter(p => p.v).map(p => `<div><i style="background:${p.c}"></i>
       ${esc(p.k)} <span style="color:var(--faint)">${p.v}</span></div>`).join("")}</div></div>`;
@@ -142,6 +142,17 @@ function wire() {
   });
   document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => {
     TAB = +b.dataset.tab; render();
+  });
+  document.querySelectorAll("[data-askgo]").forEach(b => b.onclick = () => {
+    const v = b.dataset.askgo;
+    if (v === "clear") { ASKWHY = null; return render(); }
+    ASKWHY = { ...ASKWHY, why: "you chose this view", confident: true, view: v };
+    SEL = null;
+    if (v === "map") { MODE = "map"; return MAP ? render() : loadMap(); }
+    if (v === "investor") { MODE = "investor"; return I ? render() : loadInvestor(); }
+    MODE = "founder";
+    if (!F) { PENDING_CO = ASKWHY.q; render(); return runFounder(); }
+    render();
   });
   document.querySelectorAll("[data-kpi]").forEach(b => b.onclick = () => {
     const k = b.dataset.kpi;
@@ -296,7 +307,7 @@ function founderList() {
   const shown = FFILTER === "lead" ? leads : FFILTER === "warm" ? warm
     : FFILTER === "conflict" ? red : inv;
 
-  return searchPanel() + heroCard(inv, red, leads, warm)
+  return askTrace() + searchPanel() + heroCard(inv, red, leads, warm)
     + syndicateBlock()
     + kpis([
       ["Investors screened", inv.length, "all", "two or more rounds on record"],
@@ -310,9 +321,9 @@ function founderList() {
         <button class="btn sm" id="clearf">Clear</button></div>` : "")
     + section("ftable", "Target list", `${shown.length} of ${inv.length} screened`,
       `<div class="tbl"><table>
-      <thead><tr><th></th><th>Investor</th><th>Verdict</th><th style="text-align:right">Score</th>
-      <th style="text-align:right">Lead</th><th style="text-align:right">Follow-on</th>
-      <th>Pace</th><th>Conflict</th><th>Route</th><th></th></tr></thead>
+      <thead><tr><th class="w-rank"></th><th>Investor</th><th>Verdict</th><th class="num">Score</th>
+      <th class="num">Lead</th><th class="num">Follow-on</th>
+      <th>Pace</th><th>Conflict</th><th>Route</th><th class="w-act"></th></tr></thead>
       <tbody>${rowsFor(shown)}</tbody></table></div>`)
     + section("fmap", "Conflict map",
       `${(F.edges || []).length} fund–competitor links`, conflictMap());
@@ -659,6 +670,7 @@ function investorList() {
       c.structure === "preemption" ? badge("pre-empted", "green") : "",
       c.previous_lead_returned === false ? badge("lead walked", "red") : "",
       c.confidence === "Low" ? badge("thin evidence", "grey") : "",
+      c.at_slush ? badge("Slush 2026", "accent") : "",
     ].filter(Boolean).join(" ");
     return `<tr data-open="${esc(c.company)}" class="${c.stale ? "stalerow" : ""}">
       <td class="rank">${i + 1}</td>
@@ -671,12 +683,11 @@ function investorList() {
       <td class="nowrap">${esc(String(c.last_round || "—").slice(0, 7))}
         ${c.stale ? badge("stale", "amber") : ""}</td>
       <td class="num">${back}/${c.n_insiders}</td>
-      <td>${flags}</td>
-      <td>${c.at_slush ? badge("Slush 2026", "accent") : ""}</td>
+      <td class="flags">${flags}</td>
     </tr>`;
   }).join("");
 
-  return kpis([
+  return askTrace() + kpis([
     ["Companies scored", cs.length, "all",
      "every company with two rounds and a prior investor to compare"],
     ["Insiders doubling down", strong.length, "strong",
@@ -697,9 +708,9 @@ function investorList() {
   + section("itbl", "Conviction ranking",
       I.recency ? `evidence older than ${I.recency.grace_months} months is discounted,
         halving every ${I.recency.halflife_months}` : "", `<div class="tbl"><table>
-      <thead><tr><th></th><th>Company</th><th style="text-align:right">Conviction</th>
-      <th style="text-align:right">Age</th><th>Last round</th>
-      <th style="text-align:right">Insiders back</th><th>Flags</th><th></th></tr></thead>
+      <thead><tr><th class="w-rank"></th><th>Company</th><th class="num">Conviction</th>
+      <th class="num">Age</th><th class="w-date">Last round</th>
+      <th class="num">Insiders back</th><th class="w-flags">Flags</th></tr></thead>
       <tbody>${rows}</tbody></table></div>`)
   + (orphans.length ? section("iorph", "Well-performing orphans",
       "growing, but their lead's fund has stopped deploying",
@@ -955,16 +966,6 @@ function mapView() {
             </span>
           </div>
           <div id="mlmap"></div>
-          <div class="maplegend">
-            <span class="sw"><i style="background:#8a8580;border-radius:50%"></i>exhibitor</span>
-            <span class="sw"><i style="background:#8a8580;border-radius:2px"></i>funded</span>
-            <span class="sw"><i style="background:#c2614f;border-radius:2px;transform:rotate(45deg)"></i>fund</span>
-            <span style="width:1px;height:12px;background:var(--line2)"></span>
-            ${Object.entries(STATUS).map(([k, [c, lbl]]) =>
-              `<span class="sw"><i style="background:${c}"></i>${lbl}${
-                MAP.status?.[k] ? ` (${MAP.status[k]})` : ""}</span>`).join("")}
-            <span class="sw" id="precisenote"></span>
-          </div>
           <div class="tip" id="tip"></div>
         </div>
         <div class="side">
@@ -1179,7 +1180,11 @@ function initMap() {
   ML = new maplibregl.Map({
     container: "mlmap",
     style: "https://tiles.openfreemap.org/styles/liberty",
-    center: FLY[REGION].center, zoom: FLY[REGION].zoom, attributionControl: true,
+    center: FLY[REGION].center, zoom: FLY[REGION].zoom,
+    // The default control is an expandable info panel sitting on the map.
+    // compact:false renders one quiet line instead - the OSM data is ODbL,
+    // so the credit itself is a licence condition, not a decoration.
+    attributionControl: { compact: false },
   });
   ML.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
 
@@ -1581,33 +1586,50 @@ async function lookupEntity(term, kindHint) {
   }
 }
 
+/* One place decides what a question means (web/ask.js, unit-tested), and the
+   result is shown to the user. Silently guessing wrong is what made Ask feel
+   broken: "raising a Series A" opened the investor view. */
+let ASKWHY = null;
+
 function routeAsk(text) {
   const q = (text || "").trim();
   if (!q) return;
-  const low = q.toLowerCase();
+  const intent = askIntent(q);
+  if (!intent.view) return;
 
-  if (/\b(map|where|location|geograph)/.test(low)) {
-    MODE = "map"; SEL = null; return MAP ? render() : loadMap();
-  }
-  if (/\b(conviction|insider|double|doubling|orphan|deal ?flow|silent|unannounced|raising)/.test(low)) {
+  ASKWHY = { q, why: intent.why, confident: intent.confident !== false,
+             view: intent.view };
+
+  if (intent.view === "map") { MODE = "map"; SEL = null; return MAP ? render() : loadMap(); }
+  if (intent.view === "investor") {
     MODE = "investor"; SEL = null; return I ? render() : loadInvestor();
   }
-
-  // A leading verb means "find this", not "screen investors for this".
-  const m = q.match(LOOKUP_VERB);
-  if (m) {
-    const term = q.slice(m[0].length).trim();
-    if (term.length >= 2) {
-      return lookupEntity(term, PERSON_HINT.test(low) && !/ventures|capital|partners/i.test(term)
-        ? "people" : null);
-    }
-  }
+  if (intent.view === "lookup") return lookupEntity(intent.term, intent.kind);
 
   MODE = "founder"; SEL = null;
-  PENDING_CO = q;
+  PENDING_CO = intent.term || q;
   render();
   runFounder();
 }
+
+/* What we did with the question, and how to undo it. */
+function askTrace() {
+  if (!ASKWHY) return "";
+  const other = ASKWHY.view === "founder"
+    ? [["investor", "insider conviction"], ["map", "the map"]]
+    : ASKWHY.view === "investor"
+      ? [["founder", "screening investors"], ["map", "the map"]]
+      : [["founder", "screening investors"], ["investor", "insider conviction"]];
+  return `<div class="asktrace">
+    <span class="q">${esc(ASKWHY.q)}</span>
+    <span class="arrow">→</span>
+    <span class="why">${esc(ASKWHY.why)}${ASKWHY.confident ? "" : " (best guess)"}</span>
+    <span class="alt">not what you meant? ${other.map(([v, l]) =>
+      `<button class="lnk" data-askgo="${v}">${esc(l)}</button>`).join(" · ")}</span>
+    <button class="lnk x" data-askgo="clear">×</button>
+  </div>`;
+}
+
 let PENDING_CO = null;
 
 /* ================= QUICK SEARCH ================= */

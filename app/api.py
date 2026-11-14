@@ -460,10 +460,27 @@ def index():
     return FileResponse(WEB / "index.html", headers={"Cache-Control": "no-store"})
 
 
-@app.get("/app.js")
-def appjs():
+# Every front-end file used to need its own hand-written route, and adding
+# ask.js without one produced a 404 and a blank Ask box. One guarded route
+# instead: a flat filename, a known extension, inside web/ and nowhere else.
+_WEB_TYPES = {".js": "application/javascript", ".css": "text/css",
+              ".json": "application/json", ".svg": "image/svg+xml",
+              ".png": "image/png", ".ico": "image/x-icon",
+              ".woff2": "font/woff2", ".map": "application/json"}
+
+
+@app.get("/{filename}.{ext}")
+def web_asset(filename: str, ext: str):
+    """Static files from web/, by exact name. No directories, no traversal."""
+    name = f"{filename}.{ext}"
+    media = _WEB_TYPES.get(f".{ext}".lower())
+    if media is None or "/" in name or "\\" in name or name.startswith("."):
+        return JSONResponse({"error": "not found"}, status_code=404)
+    path = (WEB / name).resolve()
+    if path.parent != WEB.resolve() or not path.is_file():
+        return JSONResponse({"error": "not found"}, status_code=404)
     # No caching: during a hackathon a stale bundle costs more than a refetch.
-    return FileResponse(WEB / "app.js", media_type="application/javascript",
+    return FileResponse(path, media_type=media,
                         headers={"Cache-Control": "no-store"})
 
 
