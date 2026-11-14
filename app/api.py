@@ -531,8 +531,34 @@ def backtest():
     return d
 
 
+_MAP_CACHE: dict = {}
+# Files the map is computed from. When none of them has changed, neither has
+# the map, and recomputing 619 fund placements per request is a quarter of a
+# second spent on arriving at the same answer.
+_MAP_INPUTS = ("slush_profiles.json", "portfolio_places.json",
+               "investor_domains.json", "fund_universe.json",
+               "exhibitor_rounds.json", "conviction.json", "cache.sqlite")
+
+
+def _map_stamp():
+    out = []
+    for f in _MAP_INPUTS:
+        p = ROOT / f
+        out.append(p.stat().st_mtime if p.exists() else 0)
+    return tuple(out)
+
+
 @app.get("/map")
 def map_data():
+    stamp = _map_stamp()
+    if _MAP_CACHE.get("stamp") == stamp:
+        return _MAP_CACHE["data"]
+    data = _map_data_uncached()
+    _MAP_CACHE.update(stamp=stamp, data=data)
+    return data
+
+
+def _map_data_uncached():
     """Slush 2026 exhibitors placed on a map, with conviction where we have it."""
     from . import geo
     if not PROFILES.exists():

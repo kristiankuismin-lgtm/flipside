@@ -84,6 +84,7 @@ a:hover{text-decoration:underline}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 .btn.pri:hover{background:var(--accent-ink)}
 .wrap{padding:var(--s3) var(--s4) 88px;max-width:var(--measure);margin:0 auto}
+body.wide .wrap{max-width:none}
 
 /* ---------------- quick search ---------------- */
 .qs{position:relative}
@@ -290,10 +291,14 @@ table{table-layout:auto}
 .verdict.grey{background:var(--panel);border:1px solid var(--line);color:var(--dim);box-shadow:var(--sh)}
 
 /* ---------------- map ---------------- */
-.maproot{display:grid;grid-template-columns:1fr 330px;gap:11px;align-items:start}
+/* The map is the content on this page, so it takes the width the page has.
+   It sat inside the reading measure - a column sized for prose - with a
+   third of the screen empty beside it. */
+.maproot{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:11px;
+  align-items:start}
 .mapbox{position:relative;border:1px solid var(--line);border-radius:11px;overflow:hidden;
   box-shadow:var(--sh);background:var(--panel)}
-#mlmap{height:540px;width:100%}
+#mlmap{height:calc(100vh - 300px);min-height:520px;width:100%}
 .mapbar{display:flex;gap:10px;align-items:center;padding:10px 12px;
   border-bottom:1px solid var(--line);flex-wrap:wrap;background:var(--panel)}
 .mapbar .grp{display:flex;gap:5px;align-items:center}

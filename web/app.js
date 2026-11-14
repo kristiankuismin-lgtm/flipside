@@ -15,15 +15,19 @@ let FCONTRA = {};                      // investor -> disagreements in their rou
    unless we say so, and the founder is about to repeat those numbers to
    the fund itself. Fetched per screen, once, after the list is up. */
 async function loadFounderContradictions() {
-  const names = (F?.investors || []).map(x => x.investor);
-  for (const n of names) {
-    if (FCONTRA[n] !== undefined) continue;
-    FCONTRA[n] = null;
+  // Fourteen funds, fourteen requests, and they were awaited one at a time -
+  // which turns a round trip into fourteen of them for no reason. They do
+  // not depend on each other.
+  const names = (F?.investors || []).map(x => x.investor)
+    .filter(n => FCONTRA[n] === undefined);
+  if (!names.length) return;
+  names.forEach(n => { FCONTRA[n] = null; });
+  await Promise.all(names.map(async n => {
     try {
-      const d = await (await fetch(`/contradictions?investor=${encodeURIComponent(n)}`)).json();
-      FCONTRA[n] = d;
+      FCONTRA[n] = await (await fetch(
+        `/contradictions?investor=${encodeURIComponent(n)}`)).json();
     } catch (e) { FCONTRA[n] = { hard: 0, items: [] }; }
-  }
+  }));
   if (MODE === "founder") render();
 }
 
@@ -3247,6 +3251,8 @@ function render() {
   $("#baracts").innerHTML = MODE === "founder" && !SEL && F
     ? `<button class="btn" id="go2">Re-run</button>` : "";
   document.body.classList.toggle("has-picks", PICKED.size > 0 && MODE === "founder");
+  // The map wants the screen; every other view wants a reading measure.
+  document.body.classList.toggle("wide", MODE === "map");
   const ctd = $("#ct-d");
   if (ctd) ctd.textContent = dealCount() ? `${dealCount()} in play` : "";
   const ctw = $("#ct-w"), nw = Object.keys(SCOUTWATCH).length;
