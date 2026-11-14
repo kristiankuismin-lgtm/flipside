@@ -991,6 +991,51 @@ def progress(company: str, stage: str = ""):
     return PG.get(PG.key_for(company, stage))
 
 
+@app.get("/classify")
+def classify(q: str):
+    """Fund or company? Local files and cache only, so it answers instantly.
+
+    Ask used to send any bare name to the founder screen, which read
+    "lifeline ventures" as a company looking for investors.
+    """
+    from . import classify as CL, norm
+
+    funds = {}
+    for name in _investor_pool():
+        funds[norm.name(name) or name.lower()] = name
+    for fname in ("fund_universe.json", "investor_domains.json"):
+        f = ROOT / fname
+        if not f.exists():
+            continue
+        try:
+            for k in json.loads(f.read_text()):
+                funds.setdefault(norm.name(k) or k.lower(), k)
+        except ValueError:
+            pass
+
+    companies = {}
+    pf = ROOT / "slush_profiles.json"
+    if pf.exists():
+        try:
+            for r in json.loads(pf.read_text()):
+                n = r.get("name")
+                if n:
+                    companies.setdefault(norm.name(n) or n.lower(), n)
+        except ValueError:
+            pass
+    issuers = set(_rounds_by_company().keys())
+    out = CL.classify(q, funds=funds, companies=companies, issuers=issuers)
+
+    # Hand back an entity id when we have one, so the UI can open the profile
+    # rather than running a search the user did not ask for.
+    if out["kind"] == "fund":
+        from . import cache_index
+        hit = cache_index.search(out["name"], types=["Organization", "Company"], limit=1)
+        if hit:
+            out["entity_id"] = hit[0]["id"]
+    return out
+
+
 @app.get("/connectors")
 def connectors(limit: int = 12):
     """Funds whose handoffs spread widest - the bridges in this network."""

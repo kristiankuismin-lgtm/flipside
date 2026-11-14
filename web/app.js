@@ -1283,6 +1283,13 @@ function render() {
   if (KBD >= 0 && KBD >= kbdRows().length) { KBD = -1; kbdHint(false); }
   if (KBD >= 0) kbdPaint();
   if (MODE === "map" && MAP?.points) setTimeout(initMap, 30);
+  document.querySelectorAll("[data-lens]").forEach(b => b.onclick = () => {
+    LENS = b.dataset.lens;
+    const v = $("#askbox")?.value || "";
+    render();
+    const ab2 = $("#askbox");
+    if (ab2) { ab2.value = v; ab2.focus(); }
+  });
   document.querySelectorAll("[data-q]").forEach(b =>
     b.onclick = () => routeAsk(b.dataset.q));
   const ab = $("#askbox");
@@ -1966,12 +1973,33 @@ const CHIPS = [
   ["◆", "Who is raising without announcing it?", "silent"],
 ];
 
+/* Which side of the graph the question is asked from. "Auto" reads the
+   question and the name; the other two are the user overruling that, which
+   they must be able to do - "lifeline ventures" is a fund, and screening
+   investors for it is not a thing anyone wanted. */
+let LENS = "auto";
+const LENSES = [
+  ["auto", "Auto", "read the question"],
+  ["founder", "I'm raising", "screen investors for a company"],
+  ["investor", "I'm investing", "insider conviction across companies"],
+  ["lookup", "Look up", "open a fund or person profile"],
+];
+
 function homeView() {
   return `<div class="home">
     <div class="homehd"><span class="sq">F</span><h1>What are you looking at today?</h1></div>
+    <div class="lens">${LENSES.map(([k, label, why]) =>
+      `<button class="lensbtn ${LENS === k ? "on" : ""}" data-lens="${k}" title="${esc(why)}">
+         ${esc(label)}</button>`).join("")}</div>
     <div class="ask">
-      <textarea id="askbox" rows="2" placeholder="A company you're raising for, a fund you're meeting, or just ask — try &quot;Gosta Labs&quot;"></textarea>
+      <textarea id="askbox" rows="2" placeholder="${
+        LENS === "investor" ? "A theme or just press Run — e.g. &quot;who is raising quietly?&quot;"
+        : LENS === "lookup" ? "A fund or person by name — e.g. &quot;Lifeline Ventures&quot;"
+        : LENS === "founder" ? "The company you're raising for — e.g. &quot;Gosta Labs, Series A&quot;"
+        : "A company you're raising for, a fund you're meeting, or just ask — try &quot;Gosta Labs&quot;"
+      }"></textarea>
       <div class="askfoot">
+        <span class="lenshint">${esc((LENSES.find(l => l[0] === LENS) || [])[2] || "")}</span>
         <button class="send" id="asksend" title="Run">↑</button>
       </div>
     </div>
@@ -2043,11 +2071,43 @@ async function lookupEntity(term, kindHint) {
    broken: "raising a Series A" opened the investor view. */
 let ASKWHY = null;
 
-function routeAsk(text) {
+async function routeAsk(text) {
   const q = (text || "").trim();
   if (!q) return;
   const intent = askIntent(q);
   if (!intent.view) return;
+
+  // An explicit lens wins outright: the user has told us the answer.
+  if (LENS === "investor") {
+    ASKWHY = { q, why: "you chose the investor side", confident: true, view: "investor" };
+    MODE = "investor"; SEL = null; return I ? render() : loadInvestor();
+  }
+  if (LENS === "lookup") {
+    ASKWHY = { q, why: `looking up “${q}”`, confident: true, view: "lookup" };
+    return lookupEntity(intent.term || q, intent.kind);
+  }
+  if (LENS === "founder") {
+    ASKWHY = { q, why: "you chose to screen investors", confident: true, view: "founder" };
+    MODE = "founder"; SEL = null;
+    PENDING_CO = intent.term || q; PENDING_STAGE = intent.stage || null;
+    render(); return runFounder();
+  }
+
+  // Auto, and the question is a bare name: ask what the name actually is
+  // before screening investors for something that invests.
+  if (intent.view === "founder" && intent.confident === false) {
+    let kind = null, resolved = null, why = "";
+    try {
+      const d = await (await fetch(`/classify?q=${encodeURIComponent(intent.term || q)}`)).json();
+      kind = d.kind; resolved = d; why = d.why || "";
+    } catch (e) { /* fall through to the old behaviour */ }
+    if (kind === "fund") {
+      ASKWHY = { q, why: `that is a fund — ${why}`, confident: true, view: "lookup" };
+      if (resolved?.entity_id)
+        return loadEntity(resolved.entity_id, "fund", resolved.name || q);
+      return lookupEntity(resolved?.name || q, null);
+    }
+  }
 
   ASKWHY = { q, why: intent.why, confident: intent.confident !== false,
              view: intent.view };
