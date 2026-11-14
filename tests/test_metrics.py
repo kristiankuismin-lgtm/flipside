@@ -236,3 +236,22 @@ def test_lead_rate_dates_its_own_claim():
           r("B", 100, "Series A", ["Fund X"], ["Fund X"])]
     s = M.lead_rate("Fund X", rs, "series a")
     assert s.last_date == (T - timedelta(days=100))
+
+
+def test_the_evidence_set_is_the_set_the_rate_is_computed_over():
+    """The drawer showed nine rounds including a pre-seed under a claim about
+    "6 of 9 series a rounds". Evidence that does not match its claim is worse
+    than no evidence. This pins the API's filter to the metric's."""
+    rounds = [
+        r("A", 100, "Series A", ["Fund X"], ["Fund X"]),
+        r("B", 200, "Series A", ["Fund X"], []),
+        r("C", 300, "Pre-Seed", ["Fund X"], ["Fund X"]),     # wrong stage
+        r("D", 36 * 31, "Series A", ["Fund X"], ["Fund X"]),  # outside window
+    ]
+    sig = M.lead_rate("Fund X", rounds, "series a")
+    # The API builds its evidence rows with exactly this expression.
+    evidence = [x for x in rounds
+                if x.date >= M.WINDOW and M.norm.stage(x.stage) == M.norm.stage("series a")]
+    assert len(evidence) == sig.n == 2
+    assert sum(1 for x in evidence if M.norm.matches("Fund X", x.leads)) == 1
+    assert sig.value == 0.5

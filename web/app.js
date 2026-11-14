@@ -167,6 +167,11 @@ function wire() {
     if (go.brief) return openBrief(go.brief);
     if (go.filter) { FFILTER = go.filter; render(); }
   });
+  document.querySelectorAll("[data-ev]").forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    const [who, key] = b.dataset.ev.split("|");
+    openEvidence(who, key);
+  });
   document.querySelectorAll("[data-brief]").forEach(b => b.onclick = e => {
     e.stopPropagation();           // the row underneath opens the fund profile
     openBrief(b.dataset.brief);
@@ -290,14 +295,26 @@ function founderList() {
       <td><div class="ent">${logo(x.investor)}<div><div class="nm">${esc(x.investor)}</div>
         <div class="sb">${x.rounds_seen} rounds · ${x.portfolio_size || 0} portfolio</div></div></div></td>
       <td>${verdict}</td>
-      <td class="num">${x.score === null ? "—" : x.score}</td>
-      <td class="num">${pct(s.lead_rate.value)}</td>
-      <td class="num">${pct(s.follow_on.value)}</td>
+      <td class="num">${x.score === null ? "—"
+        : `<button class="figure" data-ev="${esc(x.investor)}|score"
+             title="How this score was computed">${x.score}${
+             x.breakdown?.stale ? `<span class="decay">stale</span>` : ""}</button>`}</td>
+      <td class="num"><button class="figure" data-ev="${esc(x.investor)}|lead_rate"
+        title="The rounds behind this">${pct(s.lead_rate.value)}</button></td>
+      <td class="num"><button class="figure" data-ev="${esc(x.investor)}|follow_on"
+        title="The rounds behind this">${pct(s.follow_on.value)}</button></td>
       <td>${s.dry_powder.label === "⚪" ? badge("—", "grey")
-        : badge(s.dry_powder.text.match(/^(\d+)/)?.[1] + " / 6mo",
-                s.dry_powder.label === "🟢" ? "green" : s.dry_powder.label === "🟡" ? "amber" : "red")}</td>
-      <td>${x.backs?.length ? badge(x.backs.join(", "), "red") : badge("clear", "grey")}</td>
-      <td>${s.warm_path.label !== "⚪" ? badge(s.warm_path.text.replace(/^via /, ""), "blue") : ""}</td>
+        : `<button class="figure" data-ev="${esc(x.investor)}|dry_powder">${
+            badge(s.dry_powder.text.match(/^(\d+)/)?.[1] + " / 6mo",
+                  s.dry_powder.label === "🟢" ? "green" : s.dry_powder.label === "🟡" ? "amber" : "red")
+          }</button>`}</td>
+      <td>${x.backs?.length
+        ? `<button class="figure" data-ev="${esc(x.investor)}|conflict">${
+            badge(x.backs.join(", "), "red")}</button>`
+        : badge("clear", "grey")}</td>
+      <td>${s.warm_path.label !== "⚪"
+        ? `<button class="figure" data-ev="${esc(x.investor)}|warm_path">${
+            badge(s.warm_path.text.replace(/^via /, ""), "blue")}</button>` : ""}</td>
       <td class="tdact"><button class="btn sm" data-brief="${esc(x.investor)}">Brief</button></td>
     </tr>`;
   }).join("");
@@ -823,6 +840,106 @@ function investorEntity() {
 }
 
 /* ================= router ================= */
+/* ---------- evidence drawer ----------
+   Every number in the product opens this. A figure you cannot take apart is
+   a figure to be believed rather than checked, and "trust us" is the whole
+   thing a graph with per-claim sources is supposed to replace. */
+const SIGNAL_TITLE = {
+  lead_rate: "Lead rate at this stage", follow_on: "Follow-on rate",
+  next_round: "Portfolio progression", dry_powder: "Deployment pace",
+  conflict: "Competitor conflict", warm_path: "Warm route",
+  score: "Flipside score",
+};
+
+function roundRow(r) {
+  return `<tr>
+    <td>${esc(r.company)}</td>
+    <td class="nowrap">${esc(r.stage || "")}</td>
+    <td class="nowrap">${esc(String(r.date || "").slice(0, 10))}</td>
+    <td>${r.led ? badge("led", "green") : r.led === false ? `<span class="sub">joined</span>` : ""}</td>
+    <td class="num">${r.amount ? "€" + Math.round(r.amount / 1e6) + "M" : "—"}</td>
+  </tr>`;
+}
+
+function scoreMath(x) {
+  const b = x.breakdown;
+  if (!b) return `<div class="sub">No breakdown recorded for this screen.</div>`;
+  const rows = [
+    ["Fit", b.fit, "stage, sector, geography and cheque size"],
+    ["Signal quality", b.quality, `weighted lower bound over ${
+      Math.round(b.coverage * 100)}% of the signals (the rest are unknown)`],
+    ["Lead factor", b.lead_factor, b.lead_factor < 1
+      ? "discounted: has not led at this stage on the record we have"
+      : "no penalty"],
+    ["Conflict", b.conflict_factor, b.conflict_factor === 0
+      ? "backs a competitor — the score is zero by construction" : "clear"],
+    ["Warm route", 1 + b.warm_bonus, b.warm_bonus ? "a shared cap table reaches them" : "none found"],
+    ["Recency", b.recency, b.months_since_activity == null
+      ? "no date on the evidence — treated as current"
+      : `last active ${b.months_since_activity} months ago${b.stale ? " (stale)" : ""}`],
+  ];
+  return `<table class="mathtbl"><tbody>${rows.map(([k, v, why]) => `
+    <tr><td>${esc(k)}</td><td class="num">${typeof v === "number" ? v.toFixed(2) : v}</td>
+    <td class="sub">${esc(why)}</td></tr>`).join("")}</tbody></table>
+    <div class="sub" style="margin-top:9px">score = 100 × fit × (0.5 + 0.5 × quality)
+      × conflict × lead × warm × coverage × recency = <b>${x.score}</b></div>`;
+}
+
+function openEvidence(investor, key) {
+  const x = F?.investors?.find(i => i.investor === investor);
+  if (!x) return;
+  const sg = x.signals?.[key];
+  const w = document.createElement("div");
+  w.className = "scrim on";
+
+  let rows = [], note = "";
+  if (key === "lead_rate") {
+    // The exact set the rate is computed over, not "rounds they led" - a
+    // claim about 6 of 9 Series A rounds cannot be evidenced with a pre-seed.
+    rows = x.stage_rounds || (x.led_rounds || []).map(r => ({ ...r, led: true }));
+    note = `All ${rows.length} ${esc(F.stage)} rounds in the 36-month window,
+      with whether ${esc(investor)} led each one.`;
+  } else if (key === "score") {
+    note = "";
+  } else {
+    rows = x.recent_rounds || [];
+    note = `The most recent rounds we hold for ${esc(investor)}.`;
+  }
+
+  const ev = (sg?.evidence || []).filter(e => e && (e.text || e.source));
+  const body = key === "score" ? scoreMath(x) : `
+    ${sg ? `<div class="evclaim"><b>${esc(sg.text || "—")}</b>
+      <span class="sub">${sg.n} observation${sg.n === 1 ? "" : "s"} ·
+      ${esc(sg.confidence || "")} confidence${
+        sg.last_date ? ` · most recent ${esc(String(sg.last_date).slice(0, 10))}` : ""}</span></div>` : ""}
+    ${rows.length ? `<div class="sub" style="margin:11px 0 6px">${note}</div>
+      <div class="tbl"><table><thead><tr><th>Company</th><th>Stage</th><th>Date</th>
+      <th>Role</th><th class="num">Amount</th></tr></thead>
+      <tbody>${rows.slice(0, 14).map(roundRow).join("")}</tbody></table></div>` : ""}
+    ${ev.length ? `<div class="sub" style="margin:13px 0 6px">Cited sources</div>
+      ${ev.map(e => `<div class="evrow">
+        <span class="evk">source</span>
+        <span>${esc(e.text || "")}${e.source
+          ? ` — <a href="${esc(e.source)}" target="_blank" rel="noopener">${
+              esc(String(e.source).replace(/^https?:\/\/(www\.)?/, "").slice(0, 52))}</a>`
+          : ' <span class="sub">(no document URL on this claim)</span>'}</span></div>`).join("")}`
+      : `<div class="sub" style="margin-top:12px">No per-claim document URLs on this
+         signal — it is computed from the round graph, not quoted from a page.</div>`}`;
+
+  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd"><h3>${esc(SIGNAL_TITLE[key] || key)} — ${esc(investor)}</h3>
+      <div class="s">Retrieved ${esc(F.fetched_at ? String(F.fetched_at).replace("T", " ").slice(0, 16) + " UTC" : "this session")}
+        from Cala's graph</div></div>
+    <div style="padding:15px">${body}
+      <div style="display:flex;margin-top:14px">
+        <button class="btn" id="evclose" style="margin-left:auto">Close</button></div>
+    </div></div>`;
+  document.body.appendChild(w);
+  const close = () => w.remove();
+  w.onclick = close;
+  w.querySelector("#evclose").onclick = close;
+}
+
 function render() {
   document.querySelectorAll("[data-mode]").forEach(b =>
     b.classList.toggle("on", b.dataset.mode === MODE));

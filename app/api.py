@@ -248,6 +248,17 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
             "led_rounds": [{"company": r.company, "stage": r.stage,
                             "date": str(r.date),
                             "amount": r.amount_eur} for r in led[:9]],
+            # Exactly the rounds the lead-rate claim is computed over, so the
+            # drawer cannot show nine rows under a claim about six of nine at
+            # one stage. Same window, same stage filter, same order.
+            "stage_rounds": [
+                {"company": r.company, "stage": r.stage, "date": str(r.date),
+                 "amount": r.amount_eur, "led": norm.matches(inv, r.leads)}
+                for r in sorted(
+                    (r for r in rounds
+                     if r.date >= M.WINDOW
+                     and (not stage or norm.stage(r.stage) == norm.stage(stage))),
+                    key=lambda x: x.date, reverse=True)],
             "recent_rounds": [{"company": r.company, "stage": r.stage, "date": str(r.date),
                                "amount": r.amount_eur, "led": norm.matches(inv, r.leads)}
                               for r in sorted(rounds, key=lambda x: x.date, reverse=True)[:14]],
@@ -283,7 +294,11 @@ def analyze(req: Req):
     # Kilpailija <-> rahasto -kaaret konfliktikarttaa varten.
     edges = [{"investor": x["investor"], "competitor": c}
              for x in out for c in x.get("backs") or []]
+    from datetime import datetime, timezone
     return {"company": req.company, "stage": req.stage,
+            # Every claim in the UI is datable: a number with no retrieval
+            # time cannot be checked, only believed.
+            "fetched_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "competitors": comps or [], "competitors_error": cerr,
             "edges": edges, "investors": out}
 
