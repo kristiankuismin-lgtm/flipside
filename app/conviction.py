@@ -144,6 +144,58 @@ def _conf(n: int, known_baselines: int) -> str:
     return "Low"
 
 
+# The four terms the score is a weighted blend of. Named once, used by the
+# scorer and by the breakdown the UI shows, so a number on screen cannot
+# disagree with the number it claims to explain.
+SCORE_WEIGHTS = {"participation": 0.45, "lift": 0.25, "lead": 0.20, "structure": 0.10}
+STRUCT_CREDIT = {PREEMPTION: 1.0, HEALTHY: 0.6, BRIDGE: 0.1, UNKNOWN: 0.5}
+PRIOR = 1.5          # shrinkage strength on the number of insiders
+
+
+def score_parts(insiders: list, structure: str, lead_returned: bool | None,
+                pool_mean: float | None = None) -> dict:
+    """The components of a conviction score, from insider records alone.
+
+    Takes dicts or Insider objects, so the serve-time breakdown can be built
+    from the stored corpus without re-walking the graph.
+    """
+    def f(i, k, default=None):
+        return i.get(k, default) if isinstance(i, dict) else getattr(i, k, default)
+
+    pool = pool_mean if pool_mean is not None else 0.45
+    num = den = 0.0
+    for i in insiders:
+        w = ABSENCE_WEIGHT.get(f(i, "kind", UNKNOWN), 0.5)
+        if f(i, "fund_slowing") and not f(i, "returned"):
+            w *= 0.25
+        den += w
+        if f(i, "returned"):
+            num += w
+    raw_part = (num / den) if den else pool
+    n_ins = len(insiders)
+    part = (raw_part * n_ins + pool * PRIOR) / (n_ins + PRIOR)
+
+    lifts = []
+    for i in insiders:
+        b = f(i, "baseline")
+        if b is None:
+            continue
+        lifts.append((1.0 if f(i, "returned") else 0.0) - b)
+    lift = sum(lifts) / len(lifts) if lifts else None
+    lift_norm = 0.5 if lift is None else max(0.0, min(1.0, (lift + 1) / 2))
+
+    lead_c = 0.5 if lead_returned is None else (1.0 if lead_returned else 0.0)
+    struct_c = STRUCT_CREDIT.get(structure, 0.5)
+
+    return {"participation": round(part, 3), "participation_raw": round(raw_part, 3),
+            "lift": None if lift is None else round(lift, 3),
+            "lift_norm": round(lift_norm, 3), "lead": lead_c,
+            "structure": struct_c, "structure_label": structure,
+            "insiders": n_ins, "returned": sum(1 for i in insiders if f(i, "returned")),
+            "known_baselines": len(lifts), "pool_mean": round(pool, 3),
+            "weights": SCORE_WEIGHTS}
+
+
 def assess(company: str, rounds: list[Round],
            baselines: dict[str, float] | None = None,
            kinds: dict[str, str] | None = None,
@@ -211,7 +263,6 @@ def assess(company: str, rounds: list[Round],
     # Shrink on the NUMBER of insiders, not on the weight sum: weights are
     # fractions (an angel counts 0.15), so a weight-scaled prior would swamp
     # every small cap table.
-    PRIOR = 1.5
     pool = pool_mean if pool_mean is not None else 0.45
     n_ins = len(ins)
     raw_part = (num / den) if den else pool

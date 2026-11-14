@@ -156,3 +156,29 @@ def test_the_undecayed_score_is_kept_for_display():
     assert c.score_fresh > c.score
     assert c.months_since and c.months_since > 24
     assert 0 < c.recency < 1
+
+
+def test_the_breakdown_reproduces_the_score_it_explains():
+    """A drawer that disagrees with the number above it is worse than none."""
+    rounds = [r("Co", 700, "Series A", ["A", "B", "C"], ["A"]),
+              r("Co", 60, "Series B", ["A", "B"], ["A"])]
+    got = K.assess("Co", rounds)
+    # Rebuild from the components exactly as the serve-time drawer does.
+    p = K.score_parts(got.insiders, got.structure, got.previous_lead_returned)
+    w = p["weights"]
+    rebuilt = 100 * (w["participation"] * p["participation"]
+                     + w["lift"] * p["lift_norm"]
+                     + w["lead"] * p["lead"]
+                     + w["structure"] * p["structure"])
+    assert abs(got.score_fresh - rebuilt) < 0.1
+
+
+def test_score_parts_reads_dicts_and_objects_alike():
+    """The serve-time breakdown is built from stored dicts, the scorer from
+    Insider objects. One function, or the two drift apart."""
+    obj = K.Insider("A", returned=True, was_lead=False, kind=K.MULTISTAGE, baseline=.4)
+    as_obj = K.score_parts([obj], K.HEALTHY, True)
+    as_dict = K.score_parts(
+        [{"name": "A", "returned": True, "was_lead": False,
+          "kind": K.MULTISTAGE, "baseline": .4}], K.HEALTHY, True)
+    assert as_obj == as_dict

@@ -208,6 +208,9 @@ function wire() {
   };
   if ($("#plandl")) $("#plandl").onclick = () => planExport("download");
   if ($("#planprint")) $("#planprint").onclick = () => planExport("print");
+  document.querySelectorAll("[data-cv]").forEach(b => b.onclick = e => {
+    e.stopPropagation(); openConviction(b.dataset.cv);
+  });
   document.querySelectorAll("[data-ev]").forEach(b => b.onclick = e => {
     e.stopPropagation();
     const [who, key] = b.dataset.ev.split("|");
@@ -829,7 +832,9 @@ function investorList() {
       <td class="rank">${i + 1}</td>
       <td><div class="ent">${logo(c.company)}<div><div class="nm">${esc(c.company)}</div>
         <div class="sb">${c.rounds.length} rounds · ${c.n_insiders} insiders</div></div></div></td>
-      <td class="num" style="color:${c.score >= 70 ? "var(--green)" : c.score < 40 ? "var(--red)" : "var(--ink)"}">${c.score}
+      <td class="num" style="color:${c.score >= 70 ? "var(--green)" : c.score < 40 ? "var(--red)" : "var(--ink)"}">
+        <button class="figure" data-cv="${esc(c.company)}"
+          title="How this conviction score was computed">${c.score}</button>
         ${c.recency < 0.995 ? `<span class="decay" title="aged from ${c.score_fresh}">↓${
           Math.round((1 - c.recency) * 100)}%</span>` : ""}</td>
       <td class="num">${esc(ago(c))}</td>
@@ -1406,6 +1411,71 @@ function founderSignalPanel() {
       live lookup fills it in.</div>`;
   }
   return founderSignalBody();
+}
+
+/* The conviction score, taken apart. Same shape as the founder one, from
+   the components the scorer itself uses. */
+function openConviction(company) {
+  const c = (I?.companies || []).find(x => x.company === company);
+  if (!c) return;
+  const b = c.breakdown;
+  const w = b?.weights || {};
+  const w2 = document.createElement("div");
+  w2.className = "scrim on";
+
+  const rows = b ? [
+    ["Insiders returned", b.participation,
+     `${b.returned} of ${b.insiders}, weighted by investor type and shrunk toward
+      the ${pct(b.pool_mean)} pool mean so one insider cannot outrank six`],
+    ["Lift over habit", b.lift_norm,
+     b.lift == null ? "no follow-on baselines known for these investors"
+       : `${b.lift > 0 ? "above" : "below"} their usual rate by ${pct(Math.abs(b.lift))},
+          over ${b.known_baselines} investors whose habit we know`],
+    ["Previous lead", b.lead,
+     c.previous_lead_returned === true ? "the lead came back"
+       : c.previous_lead_returned === false ? "the lead did not return"
+       : "no previous lead on record"],
+    ["Round structure", b.structure, esc(b.structure_label || "unknown")],
+  ] : [];
+
+  w2.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
+    <div class="sidehd"><h3>Conviction ${c.score} — ${esc(company)}</h3>
+      <div class="s">${c.last_round ? `last round ${esc(String(c.last_round).slice(0, 7))}` : ""}
+        ${c.months_since != null ? ` · ${c.months_since} months ago` : ""}</div></div>
+    <div style="padding:15px">
+      ${b ? `<table class="mathtbl"><tbody>${rows.map(([k, v, why]) => `
+        <tr><td>${esc(k)}</td><td class="num">${(v ?? 0).toFixed(2)}</td>
+        <td class="num" style="color:var(--faint)">×${w[k === "Insiders returned" ? "participation"
+          : k === "Lift over habit" ? "lift" : k === "Previous lead" ? "lead" : "structure"]}</td>
+        <td class="sub">${why}</td></tr>`).join("")}</tbody></table>
+        <div class="sub" style="margin-top:9px">
+          weighted blend = <b>${b.rebuilt}</b>${
+            c.recency < 0.995 ? `, aged ×${c.recency} for a round ${c.months_since} months
+              old = <b>${c.score}</b>` : ""}
+          ${Math.abs(b.residual || 0) > 0.5 ? `<br><span style="color:var(--amber)">
+            Differs from the stored score by ${b.residual > 0 ? "+" : ""}${b.residual}.
+            The corpus was scored against a fund-slowing set we reconstruct from
+            today's cache, and the two no longer match exactly for this company.
+            Reported rather than hidden.</span>` : ""}
+        </div>`
+      : `<div class="sub">No breakdown stored for this company.</div>`}
+      <div class="sub" style="margin:13px 0 6px">The ${c.n_insiders} prior investors</div>
+      <div class="tbl"><table><thead><tr><th>Investor</th><th>Type</th>
+        <th>Came back</th><th class="num">Their usual rate</th></tr></thead><tbody>
+        ${(c.insiders || []).map(i => `<tr>
+          <td>${esc(i.name)}${i.was_lead ? " " + badge("lead", "blue") : ""}</td>
+          <td class="sub">${esc(i.kind || "unknown")}${
+            i.fund_slowing ? " " + badge("slowed", "amber") : ""}</td>
+          <td>${i.returned ? badge("yes", "green") : badge("no", "red")}</td>
+          <td class="num">${i.baseline == null ? "—" : pct(i.baseline)}</td>
+        </tr>`).join("")}</tbody></table></div>
+      <div style="display:flex;margin-top:14px">
+        <button class="btn" id="cvclose" style="margin-left:auto">Close</button></div>
+    </div></div>`;
+  document.body.appendChild(w2);
+  const close = () => w2.remove();
+  w2.onclick = close;
+  w2.querySelector("#cvclose").onclick = close;
 }
 
 function render() {

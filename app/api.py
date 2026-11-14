@@ -1312,6 +1312,32 @@ def conviction():
     return _age_conviction(d)
 
 
+_SLOWING = None
+
+
+def _slowing_funds() -> set[str]:
+    """Investors that have stopped deploying, recomputed from cached rounds.
+
+    The corpus stores each insider's name, kind, baseline and whether they
+    returned - but not whether their fund had slowed, and the score applies
+    a discount when it had. Without this the breakdown cannot reproduce the
+    number it claims to explain, which is worse than having no breakdown.
+    """
+    global _SLOWING
+    if _SLOWING is not None:
+        return _SLOWING
+    out = set()
+    for inv in _investor_pool():
+        try:
+            rs = investor_rounds(inv)
+            if rs and M.dry_powder(inv, M.by_company(rs)).label == "\U0001f534":
+                out.add(norm.name(inv))
+        except Exception:
+            pass
+    _SLOWING = out
+    return out
+
+
 def _age_conviction(d: dict) -> dict:
     """Apply recency decay to a precomputed corpus, at serve time.
 
@@ -1329,7 +1355,27 @@ def _age_conviction(d: dict) -> dict:
         months = CV.months_between(last, today)
         rf = CV.recency_factor(months)
         fresh = c.get("score_fresh", c.get("score"))
-        c = {**c, "last_round": last, "months_since": months,
+        # Reattach the slowing flag so the breakdown reproduces the score.
+        slow = _slowing_funds()
+        insiders = [{**i, "fund_slowing": norm.name(i.get("name")) in slow}
+                    for i in (c.get("insiders") or [])]
+        # The corpus was scored with the default pool mean, not the observed
+        # pool_baseline. Matching it is what makes the breakdown reproduce
+        # the score instead of merely resembling it.
+        parts = CV.score_parts(insiders, c.get("structure"),
+                               c.get("previous_lead_returned"), None)
+        w = parts["weights"]
+        rebuilt = 100 * (w["participation"] * parts["participation"]
+                         + w["lift"] * parts["lift_norm"]
+                         + w["lead"] * parts["lead"]
+                         + w["structure"] * parts["structure"])
+        parts["rebuilt"] = round(rebuilt, 1)
+        # Where it still differs, the slowing set we reconstruct from today's
+        # cache is not the one the corpus was scored against. Report the gap
+        # rather than letting the drawer quietly disagree with the number.
+        parts["residual"] = round((c.get("score_fresh") or c.get("score") or 0) - rebuilt, 1)
+        c = {**c, "insiders": insiders, "breakdown": parts,
+             "last_round": last, "months_since": months,
              "recency": round(rf, 3), "score_fresh": fresh,
              "stale": bool(months is not None and months >= CV.STALE_AFTER_MONTHS)}
         if fresh is not None:
