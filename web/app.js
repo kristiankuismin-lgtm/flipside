@@ -757,10 +757,6 @@ function applyRoleChrome() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
-  document.querySelectorAll("[data-batch]").forEach(b =>
-    b.onclick = () => loadBatches(b.dataset.batch));
-  document.querySelectorAll("[data-bnew]").forEach(b =>
-    b.onclick = () => { BATCHNEW = b.dataset.bnew === "1"; render(); });
   document.querySelectorAll("[data-builder]").forEach(b =>
     b.onclick = () => openBuilder(b.dataset.builder));
   const bs = $("#bscrim");
@@ -772,7 +768,9 @@ function applyRoleChrome() {
     e.preventDefault();
     const v = $("#scq").value;
     // Both cohorts are ranked against the same sentence, so both reload.
-    SCOUT_THESIS = v; PRIVATE = null; PRIVATE_FOR = null;
+    SCOUT_THESIS = v;
+    PRIVATE = null; PRIVATE_FOR = null;
+    BUILDERS = null; BUILDFOR = null;
     loadScouts(v);
   };
   document.querySelectorAll("[data-role]").forEach(b =>
@@ -782,11 +780,23 @@ function applyRoleChrome() {
   if (i) i.hidden = ROLE !== "investor";
 }
 
+/* Which views each side of the toggle actually has a door to. "map" is in
+   both, which is why switching sides while looking at the map should leave
+   you looking at the map. */
+const ROLE_MODES = {
+  founder: ["home", "founder", "calls", "map", "deals"],
+  investor: ["home", "investor", "scouts", "batches", "map"],
+};
+
 function setRole(r) {
   ROLE = r;
   try { localStorage.setItem("flipside.role", r); } catch { /* private window */ }
   applyRoleChrome();
-  MODE = r === "investor" ? "investor" : "home";
+  // Keep the view you are on when the other side has it. Forcing Ask or
+  // Insider conviction on every toggle threw away what you were reading,
+  // and the toggle is about whose eyes you are using, not where you are.
+  const keep = (ROLE_MODES[r] || []).includes(MODE);
+  if (!keep) MODE = r === "investor" ? "investor" : "home";
   SEL = null;
   if (r === "investor" && !CONV) return loadConviction();
   render();
@@ -822,11 +832,15 @@ let SCOUTS = null, SCOUT_THESIS = "", SCOUTWATCH = {}, SCOUTSIG = {}, SCOUTBT = 
    somewhere else. */
 let SCOUTTAB = "founded", BUILDERS = null, PRIVATE = null, PRIVATE_FOR = null;
 
-async function loadBuilders() {
-  BUILDERS = { loading: true };
+let BUILDFOR = null;
+
+async function loadBuilders(thesis) {
+  BUILDERS = { loading: true }; BUILDFOR = thesis || "";
   if (MODE === "scouts") render();
-  try { BUILDERS = await (await fetch("/builders?limit=40&pages=10")).json(); }
-  catch (e) { BUILDERS = { error: String(e.message), builders: [] }; }
+  try {
+    BUILDERS = await (await fetch("/builders?limit=60&pages=10&thesis="
+      + encodeURIComponent(thesis || ""))).json();
+  } catch (e) { BUILDERS = { error: String(e.message), builders: [] }; }
   if (MODE === "scouts") render();
 }
 
@@ -1020,25 +1034,52 @@ function builderRow(b) {
 }
 
 function buildersPane() {
-  if (!BUILDERS) { loadBuilders(); return `<div class="msg" style="padding:30px">
-    <span class="spin"></span>Reading what people have been showing…</div>`; }
+  const th = SCOUT_THESIS || "";
+  if (!BUILDERS || BUILDFOR !== th) { loadBuilders(th);
+    return `<div class="msg" style="padding:30px"><span class="spin"></span>
+      Reading what people have been showing…</div>`; }
   if (BUILDERS.loading) return `<div class="msg" style="padding:30px">
     <span class="spin"></span>Reading what people have been showing…</div>`;
   if (BUILDERS.error) return errorPanel(BUILDERS.error, "the builder list");
   const c = BUILDERS.coverage || {};
   const rows = BUILDERS.builders || [];
-  const repeat = rows.filter(b => b.count > 1).length;
+  const cos = BUILDERS.companies || [];
+  const acc = Object.entries(c.by_accelerator || {});
 
   return kpis([
-    ["Handles shipping", rows.length, "all", "shown something in the window"],
-    ["Shipped more than once", repeat, "repeat",
-     "the habit, which is what this is looking for"],
-    ["Already founders", c.already_known ?? 0, "known", "dropped from this list"],
-  ], "all", null)
-  + (rows.length
-    ? `<div class="sclist">${rows.map(builderRow).join("")}</div>`
-    : `<div class="emptywhy"><b>Nothing came back.</b> The Hacker News search
-        did not answer, or nothing was posted in the window.</div>`);
+    ["Shipped and posted it", c.handles_matching ?? rows.length, "h",
+     `of ${c.handles ?? 0} handles on Show HN`],
+    ["Out of a batch", c.companies_matching ?? cos.length, "c",
+     `of ${c.companies_read ?? 0} across ${acc.length} accelerators`],
+    ["Not in Cala", c.companies_new ?? 0, "n", "no investor database has these"],
+  ], "h", null)
+  + `<div class="sub" style="margin:-4px 0 var(--s3)">
+      ${acc.map(([k, n]) => `${esc(k)} ${n}`).join(" · ")}${
+        (c.terms || []).length
+          ? ` — filtered to ${c.terms.map(t => `“${esc(t)}”`).join(" + ")}`
+          : ""}</div>`
+  + (cos.length ? `<div class="sech"><h3>Out of a batch</h3>
+      <span class="sub">companies that announced themselves at a demo day</span></div>
+    <div class="ccards">${cos.map(x => `<div class="ccard">
+      <div class="cchd">${logo(x.name, x.website)}
+        <div style="min-width:0;flex:1">
+          <div class="ccnm">${esc(x.name)}</div>
+          <div class="sub">${esc(x.accelerator || "")}${
+            x.batch ? " · " + esc(x.batch) : ""}</div></div>
+        ${x.in_cala ? badge("in Cala", "grey") : badge("new", "green")}
+      </div>
+      <div class="ccnone" style="color:var(--dim)">${
+        esc(x.description || "No description on the list.")}</div>
+    </div>`).join("")}</div>` : "")
+  + (rows.length ? `<div class="sech"><h3>Shipped and posted it</h3>
+      <span class="sub">a handle is not a person — who they are is left to you</span></div>
+    <div class="sclist">${rows.map(builderRow).join("")}</div>` : "")
+  + (!rows.length && !cos.length
+    ? `<div class="emptywhy"><b>Nothing matches ${
+        th ? `“${esc(th)}”` : "this"}.</b> ${c.companies_read || 0} companies
+        and ${c.handles || 0} handles were read; none of them says all of
+        ${(c.terms || []).map(t => `“${esc(t)}”`).join(" and ")}. Try one
+        word rather than two.</div>` : "");
 }
 
 /* The ranking graded against what people actually did next.
@@ -1211,10 +1252,13 @@ function scoutsView() {
     <form class="scthesis" id="scform">
       <input id="scq" placeholder="${SCOUTTAB === "private"
         ? "A problem you wish someone was building — e.g. ambient AI scribe for clinicians"
+        : SCOUTTAB === "building"
+        ? "Search everyone building in the open — e.g. ai fintech"
         : "Your thesis — e.g. clinical software for hospitals"}"
         value="${esc(SCOUT_THESIS)}" autocomplete="off">
       <button class="btn pri" type="submit">${SCOUTTAB === "private"
-        ? "Find who is building it" : "Rank against it"}</button>
+        ? "Find who is building it"
+        : SCOUTTAB === "building" ? "Search" : "Rank against it"}</button>
     </form>`;
 
   const tabs = `<div class="sctabs">
@@ -3466,59 +3510,6 @@ function contactsPane() {
     </div>`).join("")}</div>`;
 }
 
-/* An accelerator batch is the earliest public record that a company exists.
-   The column worth reading is not the batch - anyone can read the batch -
-   but which rows the graph does not have. */
-let BATCHES = null, BATCHCODE = "s26", BATCHNEW = true;
-
-async function loadBatches(code) {
-  BATCHES = { loading: true }; BATCHCODE = code; render();
-  try { BATCHES = await (await fetch(`/batches?code=${encodeURIComponent(code)}`)).json(); }
-  catch (e) { BATCHES = { rows: [], error: String(e.message) }; }
-  render();
-}
-
-function batchesView() {
-  const head = `<div class="runline">
-      <div class="rl1"><b>Fresh out of a batch</b>
-        <span class="sub">· companies that exist before a database has them</span></div>
-    </div>
-    <div class="sctabs">${["s26", "w26", "f25", "s25"].map(c =>
-      `<button class="sctab ${BATCHCODE === c ? "on" : ""}" data-batch="${c}"
-        >${c.toUpperCase()}</button>`).join("")}</div>`;
-
-  if (!BATCHES) { loadBatches(BATCHCODE); return head + `<div class="msg"
-    style="padding:40px"><span class="spin"></span>Reading the batch…</div>`; }
-  if (BATCHES.loading) return head + `<div class="msg" style="padding:40px">
-    <span class="spin"></span>Reading the batch…</div>`;
-  if (BATCHES.error) return head + errorPanel(BATCHES.error, "the batch list");
-
-  const c = BATCHES.counts || {};
-  const rows = BATCHNEW ? (BATCHES.new_to_cala || []) : (BATCHES.rows || []);
-  return head + kpis([
-    ["In the batch", c.total ?? 0, "t", `${esc(BATCHES.accelerator || "")} ${esc(BATCHES.batch || "")}`],
-    ["Not in Cala", c.new ?? 0, "n", "no investor database has these yet"],
-    ["Already in the graph", c.in_cala ?? 0, "k", "the graph has caught up"],
-  ], BATCHNEW ? "n" : "t", null)
-  + `<div class="sctabs" style="margin-bottom:var(--s2)">
-      <button class="sctab ${BATCHNEW ? "on" : ""}" data-bnew="1">Not in Cala</button>
-      <button class="sctab ${BATCHNEW ? "" : "on"}" data-bnew="0">Everything</button>
-    </div>`
-  + `<div class="ccards">${rows.map(r => `<div class="ccard">
-      <div class="cchd">${logo(r.name, r.website)}
-        <div style="min-width:0;flex:1">
-          <div class="ccnm">${r.website
-            ? `<a href="${esc(r.website)}" target="_blank" rel="noopener">${esc(r.name)}</a>`
-            : esc(r.name)}</div>
-          <div class="sub">${esc(r.batch || "")}${
-            r.status && r.status !== "Active" ? " · " + esc(r.status) : ""}</div>
-        </div>
-        ${r.in_cala ? badge("in Cala", "grey") : badge("new", "green")}
-      </div>
-      <div class="ccnone" style="color:var(--dim)">${esc(r.description || "No description on the list.")}</div>
-    </div>`).join("")}</div>`;
-}
-
 function callsView() {
   if (!F) return contactsPane();
   if (!CALLS || CALLSFOR !== F.company) { loadCalls(); return `<div class="msg">
@@ -3831,9 +3822,6 @@ function render() {
     parts = [{ t: "Your raise", go: 1 }, { t: F?.company || "", go: 1 },
              { t: "Pipeline" }];
     html = dealsView();
-  } else if (MODE === "batches") {
-    parts = [{ t: "Your pipeline", go: 1 }, { t: "Fresh out of a batch" }];
-    html = batchesView();
   } else if (MODE === "calls") {
     parts = [{ t: "Your raise", go: 1 }, { t: "Call list" }];
     html = callsView();
@@ -3947,10 +3935,6 @@ function render() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
-  document.querySelectorAll("[data-batch]").forEach(b =>
-    b.onclick = () => loadBatches(b.dataset.batch));
-  document.querySelectorAll("[data-bnew]").forEach(b =>
-    b.onclick = () => { BATCHNEW = b.dataset.bnew === "1"; render(); });
   document.querySelectorAll("[data-builder]").forEach(b =>
     b.onclick = () => openBuilder(b.dataset.builder));
   const bs = $("#bscrim");
@@ -3962,7 +3946,9 @@ function render() {
     e.preventDefault();
     const v = $("#scq").value;
     // Both cohorts are ranked against the same sentence, so both reload.
-    SCOUT_THESIS = v; PRIVATE = null; PRIVATE_FOR = null;
+    SCOUT_THESIS = v;
+    PRIVATE = null; PRIVATE_FOR = null;
+    BUILDERS = null; BUILDFOR = null;
     loadScouts(v);
   };
   document.querySelectorAll("[data-role]").forEach(b =>

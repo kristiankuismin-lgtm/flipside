@@ -1787,31 +1787,88 @@ def _start_watch_sweep() -> None:
 
 
 @app.get("/builders")
-def builders(limit: int = 40, pages: int = 10, days: int = 180):
-    """People shipping things in public who have not founded a company.
+def builders(limit: int = 60, pages: int = 10, days: int = 180,
+             thesis: str = ""):
+    """Everyone building in the open, whichever way they chose to say so.
 
-    The scout list ranks people who already founded, which is the strongest
-    predictor and the latest one. This is the cohort before that, and Cala
-    does not hold it - of the 134 people we have records for, 55 have
-    already founded and the rest are investors.
+    Two ways of doing one thing. A Show HN post is a person publishing
+    something they made under a handle they chose. A demo-day listing is a
+    company doing it with a programme's name attached. Both are the public
+    act, and splitting them into separate tabs made the product look like it
+    had two ideas when it has one.
 
-    Source: Show HN. A post there is somebody deliberately publishing work
-    they made, under a handle they chose. Not a LinkedIn, not a mailbox.
+    Filtered by thesis, because the unfiltered version of this is "the
+    internet, this week". The filter reads what the thing says about itself
+    - a post title, a company description - and the panel reports how much
+    it discarded rather than quietly shrinking.
     """
-    from . import builders as BD, cache_index
+    from . import builders as BD, accelerators as AC, cache_index
+    from . import private_builders as PB
     idx = cache_index.build()
     founders = {norm.name(e.get("name") or "") for e in idx.values()
                 if e.get("entity_type") == "Person"
                 and ((e.get("relationships") or {}).get("outgoing") or {}).get("FOUNDED")}
 
     def already_known(handle: str, titles) -> bool:
-        # A handle is not a name, so this can only catch the obvious case:
-        # someone posting under their own name who we already hold as a
-        # founder. It is not a privacy check and does not pretend to be one.
+        # A handle is not a name, so this catches only the obvious case:
+        # somebody posting under their own name whom we already hold as a
+        # founder. Not a privacy check and it does not pretend to be one.
         return norm.name(handle) in founders
 
-    out = BD.rank(days=days, pages=pages, limit=limit, known=already_known)
-    out["source"] = "Show HN, via the Hacker News search API"
+    out = BD.rank(days=days, pages=pages, limit=400, known=already_known)
+
+    cos, by_source = [], {}
+    for key in AC.SOURCES:
+        try:
+            rows = AC.batch(key, "s26")
+        except Exception:
+            rows = []
+        split = AC.against_cala(rows, idx)
+        by_source[AC.SOURCES[key]["name"]] = split["counts"]["total"]
+        cos += split["rows"]
+
+    # Not PB.queries(): that builds GitHub search strings and drops tokens
+    # under three characters, so "ai fintech" went in and "fintech" came
+    # out. A filter over text we already hold has no such constraint, and
+    # "ai" is the whole point of half these theses.
+    words = [w for w in re.findall(r"[a-z0-9+#.]{2,}", thesis.lower())
+             if w not in PB._STOP][:4]
+
+    def hits(*fields) -> bool:
+        """Every word, not any word.
+
+        "ai fintech" on an any-match returned 167 companies, led by a
+        nervous system for physical AI - because half of everything built
+        this year mentions AI, so the discriminating word was outvoted by
+        the common one. Requiring both is what the user typed two words
+        for. Whole words with a plural tolerance, so "agent" finds "agents"
+        and "ai" does not find "aiming".
+        """
+        if not words:
+            return True
+        blob = " ".join(str(f or "") for f in fields).lower()
+        return all(re.search(r"\b" + re.escape(w[:-1] if w.endswith("s") else w)
+                             + r"(?:e?s)?\b", blob) for w in words)
+
+    shipped = [b for b in out["builders"]
+               if hits(b["handle"], *[s.get("what") for s in b.get("shipped") or []])]
+    announced = [c for c in cos if hits(c.get("name"), c.get("description"))]
+    # Unknown to the graph first: that is the half an investor cannot buy.
+    announced.sort(key=lambda c: (bool(c.get("in_cala")), c.get("name") or ""))
+
+    out["builders"] = shipped[:limit]
+    out["companies"] = announced[:limit]
+    out["coverage"].update({
+        "companies_read": len(cos),
+        "companies_new": sum(1 for c in cos if not c.get("in_cala")),
+        "by_accelerator": by_source,
+        "handles_matching": len(shipped),
+        "companies_matching": len(announced),
+        "thesis": thesis.strip(),
+        "terms": words,
+    })
+    out["source"] = ("Show HN via the Hacker News API, and published "
+                     "accelerator batch lists.")
     return out
 
 

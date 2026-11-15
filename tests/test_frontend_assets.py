@@ -96,3 +96,21 @@ def test_every_shouted_global_the_script_reads_is_declared():
     missing = read - declared - builtins
     assert not missing, (
         f"read but never declared, so the first read throws: {sorted(missing)}")
+
+
+def test_the_role_toggle_knows_every_mode_each_side_can_reach():
+    """Switching sides keeps the current view when the other side has it, so
+    the mode lists have to match the nav or the toggle throws you out of a
+    view that was in fact available."""
+    nav = {}
+    for role in ("founder", "investor"):
+        block = re.search(rf'id="nav{role}"(.*?)</div>', CSS, re.S)
+        assert block, f"no nav block for {role}"
+        nav[role] = set(re.findall(r'data-mode="([a-z]+)"', block.group(1)))
+
+    declared = dict(re.findall(r'(founder|investor):\s*\[([^\]]*)\]', JS))
+    assert declared, "ROLE_MODES not found"
+    for role, raw in declared.items():
+        listed = set(re.findall(r'"([a-z]+)"', raw))
+        missing = nav[role] - listed
+        assert not missing, f"{role} nav reaches {sorted(missing)}, not in ROLE_MODES"

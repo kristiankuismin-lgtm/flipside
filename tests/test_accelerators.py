@@ -91,3 +91,44 @@ def test_a_batch_row_matches_its_cala_record_spelled_differently():
     index = {"c1": {"id": "c1", "entity_type": "Company", "name": "6th Sense"}}
     out = AC.against_cala(rows, index)
     assert out["rows"][0]["in_cala"] is True
+
+
+LINKS = """
+[VCbacked](https://www.vcbacked.co/)
+[Offe Market\\\\ \\\\ October 2026\\\\ \\\\ A low-cost retail marketplace](https://www.vcbacked.co/company/offe-market)
+[Research](https://www.vcbacked.co/ai-1000)
+[Intuitivo\\\\ \\\\ October 2026\\\\ \\\\ Digital assessment for teachers](https://www.vcbacked.co/company/intuitivo)
+"""
+
+RF = """
+1. [SSnapp AISR006](https://recentfunding.com/companies/snapp-ai/)
+2. [SSyncerePre-seed · SR006](https://recentfunding.com/companies/syncere/)
+3. [PE firms](https://recentfunding.com/pe-firms/)
+"""
+
+
+def test_site_chrome_is_excluded_by_url_shape_not_by_name():
+    """A blocklist would have to grow per site and still let Research through."""
+    rows = AC.parse_links(LINKS, accelerator="Techstars",
+                          company_url=r"vcbacked\.co/company/")
+    assert [r["name"] for r in rows] == ["Offe Market", "Intuitivo"]
+    assert rows[0]["description"] == "A low-cost retail marketplace"
+
+
+def test_without_a_url_filter_the_navigation_comes_too():
+    """Why the filter exists, stated as a test rather than a comment."""
+    rows = AC.parse_links(LINKS, accelerator="Techstars")
+    assert len(rows) > 2
+
+
+def test_a_glued_batch_code_is_stripped_from_the_name():
+    """"SSnapp AISR006" has no word boundary before the batch code."""
+    rows = AC.parse_links(RF, accelerator="a16z speedrun",
+                          company_url=r"recentfunding\.com/companies/")
+    assert [r["name"] for r in rows] == ["Snapp AI", "Syncere"]
+
+
+def test_a_glued_stage_is_stripped_too():
+    rows = AC.parse_links("[SSyncerePre-seed · SR006](https://recentfunding.com/companies/x/)",
+                          accelerator="a", company_url=r"recentfunding\.com/companies/")
+    assert rows[0]["name"] == "Syncere"

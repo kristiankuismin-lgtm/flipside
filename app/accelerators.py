@@ -28,11 +28,46 @@ from . import context_dev as cx, norm
 # directory and renders a markdown table; the accelerators' own sites do not.
 SOURCES: dict[str, dict] = {
     "yc": {
-        "name": "Y Combinator",
+        "name": "Y Combinator", "parser": "table",
         "pages": ["https://yclist.com/{b}/"],
         "batches": ["s26", "w26", "f25", "s25"],
     },
+    # vcbacked publishes one directory per investor, 24 companies a page,
+    # in a consistent URL shape - which is why three accelerators that have
+    # no list of their own are reachable at all.
+    "techstars": {
+        "name": "Techstars", "parser": "links",
+        "company_url": r"vcbacked\.co/company/",
+        "pages": ["https://www.vcbacked.co/directory/investors/techstars",
+                  "https://www.vcbacked.co/directory/investors/techstars/page/2",
+                  "https://www.vcbacked.co/directory/investors/techstars/page/3"],
+    },
+    "ef": {
+        "name": "Entrepreneur First", "parser": "links",
+        "company_url": r"vcbacked\.co/company/",
+        "pages": ["https://www.vcbacked.co/directory/investors/entrepreneurs-first",
+                  "https://www.vcbacked.co/directory/investors/entrepreneurs-first/page/2"],
+    },
+    "antler": {
+        "name": "Antler", "parser": "links",
+        "company_url": r"vcbacked\.co/company/",
+        "pages": ["https://www.vcbacked.co/directory/investors/antler",
+                  "https://www.vcbacked.co/directory/investors/antler/page/2"],
+    },
+    "speedrun": {
+        "name": "a16z speedrun", "parser": "links",
+        "company_url": r"recentfunding\.com/companies/",
+        "pages": ["https://recentfunding.com/accelerators/speedrun/"],
+    },
 }
+
+# Links that are site furniture rather than a company.
+_CHROME = re.compile(
+    r"^(home|directory|investors?|search|jobs|digest|log ?in|sign ?up|sign ?in|"
+    r"get started|pricing|api|blog|about|contact|privacy|terms|menu|skip to|"
+    r"companies|team|next|previous|page \d+|\d+|more|view all|visit|"
+    r"recently raised|startups|stealth|accelerators|funding data|money flow)",
+    re.I)
 
 # A batch list is mostly chrome. A row is a row only if it names something
 # and says something about it.
@@ -110,6 +145,58 @@ def parse(md: str, *, batch: str, accelerator: str) -> list[dict]:
     return out
 
 
+def parse_links(md: str, *, accelerator: str, company_url: str = "") -> list[dict]:
+    """A directory page that lists companies as links rather than a table.
+
+    Two shapes in the wild and both fit here. vcbacked writes the entry as
+    "[Name\\ \\ October 2026\\ \\ What they do](url)", so the backslash
+    runs separate the fields. recentfunding writes "[SSnapp AISR006](url)" -
+    the avatar initial is glued to the front and the batch code to the back -
+    so the leading duplicate letter and a trailing batch token are stripped.
+
+    Anything that matches the site's own navigation is dropped: a directory
+    page is mostly chrome and "Pricing" is not a startup.
+    """
+    # Every one of these directories links a company at one URL shape and
+    # its own navigation at another. Filtering on the shape removes the
+    # chrome outright; a blocklist of names would have to grow for every
+    # site and would still have let "Research" and "PE firms" through.
+    want = re.compile(company_url) if company_url else None
+    out, seen = [], set()
+    for text, url in re.findall(r"\[([^\]]{2,400})\]\(([^)]+)\)", md):
+        if want and not want.search(url):
+            continue
+        parts = [x.strip() for x in re.split(r"\\+", text) if x.strip()]
+        if not parts:
+            continue
+        name = re.sub(r"\s+", " ", parts[0]).strip()
+        # recentfunding renders an entry as avatar-initial + name + stage +
+        # batch, with no separators: "SSnapp AISR006" and
+        # "SSyncerePre-seed · SR006". There is no word boundary before the
+        # batch code, so a \b anchor missed it and left "Snapp AISR006".
+        name = re.sub(r"\s*·?\s*(SR\d{3}|[SWF]\d{2})\s*$", "", name).strip()
+        name = re.sub(r"\s*·?\s*(Pre-?seed|Seed|Series\s+[A-Z])\s*$", "",
+                      name, flags=re.I).strip()
+        name = re.sub(r"\s*·\s*$", "", name).strip()
+        if len(name) > 1 and name[0] == name[1] and name[:2].isalpha():
+            name = name[1:]
+        if not name or _CHROME.match(name) or len(name) > 60:
+            continue
+        desc = ""
+        for q in parts[1:]:
+            if len(q) > len(desc) and not re.match(r"^[A-Z][a-z]+ \d{4}$", q):
+                desc = q
+        k = _key(name)
+        if not k or k in seen:
+            continue
+        seen.add(k)
+        out.append({"name": name, "website": None,
+                    "description": re.sub(r"\s+", " ", desc)[:200],
+                    "status": None, "batch": None,
+                    "accelerator": accelerator})
+    return out
+
+
 def batch(key: str = "yc", code: str = "s26", *, fetcher=None) -> list[dict]:
     src = SOURCES.get(key)
     if not src:
@@ -124,7 +211,11 @@ def batch(key: str = "yc", code: str = "s26", *, fetcher=None) -> list[dict]:
         except Exception:
             continue
         md = _markdown((payload or {}).get("markdown"))
-        rows += parse(md, batch=code, accelerator=src["name"])
+        if src.get("parser") == "links":
+            rows += parse_links(md, accelerator=src["name"],
+                                company_url=src.get("company_url", ""))
+        else:
+            rows += parse(md, batch=code, accelerator=src["name"])
     seen, uniq = set(), []
     for r in rows:
         k = _key(r["name"])
