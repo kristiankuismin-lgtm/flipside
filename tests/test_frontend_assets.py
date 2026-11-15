@@ -59,3 +59,40 @@ def test_every_view_mode_has_a_way_in():
     # once funds are ticked. Each has a visible control; none has a front door.
     unreachable = modes - nav - inline - {"entity", "fund", "pp", "brief", "reach"}
     assert not unreachable, f"no nav entry for: {sorted(unreachable)}"
+
+
+def test_every_shouted_global_the_script_reads_is_declared():
+    """An undeclared global is a ReferenceError at the first read of it.
+
+    LENS was one. Its selector was taken out of the UI and three reads of it
+    were left in routeAsk, so every question typed into the Ask box threw on
+    the first line and the product's main entrance was dead - while the
+    server-side /ask endpoint kept answering, so the rehearsal stayed green
+    and the orphaned .lensbtn rules passed the class guard, which only
+    checks the other direction.
+    """
+    # Declarations come from the whole file: a name found here that is not
+    # really a global only costs a missed warning, never a false alarm.
+    declared = set()
+    for run in re.findall(r"\b(?:let|const|var)\s+([^;\n]+)", JS):
+        for part in run.split(","):
+            m = re.match(r"\s*([A-Z][A-Z0-9_]{2,})\s*(?:=|$)", part)
+            if m:
+                declared.add(m.group(1))
+    declared |= set(re.findall(r"\bfunction\s+([A-Z][A-Z0-9_]{2,})", JS))
+    declared |= set(re.findall(r"\bwindow\.([A-Z][A-Z0-9_]{2,})", JS))
+
+    # Reads are only counted with the name BEFORE the operator. A banner
+    # comment - "/* ===== THE PIPELINE" - otherwise reads as a comparison
+    # against an undeclared THE, and there are a dozen of those.
+    code = re.sub(r"/\*.*?\*/", " ", JS, flags=re.S)
+    read = set(re.findall(r"\b([A-Z][A-Z0-9_]{2,})\s*[=!]==", code))
+    read |= set(re.findall(r"(?:if|while)\s*\(\s*!?\s*([A-Z][A-Z0-9_]{2,})\s*[)&|.]",
+                           code))
+
+    builtins = {"JSON", "Math", "Object", "Array", "Number", "String", "Date",
+                "Map", "Set", "Promise", "RegExp", "Intl", "URL", "NaN",
+                "Boolean", "Error", "TypeError", "Infinity", "Symbol"}
+    missing = read - declared - builtins
+    assert not missing, (
+        f"read but never declared, so the first read throws: {sorted(missing)}")

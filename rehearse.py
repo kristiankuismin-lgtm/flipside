@@ -47,6 +47,9 @@ STEPS = [
      "/fund/6ba00a20-2cb4-4559-8fe2-f39484a9e5f6", None, 30),
     ("Public record on a bare stub", "GET",
      f"/enrich?name={urllib.parse.quote('Andercore GmbH')}", None, 40),
+    ("Building in private", "GET",
+     "/private-builders?limit=10&thesis="
+     + urllib.parse.quote("ambient AI scribe for clinicians"), None, 60),
 ]
 
 # What each step must actually contain. A 200 that returns an error payload
@@ -88,6 +91,12 @@ def _checks(label: str, d):
         yield bool(d.get("name")), "profile has no name"
     elif label == "Public record on a bare stub":
         yield bool(d.get("registry") or d.get("site")), "no public record found"
+    elif label == "Building in private":
+        rows = d.get("rows") or []
+        yield bool(rows), "nobody came back, so the third cohort tab is empty"
+        yield all(r.get("lead_repo", {}).get("url") for r in rows), \
+            "a row with no repository link cannot be checked by the person reading it"
+        yield all(r.get("why") for r in rows), "a row with no reason is a name on a list"
 
 
 def call(method, path, body, timeout):

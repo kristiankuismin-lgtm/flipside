@@ -1782,6 +1782,38 @@ def builders(limit: int = 40, pages: int = 10, days: int = 180):
     return out
 
 
+@app.get("/private-builders")
+def private_builders(thesis: str = "", limit: int = 30, months: int = 6):
+    """The cohort before "building in public": building, but unannounced.
+
+    Show HN finds people who shipped and said so. This finds the step before
+    that - a repository started weeks ago, commits in it this week, almost no
+    stars, squarely on the thesis. Nobody sells this list because the thing
+    it describes has not happened yet.
+
+    Sources are all bulk and public: GitHub repository search, Devpost
+    hackathon submissions, Hacker News comments. GitHub's core API would
+    allow eighteen people an hour without a token; repository search is a
+    separate budget and returns a hundred at a time, which is why the list
+    costs nothing per person and only a drill-down spends the core budget.
+    """
+    from . import private_builders as PB, cache_index
+    idx = cache_index.build()
+    try:
+        from . import builders as BD
+        announced = {r["handle"] for r in (BD.rank(limit=200).get("rows") or [])}
+    except Exception:
+        announced = set()
+    try:
+        out = PB.rank(thesis=thesis, limit=limit, months=months,
+                      index=idx, announced=announced)
+    except PB.Unavailable as e:
+        return {"rows": [], "error": str(e), "queries": PB.queries(thesis)}
+    out["source"] = ("GitHub repository search, Devpost, Hacker News comments. "
+                     "No LinkedIn, by design.")
+    return out
+
+
 @app.post("/deck")
 async def deck_put(file: UploadFile = File(...)):
     """Hold the deck so the email can carry a link to it.

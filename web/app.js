@@ -764,7 +764,7 @@ let SCOUTS = null, SCOUT_THESIS = "", SCOUTWATCH = {}, SCOUTSIG = {}, SCOUTBT = 
    time someone has a company every fund can see them. "Building in public"
    is the one before that - and Cala does not hold it, so it comes from
    somewhere else. */
-let SCOUTTAB = "founded", BUILDERS = null;
+let SCOUTTAB = "founded", BUILDERS = null, PRIVATE = null, PRIVATE_FOR = null;
 
 async function loadBuilders() {
   BUILDERS = { loading: true };
@@ -772,6 +772,91 @@ async function loadBuilders() {
   try { BUILDERS = await (await fetch("/builders?limit=40&pages=10")).json(); }
   catch (e) { BUILDERS = { error: String(e.message), builders: [] }; }
   if (MODE === "scouts") render();
+}
+
+/* The third cohort: building, but nobody has been told.
+   Show HN finds people who shipped and announced it. This finds the step
+   before that - a repository started weeks ago with commits in it this week
+   and almost no stars. It is keyed on the thesis box above, because the
+   whole claim is "on your thesis", and an unfiltered version of this list
+   is just GitHub. */
+async function loadPrivate(thesis) {
+  PRIVATE = { loading: true }; PRIVATE_FOR = thesis;
+  if (MODE === "scouts") render();
+  try {
+    PRIVATE = await (await fetch("/private-builders?limit=30&thesis="
+      + encodeURIComponent(thesis || ""))).json();
+  } catch (e) { PRIVATE = { error: String(e.message), rows: [] }; }
+  if (MODE === "scouts") render();
+}
+
+function privateRow(r) {
+  const lead = r.lead_repo, key = "gh:" + r.handle;
+  const watched = !!SCOUTWATCH[key];
+  const quiet = (r.stars || 0) === 0;
+  return `<div class="scrow ${watched ? "on" : ""}">
+    <button class="scwatch ${watched ? "on" : ""}"
+      data-scwatch="${esc(key)}|${esc(r.handle)}"
+      title="${watched ? "Stop watching" : "Watch this handle"}">${watched ? "◉" : "○"}</button>
+    <div class="scmain">
+      <div class="scnm">${r.profile
+          ? `<a href="${esc(r.profile)}" target="_blank" rel="noopener">${esc(r.handle)}</a>`
+          : esc(r.handle)}
+        ${quiet ? badge("unseen", "green") : ""}
+        ${r.sources.length > 1 ? badge(r.sources.join(" + "), "blue") : ""}
+        ${r.known_to_cala ? badge("in Cala", "amber") : ""}</div>
+      <div class="scwhy">${esc((r.why || []).join(" · "))}</div>
+      ${lead ? `<div class="bships">
+        <div class="bship"><a href="${esc(lead.url)}" target="_blank" rel="noopener"
+          >${esc(lead.repo)}</a>
+          <span class="sub">${esc(lead.description || "no description")}</span></div>
+        ${(r.repos || []).slice(1, 3).map(x => `<div class="bship">
+          <a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.repo)}</a>
+          <span class="sub">${esc(x.description || "")}</span></div>`).join("")}
+        ${(r.hackathons || []).slice(0, 2).map(h => `<div class="bship">
+          <a href="${esc(h.url)}" target="_blank" rel="noopener">${esc(h.project || "")}</a>
+          <span class="sub">${h.event ? esc(h.event) : "hackathon"}${
+            h.winner ? " · placed" : ""}</span></div>`).join("")}
+        ${(r.rooms || []).slice(0, 1).map(c => `<div class="bship">
+          <a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.story)}</a>
+          <span class="sub">commented in this thread</span></div>`).join("")}
+      </div>` : ""}
+    </div>
+    <div class="scsc">${r.score}</div>
+  </div>`;
+}
+
+function privatePane() {
+  const th = SCOUT_THESIS || "";
+  if (!PRIVATE || PRIVATE_FOR !== th) { loadPrivate(th);
+    return `<div class="msg" style="padding:30px"><span class="spin"></span>
+      Searching for people building this quietly…</div>`; }
+  if (PRIVATE.loading) return `<div class="msg" style="padding:30px">
+    <span class="spin"></span>Searching for people building this quietly…</div>`;
+  if (PRIVATE.error) return errorPanel(PRIVATE.error, "the private cohort");
+  const c = PRIVATE.coverage || {}, rows = PRIVATE.rows || [];
+  const qs = (PRIVATE.queries || []).map(q => `“${esc(q)}”`).join(" then ");
+
+  return kpis([
+    ["Building quietly", rows.length, "all", "on this thesis, unannounced"],
+    ["Corroborated", c.corroborated ?? 0, "corr",
+     "the same person found by more than one source"],
+    ["Already announced", PRIVATE.excluded_announced ?? 0, "ann",
+     "dropped — they have a Show HN, so they are in the other tab"],
+  ], "all", null)
+  + `<div class="sub" style="max-width:72ch;line-height:1.75;margin:-4px 0 var(--s3)">
+      Searched ${qs || "your thesis"} across GitHub repository search
+      (${c.github_handles || 0} people), Devpost (${c.devpost_members || 0})
+      and Hacker News comments (${c.hn_commenters || 0}).
+      Ranked on weeks of commits, size of the codebase, whether it has been
+      deployed — and on how few people have seen it, which is the part that
+      makes it early. No LinkedIn, by design.</div>`
+  + (rows.length
+    ? `<div class="sclist">${rows.map(privateRow).join("")}</div>`
+    : `<div class="emptywhy"><b>Nobody is building this quietly that we can
+        see.</b> Either the thesis is too narrow for a repository search, or
+        the people working on it have already announced — check the
+        <b>Building in public</b> tab.</div>`);
 }
 
 function builderRow(b) {
@@ -1004,18 +1089,26 @@ function scoutsView() {
         Founded before</button>
       <button class="sctab ${SCOUTTAB === "building" ? "on" : ""}" data-sctab="building">
         Building in public</button>
+      <button class="sctab ${SCOUTTAB === "private" ? "on" : ""}" data-sctab="private">
+        Building in private</button>
     </div>
     <p class="sub" style="max-width:74ch;line-height:1.75;margin:0 0 var(--s3)">
       ${SCOUTTAB === "founded"
         ? `People who have started something and are sitting in someone else's
            seat. The strongest predictor there is, and the latest one — by the
            time someone has a company, every fund can see them.`
-        : `The cohort before that: people putting things on the internet who
+        : SCOUTTAB === "building"
+        ? `The cohort before that: people putting things on the internet who
            have not founded a company. Cala does not hold them — of the 134
            people we have records for, 55 have already founded and most of the
-           rest are investors — so this reads Show HN instead.`}</p>`;
+           rest are investors — so this reads Show HN instead.`
+        : `And the step before <i>that</i>. Not people who shipped and posted
+           it — people with a repository they started weeks ago, commits in it
+           this week, and almost nobody watching. Keyed to your thesis above,
+           because “on your thesis” is the entire claim.`}</p>`;
 
   if (SCOUTTAB === "building") return head + tabs + buildersPane();
+  if (SCOUTTAB === "private") return head + tabs + privatePane();
 
   if (!SCOUTS) { loadScouts(SCOUT_THESIS); return head + tabs + `<div class="msg">
     <span class="spin"></span>Reading the people we have records for…</div>`; }
@@ -4740,6 +4833,15 @@ async function lookupEntity(term, kindHint) {
    result is shown to the user. Silently guessing wrong is what made Ask feel
    broken: "raising a Series A" opened the investor view. */
 let ASKWHY = null;
+
+/* The lens selector this reads was taken out of the UI, and the three reads
+   of it were left behind. Every question typed into Ask threw a
+   ReferenceError on the first line of routeAsk, which killed the product's
+   main entrance while the server-side /ask endpoint kept answering fine - so
+   the rehearsal stayed green. With no selector on screen the user cannot
+   have chosen anything, which makes "auto" the only honest value and the
+   three branches below correctly dead. */
+let LENS = "auto";
 
 async function routeAsk(text) {
   const q = (text || "").trim();

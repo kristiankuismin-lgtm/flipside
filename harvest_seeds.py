@@ -39,7 +39,19 @@ def main() -> int:
     funds = [i for n in api._investor_pool() for i in by_name.get(norm.name(n), [])]
     tier("funds we rank", funds)
 
-    # 2. The portfolio companies of the funds we rank. Their own records
+    # 2. The types we have never fetched a single one of. They are cheap -
+    # an Award or an EducationalInstitution is a small entity - and they are
+    # what makes two people comparable: the school they share, the prize
+    # they both won, the round they were both in.
+    tier("types never fetched",
+         [k for k, v in idx.items() if v.get("entity_type") in
+          ("FundingRound", "EducationalInstitution", "Award", "Event",
+           "Industry", "FundingRoundTranche", "Exchange", "CorporateEvent")])
+
+    # 3. Every person we hold: a person is a contact, and contacts are the point.
+    tier("people", [k for k, v in idx.items() if v.get("entity_type") == "Person"])
+
+    # 4. The portfolio companies of the funds we rank. Their own records
     # carry HAS_HEADQUARTERS_IN and OPERATES_IN_INDUSTRY, which is what the
     # sector and geography donuts on a fund profile are counted from - and
     # with none of them read, those two charts can only say so.
@@ -52,16 +64,7 @@ def main() -> int:
                     port.append(x["id"])
     tier("portfolio of the funds we rank", port)
 
-    # 3. The types we have never fetched a single one of. They are cheap -
-    # an Award or an EducationalInstitution is a small entity - and they are
-    # what makes two people comparable: the school they share, the prize
-    # they both won, the round they were both in.
-    tier("types never fetched",
-         [k for k, v in idx.items() if v.get("entity_type") in
-          ("FundingRound", "EducationalInstitution", "Award", "Event",
-           "Industry", "FundingRoundTranche", "Exchange", "CorporateEvent")])
-
-    # 4. Funding rounds, for their amounts.
+    # 5. Funding rounds, for their amounts.
     #
     # The product has been telling people that pre-emption detection is
     # starved because only 58 of 837 round records carry an amount. That
@@ -72,9 +75,6 @@ def main() -> int:
     tier("funding rounds, for their amounts",
          [k for k, v in idx.items()
           if v.get("entity_type") == "PrivateCompanyFundingRound"])
-
-    # 3. Every person we hold: a person is a contact, and contacts are the point.
-    tier("people", [k for k, v in idx.items() if v.get("entity_type") == "Person"])
 
     # 5. Whoever else those funds are connected to. Harvested funds carry
     # hundreds of edges each, so this tier is thousands wide and has to come

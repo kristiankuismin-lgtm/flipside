@@ -58,9 +58,20 @@ def _pace_slower() -> None:
 
 
 def _pace_faster() -> None:
+    """Come back down at a rate that can actually recover.
+
+    Backing off 1.7x per 429 and recovering 2% per success is not symmetric:
+    once a burst of refusals pushed the interval to the 20s ceiling, every
+    worker queued behind one global slot every 20 seconds and a batch run
+    fell to one entity every ninety. Climbing out needed a hundred and fifty
+    successes at one request per twenty seconds, which is never. Backing off
+    fast and recovering slowly is right; recovering imperceptibly is a stall
+    that looks like a rate limit.
+    """
     with _pace_lock:
         if _pace["interval"] > PACE_MIN:
-            _pace["interval"] = max(PACE_MIN, _pace["interval"] * 0.98)
+            _pace["interval"] = max(PACE_MIN, _pace["interval"] * 0.9)
+            _pace["next"] = min(_pace["next"], time.time() + _pace["interval"])
 
 _conn = sqlite3.connect(DB, check_same_thread=False)
 _conn.execute("PRAGMA busy_timeout=20000")
