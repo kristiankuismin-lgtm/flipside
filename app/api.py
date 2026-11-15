@@ -651,7 +651,13 @@ def _map_data_uncached():
         fine = geocode.lookup(hq, cache_only=True) if hq else None
         if fine:
             lat, lon, precise = fine["lat"], fine["lon"], True
+            # geo.locate only knows a country when the address string names
+            # a city it has heard of, so a correctly geocoded street in
+            # Rennes came back "??" and flew a globe on the map. The
+            # geocoder already resolved the country; ask it.
             cc = (geo.locate(hq) or (0, 0, "??"))[2]
+            if cc in ("??", "", None):
+                cc = geocode.country_of(hq) or "??"
             exact += 1
         else:
             loc = geo.locate(hq)
@@ -764,6 +770,8 @@ def _map_data_uncached():
             else:
                 continue
             cc = (loc or (0, 0, "??"))[2]
+            if cc in ("??", "", None):
+                cc = geocode.country_of(hq) or "??"
             # The registry address and the firm's own description disagree
             # often enough to matter: the GLEIF name->LEI join lands on a
             # namesake abroad. Believe the description, lose the precision,
@@ -824,7 +832,15 @@ def _map_data_uncached():
                 rs = _rounds_by_company().get(nm.strip().lower())
                 portfolio.append({"name": nm, "id": v.get("entity_id"),
                                   "lat": v["lat"], "lon": v["lon"],
-                                  "cc": v.get("cc"), "precise": v.get("precise", False),
+                                  # Same fallback as the other two layers: the
+                                  # file was written before the geocoder was
+                                  # asked for a country code, so 148 of 291
+                                  # carried no country while sitting on a
+                                  # correct street in one.
+                                  "cc": (v.get("cc") if v.get("cc") not in
+                                         ("??", "", None)
+                                         else geocode.country_of(v.get("hq") or "") or "??"),
+                                  "precise": v.get("precise", False),
                                   "hq": v.get("hq"), "website": v.get("website"),
                                   "source": v.get("source"), "kind": "portfolio",
                                   "rounds": len(rs) if rs is not None else None,
