@@ -1671,6 +1671,27 @@ def news(name: str, year: str = ""):
                             "summary": r.get("content"), "error": None}, name)
 
 
+@app.get("/regulation")
+def regulation(thesis: str = "", limit: int = 24):
+    """Which law touches the market in that sentence.
+
+    The largest unused thing in Cala's graph: 3,777 AFFECTS_INDUSTRY edges
+    from 1,528 Law entities into 40 industries, and nothing here had ever
+    read one. Every other signal in this product is people and money; this
+    is the regulatory surface of a market, which is the question asked in
+    the second meeting and which no investor database answers from a graph.
+
+    Ordered by what the graph can actually support: a law whose name carries
+    a word from the thesis first, then by how few industries it touches -
+    because a law that reaches one industry is specific to it and one that
+    reaches twenty is the weather.
+    """
+    from . import regulation as RG
+    out = RG.for_thesis(thesis, limit=limit)
+    out["source"] = "Cala AFFECTS_INDUSTRY edges"
+    return out
+
+
 @app.get("/enrich-person")
 def enrich_person(name: str, firm: str = ""):
     """Everything we can put against a name, from both graphs.

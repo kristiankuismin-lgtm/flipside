@@ -850,6 +850,7 @@ function applyRoleChrome() {
     PRIVATE = null; PRIVATE_FOR = null;
     BUILDERS = null; BUILDFOR = null;
     LAUNCH = null; LAUNCHFOR = null;
+    REG = null; REGFOR = null;
     loadScouts(v);
   };
   document.querySelectorAll("[data-role]").forEach(b =>
@@ -923,6 +924,41 @@ async function loadLaunch(thesis) {
       + encodeURIComponent(thesis || ""))).json();
   } catch (e) { LAUNCH = { rows: [], error: String(e.message) }; }
   if (MODE === "scouts") render();
+}
+
+/* The regulatory surface of a thesis. Cala has had this all along. */
+let REG = null, REGFOR = null;
+
+async function loadReg(thesis) {
+  REG = { loading: true }; REGFOR = thesis || "";
+  if (MODE === "scouts") render();
+  try {
+    REG = await (await fetch("/regulation?limit=18&thesis="
+      + encodeURIComponent(thesis || ""))).json();
+  } catch (e) { REG = { laws: [], error: String(e.message) }; }
+  if (MODE === "scouts") render();
+}
+
+function regBlock() {
+  const th = SCOUT_THESIS || "";
+  if (!th) return "";
+  if (!REG || REGFOR !== th) { loadReg(th); return ""; }
+  if (REG.loading || REG.error) return "";
+  const laws = REG.laws || [];
+  if (!laws.length) return "";
+  return section("reg", "What regulates this market",
+    `${REG.named} law${REG.named === 1 ? "" : "s"} attached to ${
+      (REG.industries || []).join(", ")} · most specific first`,
+    `<div class="dchips">${laws.map(l => `<span class="dchip"
+        title="${esc(l.what || l.name)}">${esc(l.name)}${
+        l.industries_touched > 6
+          ? `<i>touches ${l.industries_touched}</i>` : ""}</span>`).join("")}
+      ${REG.named > laws.length
+        ? `<span class="dchip more">+${REG.named - laws.length}</span>` : ""}</div>
+     <div class="sub" style="margin-top:10px">From Cala's AFFECTS_INDUSTRY
+       edges. Ordered by how few industries each law touches, because a law
+       that reaches one is specific to yours and one that reaches twenty is
+       the weather.</div>`);
 }
 
 function launchPane() {
@@ -1484,8 +1520,10 @@ function scoutsView() {
 `;
 
   if (SCOUTTAB === "building") return head + tabs + buildersPane();
-  if (SCOUTTAB === "private") return head + tabs + privatePane() + builderDrawer();
-  if (SCOUTTAB === "notyet") return head + tabs + launchPane() + enrichDrawer();
+  if (SCOUTTAB === "private")
+    return head + tabs + privatePane() + regBlock() + builderDrawer();
+  if (SCOUTTAB === "notyet")
+    return head + tabs + launchPane() + regBlock() + enrichDrawer();
 
   if (!SCOUTS) { loadScouts(SCOUT_THESIS); return head + tabs + `<div class="msg">
     <span class="spin"></span>Reading the people we have records for…</div>`; }
@@ -4375,6 +4413,7 @@ function render() {
     PRIVATE = null; PRIVATE_FOR = null;
     BUILDERS = null; BUILDFOR = null;
     LAUNCH = null; LAUNCHFOR = null;
+    REG = null; REGFOR = null;
     loadScouts(v);
   };
   document.querySelectorAll("[data-role]").forEach(b =>
