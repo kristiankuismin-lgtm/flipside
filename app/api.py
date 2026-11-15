@@ -141,6 +141,28 @@ def _rounds_by_company() -> dict:
             out.setdefault(co, rs)
     except Exception:
         pass
+    # Asked directly - "the funding rounds of this company, with the
+    # investors" - the graph names every investor on a round in one table,
+    # already flattened to one row per investor. No lead attribution, since
+    # the question never asked which one led, so this only ever fills a
+    # company none of the files above reached.
+    try:
+        from . import bulk
+        by_co: dict[str, dict[str, list[str]]] = {}
+        for r in bulk.rows_of("rounds"):
+            co = (r.get("org") or "").strip().lower()
+            when = (r.get("year") or "").strip()
+            inv = (r.get("person") or "").strip()
+            if not co or not inv:
+                continue
+            by_co.setdefault(co, {}).setdefault(when, []).append(inv)
+        for co, by_date in by_co.items():
+            if co in out:
+                continue
+            out[co] = [{"date": d, "investors": sorted(set(invs)), "leads": []}
+                      for d, invs in by_date.items()]
+    except Exception:
+        pass
     _ROUNDS_BY_CO = out
     return out
 
@@ -1161,11 +1183,30 @@ def pipeline(investor: str):
     question a founder is actually deciding: if I take this money, who leads
     my next round?
     """
-    from . import pipeline as P
+    from . import pipeline as P, bulk, norm
     g = _pipeline()
+    co = P.co_investors(g, investor)
+    if len(co) < 3:
+        # The edge graph counts co-occurrence across every round we have
+        # happened to cache, which is thin for most funds. Asked directly -
+        # "who co-invests with this fund" - Cala names them without needing
+        # the rounds in between, so this only tops up a sparse answer.
+        want = norm.name(investor)
+        seen = {norm.name(c["name"]) for c in co}
+        extra = {}
+        for r in bulk.rows_of("coinvest"):
+            if norm.name(r.get("subject") or "") != want:
+                continue
+            nm = (r.get("person") or "").strip()
+            k = norm.name(nm)
+            if not nm or k in seen or k == want:
+                continue
+            extra.setdefault(k, {"name": nm, "count": 0})
+            extra[k]["count"] += 1
+        co = co + sorted(extra.values(), key=lambda x: -x["count"])
     return {**P.where_it_takes_you(g, investor),
             "led_into": P.who_leads_into(g, investor),
-            "co_investors": P.co_investors(g, investor)}
+            "co_investors": co[:8]}
 
 
 @app.post("/syndicates")
