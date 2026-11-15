@@ -189,12 +189,27 @@ def main() -> int:
     ap.add_argument("--seeds", default="", help="file of entity ids, one per line")
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--quiet", action="store_true")
+    ap.add_argument("--redo", default="",
+                    help="re-fetch these already-harvested types, for property "
+                         "floors added since they were first read")
     a = ap.parse_args()
 
     only = {t.strip() for t in a.types.split(",") if t.strip()}
     con = _db()
     vocab = Vocab(con)
     seen = done_ids(con)
+    if a.redo:
+        # A record fetched before a property was added to the floor does not
+        # carry it, and never will: the id is in the done set, so the walk
+        # skips it forever. github_url became a floor property after 126
+        # people had already been read, which is why Cala's own GitHub claim
+        # covered two of them.
+        from app import cache_index
+        want = {t.strip() for t in a.redo.split(",") if t.strip()}
+        idx = cache_index.build()
+        drop = {i for i in seen if idx.get(i, {}).get("entity_type") in want}
+        seen -= drop
+        print(f"# re-reading {len(drop)} already-harvested {'/'.join(sorted(want))}")
 
     # Seeds: everything we already hold, best types first, so a short run
     # spends its calls on people and firms rather than on country labels.

@@ -22,7 +22,7 @@
   /* An 8px grid. Named so a spacing decision is a choice between steps
      rather than a number someone typed. */
   --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px;
-  --measure:1200px;
+  --measure:1560px;
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
@@ -35,7 +35,7 @@ button{font:inherit;cursor:pointer;color:inherit}
 a{color:var(--blue);text-decoration:none}
 a:hover{text-decoration:underline}
 
-.app{display:grid;grid-template-columns:216px 1fr;height:100vh}
+.app{display:grid;grid-template-columns:248px 1fr;height:100vh}
 
 /* ---------------- sidebar ---------------- */
 .nav{background:var(--panel);border-right:1px solid var(--line);display:flex;
@@ -50,6 +50,7 @@ a:hover{text-decoration:underline}
 .navsec{padding:14px 12px 5px;font:10px var(--mono);letter-spacing:.11em;
   text-transform:uppercase;color:var(--faint)}
 .navitem{display:flex;align-items:center;gap:9px;padding:7px 11px;margin:1px 8px;
+  white-space:nowrap;
   border-radius:7px;color:var(--dim);font-size:13.5px;background:none;border:0;
   width:calc(100% - 16px);text-align:left;min-width:0;
   /* The label is one line and ellipsises; the count never wraps under it.
@@ -565,11 +566,15 @@ tbody tr.kbd{background:var(--accent-bg)!important;
 /* --- outreach brief: the draft and its evidence in one drawer --- */
 .btn.sm{padding:4px 10px;font-size:11.5px;border-radius:6px}
 .tdact{text-align:right;white-space:nowrap}
-.composebox.wide{max-width:min(1040px,94vw)}
+/* The base box sets width, not max-width, so a .wide modifier that only
+   raised max-width changed nothing at all - which is why this card was
+   still 620px after being "widened" once. */
+.composebox.wide{width:min(1280px,95vw);max-width:none}
 /* A Series C can carry twenty-five named investors. At 680px that column
    wrapped to one word a line and the three columns beside it were squeezed
    to nothing, so the table said less than the sentence above it. */
-.convtbl table{table-layout:fixed;width:100%}
+.convtbl table{table-layout:fixed;width:100%;min-width:0}
+.convtbl{overflow-x:visible}
 .convtbl th:nth-child(1),.convtbl td:nth-child(1){width:88px}
 .convtbl th:nth-child(2),.convtbl td:nth-child(2){width:108px}
 .convtbl th:nth-child(3),.convtbl td:nth-child(3){width:96px}

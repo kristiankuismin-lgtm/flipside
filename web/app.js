@@ -642,17 +642,11 @@ function movesBlock() {
   const c = MOVES.coverage || {};
   const v = MOVES.new_ventures || [];
   const seats = (MOVES.moves || []).filter(m => m.kind === "new_seat");
-  const cov = `<div class="sub" style="line-height:1.7;max-width:70ch;margin-top:var(--s2)">
-      Read from ${c.people_with_edges} people whose records we have fetched, of
-      ${c.people_in_cache} we hold a name for. Only
-      <b>${c.people_with_a_dated_role}</b> of those carry a dated role, and a
-      founding with no date has no "just" in it — so this sees a fraction of
-      what it is looking for, and the fraction is the number above.
-      It widens as the harvester reaches more people.</div>`;
 
   return section("mv", "Who just changed seats",
     `${v.length} new venture${v.length === 1 ? "" : "s"} · ${seats.length} seat
-     change${seats.length === 1 ? "" : "s"} · last ${MOVES.window_months} months`,
+     change${seats.length === 1 ? "" : "s"} · last ${MOVES.window_months} months
+     · ${c.people_with_a_dated_role} dated roles read`,
     (v.length
       ? `<div class="mvlist">${v.map(m => `<div class="mvrow new">
           <div><b>${esc(m.person)}</b> founded <b>${esc(m.company)}</b>
@@ -661,11 +655,8 @@ function movesBlock() {
           ${m.person_id ? `<button class="btn sm" data-person="${esc(m.person_id)}"
             data-pname="${esc(m.person)}">Card</button>` : ""}
         </div>`).join("")}</div>`
-      : `<div class="emptywhy"><b>Nobody in our records has founded anything in
-          the last ${MOVES.window_months} months.</b> A computed result, not an
-          empty state — and with ${c.people_with_a_dated_role} dated roles to
-          read, it is as much a statement about the record as about the
-          people.</div>`)
+      : `<div class="emptywhy"><b>Nobody has founded anything in the last
+          ${MOVES.window_months} months.</b></div>`)
     + (seats.length ? `<div class="mvlist" style="margin-top:var(--s2)">
         ${seats.map(m => `<div class="mvrow">
           <div><b>${esc(m.person)}</b> → <b>${esc(m.company)}</b>
@@ -674,7 +665,7 @@ function movesBlock() {
           ${m.person_id ? `<button class="btn sm" data-person="${esc(m.person_id)}"
             data-pname="${esc(m.person)}">Card</button>` : ""}
         </div>`).join("")}</div>` : "")
-    + cov);
+    );
 }
 
 function applyRoleChrome() {
@@ -937,13 +928,9 @@ function privatePane() {
     ["Already announced", PRIVATE.excluded_announced ?? 0, "ann",
      "dropped — they have a Show HN, so they are in the other tab"],
   ], "all", null)
-  + `<div class="sub" style="max-width:72ch;line-height:1.75;margin:-4px 0 var(--s3)">
-      Searched ${qs || "your thesis"} across GitHub repository search
-      (${c.github_handles || 0} people), Devpost (${c.devpost_members || 0})
-      and Hacker News comments (${c.hn_commenters || 0}).
-      Ranked on weeks of commits, size of the codebase, whether it has been
-      deployed — and on how few people have seen it, which is the part that
-      makes it early. No LinkedIn, by design.</div>`
+  + `<div class="sub" style="margin:-4px 0 var(--s3)">
+      ${qs || "your thesis"} · GitHub ${c.github_handles || 0} ·
+      Devpost ${c.devpost_members || 0} · HN ${c.hn_commenters || 0}</div>`
   + (rows.length
     ? `<div class="sclist">${rows.map(privateRow).join("")}</div>`
     : `<div class="emptywhy"><b>Nobody is building this quietly that we can
@@ -1181,20 +1168,7 @@ function scoutsView() {
       <button class="sctab ${SCOUTTAB === "private" ? "on" : ""}" data-sctab="private">
         Building in private</button>
     </div>
-    <p class="sub" style="max-width:74ch;line-height:1.75;margin:0 0 var(--s3)">
-      ${SCOUTTAB === "founded"
-        ? `People who have started something and are sitting in someone else's
-           seat. The strongest predictor there is, and the latest one — by the
-           time someone has a company, every fund can see them.`
-        : SCOUTTAB === "building"
-        ? `The cohort before that: people putting things on the internet who
-           have not founded a company. Cala does not hold them — of the 134
-           people we have records for, 55 have already founded and most of the
-           rest are investors — so this reads Show HN instead.`
-        : `And the step before <i>that</i>. Not people who shipped and posted
-           it — people with a repository they started weeks ago, commits in it
-           this week, and almost nobody watching. Keyed to your thesis above,
-           because “on your thesis” is the entire claim.`}</p>`;
+`;
 
   if (SCOUTTAB === "building") return head + tabs + buildersPane();
   if (SCOUTTAB === "private") return head + tabs + privatePane() + builderDrawer();
@@ -1250,7 +1224,13 @@ function scoutsView() {
 }
 
 function investorView() {
-  if (!CONV || CONV.loading) return `<div class="msg" style="padding:40px">
+  // Self-loading, like every other view. This one waited for the mode-switch
+  // handler to fetch for it, so arriving any other way - a deep link, a
+  // re-render, a role change - left the spinner turning forever over an
+  // endpoint that answers in 50ms.
+  if (!CONV) { loadConviction(); return `<div class="msg" style="padding:40px">
+    <span class="spin"></span>Reading who got backed again…</div>`; }
+  if (CONV.loading) return `<div class="msg" style="padding:40px">
     <span class="spin"></span>Reading who got backed again…</div>`;
   if (CONV.error) return errorPanel(CONV.error, "insider conviction");
   const cs = (CONV.companies || []).filter(c => c.score != null);
@@ -1260,7 +1240,7 @@ function investorView() {
   return `<div class="runline">
       <div class="rl1"><b>Insider conviction</b>
         <span class="sub">· ${CONV.scored ?? cs.length} of ${CONV.corpus ?? "?"} companies scored</span></div>
-      <div class="rl2"><span class="sub">precomputed from Cala's round records</span>
+      <div class="rl2">
         <button class="lnk" data-goto="accuracy">Does it predict?</button></div>
     </div>
     ${kpis([
@@ -2920,11 +2900,9 @@ function recordTab(f) {
   const edges = Object.entries(cov.by_edge || {});
   const top = Math.max(1, ...edges.map(([, n]) => n));
 
-  return `<div class="sub" style="max-width:64ch;line-height:1.7;margin-bottom:var(--s3)">
-      ${cov.properties} properties, ${cov.sourced_properties} of them carrying a
-      source document, and ${cov.edges} relationships across ${cov.edge_types}
-      kinds. This is the entity asked for everything it declares, not for the
-      fields one screen needed.</div>
+  return `<div class="sub" style="margin-bottom:var(--s3)">
+      ${cov.properties} properties · ${cov.sourced_properties} sourced ·
+      ${cov.edges} relationships across ${cov.edge_types} kinds</div>
 
     ${facts.length ? section("d-facts", "The plain record", "with the document each claim came from",
       `<div class="tbl"><table><tbody>${facts.map(x => `<tr style="cursor:default">
@@ -2939,12 +2917,7 @@ function recordTab(f) {
 
     ${ids.length ? section("d-ids", "Registered identifiers",
       "the only way to name a firm without ambiguity",
-      `<div class="card"><div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
-         Three bugs in this product came from matching firms by name — a Munich
-         fund placed in Tampere, a company called NORRSKEN COMPANY LIMITED
-         outranking Norrsken VC. An identifier settles those, when there is
-         one: 14 of the 10,558 entities we hold carry it, so this is a better
-         answer for this firm rather than a fix for the problem.</div>
+      `<div class="card">
        ${ids.map(([k, v]) => `<span class="chip mono">${esc(k.toUpperCase())} ${esc(v)}</span>`).join(" ")}
       </div>`) : ""}
 
@@ -3229,12 +3202,7 @@ function watchBlock() {
   const n = (ALERTON || new Set()).size;
   return section("wnow", "What changed since you added these",
       `${n} rule${n === 1 ? "" : "s"} on`,
-      `<div class="sub" style="max-width:66ch;line-height:1.7;margin-bottom:var(--s2)">
-         A conflict you already know about is a fact. The one that changes
-         whether you can pitch somebody is the competitor round that has not
-         happened yet — and every investor in it joins your exclusion the day
-         it closes.</div>`
-      + alertResultsPane()
+      alertResultsPane()
       + `<details class="alrules"><summary>Which rules are on</summary>${
           alertRulesPane()}</details>`);
 }
@@ -3537,11 +3505,7 @@ async function openPerson(id, name) {
           off a team page.</div></div>` : ""}
 
       ${block("Writes their own cheques", ang.is_angel
-        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
-             A partner who has only deployed the fund's money needs the
-             partnership to say yes. One who has put their own in has decided
-             alone before.</div>
-           <div class="pclist">${[
+        ? `<div class="pclist">${[
              ...(ang.rounds || []).map(r => ({ name: r.name, tag: r.role || "took part",
                                                yr: String(r.date || "").slice(0, 4) })),
              ...(ang.companies || []).map(n => ({ name: n, tag: "their cheque", yr: "" })),
@@ -3563,10 +3527,7 @@ async function openPerson(id, name) {
           (op.founded || []).length === 1 ? "y" : "ies"}`)}
 
       ${block("Seats held", (op.operated || []).length
-        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
-             Companies they ran without starting — a promotion at a firm that
-             already existed is not something they built.</div>
-           <div class="pclist">${op.operated.map(x => `<div class="pcrow">
+        ? `<div class="pclist">${op.operated.map(x => `<div class="pcrow">
             <b>${esc(x.name)}</b><span class="tag">${esc(x.role || "role")}</span>
             ${x.year ? `<span class="yr">${x.year}</span>` : ""}</div>`).join("")}</div>`
         : "")}
@@ -3587,13 +3548,7 @@ async function openPerson(id, name) {
         : "")}
 
       ${block("What they own", (c.control?.companies || []).length
-        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
-             From beneficial-ownership filings — Companies House PSC and its
-             equivalents — so these are usually a person's own vehicles
-             rather than the firm they are a partner at. The question it
-             answers is whether the person opposite you owns something or is
-             an employee everywhere.</div>
-           <div class="pclist">${c.control.companies.slice(0, 10).map(o =>
+        ? `<div class="pclist">${c.control.companies.slice(0, 10).map(o =>
             `<div class="pcrow"><b>${esc(o.name)}</b>
               ${o.owner ? `<span class="tag">beneficial owner</span>` : ""}
               ${o.control ? `<span class="tag">control person</span>` : ""}</div>`).join("")}
@@ -3603,11 +3558,7 @@ async function openPerson(id, name) {
 
       ${block("What they have in common with other people here",
         (c.affinity || []).length
-        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
-             Weaker than a shared cap table, which means two people have done
-             business together. These mean they have been in the same room —
-             and the same year is a different thing from the same decade.</div>
-           <div class="pclist">${c.affinity.map(a => `<div class="pcrow">
+        ? `<div class="pclist">${c.affinity.map(a => `<div class="pcrow">
             <b>${esc(a.name)}</b>
             ${a.via.some(v => v.overlapped) ? badge("same year", "green") : ""}
             <div class="what">${esc(a.says)}</div></div>`).join("")}</div>`
@@ -3615,10 +3566,7 @@ async function openPerson(id, name) {
           (c.affinity || []).length === 1 ? "" : "s"}`)}
 
       ${block("Who can introduce you to them", (c.reachable_through || []).length
-        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
-             These investors sat in the rounds of what they built. They have
-             met them, and an introduction from one is not a cold email.</div>
-           <div class="pclist">${c.reachable_through.map(r => `<div class="pcrow">
+        ? `<div class="pclist">${c.reachable_through.map(r => `<div class="pcrow">
             <b>${esc(r.name)}</b>
             ${r.led ? badge("led the round", "green") : ""}
             <span class="mk">via ${esc(r.through.join(", "))}</span></div>`).join("")}</div>`
