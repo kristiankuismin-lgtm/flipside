@@ -1655,6 +1655,20 @@ def news(name: str, year: str = ""):
                             "summary": r.get("content"), "error": None}, name)
 
 
+@app.get("/departures")
+def departures(limit: int = 30, months: int = 30):
+    """Who has left a seat and not turned up anywhere since.
+
+    The other end of the moves detector, and the half nothing was reading.
+    813 relationship edges in the graph carry a valid_until; the product
+    only ever read valid_since, so it could see somebody arrive and never
+    see them leave. An ended seat with no later start is a person who is
+    unaccounted for on the record, which comes before the company does.
+    """
+    from . import departures as DP, cache_index
+    return DP.find(cache_index.build(), limit=limit, months=months)
+
+
 @app.get("/moves")
 def moves_endpoint(limit: int = 40):
     """Who has just changed seats, from the people we have actually read.

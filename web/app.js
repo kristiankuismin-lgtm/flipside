@@ -667,6 +667,36 @@ let CONV = null, MOVES = null;
    denominator rather than presenting two rows as a finding. That is not a
    placeholder - the detector is right and the record is thin, and those are
    different problems with different fixes. */
+/* The other end of a career. The graph records when a seat ended and the
+   product only ever read when one began, so it could watch somebody arrive
+   and never watch them go. */
+let LEFT = null;
+
+async function loadLeft() {
+  LEFT = { loading: true };
+  try { LEFT = await (await fetch("/departures?limit=20")).json(); }
+  catch (e) { LEFT = { rows: [], error: String(e.message) }; }
+  if (MODE === "investor") render();
+}
+
+function leftBlock() {
+  if (!LEFT) { loadLeft(); return ""; }
+  if (LEFT.loading || LEFT.error) return "";
+  const rows = LEFT.rows || [], c = LEFT.coverage || {};
+  if (!rows.length) return "";
+  return section("lft", "Who just left something",
+    `${c.open} unaccounted for · ${c.placed_since} already took another seat`,
+    `<div class="mvlist">${rows.map(r => `<div class="mvrow ${
+        r.kind === "FOUNDED" ? "new" : ""}">
+        <div><b>${esc(r.person)}</b> ${esc(r.why[0] || "")}
+          ${r.announced_only ? badge("announced", "amber") : ""}
+          <div class="sub">${esc(r.on)}${r.why[1] ? " · " + esc(r.why[1]) : ""}</div>
+        </div>
+        ${r.person_id ? `<button class="btn sm" data-person="${esc(r.person_id)}"
+          data-pname="${esc(r.person)}">Card</button>` : ""}
+      </div>`).join("")}</div>`);
+}
+
 async function loadMoves() {
   MOVES = { loading: true };
   try { MOVES = await (await fetch("/moves")).json(); }
@@ -1369,6 +1399,7 @@ function investorView() {
       ["Previous lead returned", back.length, "lead", "the strongest version of it"],
     ], IFILTER, null)}
     ${movesBlock()}
+    ${leftBlock()}
     ${section("convlist", "Backed again by the people who already knew them",
       `${cs.length} companies`, `<div class="convlist">${
         cs.slice(0, 60).map((c, i) => `<button class="convrow" data-conv="${esc(c.company)}">
