@@ -757,6 +757,30 @@ function applyRoleChrome() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  document.querySelectorAll("[data-callsel]").forEach(b => b.onclick = () => {
+    const id = b.dataset.callsel;
+    CALLSEL.has(id) ? CALLSEL.delete(id) : CALLSEL.add(id);
+    render();
+  });
+  document.querySelectorAll("[data-callall]").forEach(b => b.onclick = () => {
+    const ids = (b.dataset.callall || "").split("~").filter(Boolean);
+    const all = ids.every(i => CALLSEL.has(i));
+    ids.forEach(i => all ? CALLSEL.delete(i) : CALLSEL.add(i));
+    render();
+  });
+  document.querySelectorAll("[data-bulk]").forEach(b => b.onclick = () => {
+    const picked = [...CALLSEL];
+    const funds = [...new Set(picked.map(i => i.split("|")[1]))];
+    if (b.dataset.bulk === "clear") { CALLSEL = new Set(); return render(); }
+    if (b.dataset.bulk === "deal") {
+      funds.forEach(f => { if (!DEALS[f]) dealSet(f, "todo"); });
+      CALLSEL = new Set();
+      return render();
+    }
+    // Drafting is one firm at a time: the opener is about the firm, and a
+    // batch of identical mails is the thing this product exists to avoid.
+    if (funds.length) openBrief(funds[0]);
+  });
   document.querySelectorAll("[data-builder]").forEach(b =>
     b.onclick = () => openBuilder(b.dataset.builder));
   const bs = $("#bscrim");
@@ -1287,15 +1311,10 @@ function scoutsView() {
 
   return head + tabs
     + kpis([
-      ["Candidates", c.candidates ?? 0, "all", "have founded or run something"],
-      ["Match your thesis", c.matched_specifically ?? 0, "match",
-       "on a market specific enough to mean something"],
-      ["On your watchlist", watched.length, "watch",
-       WATCH.sweep_every_minutes
-         ? `re-checked every ${WATCH.sweep_every_minutes} minutes`
-         : "kept on the server"],
-      ["New since you looked", (WATCH.unread || []).length, "new",
-       "a change on a watched record, not a reread of the same one"],
+      ["Candidates", c.candidates ?? 0, "all", ""],
+      ["Match your thesis", c.matched_specifically ?? 0, "match", ""],
+      ["On your watchlist", watched.length, "watch", ""],
+      ["New since you looked", (WATCH.unread || []).length, "new", ""],
     ], "all", null)
     + (onList.length ? section("scw", "Watching", `${onList.length}`,
         `<div class="sclist">${onList.map(r => scoutRow(r, true)).join("")}</div>`) : "")
@@ -3345,7 +3364,7 @@ function reachList() {
     None of the funds you picked came back with a named contact — neither Cala
     nor their own team page had one.</div>`;
   const skipped = (CALLS.skipped || []).filter(x => x.why === "no contact found");
-  return `<div class="calllist">${rows.map(callRow).join("")}</div>`
+  return callTable(rows)
     + (skipped.length ? `<div class="sub" style="margin-top:var(--s2)">
         No name found at ${skipped.map(x => esc(x.fund)).join(", ")}.</div>` : "");
 }
@@ -3485,29 +3504,21 @@ function contactsPane() {
     ["We can name somebody", CONTACTS.with_a_name ?? 0, "n", "at these firms"],
     ["People", CONTACTS.people ?? 0, "p", "with a role on record"],
   ], "f", null)
-  + `<div class="emptywhy" style="margin-bottom:var(--s3)">
-      <b>Not ranked against a raise.</b> This is who we can name at
-      ${mine ? "the firms in your pipeline" : "the firms we track"}. Run a
-      screen from <b>Ask</b> and the same people come back in the order a
-      specific round makes sensible.</div>`
-  + `<div class="ccards">${rows.map(r => `<div class="ccard">
-      <div class="cchd">${logo(r.investor)}
-        <div style="min-width:0;flex:1">
-          <div class="ccnm">${esc(r.investor)}</div>
-          <div class="sub">${r.named
-            ? `${r.named} ${r.named === 1 ? "person" : "people"} on record`
-            : "nobody on record yet"}</div>
-        </div>
-        <button class="btn sm" data-deal="${esc(r.investor)}"
-          title="Add to your pipeline">${DEALS[r.investor] ? "★" : "+"}</button>
-      </div>
-      ${(r.people || []).length ? `<div class="ccpl">${r.people.map(x => `
-        <div class="ccp"><b>${esc(x.name)}</b>
-          <span>${esc(x.role || "role unknown")}</span>
-          <i>${esc(x.source || "")}</i></div>`).join("")}</div>`
-        : `<div class="ccnone">No name on record. Open the fund page to look
-             them up.</div>`}
-    </div>`).join("")}</div>`;
+  + `<div class="sub" style="margin:-4px 0 var(--s3)">Not ranked against a
+      raise — run a screen from Ask to order these.</div>`
+  // The same worksheet as the screened list. One row per person, because
+  // the next thing you do is write to a person; the firm is a column.
+  + callTable(rows.flatMap(r => (r.people || []).map(x => ({
+      person: x.name, role: x.role, person_id: x.id,
+      fund: r.investor, fund_score: null,
+      reason: x.since ? `at ${r.investor} since ${String(x.since).slice(0, 7)}`
+                      : `named at ${r.investor}`,
+      bonus_why: [], warm: null, linkedin: x.linkedin || null,
+      source: x.source || "site", call_score: null, signals: null,
+    }))))
+  + (rows.some(r => !r.named) ? `<div class="sub" style="margin-top:var(--s2)">
+      No name on record yet at ${rows.filter(r => !r.named)
+        .map(r => esc(r.investor)).join(", ")}.</div>` : "");
 }
 
 function callsView() {
@@ -3529,22 +3540,18 @@ function callsView() {
     ["People to call", rows.length, "all", FACETS.size
       ? `of ${all.length}, after ${FACETS.size} filter${FACETS.size === 1 ? "" : "s"}`
       : "at funds that survived the exclusion"],
-    ["Still to do", left.length, "todo", "ticked off in this browser"],
-    ["Named by Cala", rows.filter(r => r.source === "cala").length, "cala",
-     "a Person entity in the graph, with a role and often a start date"],
+    ["Still to do", left.length, "todo", ""],
+    ["Named by Cala", rows.filter(r => r.source === "cala").length, "cala", ""],
   ], "all", null)
-  + `<div class="sub" style="margin:-6px 0 var(--s2);max-width:66ch;line-height:1.65">
-      ${CALLS.funds_with_a_contact} of your firms have a name on them. The firm
-      decides most of the order — a brilliant partner at a fund that cannot lead
-      your round is still the wrong call. After that: an introduction, then
-      seniority, then what we know about the person.
-      ${CALLS.enriched ? `<b>${CALLS.enriched}</b> of ${CALLS.rows.length} resolved
-        to a Cala person.` : `<span class="sub">Resolving people…</span>`}</div>`
+  + `<div class="sub" style="margin:-6px 0 var(--s2)">
+      ${CALLS.funds_with_a_contact} firms with a name${CALLS.enriched
+        ? ` · ${CALLS.enriched} of ${CALLS.rows.length} resolved to a Cala person`
+        : ""}</div>`
   + `<div class="railwrap">${facetRail(all)}
       <div class="railmain">${section("cl", "Call list",
         FACETS.size ? `${rows.length} of ${all.length}` : `${rows.length} contacts`,
         rows.length
-          ? `<div class="calllist">${rows.map(callRow).join("")}</div>`
+          ? callTable(rows)
           : all.length
             ? `<div class="emptywhy"><b>Nothing matches all of those.</b>
                 ${[...FACETS].map(id => esc((FACET_BY_ID[id] || [])[1] || id)).join(" + ")}
@@ -3563,41 +3570,67 @@ function callsView() {
         </tr>`).join("")}</tbody></table></div>`) : "");
 }
 
+/* The call list as a worksheet, not a feed.
+   Outreach is done a row at a time against a list you are working down, so
+   the columns have to line up: you are comparing a dozen people on the same
+   four things, and a stack of blocks makes you re-find each field in every
+   one of them. Selection is here for the same reason - the next thing you
+   do after picking six people is write to six people. */
+let CALLSEL = new Set();
+
 function callRow(r) {
   const id = r.person + "|" + r.fund;
   const sg = r.signals || {};
   const done = (CALLDONE || new Set()).has(id);
-  return `<div class="callrow ${done ? "done" : ""}">
-    <button class="callcheck" data-call="${esc(id)}" title="Mark as contacted">${
-      done ? "✓" : ""}</button>
-    <span class="av">${esc(initials(r.person))}</span>
-    <div class="who">
-      <div class="nm">${esc(r.person)}
-        ${r.role ? `<span class="role">${esc(r.role)}</span>` : ""}${
-        r.ambiguous ? `<span class="role" title="Cala holds these two as one
-          record, so we cannot tell you which of them to ring">two people in
-          one record</span>` : ""}</div>
-      <div class="at">${logo(r.fund)}${esc(r.fund)}
-        ${r.fund_score != null ? `<span class="sc">${r.fund_score}</span>` : ""}
-        <span class="src ${esc(r.source)}">${r.source === "cala" ? "Cala" : "their site"}</span>
-      </div>
-      <div class="why">${esc(r.reason)}</div>
-      ${r.warm ? `<div class="warm">${esc(r.warm)} — ask for the introduction</div>` : ""}
-      ${(r.bonus_why || []).length ? `<div class="pwhy">${r.bonus_why.map(w =>
-        `<span>${esc(w)}</span>`).join("")}${sg.market_via?.length
-          ? `<span class="via">via ${esc(sg.market_via[0])}</span>` : ""}</div>` : ""}
-    </div>
-    <div class="acts">
-      <span class="cscore" title="fund score, plus an introduction, seniority and
-        what we know about the person">${r.call_score ?? ""}</span>
+  const picked = CALLSEL.has(id);
+  const why = [r.reason, ...(r.bonus_why || [])].filter(Boolean);
+  return `<tr class="clr ${done ? "done" : ""} ${picked ? "pick" : ""}"
+      style="cursor:default">
+    <td class="cbx"><button class="callcheck ${picked ? "on" : ""}"
+      data-callsel="${esc(id)}" title="Select">${picked ? "✓" : ""}</button></td>
+    <td class="cwho">
+      <div class="nm">${esc(r.person)}${r.ambiguous
+        ? `<span class="role" title="Cala holds these two as one record">two in one record</span>`
+        : ""}</div>
+      <div class="role">${esc(r.role || "role unknown")}</div>
+    </td>
+    <td class="cfirm">${logo(r.fund)}<span>${esc(r.fund)}</span></td>
+    <td class="cwhy">${why.length ? esc(why[0]) : "—"}
+      ${why.length > 1 ? `<span class="more">+${why.length - 1}</span>` : ""}</td>
+    <td class="cwarm">${r.warm
+      ? `<span class="warmy" title="${esc(r.warm)}">introduction</span>`
+      : `<span class="cold">cold</span>`}</td>
+    <td class="csrc"><span class="src ${esc(r.source)}">${
+      r.source === "cala" ? "Cala" : "site"}</span></td>
+    <td class="num csc" title="the firm's score, plus an introduction, seniority
+      and what we know about the person">${r.call_score ?? ""}</td>
+    <td class="cacts">
       ${r.person_id ? `<button class="btn sm" data-person="${esc(r.person_id)}"
         data-pname="${esc(r.person)}">Card</button>` : ""}
       ${r.linkedin ? `<a class="btn sm" href="${esc(r.linkedin)}" target="_blank"
-        rel="noopener">LinkedIn</a>` : ""}
+        rel="noopener">in</a>` : ""}
       <button class="btn sm" data-brief="${esc(r.fund)}">Opener</button>
-      ${dealButton(r.fund)}
-    </div>
-  </div>`;
+      <button class="btn sm ${done ? "pri" : ""}" data-call="${esc(id)}"
+        title="Mark as contacted">${done ? "done" : "✓"}</button>
+    </td>
+  </tr>`;
+}
+
+function callTable(rows) {
+  const ids = rows.map(r => r.person + "|" + r.fund);
+  const allPicked = ids.length && ids.every(i => CALLSEL.has(i));
+  return `${CALLSEL.size ? `<div class="bulkbar">
+      <b>${CALLSEL.size} selected</b>
+      <button class="btn sm" data-bulk="brief">Draft openers</button>
+      <button class="btn sm" data-bulk="deal">Add to pipeline</button>
+      <button class="btn sm" data-bulk="clear">Clear</button>
+    </div>` : ""}
+    <div class="tbl calltbl"><table><thead><tr>
+      <th class="cbx"><button class="callcheck ${allPicked ? "on" : ""}"
+        data-callall="${esc(ids.join("~"))}">${allPicked ? "✓" : ""}</button></th>
+      <th>Who</th><th>Firm</th><th>Why them</th><th>Route</th>
+      <th>Source</th><th class="num">Score</th><th></th>
+    </tr></thead><tbody>${rows.map(callRow).join("")}</tbody></table></div>`;
 }
 
 /* ---------- the person card ----------
@@ -3955,6 +3988,30 @@ function render() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  document.querySelectorAll("[data-callsel]").forEach(b => b.onclick = () => {
+    const id = b.dataset.callsel;
+    CALLSEL.has(id) ? CALLSEL.delete(id) : CALLSEL.add(id);
+    render();
+  });
+  document.querySelectorAll("[data-callall]").forEach(b => b.onclick = () => {
+    const ids = (b.dataset.callall || "").split("~").filter(Boolean);
+    const all = ids.every(i => CALLSEL.has(i));
+    ids.forEach(i => all ? CALLSEL.delete(i) : CALLSEL.add(i));
+    render();
+  });
+  document.querySelectorAll("[data-bulk]").forEach(b => b.onclick = () => {
+    const picked = [...CALLSEL];
+    const funds = [...new Set(picked.map(i => i.split("|")[1]))];
+    if (b.dataset.bulk === "clear") { CALLSEL = new Set(); return render(); }
+    if (b.dataset.bulk === "deal") {
+      funds.forEach(f => { if (!DEALS[f]) dealSet(f, "todo"); });
+      CALLSEL = new Set();
+      return render();
+    }
+    // Drafting is one firm at a time: the opener is about the firm, and a
+    // batch of identical mails is the thing this product exists to avoid.
+    if (funds.length) openBrief(funds[0]);
+  });
   document.querySelectorAll("[data-builder]").forEach(b =>
     b.onclick = () => openBuilder(b.dataset.builder));
   const bs = $("#bscrim");
@@ -4128,10 +4185,11 @@ function mapView() {
                      title="Back to plotting companies and funds">← People</button>
                  </span>`
               : `<span class="grp"><span class="lbl">Show</span>
-                   ${Object.entries(LAYER_META).map(([k, [lbl, shape]]) =>
+                   ${Object.entries(LAYER_META).map(([k, [lbl, shape, count]]) =>
                      `<button class="tgl ${LAYERS[k] ? "on" : ""}" data-layer="${k}">
                         <i class="${shape === "circle" ? "ci" : shape === "square"
-                          ? "sq" : "di"}"></i>${lbl}</button>`).join("")}
+                          ? "sq" : "di"}"></i>${lbl}
+                        <span class="n">${count ? count() : ""}</span></button>`).join("")}
                  </span>`}
             <span class="mapsearch"><span style="color:var(--faint)">⌕</span>
               <input id="mapq" autocomplete="off" placeholder="${
@@ -4185,10 +4243,14 @@ let MYLOC = null, MYLOCERR = null, NEAR = null, NEARKIND = "fund";
    founder with a plan is asking the second question, not the first. */
 let PLANONLY = true;
 let REGION = "eu";          // which region button is active
+/* The count is part of the label. Three toggles that look identical and
+   name three lists of unknown size give the reader no way to tell what
+   turning one on will do - which is a fair complaint about a map whose
+   whole job is showing how much there is and where. */
 const LAYER_META = {
-  ex: ["Slush exhibitors", "circle"],
-  pf: ["Funded companies", "square"],
-  fu: ["Funds", "diamond"],
+  ex: ["At Slush", "circle", () => (MAP?.points || []).length],
+  pf: ["Funded companies", "square", () => (MAP?.portfolio || []).length],
+  fu: ["Funds", "diamond", () => (MAP?.funds || []).length],
 };
 
 function fitTo(points) {
@@ -5266,7 +5328,15 @@ function qsRender(data) {
 
 function qsSearch() {
   const q = $("#qsq").value.trim();
-  $("#qspop").classList.toggle("on", q.length > 0);
+  const pop_ = $("#qspop"), inp_ = $("#qsq");
+  pop_.classList.toggle("on", q.length > 0);
+  // The panel is fixed so the sidebar cannot clip it, which means it has to
+  // be told where the input is.
+  if (q.length > 0 && inp_ && pop_.closest(".navsearch")) {
+    const r = inp_.getBoundingClientRect();
+    pop_.style.top = Math.round(r.bottom + 6) + "px";
+    pop_.style.left = Math.round(r.left) + "px";
+  }
   if (q.length < 2) return qsRender({ query: q, results: [] });
   $("#qsres").innerHTML = `<div class="qsempty"><span class="spin"></span>Searching Cala…</div>`;
   clearTimeout(QTIMER);

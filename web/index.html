@@ -46,7 +46,13 @@ a:hover{text-decoration:underline}
 .brand b{font-size:15px;font-weight:650;letter-spacing:-.015em}
 .navsearch{position:relative;padding:4px 10px 8px}
 .navsearch .qsin{width:100%}
-.navsearch .qspop{left:10px;right:auto;width:360px;top:calc(100% - 2px)}
+/* Fixed, not absolute. The sidebar sets overflow-y:auto, and a box with a
+   scrolling axis clips the other one too - so a 360px panel inside a 248px
+   rail had 112px of every result sliced off. Fixed positioning takes it out
+   of the rail's clip entirely; the coordinates are set from the input's own
+   rectangle when it opens. */
+.navsearch .qspop{position:fixed;left:10px;right:auto;width:min(380px,92vw);
+  top:120px;max-height:70vh;overflow-y:auto}
 .navsec{padding:14px 12px 5px;font:10px var(--mono);letter-spacing:.11em;
   text-transform:uppercase;color:var(--faint)}
 .navitem{display:flex;align-items:center;gap:9px;padding:7px 11px;margin:1px 8px;
@@ -208,6 +214,39 @@ table{table-layout:auto}
 .flags .bdg{margin-left:4px}
 .tdact{text-align:right;white-space:nowrap;width:1%}
 
+/* ---------------- call list, as a worksheet ---------------- */
+.calltbl table{min-width:880px}
+.calltbl th{position:sticky;top:0;z-index:2}
+.calltbl td{padding:9px 12px;vertical-align:middle}
+.calltbl th.cbx,.calltbl td.cbx{width:34px;padding-right:0}
+.callcheck{width:17px;height:17px;border:1px solid var(--line2);border-radius:5px;
+  background:var(--panel);cursor:pointer;font-size:10px;line-height:1;
+  color:transparent;display:grid;place-items:center;padding:0}
+.callcheck:hover{border-color:var(--accent)}
+.callcheck.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.clr.pick{background:var(--accent-bg)}
+.clr.done{opacity:.5}
+.cwho .nm{font-weight:580;font-size:13px}
+.cwho .role{display:block;font-size:11.5px;color:var(--dim);margin-top:1px}
+.cfirm{white-space:nowrap}
+.cfirm .logo{width:17px;height:17px;border-radius:4px;vertical-align:-4px;margin-right:6px}
+.cfirm span{font-size:12.5px}
+.cwhy{font-size:12px;color:var(--dim);max-width:30ch;line-height:1.5}
+.cwhy .more{color:var(--faint);font:10px var(--mono);margin-left:4px}
+.warmy{font-size:11px;color:var(--green);background:var(--green-bg);
+  padding:2px 7px;border-radius:999px;white-space:nowrap}
+.cwarm{white-space:nowrap}
+.cold{font-size:11px;color:var(--faint)}
+.csrc .src{font:9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  color:var(--faint)}
+.csc{font:12.5px var(--mono);color:var(--ink)}
+.cacts{white-space:nowrap;text-align:right}
+.cacts .btn{margin-left:4px}
+.bulkbar{display:flex;align-items:center;gap:8px;padding:9px 13px;
+  margin-bottom:var(--s2);background:var(--accent-bg);
+  border:1px solid var(--accent);border-radius:9px;font-size:12.5px}
+.bulkbar b{margin-right:auto}
+
 /* ---------------- person card ---------------- */
 .pchd{display:flex;align-items:center;gap:11px}
 .pchd .logo{width:34px;height:34px;border-radius:8px;flex:none}
@@ -267,6 +306,8 @@ table{table-layout:auto}
 .cchip:hover{transform:scale(1.07);z-index:4}
 .cchip .cf{font-size:16px;line-height:1}
 .cchip .cn{color:var(--ink)}
+.tgl .n{margin-left:5px;font:10px var(--mono);color:var(--faint)}
+.tgl.on .n{color:rgba(255,255,255,.62)}
 
 /* ---------------- badges ---------------- */
 .bdg{display:inline-block;padding:3px 8px;border-radius:6px;font-size:11.5px;
