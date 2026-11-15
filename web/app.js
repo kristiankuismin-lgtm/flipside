@@ -787,6 +787,23 @@ function applyRoleChrome() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  const ma = $("#mailall"); if (ma) ma.onclick = openMailAll;
+  const mc = $("#mailclose"); if (mc) mc.onclick = () => { MAILALL = null; render(); };
+  const ms = $("#mailscrim");
+  if (ms) ms.onclick = e => { if (e.target === ms) { MAILALL = null; render(); } };
+  document.querySelectorAll("[data-mailnav]").forEach(b => b.onclick = () => {
+    MAILALL.at = Math.max(0, Math.min(MAILALL.names.length - 1,
+      MAILALL.at + Number(b.dataset.mailnav)));
+    mailDraft();
+  });
+  document.querySelectorAll("[data-mailto]").forEach(b => b.onclick = () => {
+    MAILALL.at = Number(b.dataset.mailto); mailDraft();
+  });
+  const mcp = $("#mailcopy");
+  if (mcp) mcp.onclick = () => {
+    const t = $("#mailtext");
+    if (t) { t.select(); try { document.execCommand("copy"); } catch {} }
+  };
   document.querySelectorAll("[data-callsel]").forEach(b => b.onclick = () => {
     const id = b.dataset.callsel;
     CALLSEL.has(id) ? CALLSEL.delete(id) : CALLSEL.add(id);
@@ -2288,15 +2305,29 @@ function dealsView() {
   // name, the stage you put them at and the contact, which is what a
   // pipeline is for anyway.
   const byFund = Object.fromEntries(((F && F.investors) || []).map(x => [x.investor, x]));
+  // Where each firm is. MAP is fetched for the map view; the pipeline wants
+  // the same payload, so it asks for it rather than showing cards with a
+  // hole where the address goes.
+  if (!MAP) loadMap();
+  const place = {};
+  for (const f of (MAP?.funds || [])) place[f.name] = f;
+
   const card = name => {
     const x = byFund[name], p = DEALS[name], c = dealContact(name);
+    const g = place[name] || {};
     const blocked = x && x.signals.conflict.label === "\u{1F534}";
     const idx = STAGES.findIndex(s => s[0] === p.stage);
     return `<div class="dcard ${blocked ? "bad" : ""}">
-      <div class="dch">${logo(name)}<b>${esc(name)}</b>
+      <div class="dch">${logo(name, g.website)}<b>${esc(name)}</b>
         ${x?.score != null ? `<span class="sc">${x.score}</span>` : ""}</div>
       ${blocked ? `<div class="dwarn">Backs ${esc((x.backs || []).join(", "))}
         — this is the one the screen told you to drop.</div>` : ""}
+      <div class="dmeta">
+        ${g.hq ? `<div class="dm"><span class="i">⌖</span>${esc(g.hq)}</div>` : ""}
+        ${g.website ? `<div class="dm"><span class="i">⌁</span>
+          <a href="https://${esc(String(g.website).replace(/^https?:\/\//, ""))}"
+             target="_blank" rel="noopener">${esc(g.website)}</a></div>` : ""}
+      </div>
       ${c ? `<div class="dcc">${esc(c.person)}<span class="sub">${
         esc(c.role || "")}</span></div>`
         : `<div class="dcc sub">no contact resolved yet</div>`}
@@ -2315,11 +2346,14 @@ function dealsView() {
       <div class="rl1"><b>${F ? esc(F.company) : "Your pipeline"}</b>
         <span class="sub">· ${names.length} fund${names.length === 1 ? "" : "s"} in play${
           F ? "" : " · not screened against a raise"}</span></div>
-      <div class="rl2"><span class="sub">kept in this browser only</span>
-        <button class="lnk" data-goto="${F ? "founder" : "calls"}">${
-          F ? "Back to the ranking" : "Add from the call list"}</button></div>
+      <div class="rl2">
+        <button class="btn sm" data-goto="${F ? "founder" : "calls"}">${
+          F ? "+ Add from the ranking" : "+ Add from the call list"}</button>
+        <button class="btn sm pri" id="mailall">✉ Write to all ${names.length}</button>
+        <span class="sub">kept in this browser only</span></div>
     </div>
     ${watchBlock()}
+    ${mailAllPane()}
     <div class="deals">${STAGES.map(([k, label, hint]) => {
       const col = names.filter(n => (DEALS[n].stage || "todo") === k);
       return `<div class="dcol">
@@ -3452,6 +3486,107 @@ function watchBlock() {
           alertRulesPane()}</details>`);
 }
 
+/* Writing to the whole pipeline, one firm at a time.
+   Folk's "email all" is a sequence over a recipient list, and the half of
+   it worth copying is the list: every firm, who we can name there, and
+   which ones we cannot write to yet. The half not worth copying is the
+   identical body sent to ten people - so the draft is per firm, built from
+   that firm's own record by /outreach, and the panel steps through them. */
+let MAILALL = null;
+
+async function openMailAll() {
+  const names = Object.keys(DEALS);
+  if (!names.length) return;
+  MAILALL = { names, at: 0, draft: null, loading: true };
+  render();
+  // Every sentence in an opener is about a specific round: what you are
+  // raising, at what stage, against whom. Without a screen the draft came
+  // back reading "exactly the round  is putting together" - a hole where
+  // the company should be. Say what is missing instead of printing it.
+  if (!F?.company) {
+    MAILALL.loading = false;
+    MAILALL.draft = { needs_screen: true };
+    return render();
+  }
+  await mailDraft();
+}
+
+async function mailDraft() {
+  if (!MAILALL) return;
+  if (!F?.company) { MAILALL.loading = false;
+    MAILALL.draft = { needs_screen: true }; return render(); }
+  const who = MAILALL.names[MAILALL.at];
+  MAILALL.loading = true; render();
+  try {
+    MAILALL.draft = await (await fetch("/outreach", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ company: F?.company || "", stage: F?.stage || "series a",
+                             investor: who })
+    })).json();
+  } catch (e) { MAILALL.draft = { error: String(e.message) }; }
+  MAILALL.loading = false; render();
+}
+
+function mailAllPane() {
+  if (!MAILALL) return "";
+  const { names, at } = MAILALL;
+  const who = names[at];
+  const d = MAILALL.draft || {};
+  const body = [d.opening, d.why_them, d.ask].filter(Boolean).join("\n\n")
+    || d.body || "";
+  return `<div class="scrim on" id="mailscrim"><div class="composebox wide"
+      onclick="event.stopPropagation()">
+    <div class="sidehd mailhd">
+      <div style="flex:1;min-width:0">
+        <h3>Write to your pipeline</h3>
+        <div class="s">${at + 1} of ${names.length} · one draft per firm,
+          from that firm's own record</div>
+      </div>
+      <button class="btn sm" data-mailnav="-1" ${at === 0 ? "disabled" : ""}>←</button>
+      <button class="btn sm" data-mailnav="1"
+        ${at >= names.length - 1 ? "disabled" : ""}>→</button>
+      <button class="btn sm" id="mailclose">Close</button>
+    </div>
+    <div class="mailwrap">
+      <div class="maillist">${names.map((n, i) => {
+        const c = dealContact(n);
+        return `<button class="mailrow ${i === at ? "on" : ""}" data-mailto="${i}">
+          ${logo(n)}<span class="mn">${esc(n)}</span>
+          <span class="mc ${c ? "" : "none"}">${c ? esc(c.person)
+            : "no contact resolved"}</span></button>`;
+      }).join("")}</div>
+      <div class="mailbody">${MAILALL.loading
+        ? `<div class="msg" style="padding:40px"><span class="spin"></span>
+            Reading ${esc(who)}'s record…</div>`
+        : d.needs_screen
+        ? `<div class="emptywhy"><b>These drafts are about a specific round.</b>
+            Every line in one says what you are raising and why this firm fits
+            it — without that the opener has a hole where your company should
+            be. Run a screen from <b>Ask</b> and come back; the pipeline keeps
+            what is in it.
+            <div style="margin-top:12px"><button class="btn"
+              data-goto="home">Go to Ask</button></div></div>`
+        : d.error ? errorPanel(d.error, who)
+        : `<div class="mailfields">
+             <div><span class="k">To</span><span class="v">${logo(who)}
+               ${esc(who)}${(() => { const c = dealContact(who);
+                 return c ? ` · ${esc(c.person)}${c.role ? ", " + esc(c.role) : ""}`
+                          : ` · <span class="sub">no named contact yet</span>`; })()}</span></div>
+             <div><span class="k">Subject</span><span class="v">${
+               esc(d.subject || `${F?.company || "Us"} × ${who}`)}</span></div>
+           </div>
+           <textarea class="mailtext" id="mailtext">${esc(body)}</textarea>
+           <div class="mailacts">
+             ${d.mailto ? `<a class="btn pri" href="${esc(d.mailto)}">Open in mail</a>` : ""}
+             <button class="btn" id="mailcopy">Copy</button>
+             <span class="sub">No address is on record, so this opens your own
+               mail client rather than sending anything from here.</span>
+           </div>`}
+      </div>
+    </div>
+  </div></div>`;
+}
+
 /* The same rows the call list page shows, without the page furniture: in
    the reach view the map is carrying the context the KPI cards would. */
 function reachList() {
@@ -4089,6 +4224,23 @@ function render() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  const ma = $("#mailall"); if (ma) ma.onclick = openMailAll;
+  const mc = $("#mailclose"); if (mc) mc.onclick = () => { MAILALL = null; render(); };
+  const ms = $("#mailscrim");
+  if (ms) ms.onclick = e => { if (e.target === ms) { MAILALL = null; render(); } };
+  document.querySelectorAll("[data-mailnav]").forEach(b => b.onclick = () => {
+    MAILALL.at = Math.max(0, Math.min(MAILALL.names.length - 1,
+      MAILALL.at + Number(b.dataset.mailnav)));
+    mailDraft();
+  });
+  document.querySelectorAll("[data-mailto]").forEach(b => b.onclick = () => {
+    MAILALL.at = Number(b.dataset.mailto); mailDraft();
+  });
+  const mcp = $("#mailcopy");
+  if (mcp) mcp.onclick = () => {
+    const t = $("#mailtext");
+    if (t) { t.select(); try { document.execCommand("copy"); } catch {} }
+  };
   document.querySelectorAll("[data-callsel]").forEach(b => b.onclick = () => {
     const id = b.dataset.callsel;
     CALLSEL.has(id) ? CALLSEL.delete(id) : CALLSEL.add(id);
