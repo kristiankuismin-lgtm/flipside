@@ -1,8 +1,8 @@
 # Flipside
 
-### 🔗 [**Live demo → spry-rowan-97bmq8o.tmp.now**](https://spry-rowan-97bmq8o.tmp.now)
-*(cache-only snapshot — a point-in-time harvest, not a live feed; no
-Cala/Context.dev calls are made from the public URL)*
+### 🔗 [**Live demo**](https://spry-rowan-97bmq8o-kristiankuismin-lgtms-projects.vercel.app)
+*(live Cala + Context.dev calls, same keys as local dev — the harvested
+26,600+ entities back every figure, topped up by real-time queries)*
 
 ---
 
