@@ -45,10 +45,16 @@ W_SCHOOL = 10          # a school the graph already connects to founders
 TENURE_MIN, TENURE_PEAK, TENURE_MAX = 1.5, 3.0, 8.0
 EXP_MIN, EXP_PEAK, EXP_MAX = 4.0, 9.0, 20.0
 
-SENIORITY = {"c_suite": 1.0, "vp": 0.95, "director": 0.9, "head": 0.85,
-             "principal": 0.8, "lead": 0.8, "staff": 0.8, "senior": 0.7,
-             "manager": 0.6, "mid_level": 0.5, "entry_level": 0.25,
-             "intern": 0.0, "training": 0.0, "unpaid": 0.0}
+# The provider's own vocabulary, read off live results rather than guessed.
+# mid_senior_level and associate were missing, so every Spotify row scored
+# zero on seniority while its tenure and experience counted - which quietly
+# ranked a whole employer below another for a reason that was not real.
+SENIORITY = {"c_suite": 1.0, "owner": 1.0, "executive": 0.9, "partner": 0.95, "vp": 0.95,
+             "director": 0.9, "head": 0.85, "principal": 0.8, "lead": 0.8,
+             "staff": 0.8, "senior": 0.7, "mid_senior_level": 0.7,
+             "manager": 0.6, "mid_level": 0.5, "associate": 0.4,
+             "entry_level": 0.25, "junior": 0.2,
+             "intern": 0.0, "internship": 0.0, "training": 0.0, "unpaid": 0.0}
 
 
 def _years_since(iso: str | None, *, today: date) -> float | None:

@@ -825,6 +825,7 @@ function applyRoleChrome() {
     SCOUT_THESIS = v;
     PRIVATE = null; PRIVATE_FOR = null;
     BUILDERS = null; BUILDFOR = null;
+    LAUNCH = null; LAUNCHFOR = null;
     loadScouts(v);
   };
   document.querySelectorAll("[data-role]").forEach(b =>
@@ -886,7 +887,71 @@ let SCOUTS = null, SCOUT_THESIS = "", SCOUTWATCH = {}, SCOUTSIG = {}, SCOUTBT = 
    somewhere else. */
 let SCOUTTAB = "founded", BUILDERS = null, PRIVATE = null, PRIVATE_FOR = null;
 
-let BUILDFOR = null;
+let BUILDFOR = null, LAUNCH = null, LAUNCHFOR = null;
+
+/* The fourth cohort, and the earliest. A job, a tenure, and no company -
+   the only claim is that this is where founders come from. */
+async function loadLaunch(thesis) {
+  LAUNCH = { loading: true }; LAUNCHFOR = thesis || "";
+  if (MODE === "scouts") render();
+  try {
+    LAUNCH = await (await fetch("/launchpad?limit=30&thesis="
+      + encodeURIComponent(thesis || ""))).json();
+  } catch (e) { LAUNCH = { rows: [], error: String(e.message) }; }
+  if (MODE === "scouts") render();
+}
+
+function launchPane() {
+  const th = SCOUT_THESIS || "";
+  if (!LAUNCH || LAUNCHFOR !== th) { loadLaunch(th);
+    return `<div class="msg" style="padding:30px"><span class="spin"></span>
+      Looking at who is sitting where founders come from…</div>`; }
+  if (LAUNCH.loading) return `<div class="msg" style="padding:30px">
+    <span class="spin"></span>Looking at who is sitting where founders come from…</div>`;
+  if (LAUNCH.error) return errorPanel(LAUNCH.error, "this cohort");
+  const rows = LAUNCH.rows || [];
+  const inWindow = rows.filter(r => (r.why || []).some(w => w.includes("inside the window")));
+
+  return kpis([
+    ["In the seat", rows.length, "all", ""],
+    ["Inside the window", inWindow.length, "win", "the years people leave in"],
+    ["Already founded", LAUNCH.already_founded ?? 0, "f", "dropped — other tab"],
+  ], "all", null)
+  + `<div class="sub" style="margin:-4px 0 var(--s3)">
+      ${esc(LAUNCH.query || "")} · ${LAUNCH.seen || 0} records read</div>`
+  + (rows.length
+    ? `<div class="sclist">${rows.map(launchRow).join("")}</div>`
+    : `<div class="emptywhy"><b>Nobody came back for this.</b> The search was
+        “${esc(LAUNCH.query || th)}”. A narrower thesis usually returns more,
+        not less — the query is passed through as written.</div>`);
+}
+
+function launchRow(r) {
+  const key = "px:" + (r.name || "");
+  const watched = !!SCOUTWATCH[key];
+  return `<div class="scrow ${watched ? "on" : ""}">
+    <button class="scwatch ${watched ? "on" : ""}"
+      data-scwatch="${esc(key)}|${esc(r.name || "")}"
+      title="${watched ? "Stop watching" : "Watch this person"}">${watched ? "◉" : "○"}</button>
+    <div class="scmain">
+      <div class="scnm">${esc(r.name || "")}
+        ${r.country ? badge(flagOf(r.country) + " " + esc(r.city || r.country), "grey") : ""}</div>
+      <div class="scwhy">${esc((r.why || []).join(" · "))}</div>
+      <div class="bships"><div class="bship">
+        ${logo(r.company, r.domain)}<b>${esc(r.company || "")}</b>
+        <span class="sub">${esc(r.title || "")}${
+          r.since ? " · since " + esc(String(r.since).slice(0, 7)) : ""}</span></div>
+        ${(r.schools || []).length ? `<div class="bship">
+          <span class="sub">${esc(r.schools.join(" · "))}</span></div>` : ""}
+        ${(r.profiles || []).length ? `<div class="bship">
+          <a href="${esc(r.profiles[0])}" target="_blank" rel="noopener">profile</a>
+          <span class="sub">identifier from the provider, not a page we read</span>
+        </div>` : ""}
+      </div>
+    </div>
+    <div class="scsc">${r.score}</div>
+  </div>`;
+}
 
 async function loadBuilders(thesis) {
   BUILDERS = { loading: true }; BUILDFOR = thesis || "";
@@ -1306,6 +1371,8 @@ function scoutsView() {
     <form class="scthesis" id="scform">
       <input id="scq" placeholder="${SCOUTTAB === "private"
         ? "A problem you wish someone was building — e.g. ambient AI scribe for clinicians"
+        : SCOUTTAB === "notyet"
+        ? "Where should we look — e.g. ai agents, climate hardware"
         : SCOUTTAB === "building"
         ? "Search everyone building in the open — e.g. ai fintech"
         : "Your thesis — e.g. clinical software for hospitals"}"
@@ -1322,11 +1389,14 @@ function scoutsView() {
         Building in public</button>
       <button class="sctab ${SCOUTTAB === "private" ? "on" : ""}" data-sctab="private">
         Building in private</button>
+      <button class="sctab ${SCOUTTAB === "notyet" ? "on" : ""}" data-sctab="notyet">
+        Not started yet</button>
     </div>
 `;
 
   if (SCOUTTAB === "building") return head + tabs + buildersPane();
   if (SCOUTTAB === "private") return head + tabs + privatePane() + builderDrawer();
+  if (SCOUTTAB === "notyet") return head + tabs + launchPane();
 
   if (!SCOUTS) { loadScouts(SCOUT_THESIS); return head + tabs + `<div class="msg">
     <span class="spin"></span>Reading the people we have records for…</div>`; }
@@ -4057,6 +4127,7 @@ function render() {
     SCOUT_THESIS = v;
     PRIVATE = null; PRIVATE_FOR = null;
     BUILDERS = null; BUILDFOR = null;
+    LAUNCH = null; LAUNCHFOR = null;
     loadScouts(v);
   };
   document.querySelectorAll("[data-role]").forEach(b =>

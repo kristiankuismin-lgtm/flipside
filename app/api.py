@@ -1655,6 +1655,44 @@ def news(name: str, year: str = ""):
                             "summary": r.get("content"), "error": None}, name)
 
 
+@app.get("/launchpad")
+def launchpad(thesis: str = "", limit: int = 30, pages: int = 2):
+    """People who have not started anything yet, where founders come from.
+
+    The fourth cohort and the earliest. "Founded before" has already done
+    it, "building in public" shipped and said so, "building in private" has
+    a repository nobody has seen. This one has a job, and the only claim
+    made about them is that the seat they are in and the time they have
+    been in it are where founders tend to come from.
+
+    Context.dev's people search is a licensed database with a query
+    interface. This calls that API; it does not fetch a social network, and
+    a profile URL in a result is an identifier to show, never a page read.
+    """
+    from . import launchpad as LP, factories, cache_index
+    q = (thesis or "").strip()
+    query = (f"engineers and product people at companies building {q}"
+             if q else "senior engineers at venture-backed European startups")
+    # Employers the graph has actually seen founders leave, as a bonus. It
+    # returns almost nothing today - the measurement is in factories.py -
+    # so it lifts a row when it fires and is silent otherwise.
+    try:
+        idx = cache_index.build()
+        emp = {r["employer"].lower(): r["rate"]
+               for r in factories.rank(idx, limit=60)}
+    except Exception:
+        emp = {}
+    try:
+        out = LP.rank(query, limit=limit, pages=pages, employers=emp)
+    except Exception as e:
+        return {"rows": [], "error": f"{type(e).__name__}: {str(e)[:160]}",
+                "query": query}
+    out["thesis"] = q
+    out["source"] = ("Context.dev people search, a licensed database. "
+                     "No social network is fetched.")
+    return out
+
+
 @app.get("/departures")
 def departures(limit: int = 30, months: int = 30):
     """Who has left a seat and not turned up anywhere since.
