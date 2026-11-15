@@ -3639,41 +3639,51 @@ async function openPerson(id, name) {
     ? `<div class="pcblock"><div class="pch">${esc(title)}${
         sub ? `<span>${esc(sub)}</span>` : ""}</div>${body}</div>` : "";
 
+  // Only the statistics that have an answer. Five boxes of which two read
+  // "—" tell the reader about our coverage, which they did not ask about,
+  // and bury the three that are about the person.
+  // Companies already shown as this person's own cheques. "Can introduce
+   // you to" listed the same six again with the same tag, which read as six
+   // more doors than there were.
+  const ownKeys = new Set([
+    ...(ang.companies || []),
+    ...(ang.rounds || []).map(r => r.name),
+  ].map(n => String(n || "").toLowerCase().replace(/[^a-z0-9]/g, "")));
+  const coRow = (name, tag, extra) => `<div class="pcrow">
+    ${logo(name)}<b>${esc(name)}</b>
+    ${tag ? `<span class="tag">${esc(tag)}</span>` : ""}${extra || ""}</div>`;
+
+  const statCells = [
+    op.years_building != null && `<div class="pcstat"><span class="k">Operating for</span>
+       <span class="v">${op.years_building}</span>
+       <span class="s">years, since ${esc(String(op.building_since || ""))}</span></div>`,
+    (net.count || 0) > 0 && `<div class="pcstat"><span class="k">Can introduce</span>
+       <span class="v">${net.count}</span>
+       <span class="s">${net.boards || 0} boards · ${net.personal_cheques || 0} cheques</span></div>`,
+    ang.is_angel && `<div class="pcstat"><span class="k">Invests personally</span>
+       <span class="v hit">${ang.round_count || ang.company_count}</span>
+       <span class="s">${ang.round_count ? "rounds of their own" : "companies"}${
+         ang.last_year ? `, last ${esc(String(ang.last_year))}` : ""}</span></div>`,
+    dom.checked && (dom.matched || []).length
+      && `<div class="pcstat"><span class="k">Your market</span>
+       <span class="v hit">yes</span>
+       <span class="s">${esc((dom.matched || []).join(", "))}</span></div>`,
+    `<div class="pcstat"><span class="k">We know</span>
+       <span class="v">${esc(conf.label || "—")}</span>
+       <span class="s">${conf.known ?? 0} of ${conf.of ?? 5} signals</span></div>`,
+  ].filter(Boolean);
+
   w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
-    <div class="sidehd">
-      <h3>${esc(c.name)}</h3>
-      <div class="s">${role ? `${esc(role.role || "works at")} · ${esc(role.name)}` : ""}
-        ${c.nationality?.length ? ` · ${esc(c.nationality.join(", "))}` : ""}</div>
+    <div class="sidehd pchd">
+      ${logo(c.name)}
+      <div style="min-width:0;flex:1">
+        <h3>${esc(c.name)}</h3>
+        <div class="s">${role ? `${esc(role.role || "works at")} · ${esc(role.name)}` : ""}
+          ${c.nationality?.length ? ` · ${esc(c.nationality.join(", "))}` : ""}</div>
+      </div>
     </div>
     <div style="padding:15px">
-      <div class="pcstats">
-        <div class="pcstat"><span class="k">Operating for</span>
-          <span class="v">${op.years_building ?? "—"}</span>
-          <span class="s">${op.building_since
-            ? `years, since ${op.building_since}`
-            : "no dated role on record"}</span></div>
-        <div class="pcstat"><span class="k">Can introduce</span>
-          <span class="v">${net.count ?? 0}</span>
-          <span class="s">${net.boards || 0} boards · ${net.personal_cheques || 0} cheques</span></div>
-        <div class="pcstat"><span class="k">Invests personally</span>
-          <span class="v ${ang.is_angel ? "hit" : ""}">${
-            ang.is_angel ? (ang.round_count || ang.company_count) : "no"}</span>
-          <span class="s">${ang.is_angel
-            ? `${ang.round_count ? "rounds of their own" : "companies, undated"}${
-                ang.last_year ? `, last ${esc(ang.last_year)}` : ""}`
-            : "no personal cheque on record"}</span></div>
-        <div class="pcstat"><span class="k">Your market</span>
-          <span class="v ${dom.matched?.length ? "hit" : ""}">${
-            !dom.checked ? "—" : dom.matched?.length ? "yes" : "no"}</span>
-          <span class="s">${!dom.checked
-            ? "no market to check against"
-            : esc((dom.matched || []).join(", ")
-                  || `none of ${(dom.wanted || []).join(", ")}`)}</span></div>
-        <div class="pcstat"><span class="k">We know</span>
-          <span class="v">${esc(conf.label || "—")}</span>
-          <span class="s">${conf.known ?? 0} of ${conf.of ?? 5} signals</span></div>
-      </div>
-
+      <div class="pcstats">${statCells.join("")}</div>
       ${c.description ? `<p class="lede" style="margin:var(--s2) 0">${esc(c.description)}</p>` : ""}
 
       ${(c.titles || []).length ? `<div class="pctitles">${c.titles.map(t =>
@@ -3683,38 +3693,46 @@ async function openPerson(id, name) {
           off a team page.</div></div>` : ""}
 
       ${block("Writes their own cheques", ang.is_angel
-        ? `<div class="pclist">${[
-             ...(ang.rounds || []).map(r => ({ name: r.name, tag: r.role || "took part",
-                                               yr: String(r.date || "").slice(0, 4) })),
-             ...(ang.companies || []).map(n => ({ name: n, tag: "their cheque", yr: "" })),
-           ].slice(0, 10).map(x => `<div class="pcrow"><b>${esc(x.name)}</b>
-              <span class="tag">${esc(x.tag)}</span>
-              ${x.yr ? `<span class="yr">${esc(x.yr)}</span>` : ""}</div>`).join("")}</div>`
+        ? `<div class="pclist">${(() => {
+             // A round and an INVESTED_IN edge can describe the same cheque,
+             // and once rounds resolve to their company the overlap shows up
+             // as the same name twice. The dated one wins.
+             const out = [], seen = new Set();
+             for (const x of [
+               ...(ang.rounds || []).map(r => ({ name: r.name, tag: r.role || "took part",
+                                                 yr: String(r.date || "").slice(0, 4) })),
+               ...(ang.companies || []).map(n => ({ name: n, tag: "their cheque", yr: "" })),
+             ]) {
+               const k = String(x.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+               if (!k || seen.has(k)) continue;
+               seen.add(k); out.push(x);
+             }
+             return out;
+           })().slice(0, 10).map(x => coRow(x.name, x.tag,
+              x.yr ? `<span class="yr">${esc(x.yr)}</span>` : "")).join("")}</div>`
         : "", ang.is_angel
              ? `${ang.round_count} round${ang.round_count === 1 ? "" : "s"}, ${
                  ang.company_count} compan${ang.company_count === 1 ? "y" : "ies"}`
              : "")}
 
       ${block("Started", (op.founded || []).length
-        ? `<div class="pclist">${op.founded.map(x => `<div class="pcrow">
-            <b>${esc(x.name)}</b><span class="tag">founder</span>
-            ${(x.roles || []).map(r => `<span class="tag">${esc(r)}</span>`).join("")}
-            ${x.year ? `<span class="yr">${x.year}</span>` : ""}
-            ${x.what ? `<div class="what">${esc(x.what)}</div>` : ""}</div>`).join("")}</div>`
+        ? `<div class="pclist">${op.founded.map(x => coRow(x.name, "founder",
+            `${(x.roles || []).map(r => `<span class="tag">${esc(r)}</span>`).join("")}
+             ${x.year ? `<span class="yr">${x.year}</span>` : ""}
+             ${x.what ? `<div class="what">${esc(x.what)}</div>` : ""}`)).join("")}</div>`
         : "", `${(op.founded || []).length} compan${
           (op.founded || []).length === 1 ? "y" : "ies"}`)}
 
       ${block("Seats held", (op.operated || []).length
-        ? `<div class="pclist">${op.operated.map(x => `<div class="pcrow">
-            <b>${esc(x.name)}</b><span class="tag">${esc(x.role || "role")}</span>
-            ${x.year ? `<span class="yr">${x.year}</span>` : ""}</div>`).join("")}</div>`
+        ? `<div class="pclist">${op.operated.map(x => coRow(x.name, x.role || "role",
+            x.year ? `<span class="yr">${x.year}</span>` : "")).join("")}</div>`
         : "")}
 
       ${block("Career, in order", (c.timeline || []).length
         ? `<div class="ptl">${c.timeline.map((t, i) => `<div class="ptlrow">
             <span class="y">${t.year}</span>
             <span class="d ${t.founder ? "f" : ""}"></span>
-            <span class="n"><b>${esc(t.name)}</b>
+            <span class="n">${logo(t.name)}<b>${esc(t.name)}</b>
               <span class="sub">${esc(t.role || "")}</span>${
               i < c.timeline.length - 1 && c.timeline[i + 1].year
                 ? `<span class="sub"> · ${t.year - c.timeline[i + 1].year} year${
@@ -3751,15 +3769,17 @@ async function openPerson(id, name) {
         : "", `${(c.reachable_through || []).length} route${
           (c.reachable_through || []).length === 1 ? "" : "s"}`)}
 
-      ${block("Can introduce you to", (net.companies || []).length
-        ? `<div class="pclist">${net.companies.slice(0, 12).map(n =>
-            `<div class="pcrow"><b>${esc(n.name)}</b>
-              <span class="tag">${n.via === "board" ? "board seat" : "their cheque"}</span>
-              ${n.markets?.length ? `<span class="mk">${esc(n.markets.join(", "))}</span>` : ""}
-              ${n.what ? `<div class="what">${esc(n.what)}</div>` : ""}</div>`).join("")}
-           ${net.companies.length > 12 ? `<div class="sub">and ${
-             net.companies.length - 12} more</div>` : ""}</div>`
-        : "", `${net.count || 0} doors`)}
+      ${(() => {
+        const fresh = (net.companies || []).filter(n =>
+          !ownKeys.has(String(n.name || "").toLowerCase().replace(/[^a-z0-9]/g, "")));
+        return block("Other doors they open", fresh.length
+          ? `<div class="pclist">${fresh.slice(0, 12).map(n => coRow(n.name,
+               n.via === "board" ? "board seat" : "their cheque",
+               `${n.markets?.length ? `<span class="mk">${esc(n.markets.join(", "))}</span>` : ""}
+                ${n.what ? `<div class="what">${esc(n.what)}</div>` : ""}`)).join("")}
+             ${fresh.length > 12 ? `<div class="sub">and ${fresh.length - 12} more</div>` : ""}</div>`
+          : "", `${fresh.length} beyond the cheques above`);
+      })()}
 
       ${(dom.via || []).length ? block("Why this is your market",
         `<div class="pclist">${dom.via.map(v => `<div class="pcrow">

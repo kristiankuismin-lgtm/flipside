@@ -88,6 +88,28 @@ def _val(props, key):
     return v.get("value") if isinstance(v, dict) else v
 
 
+def _round_issuer(round_id: str | None) -> str | None:
+    """Which company a funding round was for, if we have fetched the round."""
+    if not round_id:
+        return None
+    try:
+        from . import cache_index
+        e = cache_index.get(round_id) or {}
+    except Exception:
+        return None
+    rel = e.get("relationships") or {}
+    for d in ("incoming", "outgoing"):
+        for items in (rel.get(d) or {}).values():
+            for x in items or []:
+                if not isinstance(x, dict):
+                    continue
+                role = (x.get("properties") or {}).get("role")
+                role = role.get("value") if isinstance(role, dict) else role
+                if role == "ISSUER" and (x.get("name") or "").strip():
+                    return x["name"].strip()
+    return None
+
+
 def _rel(e, name):
     return ((e.get("relationships") or {}).get("outgoing") or {}).get(name) or []
 
@@ -214,9 +236,23 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
     # Two edges say it: INVESTED_IN on the person, and the rounds they
     # personally took part in. They overlap, so the rounds are counted
     # separately and the companies are deduped against the network above.
-    angel_rounds = [{"name": r.get("name"), "id": r.get("id"),
-                     "date": _val(r.get("properties"), "event_date"),
-                     "role": _val(r.get("properties"), "role")} for r in rounds]
+    # A funding-round edge carries the round's own name, which is its stage.
+    # Printing that as if it were the investment produced rows reading
+    # "Seed", "Grant", "Series A" under "writes their own cheques" - three
+    # stages and no companies. The company is the ISSUER on the round's own
+    # participant edges, so resolve it where the round has been harvested
+    # and say "Seed round" rather than "Seed" where it has not.
+    angel_rounds = []
+    for r in rounds:
+        stage = r.get("name") or "round"
+        issuer = _round_issuer(r.get("id"))
+        angel_rounds.append({
+            "name": issuer or f"{stage} round",
+            "stage": stage if issuer else None,
+            "id": r.get("id"),
+            "date": _val(r.get("properties"), "event_date"),
+            "role": _val(r.get("properties"), "role"),
+        })
     angel_years = sorted({str(x["date"])[:4] for x in angel_rounds if x.get("date")})
     angel = {
         "companies": [n["name"] for n in net if n["via"] == "invested"][:8],
