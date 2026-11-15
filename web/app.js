@@ -326,7 +326,14 @@ function startProgress(company, stage) {
 }
 
 async function runFounder() {
-  const co = PENDING_CO || $("#co")?.value || F?.company || "Gosta Labs";
+  const co = (PENDING_CO || $("#co")?.value || F?.company || "").trim();
+  if (!co) {
+    // Screening a name nobody typed produces a page of findings about
+    // somebody else's company with the user's name on the breadcrumb.
+    const box = $("#co");
+    if (box) { box.focus(); box.placeholder = "Which company? Type a name or a website"; }
+    return;
+  }
   const st = PENDING_STAGE || $("#st")?.value || "series a";
   $("#view").innerHTML = `<div class="pgwrap">
     <div class="pghd"><span class="spin"></span>Reading Cala's graph for
@@ -2068,18 +2075,13 @@ function dealsView() {
   // The pipeline is kept in this browser and exists whether or not a screen
   // has run. Gating it on one hid the user's own saved list from them.
   const names = Object.keys(DEALS);
-  if (!F && !names.length) return watchBlock() + `<div class="msg" style="padding:40px">
+  if (!names.length) return `<div class="msg" style="padding:40px">
     Nothing in the pipeline yet.<br>
-    <span class="sub">Add funds from the ranking, the call list or a fund
-    page. It is kept in this browser only — nothing is sent anywhere.</span>
-    <div style="margin-top:14px"><button class="btn" data-goto="calls">Open the
-      call list</button></div></div>`;
-  if (!names.length) return watchBlock() + `<div class="msg" style="padding:40px">
-    Nothing in the pipeline yet.<br>
-    <span class="sub">Add funds from the ranking or the call list. It is kept
-    in this browser only — nothing is sent anywhere.</span>
-    <div style="margin-top:14px"><button class="btn" data-goto="founder">Back to
-      the ranking</button></div></div>`;
+    <span class="sub">Add funds from ${F ? "the ranking or " : ""}the call
+    list. It is kept in this browser only — nothing is sent anywhere.</span>
+    <div style="margin-top:14px"><button class="btn" data-goto="${
+      F ? "founder" : "calls"}">${F ? "Back to the ranking"
+      : "Open the call list"}</button></div></div>` + watchBlock();
 
   // Without a screen there are no per-fund signals; the cards degrade to the
   // name, the stage you put them at and the contact, which is what a
@@ -2534,7 +2536,7 @@ async function neoAsk(q) {
   try {
     d = await (await fetch("/ask-neo", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: text, company: F?.company || "Gosta Labs",
+      body: JSON.stringify({ question: text, company: F?.company || "",
                              stage: F?.stage || "series a",
                              limit: F?.investors?.length || 14 })
     })).json();
@@ -3062,14 +3064,21 @@ async function loadAlertRules() {
   return ALERTRULES;
 }
 
+/* These rules are relative to a round: who backs a competitor OF YOURS, who
+   has gone quiet AT YOUR STAGE. Without a screen there is no "yours", and
+   the old default here quietly supplied one - company "Gosta Labs", stage
+   "series a" - so an empty pipeline showed competitor rounds, fifteen
+   un-pitchable funds and "10 on your current list" for a company the user
+   had never typed, under a heading saying "since you added these". Inventing
+   the subject of an alert is worse than having no alerts. */
 async function runAlerts() {
+  if (!F?.company) { ALERTS = { hits: [], unscoped: true }; return renderAlerts(); }
   ALERTS = { loading: true }; renderAlerts();
   try {
     ALERTS = await (await fetch("/alerts", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ company: F?.company || "Gosta Labs",
-                             stage: F?.stage || "series a",
-                             limit: F?.investors?.length || 14,
+      body: JSON.stringify({ company: F.company, stage: F.stage,
+                             limit: F.investors?.length || 14,
                              rules: [...(ALERTON || [])] })
     })).json();
   } catch (e) { ALERTS = { hits: [], error: String(e.message) }; }
@@ -3228,11 +3237,15 @@ async function enrichCalls() {
    about. The alert that matters is the one on a fund sitting in Diligence,
    so it lives on the pipeline, next to the card it is about. */
 function watchBlock() {
+  // "since you added these" is only true when there are these. With no
+  // screen the rules have nothing to be relative to, so the block says what
+  // it would need rather than filling itself with a stand-in.
+  if (!F?.company) return "";
   if (!ALERTRULES) { loadAlertRules().then(render); return ""; }
   if (!ALERTS) runAlerts();
   const n = (ALERTON || new Set()).size;
   return section("wnow", "What changed since you added these",
-      `${n} rule${n === 1 ? "" : "s"} on`,
+      `${n} rule${n === 1 ? "" : "s"} on · against ${esc(F.company)}`,
       alertResultsPane()
       + `<details class="alrules"><summary>Which rules are on</summary>${
           alertRulesPane()}</details>`);
