@@ -787,6 +787,13 @@ function applyRoleChrome() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  document.querySelectorAll("[data-enrich]").forEach(b => b.onclick = () => {
+    const [n, f] = b.dataset.enrich.split("|");
+    openEnrich(n, f);
+  });
+  const ec = $("#enclose"); if (ec) ec.onclick = () => { ENRICH = null; render(); };
+  const es = $("#enscrim");
+  if (es) es.onclick = e => { if (e.target === es) { ENRICH = null; render(); } };
   const ma = $("#mailall"); if (ma) ma.onclick = openMailAll;
   const mc = $("#mailclose"); if (mc) mc.onclick = () => { MAILALL = null; render(); };
   const ms = $("#mailscrim");
@@ -943,6 +950,68 @@ function launchPane() {
         not less — the query is passed through as written.</div>`);
 }
 
+/* A row in this cohort has no Cala id to open a card with, so it opens the
+   enrichment instead: what both graphs can put against the name. */
+let ENRICH = null;
+
+async function openEnrich(name, firm) {
+  ENRICH = { name, firm, loading: true }; render();
+  try {
+    ENRICH = await (await fetch(`/enrich-person?name=${encodeURIComponent(name)}`
+      + `&firm=${encodeURIComponent(firm || "")}`)).json();
+  } catch (e) { ENRICH = { name, error: String(e.message) }; }
+  render();
+}
+
+function enrichDrawer() {
+  if (!ENRICH) return "";
+  const c = ENRICH.cala, w = ENRICH.web;
+  const body = ENRICH.loading
+    ? `<div class="msg" style="padding:30px"><span class="spin"></span>
+        Reading both graphs for ${esc(ENRICH.name)}…</div>`
+    : ENRICH.error ? errorPanel(ENRICH.error, ENRICH.name)
+    : `${w ? `<div class="pcstats">
+        ${w.title ? `<div class="pcstat"><span class="k">Now</span>
+          <span class="v">${esc(w.title)}</span>
+          <span class="s">${esc(w.org || "")}</span></div>` : ""}
+        ${w.location ? `<div class="pcstat"><span class="k">Based</span>
+          <span class="v">${esc(w.location)}</span><span class="s"></span></div>` : ""}
+        <div class="pcstat"><span class="k">Match</span>
+          <span class="v">${w.score ?? "—"}</span>
+          <span class="s">${esc(w.status || "")}</span></div>
+      </div>` : ""}
+      ${w?.bio ? `<p class="lede" style="margin:var(--s2) 0">${esc(w.bio)}</p>` : ""}
+      ${(w?.socials || []).length || c?.linkedin ? `<div class="sech"><h3>Where they are</h3></div>
+        <div class="bships">${[...(w?.socials || []), c?.linkedin, c?.website, c?.github]
+          .filter(Boolean).map(u => `<div class="bship">
+            <a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></div>`)
+          .join("")}</div>` : ""}
+      ${(c?.studied || []).length ? `<div class="sech"><h3>Studied</h3></div>
+        <div class="bships">${c.studied.map(x => `<div class="bship">
+          <b>${esc(x.school || "")}</b><span class="sub">${
+            [x.degree, x.field, x.year].filter(Boolean).map(esc).join(" · ")}</span>
+        </div>`).join("")}</div>` : ""}
+      ${(w?.experience || []).length ? `<div class="sech"><h3>Before that</h3></div>
+        <div class="bships">${w.experience.map(x => `<div class="bship">
+          <b>${esc(x.org || "")}</b><span class="sub">${esc(x.title || "")}${
+            x.from ? " · from " + x.from : ""}</span></div>`).join("")}</div>` : ""}
+      ${(w?.skills || []).length ? `<div class="sech"><h3>Skills on record</h3></div>
+        <div class="sub">${w.skills.map(esc).join(" · ")}</div>` : ""}
+      <div class="emptywhy" style="margin-top:var(--s3)">
+        <b>No phone number and no email.</b> Cala's Person entity has no such
+        property, and the enrichment carries social and website URLs only.
+        This is everything either graph holds, not everything we asked for.
+      </div>`;
+  return `<div class="scrim on" id="enscrim"><div class="composebox wide"
+      onclick="event.stopPropagation()">
+    <div class="sidehd pchd">${logo(ENRICH.name)}
+      <div style="min-width:0;flex:1"><h3>${esc(ENRICH.name)}</h3>
+        <div class="s">${esc(ENRICH.firm || "")}</div></div>
+      <button class="btn sm" id="enclose">Close</button></div>
+    <div style="padding:15px">${body}</div>
+  </div></div>`;
+}
+
 function launchRow(r) {
   const key = "px:" + (r.name || "");
   const watched = !!SCOUTWATCH[key];
@@ -964,6 +1033,9 @@ function launchRow(r) {
           <a href="${esc(r.profiles[0])}" target="_blank" rel="noopener">profile</a>
           <span class="sub">identifier from the provider, not a page we read</span>
         </div>` : ""}
+        <div class="bship"><button class="lnk"
+          data-enrich="${esc(r.name || "")}|${esc(r.company || "")}"
+          >Open their card</button></div>
       </div>
     </div>
     <div class="scsc">${r.score}</div>
@@ -1413,7 +1485,7 @@ function scoutsView() {
 
   if (SCOUTTAB === "building") return head + tabs + buildersPane();
   if (SCOUTTAB === "private") return head + tabs + privatePane() + builderDrawer();
-  if (SCOUTTAB === "notyet") return head + tabs + launchPane();
+  if (SCOUTTAB === "notyet") return head + tabs + launchPane() + enrichDrawer();
 
   if (!SCOUTS) { loadScouts(SCOUT_THESIS); return head + tabs + `<div class="msg">
     <span class="spin"></span>Reading the people we have records for…</div>`; }
@@ -1481,21 +1553,32 @@ function investorView() {
         <button class="lnk" data-goto="accuracy">Does it predict?</button></div>
     </div>
     ${kpis([
-      ["Scored", cs.length, "all", "two rounds and prior investors to compare"],
-      ["Insiders came back", healthy.length, "healthy", "the round structure reads healthy"],
-      ["Previous lead returned", back.length, "lead", "the strongest version of it"],
+      ["Scored", cs.length, "all", ""],
+      ["Insiders came back", healthy.length, "healthy", ""],
+      ["Previous lead returned", back.length, "lead", ""],
     ], IFILTER, null)}
     ${movesBlock()}
     ${leftBlock()}
-    ${section("convlist", "Backed again by the people who already knew them",
-      `${cs.length} companies`, `<div class="convlist">${
-        cs.slice(0, 60).map((c, i) => `<button class="convrow" data-conv="${esc(c.company)}">
+    ${(() => {
+      // The cards were a filter that filtered nothing: clicking one set
+      // IFILTER and the list below went on rendering every scored company.
+      const shown = IFILTER === "healthy" ? healthy
+                  : IFILTER === "lead" ? back : cs;
+      const label = IFILTER === "healthy" ? "Insiders came back"
+                  : IFILTER === "lead" ? "The previous lead came back"
+                  : "Backed again by the people who already knew them";
+      return section("convlist", label,
+      `${shown.length} compan${shown.length === 1 ? "y" : "ies"}${
+        IFILTER === "all" ? "" : ` of ${cs.length} · click the card again to clear`}`,
+      `<div class="convlist">${
+        shown.slice(0, 60).map((c, i) => `<button class="convrow" data-conv="${esc(c.company)}">
           <span class="rk">${i + 1}</span>
           <span><span class="nm">${esc(c.company)}</span>${
             c.at_slush ? ` <span class="chip sm">at Slush</span>` : ""}
             <span class="wh">${esc((c.reasons || []).slice(0, 2).join(" · ") || "no reason recorded")}</span></span>
           <span class="st sub">${esc(c.structure || "")} · ${esc(c.confidence || "")}</span>
-          <span class="sc">${c.score}</span></button>`).join("")}</div>`)}
+          <span class="sc">${c.score}</span></button>`).join("")}</div>`);
+    })()}
     ${(CONV.orphans || []).length ? "" : `<div class="evfoot">
       <b>What this cannot do.</b> The orphan detector — companies whose
       insiders stopped — never fires, because Cala holds no headcount series
@@ -3820,7 +3903,7 @@ function callRow(r) {
   const done = (CALLDONE || new Set()).has(id);
   const picked = CALLSEL.has(id);
   const why = [r.reason, ...(r.bonus_why || [])].filter(Boolean);
-  return `<tr class="clr ${done ? "done" : ""} ${picked ? "pick" : ""}"
+  return `<tr class="clr ${done ? "done" : ""} ${picked ? "on" : ""}"
       style="cursor:default">
     <td class="cbx"><button class="callcheck ${picked ? "on" : ""}"
       data-callsel="${esc(id)}" title="Select">${picked ? "✓" : ""}</button></td>
@@ -4224,6 +4307,13 @@ function render() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  document.querySelectorAll("[data-enrich]").forEach(b => b.onclick = () => {
+    const [n, f] = b.dataset.enrich.split("|");
+    openEnrich(n, f);
+  });
+  const ec = $("#enclose"); if (ec) ec.onclick = () => { ENRICH = null; render(); };
+  const es = $("#enscrim");
+  if (es) es.onclick = e => { if (e.target === es) { ENRICH = null; render(); } };
   const ma = $("#mailall"); if (ma) ma.onclick = openMailAll;
   const mc = $("#mailclose"); if (mc) mc.onclick = () => { MAILALL = null; render(); };
   const ms = $("#mailscrim");

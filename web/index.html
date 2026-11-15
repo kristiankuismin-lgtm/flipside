@@ -263,7 +263,11 @@ table{table-layout:auto}
   color:transparent;display:grid;place-items:center;padding:0}
 .callcheck:hover{border-color:var(--accent)}
 .callcheck.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.clr.pick{background:var(--accent-bg)}
+/* Not ".pick": that class already exists on this page as a 17x17 checkbox,
+   so a <tr> wearing it was forced to 17px tall and spilled its contents
+   over the rows below. The class guard cannot catch a collision like this -
+   both names have rules - which is why the name is the fix. */
+.clr.on{background:var(--accent-bg)}
 .clr.done{opacity:.5}
 .cwho .nm{font-weight:580;font-size:13px}
 .cwho .role{display:block;font-size:11.5px;color:var(--dim);margin-top:1px}
@@ -1102,35 +1106,17 @@ body.neo-on .main{padding-right:380px}
 .alrow .sub{font-size:11.5px;color:var(--dim);line-height:1.6}
 
 /* --- call list --- */
-.calllist{display:flex;flex-direction:column;gap:8px}
-.callrow{display:flex;align-items:flex-start;gap:12px;padding:13px 15px;
   border:1px solid var(--line);border-radius:11px;background:var(--panel);
   box-shadow:var(--sh)}
-.callrow.done{opacity:.5;background:var(--panel2)}
-.callcheck{flex:none;width:22px;height:22px;margin-top:2px;border-radius:7px;
   border:1.5px solid var(--line2);background:var(--panel);cursor:pointer;
   color:var(--green);font:13px/18px var(--sans);font-weight:700;padding:0}
 .callcheck:hover{border-color:var(--green)}
-.callrow.done .callcheck{background:var(--green-bg);border-color:var(--green-line)}
-.callrow .av{flex:none;width:34px;height:34px;border-radius:10px;
   background:var(--panel2);border:1px solid var(--line);text-align:center;
   font:11px/32px var(--mono);color:var(--faint)}
-.callrow .who{flex:1;min-width:0}
-.callrow .nm{font-size:14px;font-weight:570;color:var(--ink)}
-.callrow .role{margin-left:7px;font:11px var(--mono);color:var(--accent-ink);
   background:var(--accent-bg);border-radius:5px;padding:2px 7px}
-.callrow .at{display:flex;align-items:center;gap:6px;margin-top:5px;
   font-size:12.5px;color:var(--dim)}
-.callrow .at .logo{width:16px;height:16px;border-radius:4px;padding:1px}
-.callrow .at .sc{font:10.5px var(--mono);color:var(--faint)}
-.callrow .src{font:9.5px var(--mono);letter-spacing:.05em;border-radius:4px;
   padding:2px 6px;text-transform:uppercase}
-.callrow .src.cala{background:var(--green-bg);color:var(--green)}
-.callrow .src.site{background:var(--panel2);color:var(--faint)}
-.callrow .why{margin-top:5px;font:11px var(--mono);color:var(--faint);
   line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.callrow .warm{margin-top:4px;font-size:11.5px;color:var(--blue)}
-.callrow .acts{display:flex;gap:6px;align-items:center;flex:none}
 
 /* --- person card --- */
 .pcstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px}
@@ -1158,11 +1144,7 @@ body.neo-on .main{padding-right:380px}
 .pcrow .yr{margin-left:6px;font:10.5px var(--mono);color:var(--faint)}
 .pcrow .what{margin-top:4px;font-size:11.5px;color:var(--faint);line-height:1.55}
 /* the reasons a person moved up the call list */
-.callrow .pwhy{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-.callrow .pwhy span{font:10.5px var(--mono);color:var(--green);
   background:var(--green-bg);border-radius:5px;padding:2px 7px}
-.callrow .pwhy .via{color:var(--faint);background:var(--panel2)}
-.callrow .cscore{font:12px var(--mono);font-weight:600;color:var(--dim);
   font-variant-numeric:tabular-nums;cursor:help;margin-right:2px}
 
 /* Record tab: the coverage bars that say what we actually hold on an entity. */

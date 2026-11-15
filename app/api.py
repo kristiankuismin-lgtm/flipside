@@ -1655,6 +1655,82 @@ def news(name: str, year: str = ""):
                             "summary": r.get("content"), "error": None}, name)
 
 
+@app.get("/enrich-person")
+def enrich_person(name: str, firm: str = ""):
+    """Everything we can put against a name, from both graphs.
+
+    Cala first: a Person entity carries a LinkedIn, a degree and a field of
+    study, and nothing in the product was reading the last two - 1,424
+    field_of_study values sat unused.
+
+    Then Context.dev's people enrich, which carries a bio, a location, the
+    current role and the experience behind it.
+
+    Neither has a phone number or an email address. That is not an omission
+    in this code: Cala's Person has no such property at all, and the enrich
+    response carries social and website URLs only. The panel says so rather
+    than leaving an empty field that looks like a loading state.
+    """
+    from . import cache_index, context_dev as cx, norm
+    want = (name or "").strip()
+    if not want:
+        return {"error": "no name"}
+    out = {"name": want, "firm": firm, "cala": None, "web": None,
+           "no_contact_channel": True}
+
+    key = norm.name(want)
+    for e in cache_index.build().values():
+        if e.get("entity_type") != "Person" or norm.name(e.get("name") or "") != key:
+            continue
+        pr = e.get("properties") or {}
+        val = lambda k: (lambda v: v.get("value") if isinstance(v, dict) else v)(pr.get(k))
+        rel = e.get("relationships") or {}
+        studied = []
+        for d in ("incoming", "outgoing"):
+            for x in ((rel.get(d) or {}).get("STUDIED_AT") or []):
+                if not isinstance(x, dict):
+                    continue
+                xp = x.get("properties") or {}
+                g = lambda k: (lambda v: v.get("value") if isinstance(v, dict) else v)(xp.get(k))
+                studied.append({"school": x.get("name"), "degree": g("degree"),
+                                "field": g("field_of_study"), "year": g("year")})
+        out["cala"] = {"id": e.get("id"), "description": val("description"),
+                       "linkedin": val("linkedin_url"),
+                       "website": val("personal_website"),
+                       "github": val("github_url"),
+                       "studied": studied[:4]}
+        break
+
+    parts = [w for w in re.findall(r"[^\s]+", want) if w]
+    if len(parts) >= 2:
+        try:
+            r = cx.call("/people/enrich",
+                        {"name": {"first": parts[0], "last": parts[-1]},
+                         **({"company": {"name": firm}} if firm else {})},
+                        timeout=60) or {}
+            m = (r.get("match") or {})
+            pr = m.get("person") or {}
+            if pr:
+                role = pr.get("current_role") or {}
+                out["web"] = {
+                    "score": m.get("score"), "status": m.get("status"),
+                    "bio": (pr.get("bio") or "")[:400],
+                    "location": (pr.get("location") or {}).get("display"),
+                    "socials": (pr.get("social_urls") or [])[:3],
+                    "sites": (pr.get("website_urls") or [])[:2],
+                    "title": role.get("title"),
+                    "org": (role.get("organization") or {}).get("name"),
+                    "skills": (pr.get("skills") or [])[:8],
+                    "experience": [{"title": x.get("title"),
+                                    "org": (x.get("organization") or {}).get("name"),
+                                    "from": (x.get("start_date") or {}).get("year")}
+                                   for x in (pr.get("experience") or [])[:6]],
+                }
+        except Exception as e:
+            out["web_error"] = f"{type(e).__name__}: {str(e)[:140]}"
+    return out
+
+
 @app.get("/launchpad")
 def launchpad(thesis: str = "", limit: int = 30, pages: int = 2):
     """People who have not started anything yet, where founders come from.
