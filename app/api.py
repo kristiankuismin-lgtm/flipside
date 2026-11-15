@@ -282,6 +282,44 @@ def analyze_one(inv, company, desc, stage, comps, histories, mine):
             "breakdown": breakdown, "notes": notes}
 
 
+def _own_backers(name: str) -> list[str]:
+    """Who already has money in this company, read rather than configured.
+
+    Warm paths are computed from the founder's existing cap table, and that
+    list has been a hardcoded preset since the first demo - which meant the
+    feature worked for exactly one company and looked like it worked for
+    all of them. It is an incoming INVESTED_IN edge on the company, and Cala
+    has it: Voima Ventures, Cor Group and Reaktor for Gosta Labs.
+
+    Duplicates are the norm here. Cala holds "Voima Ventures" and "Voima
+    Ventures Oy" as separate entities, and a founder reading "two of your
+    backers" when one of them is the same fund twice would be right not to
+    trust the rest.
+    """
+    from . import cala_client as cala
+    e = _resolve_company(name)
+    if not e:
+        return []
+    try:
+        full = cala.get_entity(e["id"], properties=["name"],
+                               incoming=["INVESTED_IN"], limit=60,
+                               allow_live=True, ttl=7 * 86400,
+                               timeout=25, retries=1, interactive=True)
+    except Exception:                                 # noqa: BLE001
+        full = e
+    rows = (((full.get("relationships") or {}).get("incoming") or {})
+            .get("INVESTED_IN") or [])
+    out, seen = [], set()
+    for r in rows:
+        nm = (r.get("name") or "").strip()
+        key = norm.name(nm)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(nm)
+    return out
+
+
 def _resolve_company(name: str) -> dict | None:
     """The company entity behind a name, from the harvest or from Cala.
 
@@ -373,7 +411,16 @@ def analyze(req: Req):
             because="An investor already in one of these has a reason not to "
                     "take your call, whatever they say on it.")
     pool = req.investors or _investor_pool()[: req.limit]
-    mine = req.my_investors or p.get("my_investors", [])
+    # Read, then the preset, then nothing. The preset stays as a fallback
+    # for the demo company whose record predates this, and it is no longer
+    # the only way a founder gets a warm path.
+    mine = req.my_investors or _own_backers(req.company) or p.get("my_investors", [])
+    if mine:
+        PG.step(key, f"{len(mine)} investors already in {req.company}",
+                ", ".join(mine[:4]), layer="cala",
+                because="A fund that has been in a round with one of these "
+                        "has met them, and an introduction from a shared "
+                        "backer is not a cold email.")
     PG.step(key, f"Screening {len(pool)} funds", layer="derived",
             because="Each one is checked against those competitors before "
                     "anything else, because exclusion is cheaper to be sure of "
