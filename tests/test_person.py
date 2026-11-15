@@ -235,3 +235,23 @@ def test_seniority_decides_when_they_founded_none_of_them():
 
 def test_a_person_with_no_roles_has_no_headline():
     assert P.build(_E(FOUNDED=[_it("Thing")]))["headline_role"] is None
+
+
+# ---------------------------------------------- owns versus works at
+def test_owning_and_controlling_the_same_company_is_one_row():
+    c = P.build(_E(IS_BENEFICIARY_OWNER_OF=[_it("Holding Ltd")],
+                   IS_CONTROL_PERSON_OF=[_it("Holding Ltd")]))
+    rows = c["control"]["companies"]
+    assert len(rows) == 1
+    assert rows[0]["owner"] is True and rows[0]["control"] is True
+
+
+def test_controlling_without_owning_is_still_listed():
+    c = P.build(_E(IS_CONTROL_PERSON_OF=[_it("Someone Elses Ltd")]))
+    rows = c["control"]["companies"]
+    assert rows[0]["owner"] is False and rows[0]["control"] is True
+
+
+def test_someone_who_owns_nothing_has_an_empty_list_not_a_missing_key():
+    c = P.build(_E(WORKS_AT=[_it("A Fund", role="Partner")]))
+    assert c["control"]["companies"] == [] and c["control"]["owns"] == 0

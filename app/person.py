@@ -114,6 +114,14 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
     awards = _rel(e, "RECEIVED_AWARD")
     works = _rel(e, "WORKS_AT")
     rounds = _rel(e, "PARTICIPATES_IN_FUNDING_ROUND")
+    # Who actually owns and controls a company, rather than works at it.
+    # Cala carries these from beneficial-ownership filings - Companies House
+    # PSC and its equivalents - so what they mostly name is a person's own
+    # holding vehicles rather than the fund they are a partner at. That is
+    # still the question a founder is asking: is the person opposite an
+    # owner somewhere, or an employee everywhere.
+    owns = _rel(e, "IS_BENEFICIARY_OWNER_OF")
+    controls = _rel(e, "IS_CONTROL_PERSON_OF")
     titled = [(label, it) for edge, label in PARTNER_EDGES for it in _rel(e, edge)]
 
     # Operator: the thing a founder most wants to know about an investor.
@@ -275,6 +283,20 @@ def build(e: dict, *, today: date | None = None, sector_words: set[str] | None =
                     "since": _val(it.get("properties"), "valid_since")}
                    for label, it in titled],
         "operator": operator,
+        "control": {
+            "companies": [{"name": c.get("name"), "id": c.get("id"),
+                           "owner": True,
+                           "control": any(norm.name(x.get("name") or "")
+                                          == norm.name(c.get("name") or "")
+                                          for x in controls)}
+                          for c in owns]
+            + [{"name": c.get("name"), "id": c.get("id"), "owner": False,
+                "control": True} for c in controls
+               if not any(norm.name(o.get("name") or "")
+                          == norm.name(c.get("name") or "") for o in owns)],
+            "owns": len(owns),
+            "controls": len(controls),
+        },
         "timeline": timeline,
         "network": network,
         "angel": angel,

@@ -61,9 +61,15 @@ def test_unparseable_round_dates_do_not_crash(monkeypatch):
 
 
 def test_empty_api_payloads_return_none(monkeypatch):
-    for key in ("gleif:nothing", "prh:nothing", "brreg:nothing"):
-        D._store(key, {})
+    """The cache these read moved into registry.raw when the duplicate
+    implementations were merged; the thing being tested did not."""
+    import app.registry as R
+    R._store('raw:gleif:{"filter[entity.legalName]": "nothing", "page[size]": 5}:', {})
+    R._store('raw:prh:{"name": "nothing"}:', {})
+    R._store('raw:brreg:{"navn": "nothing", "size": 1}:', {})
     _nonet(monkeypatch)
+    monkeypatch.setattr(R.httpx, "get", lambda *a, **k: (_ for _ in ()).throw(
+        AssertionError("must not call the network")))
     assert D.gleif("nothing") is None and D.prh("nothing") is None and D.brreg("nothing") is None
 
 

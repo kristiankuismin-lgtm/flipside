@@ -77,6 +77,34 @@ def _store(k, v):
         _conn.commit()
 
 
+ENDPOINT = {
+    "gleif": "https://api.gleif.org/api/v1/lei-records",
+    "prh": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies",
+    "brreg": "https://data.brreg.no/enhetsregisteret/api/enheter",
+    "cvr": "https://cvrapi.dk/api",
+    "fr": "https://recherche-entreprises.api.gouv.fr/search",
+    "ee": "https://ariregister.rik.ee/est/api/autocomplete",
+    "sec": "https://data.sec.gov/submissions/CIK{cik}.json",
+}
+
+
+def raw(which: str, params=None, *, ua=UA, cik: str = "") -> dict:
+    """One register's raw response, cached.
+
+    Both record shapes in this codebase - the rich one here and the legacy
+    one datasets.py returns - now parse from this, so there is one place
+    that knows each register's URL and one cache behind it.
+    """
+    url = ENDPOINT[which].format(cik=cik) if which == "sec" else ENDPOINT[which]
+    key = f"raw:{which}:{json.dumps(params, sort_keys=True)}:{cik}"
+    hit = _cached(key)
+    if hit is not None:
+        return hit
+    d = _get(url, params, ua=ua)
+    _store(key, d)
+    return d
+
+
 def _get(url, params=None, *, ua=UA, timeout=20):
     r = httpx.get(url, params=params, headers={"User-Agent": ua}, timeout=timeout,
                   follow_redirects=True)
@@ -277,8 +305,10 @@ _LEGAL = re.compile(
     r"inc|plc|nv|bv|lp|l\.p|gp|ky|kb|holding|holdings|group|company|co)\b", re.I)
 
 
-def _stem(s: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", _LEGAL.sub(" ", (s or "").lower()))
+def _tokens(s: str) -> set[str]:
+    """Words that are part of the name, legal form removed."""
+    return {t for t in re.split(r"[^a-z0-9]+", _LEGAL.sub(" ", (s or "").lower()))
+            if len(t) > 1}
 
 
 def grade(asked: str, found: str) -> str:
@@ -290,12 +320,16 @@ def grade(asked: str, found: str) -> str:
     travels with the record so a wrong match is visible rather than becoming
     a founding date on a fund.
     """
-    a, f = _stem(asked), _stem(found)
+    a, f = _tokens(asked), _tokens(found)
     if not a or not f:
         return "none"
     if a == f:
         return "exact"
-    if a in f or f in a:
+    # Whole words, not prefixes: "Abridge" is not "Abridgement Holding AB",
+    # and a substring test says it is. One name being a subset of the other
+    # is a related entity - "Northzone" and "NORTHZONE VII L.P." - which is
+    # a partial match and not the same company.
+    if a <= f or f <= a:
         return "partial"
     return "none"
 

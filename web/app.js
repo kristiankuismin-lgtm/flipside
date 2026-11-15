@@ -2370,18 +2370,11 @@ function neoIntro() {
       : ["What can you tell me before I run a screen?",
          "How much of Cala's graph is cached?",
          "What have you tested, and what failed?"];
-  const ctx = ROLE === "investor"
-    ? `the <b>${CONV?.companies?.length || 0}</b> companies scored, the moves
-       we can see and what the backtest found`
-    : F ? `the <b>${F?.investors?.length || 0}</b> funds screened, their
-       conflicts and routes, the syndicates and the backtest`
-      : `what is cached, what has been tested and what has not`;
 
   return `<div class="neointro">
       <h3>Ask me anything about <em>${ROLE === "investor" ? "your pipeline"
         : F ? esc(F.company) : "this screen"}</em>.</h3>
       ${neoActions()}
-      <p class="sub">I can see ${ctx}.</p>
       <div class="neoprompts">${prompts.map(q =>
         `<button class="neoprompt" data-neoq="${esc(q)}">${esc(q)}
            <span>\u2192</span></button>`).join("")}</div>
@@ -2409,8 +2402,10 @@ function neoPaint() {
            </div>`).join("")
     : neoIntro();
   const last = NEO_LOG[NEO_LOG.length - 1];
-  const chips = (last && last.followups) || ["Who should I meet first?",
-    "Who backs a competitor?", "Who can introduce me?", "Does this actually work?"];
+  // Only the follow-ups an answer actually produced. The same four generic
+  // questions under every reply are furniture: they are not about what was
+  // just said, and after the second time nobody reads them.
+  const chips = (last && last.followups) || [];
   const c = $("#neochips");
   if (c) c.innerHTML = chips.map(x =>
     `<button class="neochip" data-neoq="${esc(x)}">${esc(x)}</button>`).join("");
@@ -2469,8 +2464,7 @@ function neoMount() {
       <input id="neoq" placeholder="Ask anything about this screen" autocomplete="off">
       <button class="neosend" id="neosend" title="Ask">\u2191</button>
     </div>
-    <div class="neofoot">Answers are computed from the figures on this screen,
-      not generated. If a number is not there, Neo says so.</div>`;
+    <div class="neofoot"></div>`;
   document.body.appendChild(el);
 
   const tab = document.createElement("button");
@@ -3272,6 +3266,21 @@ async function openPerson(id, name) {
             date. ${(op.founded || []).length + (op.operated || []).length
               - c.timeline.length} more have none.</div>`
         : "")}
+
+      ${block("What they own", (c.control?.companies || []).length
+        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
+             From beneficial-ownership filings — Companies House PSC and its
+             equivalents — so these are usually a person's own vehicles
+             rather than the firm they are a partner at. The question it
+             answers is whether the person opposite you owns something or is
+             an employee everywhere.</div>
+           <div class="pclist">${c.control.companies.slice(0, 10).map(o =>
+            `<div class="pcrow"><b>${esc(o.name)}</b>
+              ${o.owner ? `<span class="tag">beneficial owner</span>` : ""}
+              ${o.control ? `<span class="tag">control person</span>` : ""}</div>`).join("")}
+           ${c.control.companies.length > 10 ? `<div class="sub">and ${
+             c.control.companies.length - 10} more</div>` : ""}</div>`
+        : "", `${(c.control?.companies || []).length}`)}
 
       ${block("What they have in common with other people here",
         (c.affinity || []).length
@@ -4986,6 +4995,52 @@ function entityView() {
    evidence it was built from - so the drawer is both the draft and the trail.*/
 let BRIEF = null;
 
+/* The deck, carried from the brief to the email.
+   A compose link cannot carry an attachment - neither mailto: nor Gmail's
+   compose URL accepts one, and no amount of wanting changes that. What the
+   drawer can do is hold the file, hand it back on one click, and say that
+   the last step is a drag. Pretending otherwise would mean a founder
+   discovering the deck was missing after they pressed send. */
+function deckRow() {
+  const f = INTAKE.files?.[0];
+  return `<div class="deckrow">
+    ${f ? `<span class="bfile"><span class="bfi">${esc(fileIcon(f.name))}</span>
+        <span class="bfn">${esc(f.name)}</span>
+        <span class="sub">${(f.size / 1024).toFixed(0)} KB</span></span>
+      <button class="btn sm" id="cdeck">Save the deck</button>
+      <span class="sub">Mail compose links cannot carry an attachment — save
+        it and drag it in.</span>`
+    : `<label class="attach">
+        <input type="file" id="cdeckin" hidden
+          accept=".pdf,.pptx,.ppt,.key,.xlsx,.csv">
+        <span class="clip">+</span> Attach your deck</label>
+      <span class="sub">Kept with this brief so you can save it beside the
+        email in one click.</span>`}</div>`;
+}
+
+function wireDeck(w) {
+  const save = w.querySelector("#cdeck");
+  if (save) save.onclick = () => {
+    const f = INTAKE.files[0];
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(f.file);
+    a.download = f.name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+  const pick = w.querySelector("#cdeckin");
+  if (pick) pick.onchange = () => {
+    const f = pick.files[0];
+    if (!f) return;
+    if (f.size > MAX_FILE_MB * 1024 * 1024) {
+      return toast(`${f.name} is ${(f.size / 1048576).toFixed(0)} MB — we keep up to ${MAX_FILE_MB} MB.`);
+    }
+    INTAKE.files = [{ name: f.name, size: f.size, file: f }, ...INTAKE.files];
+    const row = w.querySelector(".deckrow");
+    if (row) { row.outerHTML = deckRow(); wireDeck(w); }
+  };
+}
+
 async function openBrief(investor) {
   const w = document.createElement("div");
   w.className = "scrim on";
@@ -5042,7 +5097,7 @@ async function openBrief(investor) {
 
   w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
     <div class="sidehd"><h3>Slush brief — ${esc(investor)}</h3>
-      <div class="s">Three sentences, each one a number you can check</div></div>
+      <div class="s">${esc(F?.company || "")} \u00b7 ${esc(F?.stage || "")}</div></div>
     <div style="padding:15px">
       <div class="btrail">${trail}</div>
       <div class="fld" style="margin:13px 0 11px"><label>To</label>
@@ -5059,9 +5114,11 @@ async function openBrief(investor) {
         <button class="btn" id="cmailto">Other mail app</button>
         <button class="btn" id="bclose" style="margin-left:auto">Close</button>
       </div>
+      ${deckRow()}
     </div></div>`;
   w.onclick = close;
   w.querySelector("#bclose").onclick = close;
+  wireDeck(w);
   const val = id => w.querySelector(id).value;
   w.querySelector("#cmail").onclick = () => window.open(
     `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(val("#cto").trim())

@@ -126,70 +126,66 @@ def silent_round(company: str, known_round_dates: list[str], **kw) -> dict | Non
 
 
 # ---------------------------------------------------------------- registries
+# These three used to have their own HTTP, their own parsing and their own
+# cache, duplicating registry.py, which grew the richer adapters when it
+# became a per-country layer. Two implementations of the same register can
+# drift apart and one of them will be the one somebody reads. There is now
+# one fetch per register, in registry.raw(), and these are the shape the
+# older /registry endpoint and resolve.py already expect.
+
+
+def _reg():
+    from . import registry as R
+    return R
+
+
 def gleif(name: str, **kw) -> dict | None:
     """Registered legal entity behind a trading name."""
     if len(name or "") < 3:
         return None
-    url = f"{GLEIF}?{urlencode({'filter[entity.legalName]': name, 'page[size]': 5})}"
-    d = _get(url, f"gleif:{name.lower()}", **kw) or {}
-    rows = d.get("data") or []
-    if not rows:
-        return None
-    # GLEIF name search matches loosely: "Abridge" returned a Swedish entity
-    # in Alvsjo. Attributing the wrong legal entity to a company is worse than
-    # returning nothing, so require the registered name to actually match.
-    from . import norm
-    want = norm.name(name)
-    best = None
-    for r in rows:
-        nm = (((r.get("attributes") or {}).get("entity") or {})
-              .get("legalName") or {}).get("name") or ""
-        cand = norm.name(nm)
-        if cand == want or cand.startswith(want + " ") or want.startswith(cand + " "):
-            best = r
-            break
-    if best is None:
-        return None
-    a = (best.get("attributes") or {})
-    ent = a.get("entity") or {}
-    addr = ent.get("legalAddress") or {}
-    return {"lei": a.get("lei"), "name": (ent.get("legalName") or {}).get("name"),
-            "status": ent.get("status"),
-            "country": addr.get("country"), "city": addr.get("city"),
-            "address": ", ".join(filter(None, (addr.get("addressLines") or [])
-                                        + [addr.get("postalCode"), addr.get("city")])),
-            "url": f"https://search.gleif.org/#/record/{a.get('lei')}"}
+    R = _reg()
+    legacy = _cached(f"gleif:{name.lower()}", kw.get("ttl", 86400))
+    d = legacy if legacy is not None else R.raw(
+        "gleif", {"filter[entity.legalName]": name, "page[size]": 5})
+    rows = (d or {}).get("data") or []
+    for row in rows:
+        a = row.get("attributes") or {}
+        ent = a.get("entity") or {}
+        found = (ent.get("legalName") or {}).get("name")
+        # A register answers whatever is closest. "Abridge" must not come
+        # back as a Swedish company of a similar name.
+        if R.grade(name, found or "") == "none":
+            continue
+        addr = ent.get("legalAddress") or {}
+        return {"lei": a.get("lei"), "name": found, "status": ent.get("status"),
+                "country": addr.get("country"), "city": addr.get("city"),
+                "address": ", ".join(filter(None, (addr.get("addressLines") or [])
+                                            + [addr.get("postalCode"), addr.get("city")])),
+                "url": f"https://search.gleif.org/#/record/{a.get('lei')}"}
+    return None
 
 
 def prh(name: str, **kw) -> dict | None:
-    """Finnish company register."""
+    """Finnish company register, in the shape the older endpoint expects."""
     if len(name or "") < 3:
         return None
-    d = _get(f"{PRH}?{urlencode({'name': name})}", f"prh:{name.lower()}", **kw) or {}
-    cos = d.get("companies") or []
-    if not cos:
+    R = _reg()
+    rec = R.finland(name, getter=lambda url, params=None, **k: R.raw("prh", params))
+    if not rec or R.grade(name, rec.get("name") or "") == "none":
         return None
-    c = cos[0]
-    bid = (c.get("businessId") or {})
-    names = c.get("names") or []
-    return {"business_id": bid.get("value"), "registered": bid.get("registrationDate"),
-            "name": (names[0].get("name") if names else None),
-            "status": (c.get("status") or {}).get("descriptions", [{}])[0].get("description")
-                      if isinstance(c.get("status"), dict) else None,
-            "url": f"https://tietopalvelu.ytj.fi/yritys/{bid.get('value')}"
-                   if bid.get("value") else None}
+    return {"business_id": rec["id"], "registered": rec["registered"],
+            "name": rec["name"], "status": rec["status"],
+            "url": f"https://tietopalvelu.ytj.fi/yritys/{rec['id']}" if rec["id"] else None}
 
 
 def brreg(name: str, **kw) -> dict | None:
-    """Norwegian company register."""
+    """Norwegian company register, in the shape the older endpoint expects."""
     if len(name or "") < 3:
         return None
-    d = _get(f"{BRREG}?{urlencode({'navn': name, 'size': 1})}", f"brreg:{name.lower()}", **kw) or {}
-    rows = ((d.get("_embedded") or {}).get("enheter") or [])
-    if not rows:
+    R = _reg()
+    rec = R.norway(name, getter=lambda url, params=None, **k: R.raw("brreg", params))
+    if not rec or R.grade(name, rec.get("name") or "") == "none":
         return None
-    e = rows[0]
-    return {"orgnr": e.get("organisasjonsnummer"), "name": e.get("navn"),
-            "registered": e.get("registreringsdatoEnhetsregisteret"),
-            "employees": e.get("antallAnsatte"),
-            "url": f"https://virksomhet.brreg.no/nb/oppslag/enheter/{e.get('organisasjonsnummer')}"}
+    return {"orgnr": rec["id"], "name": rec["name"], "registered": rec["registered"],
+            "employees": None,
+            "url": f"https://virksomhet.brreg.no/nb/oppslag/enheter/{rec['id']}"}
