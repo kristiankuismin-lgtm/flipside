@@ -811,6 +811,8 @@ function applyRoleChrome() {
     const t = $("#mailtext");
     if (t) { t.select(); try { document.execCommand("copy"); } catch {} }
   };
+  document.querySelectorAll("[data-addperson]").forEach(b =>
+    b.onclick = () => addPersonToPipeline(b.dataset.addperson));
   document.querySelectorAll("[data-callsel]").forEach(b => b.onclick = () => {
     const id = b.dataset.callsel;
     CALLSEL.has(id) ? CALLSEL.delete(id) : CALLSEL.add(id);
@@ -827,7 +829,7 @@ function applyRoleChrome() {
     const funds = [...new Set(picked.map(i => i.split("|")[1]))];
     if (b.dataset.bulk === "clear") { CALLSEL = new Set(); return render(); }
     if (b.dataset.bulk === "deal") {
-      funds.forEach(f => { if (!DEALS[f]) dealSet(f, "todo"); });
+      picked.forEach(id => addPersonToPipeline(id));
       CALLSEL = new Set();
       return render();
     }
@@ -850,7 +852,7 @@ function applyRoleChrome() {
     PRIVATE = null; PRIVATE_FOR = null;
     BUILDERS = null; BUILDFOR = null;
     LAUNCH = null; LAUNCHFOR = null;
-    REG = null; REGFOR = null;
+    LAWS = null; LAWSFOR = null;
     loadScouts(v);
   };
   document.querySelectorAll("[data-role]").forEach(b =>
@@ -927,34 +929,34 @@ async function loadLaunch(thesis) {
 }
 
 /* The regulatory surface of a thesis. Cala has had this all along. */
-let REG = null, REGFOR = null;
+let LAWS = null, LAWSFOR = null;
 
 async function loadReg(thesis) {
-  REG = { loading: true }; REGFOR = thesis || "";
+  LAWS = { loading: true }; LAWSFOR = thesis || "";
   if (MODE === "scouts") render();
   try {
-    REG = await (await fetch("/regulation?limit=18&thesis="
+    LAWS = await (await fetch("/regulation?limit=18&thesis="
       + encodeURIComponent(thesis || ""))).json();
-  } catch (e) { REG = { laws: [], error: String(e.message) }; }
+  } catch (e) { LAWS = { laws: [], error: String(e.message) }; }
   if (MODE === "scouts") render();
 }
 
 function regBlock() {
   const th = SCOUT_THESIS || "";
   if (!th) return "";
-  if (!REG || REGFOR !== th) { loadReg(th); return ""; }
-  if (REG.loading || REG.error) return "";
-  const laws = REG.laws || [];
+  if (!LAWS || LAWSFOR !== th) { loadReg(th); return ""; }
+  if (LAWS.loading || LAWS.error) return "";
+  const laws = LAWS.laws || [];
   if (!laws.length) return "";
   return section("reg", "What regulates this market",
-    `${REG.named} law${REG.named === 1 ? "" : "s"} attached to ${
-      (REG.industries || []).join(", ")} · most specific first`,
+    `${LAWS.named} law${LAWS.named === 1 ? "" : "s"} attached to ${
+      (LAWS.industries || []).join(", ")} · most specific first`,
     `<div class="dchips">${laws.map(l => `<span class="dchip"
         title="${esc(l.what || l.name)}">${esc(l.name)}${
         l.industries_touched > 6
           ? `<i>touches ${l.industries_touched}</i>` : ""}</span>`).join("")}
-      ${REG.named > laws.length
-        ? `<span class="dchip more">+${REG.named - laws.length}</span>` : ""}</div>
+      ${LAWS.named > laws.length
+        ? `<span class="dchip more">+${LAWS.named - laws.length}</span>` : ""}</div>
      <div class="sub" style="margin-top:10px">From Cala's AFFECTS_INDUSTRY
        edges. Ordered by how few industries each law touches, because a law
        that reaches one is specific to yours and one that reaches twenty is
@@ -2389,9 +2391,18 @@ function dealSave() {
   try { localStorage.setItem(dealKey(), JSON.stringify(DEALS)); } catch (e) { /* private */ }
 }
 
-function dealSet(name, stage) {
-  if (!stage) delete DEALS[name];
-  else DEALS[name] = { ...(DEALS[name] || {}), stage, at: Date.now() };
+/* A deal is with a firm, but you write to a person - so the person you
+   picked is stored on it. Before this the card called dealContact(), which
+   returned whichever row for that firm happened to be first in the call
+   list, so adding Riku Seppala to the pipeline showed Aleksi Partanen. */
+function dealSet(name, stage, who) {
+  if (!stage) { delete DEALS[name]; dealSave(); return render(); }
+  const prev = DEALS[name] || {};
+  const list = (prev.who || []).slice();
+  if (who && who.person && !list.some(x => x.person === who.person)) {
+    list.push(who);
+  }
+  DEALS[name] = { ...prev, stage, at: Date.now(), who: list };
   dealSave(); render();
 }
 
@@ -2406,9 +2417,16 @@ function dealButton(name) {
 
 /* Who you would ring at this firm, if the call list has been built. */
 function dealContact(fund) {
+  // Whoever was actually added, first. Falling straight through to the call
+  // list is what made the pipeline show a different person from the one
+  // that was put in it.
+  const picked = (DEALS[fund]?.who || [])[0];
+  if (picked) return picked;
   const r = (CALLS?.rows || []).find(x => x.fund === fund);
   return r ? { person: r.person, role: r.role, linkedin: r.linkedin } : null;
 }
+
+function dealPeople(fund) { return DEALS[fund]?.who || []; }
 
 function dealsView() {
   // The pipeline is kept in this browser and exists whether or not a screen
@@ -2438,9 +2456,15 @@ function dealsView() {
     const g = place[name] || {};
     const blocked = x && x.signals.conflict.label === "\u{1F534}";
     const idx = STAGES.findIndex(s => s[0] === p.stage);
+    const who = dealPeople(name);
     return `<div class="dcard ${blocked ? "bad" : ""}">
-      <div class="dch">${logo(name, g.website)}<b>${esc(name)}</b>
+      <div class="dch">${logo(name, g.website)}
+        <b>${who.length ? esc(who[0].person) : esc(name)}</b>
         ${x?.score != null ? `<span class="sc">${x.score}</span>` : ""}</div>
+      ${who.length ? `<div class="dwho">${esc(who[0].role || "")}${
+          who[0].role ? " · " : ""}${esc(name)}${who.length > 1
+            ? ` <span class="sub">+${who.length - 1} more here</span>` : ""}</div>`
+        : ""}
       ${blocked ? `<div class="dwarn">Backs ${esc((x.backs || []).join(", "))}
         — this is the one the screen told you to drop.</div>` : ""}
       <div class="dmeta">
@@ -2449,7 +2473,7 @@ function dealsView() {
           <a href="https://${esc(String(g.website).replace(/^https?:\/\//, ""))}"
              target="_blank" rel="noopener">${esc(g.website)}</a></div>` : ""}
       </div>
-      ${c ? `<div class="dcc">${esc(c.person)}<span class="sub">${
+      ${who.length ? "" : c ? `<div class="dcc">${esc(c.person)}<span class="sub">${
         esc(c.role || "")}</span></div>`
         : `<div class="dcc sub">no contact resolved yet</div>`}
       ${x?.signals?.warm_path?.label !== "⚪" && x?.signals?.warm_path?.text
@@ -3833,6 +3857,9 @@ function facetRail(rows) {
 }
 
 let CONTACTS = null;
+// The flattened person rows the unscreened call list renders, kept so that
+// adding one to the pipeline can look the person back up by id.
+let CONTACTROWS = [];
 
 /* Without a screen there is still a call list. A screen decides the ORDER
    of the firms, not whether we hold a contact at them, and sending someone
@@ -3865,7 +3892,7 @@ function contactsPane() {
       raise — run a screen from Ask to order these.</div>`
   // The same worksheet as the screened list. One row per person, because
   // the next thing you do is write to a person; the firm is a column.
-  + callTable(rows.flatMap(r => (r.people || []).map(x => ({
+  + callTable(CONTACTROWS = rows.flatMap(r => (r.people || []).map(x => ({
       person: x.name, role: x.role, person_id: x.id,
       fund: r.investor, fund_score: null,
       reason: x.since ? `at ${r.investor} since ${String(x.since).slice(0, 7)}`
@@ -3967,10 +3994,25 @@ function callRow(r) {
       ${r.linkedin ? `<a class="btn sm" href="${esc(r.linkedin)}" target="_blank"
         rel="noopener">in</a>` : ""}
       <button class="btn sm" data-brief="${esc(r.fund)}">Opener</button>
+      <button class="btn sm ${DEALS[r.fund] ? "pri" : ""}"
+        data-addperson="${esc(id)}"
+        title="Add this person to your pipeline">${DEALS[r.fund] ? "★" : "+"}</button>
       <button class="btn sm ${done ? "pri" : ""}" data-call="${esc(id)}"
         title="Mark as contacted">${done ? "done" : "✓"}</button>
     </td>
   </tr>`;
+}
+
+/* "person|firm" is the id a call-list row already carries, so adding to the
+   pipeline can look the person back up rather than only keeping the firm. */
+function addPersonToPipeline(id) {
+  const [person, fund] = String(id).split("|");
+  const rows = (CALLS?.rows || []).concat(CONTACTROWS || []);
+  const r = rows.find(x => x.person === person && x.fund === fund);
+  dealSet(fund, DEALS[fund]?.stage || "todo", r
+    ? { person: r.person, role: r.role, linkedin: r.linkedin,
+        person_id: r.person_id }
+    : { person });
 }
 
 function callTable(rows) {
@@ -4374,6 +4416,8 @@ function render() {
     const t = $("#mailtext");
     if (t) { t.select(); try { document.execCommand("copy"); } catch {} }
   };
+  document.querySelectorAll("[data-addperson]").forEach(b =>
+    b.onclick = () => addPersonToPipeline(b.dataset.addperson));
   document.querySelectorAll("[data-callsel]").forEach(b => b.onclick = () => {
     const id = b.dataset.callsel;
     CALLSEL.has(id) ? CALLSEL.delete(id) : CALLSEL.add(id);
@@ -4390,7 +4434,7 @@ function render() {
     const funds = [...new Set(picked.map(i => i.split("|")[1]))];
     if (b.dataset.bulk === "clear") { CALLSEL = new Set(); return render(); }
     if (b.dataset.bulk === "deal") {
-      funds.forEach(f => { if (!DEALS[f]) dealSet(f, "todo"); });
+      picked.forEach(id => addPersonToPipeline(id));
       CALLSEL = new Set();
       return render();
     }
@@ -4413,7 +4457,7 @@ function render() {
     PRIVATE = null; PRIVATE_FOR = null;
     BUILDERS = null; BUILDFOR = null;
     LAUNCH = null; LAUNCHFOR = null;
-    REG = null; REGFOR = null;
+    LAWS = null; LAWSFOR = null;
     loadScouts(v);
   };
   document.querySelectorAll("[data-role]").forEach(b =>

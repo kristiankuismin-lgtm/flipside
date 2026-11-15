@@ -8,6 +8,8 @@ These tests would have caught it on the first one.
 import re
 from pathlib import Path
 
+import pytest
+
 WEB = Path(__file__).resolve().parent.parent / "web"
 JS = (WEB / "app.js").read_text()
 CSS = (WEB / "index.html").read_text()
@@ -114,3 +116,26 @@ def test_the_role_toggle_knows_every_mode_each_side_can_reach():
         listed = set(re.findall(r'"([a-z]+)"', raw))
         missing = nav[role] - listed
         assert not missing, f"{role} nav reaches {sorted(missing)}, not in ROLE_MODES"
+
+
+def test_the_scripts_actually_parse():
+    """A syntax error in app.js is total: nothing on the page runs.
+
+    Two globals called REG shipped that way - one for the SEC registry, one
+    I added for regulation - and every Python test passed, because they do
+    not parse JavaScript, and the rehearsal passed, because it only talks
+    to the API. The page was blank and nothing said so.
+    """
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node not available")
+    for name in ("app.js", "ask.js", "world.js"):
+        f = WEB / name
+        if not f.is_file():
+            continue
+        r = subprocess.run([node, "--check", str(f)],
+                           capture_output=True, text=True, timeout=60)
+        assert r.returncode == 0, f"{name} does not parse:\n{r.stderr[:600]}"
