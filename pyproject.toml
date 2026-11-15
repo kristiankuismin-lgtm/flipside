@@ -1,0 +1,5 @@
+[project]
+name = "app"
+version = "0.1.0"
+dependencies = [ "fastapi", "uvicorn", "httpx", "pydantic", "numpy", "python-dotenv", "pytest", "python-pptx", "openpyxl", "pypdf", "python-multipart" ]
+requires-python = "~=3.12.0"
