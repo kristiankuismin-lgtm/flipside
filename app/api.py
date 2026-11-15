@@ -1820,6 +1820,18 @@ def launchpad(thesis: str = "", limit: int = 30, pages: int = 2):
                for r in factories.rank(idx, limit=60)}
     except Exception:
         emp = {}
+    # The edges almost never carry both an employer and a founding on the
+    # same person, so rank() above clears three people for roughly one
+    # employer. Asked as a question instead - "the founders this firm backed
+    # and where they worked before" - the same graph names the prior
+    # employer outright. Those are rates out of the people named in the
+    # answer rather than out of everyone we hold, so they are capped below
+    # an edged rate and never displace one.
+    try:
+        for r in factories.from_queries():
+            emp.setdefault(r["employer"].lower(), min(0.6, r["founders"] / 10))
+    except Exception:
+        pass
     try:
         out = LP.rank(query, limit=limit, pages=pages, employers=emp)
     except Exception as e:
@@ -2653,8 +2665,40 @@ def person_card(entity_id: str, company: str = ""):
         card["affinity"] = [{**r, "says": AF.phrase(r)} for r in rs]
     except Exception:                                 # noqa: BLE001
         card["affinity"] = []
+    card["career"] = _career(card.get("name") or e.get("name") or "")
     card["degraded"] = degraded
     return card
+
+
+def _career(name: str) -> list[dict]:
+    """Where this person has been, as Cala will describe it.
+
+    The relationship edges give a company and sometimes a start date. Asked
+    directly - "the companies this person has worked at, with the role and
+    the years" - the graph returns the rest of the CV, including the jobs it
+    holds no edge for. Only what the harvester has already collected is
+    read; nothing is fetched while a card is being drawn.
+    """
+    if not name:
+        return []
+    try:
+        from . import bulk, norm
+    except Exception:
+        return []
+    want = norm.name(name)
+    out, seen = [], set()
+    for r in bulk.rows_of("bio"):
+        if norm.name(r.get("person") or "") != want:
+            continue
+        org = (r.get("org") or "").strip()
+        k = (norm.name(org) or org.lower())
+        if not org or k in seen:
+            continue
+        seen.add(k)
+        out.append({"company": org, "role": (r.get("role") or "").strip() or None,
+                    "years": (r.get("year") or "").strip() or None,
+                    "source": "cala answer"})
+    return out[:12]
 
 
 def _entity_description(entity_id: str) -> str | None:

@@ -33,6 +33,10 @@ from . import cala_client as cala, norm
 
 DB = "bulk.sqlite"
 
+
+class Unanswered(Exception):
+    """The question was refused or timed out. Ask it again later."""
+
 _conn = sqlite3.connect(DB, check_same_thread=False)
 _conn.execute("""CREATE TABLE IF NOT EXISTS people (
     k TEXT PRIMARY KEY, person TEXT, role TEXT, employer TEXT,
@@ -93,6 +97,55 @@ KINDS: dict[str, dict] = {
         "cols": {"person": ("person", "full_name", "name"),
                  "role": ("role", "title"),
                  "org": ("company", "organisation")},
+    },
+    # --- the round about people rather than institutions -------------
+    # Everything above asks about a firm or a company, so a person only
+    # ever appears as a cell in somebody else's table: a name and a role
+    # and nothing to call them about. These take the 1,135 names already
+    # collected and ask the graph about each of them directly.
+    "bio": {
+        "q": ("List the companies {s} has worked at or founded, with the "
+              "company, the role held there, and the years."),
+        "cols": {"person": ("company", "organisation", "employer"),
+                 "role": ("role", "title", "position"),
+                 "org": ("company", "organisation", "employer"),
+                 "year": ("years", "year", "period", "dates")},
+        "about": "person",
+    },
+    "coinvest": {
+        "q": ("List the investors that most often appear alongside {s} in the "
+              "same funding rounds, with the co-investor, the company, and "
+              "the round."),
+        "cols": {"person": ("co_investor", "coinvestor", "investor", "name"),
+                 "role": ("round", "stage", "round_name"),
+                 "org": ("company", "portfolio_company"),
+                 "year": ("date", "year")},
+    },
+    "exits": {
+        "q": ("List the companies backed by {s} that were acquired or went "
+              "public, with the company, the acquirer or exchange, and the "
+              "year."),
+        "cols": {"person": ("company", "portfolio_company"),
+                 "role": ("acquirer", "exchange", "acquirer_or_exchange",
+                          "outcome"),
+                 "org": ("company", "portfolio_company"),
+                 "year": ("year", "date")},
+    },
+    "education": {
+        "q": ("List the founders of companies backed by {s} and where they "
+              "studied, with the person, the school, and the company they "
+              "founded."),
+        "cols": {"person": ("person", "founder", "full_name", "name"),
+                 "role": ("school", "university", "institution", "education"),
+                 "org": ("company", "company_founded", "startup")},
+    },
+    "angels": {
+        "q": ("List the individual angel investors who took part in funding "
+              "rounds of {s}, with the person, the round, and the company."),
+        "cols": {"person": ("person", "angel", "investor", "name"),
+                 "role": ("round", "stage"),
+                 "org": ("company",)},
+        "about": "company",
     },
     "rounds": {
         "q": ("List the funding rounds of {s}, with the round name, the date, "
@@ -205,8 +258,11 @@ def ask(kind: str, subject: str, *, timeout: float = 240.0) -> int:
     try:
         r = cala.query(q, return_entities=False, allow_live=True,
                        ttl=30 * 86400, timeout=timeout, retries=1)
-    except Exception:
-        return 0
+    except Exception as exc:
+        # A question that never got through is not a question with no answer.
+        # Returning 0 for both is what let a run report 868 of 868 while 554
+        # of them had been refused by the rate limiter and never recorded.
+        raise Unanswered(str(exc)[:120]) from exc
     rows = (r or {}).get("results") or []
     cols = spec["cols"]
     new = 0
@@ -214,11 +270,20 @@ def ask(kind: str, subject: str, *, timeout: float = 240.0) -> int:
         for row in rows:
             if not isinstance(row, dict):
                 continue
-            person = _pick(row, cols.get("person", ()))
-            if not person:
-                continue
+            if spec.get("about") == "person":
+                # The subject is the person; the table is their career, so
+                # the row names a company and the person is who we asked
+                # about rather than a cell in the answer.
+                person = subject
+                org = _pick(row, cols.get("org", ()))
+                if not org:
+                    continue
+            else:
+                person = _pick(row, cols.get("person", ()))
+                if not person:
+                    continue
+                org = _pick(row, cols.get("org", ())) or subject
             role = _pick(row, cols.get("role", ()))
-            org = _pick(row, cols.get("org", ())) or subject
             year = _pick(row, cols.get("year", ()))
             k = "|".join((kind, (norm.name(person) or person.lower())[:60],
                           (norm.name(org) or org.lower())[:60], role.lower()[:40]))

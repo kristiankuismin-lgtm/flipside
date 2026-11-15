@@ -55,6 +55,33 @@ def _wilson(k: int, n: int, z: float = 1.96) -> float:
     return max(0.0, (centre - margin) / d)
 
 
+# The answers write the previous employer in prose, so splitting on the
+# separators yields sentence fragments alongside the real names: "Veteran
+# with AAA console", "free-to-play gaming experience", "mobile". A company
+# name starts with a capital and does not describe a person, which is
+# enough to tell the two apart without a list of companies to check against.
+_NOT_A_COMPANY = (
+    "student", "veteran", "experience", "background", "co-founder",
+    "founder of", "ceo of", "worked", "years", "graduate", "phd", "msc",
+    "degree", "alumni", "alumnus", "previously", "prior to", "serial",
+)
+
+
+def _is_employer(name: str, founded: str | None) -> bool:
+    nm = (name or "").strip()
+    if len(nm) < 3 or len(nm) > 48:
+        return False
+    if not (nm[0].isupper() or nm[0].isdigit()):
+        return False          # a fragment lifted from mid-sentence
+    low = nm.lower()
+    if any(w in low for w in _NOT_A_COMPANY):
+        return False
+    # Founding a company is not having worked at it.
+    if founded and low == str(founded).strip().lower():
+        return False
+    return True
+
+
 def from_queries(min_people: int = 2) -> list[dict]:
     """Founder factories as Cala will describe them, not as it edges them.
 
@@ -81,7 +108,7 @@ def from_queries(min_people: int = 2) -> list[dict]:
         # and split on the obvious separators.
         for part in re.split(r",| then | and ", prior):
             nm = re.sub(r"\(.*?\)", "", part).strip(" .;")
-            if len(nm) < 3 or len(nm) > 48:
+            if not _is_employer(nm, r.get("org")):
                 continue
             k = norm.name(nm) or nm.lower()
             b = by.setdefault(k, {"employer": nm, "people": set(), "founded": set()})

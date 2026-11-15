@@ -4179,6 +4179,13 @@ async function openPerson(id, name) {
             ? `<span class="dchip more">+${c.control.companies.length - 12}</span>` : ""}
         </div>` : ""}
 
+      ${(c.career || []).length ? `<div class="sech"><h3>Where they have been</h3>
+          <span class="sub">${c.career.length} role${c.career.length === 1 ? "" : "s"}</span></div>
+        <div class="bships">${c.career.map(j => `<div class="bship">
+          ${logo(j.company)}<b>${esc(j.company)}</b>
+          <span class="sub">${esc([j.role, j.years].filter(Boolean).join(" \u00b7 "))}</span>
+        </div>`).join("")}</div>` : ""}
+
       ${(c.affinity || []).length ? `<div class="sech">
           <h3>In common with others here</h3></div>
         <div class="bships">${c.affinity.map(a => `<div class="bship">
