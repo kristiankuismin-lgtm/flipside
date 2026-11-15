@@ -130,6 +130,17 @@ def _rounds_by_company() -> dict:
                 out.setdefault(v["name"].strip().lower(), v.get("rounds") or [])
         except ValueError:
             pass
+    # Harvested FundingRound entities. The two files above cost a
+    # natural-language query per company and between them cover a few hundred;
+    # this is every round we have ever fetched, for free. A company already
+    # described by a file keeps that version, because those rounds carry lead
+    # attribution and these cannot.
+    try:
+        from . import company_rounds as CR, cache_index
+        for co, rs in CR.from_cache(cache_index.build()).items():
+            out.setdefault(co, rs)
+    except Exception:
+        pass
     _ROUNDS_BY_CO = out
     return out
 

@@ -73,3 +73,71 @@ def company_history(company: str, with_amount: bool = False, **kw) -> list[Round
            for g in groups.values() if g["date"]]
     out.sort(key=lambda x: x.date)
     return out
+
+
+# --------------------------------------------------------------- the graph
+
+def _val(x):
+    return x.get("value") if isinstance(x, dict) else x
+
+
+def from_cache(index: dict) -> dict[str, list[dict]]:
+    """Harvested FundingRound entities -> company -> rounds, free and offline.
+
+    company_history() above asks a natural-language question per company and
+    takes the better part of a minute each, which is why only 197 companies
+    have ever been through it. A harvested FundingRound entity carries the
+    same facts as structured fields - the issuer, every investor, the date
+    and the amount - for the price of one entity fetch.
+
+    One thing it does not carry. The round's participant edges have a role,
+    and the whole vocabulary is ISSUER and INVESTOR: there is no lead marker
+    on the graph at all. company_history() gets lead because the query
+    endpoint computes it, and the entity does not. So rounds read this way
+    contribute co-investment and leave "leads" empty rather than nominating
+    the first investor in the list, which would invent the one fact an
+    investor would most want to rely on.
+    """
+    out: dict[str, list[dict]] = {}
+    for e in index.values():
+        if e.get("entity_type") != "FundingRound":
+            continue
+        rel = e.get("relationships") or {}
+        issuer, investors = None, []
+        for d in ("incoming", "outgoing"):
+            for items in (rel.get(d) or {}).values():
+                for x in items or []:
+                    if not isinstance(x, dict):
+                        continue
+                    role = _val((x.get("properties") or {}).get("role"))
+                    nm = (x.get("name") or "").strip()
+                    if not nm:
+                        continue
+                    if role == "ISSUER" and not issuer:
+                        issuer = nm
+                    elif role == "INVESTOR":
+                        investors.append(nm)
+        if not issuer or not investors:
+            continue
+        p = e.get("properties") or {}
+        amount = _val(p.get("transaction_value"))
+        try:
+            amount = float(amount) if amount is not None else None
+        except (TypeError, ValueError):
+            amount = None
+        seen, uniq = set(), []
+        for nm in investors:
+            k = norm.name(nm) or nm.lower()
+            if k not in seen:
+                seen.add(k)
+                uniq.append(nm)
+        out.setdefault(issuer.strip().lower(), []).append({
+            "stage": _val(p.get("round_label")) or e.get("name") or "",
+            "date": (str(_val(p.get("announcement_date")) or "") or None),
+            "amount": amount,
+            "currency": _val(p.get("transaction_value_units")),
+            "investors": uniq,
+            "leads": [],          # not in the graph; see the docstring
+            "source": "cala entity",
+        })
+    return out
