@@ -73,6 +73,16 @@ function greeting() {
        : h < 18 ? "Good afternoon" : "Good evening";
 }
 
+/* ISO-3166 alpha-2 -> the flag emoji, by offsetting each letter into the
+   regional-indicator block. No image assets and no lookup table. "??" is
+   what the map data uses for a country it could not resolve, so it gets a
+   globe rather than two broken boxes. */
+function flagOf(cc) {
+  const c = (cc || "").trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(c)) return "🌍";
+  return String.fromCodePoint(...[...c].map(ch => 0x1F1E6 + ch.charCodeAt(0) - 65));
+}
+
 const badge = (t, c) => `<span class="bdg b-${c}">${esc(t)}</span>`;
 const stats = (cols, items) => `<div class="stats" style="grid-template-columns:repeat(${cols},1fr)">${
   items.map(([k, v, cls]) => `<div class="stat"><div class="k">${esc(k)}</div>
@@ -2055,9 +2065,15 @@ function dealContact(fund) {
 }
 
 function dealsView() {
-  if (!F) return `<div class="msg">Run a screen first — the pipeline is the
-    funds that survived it.</div>`;
+  // The pipeline is kept in this browser and exists whether or not a screen
+  // has run. Gating it on one hid the user's own saved list from them.
   const names = Object.keys(DEALS);
+  if (!F && !names.length) return watchBlock() + `<div class="msg" style="padding:40px">
+    Nothing in the pipeline yet.<br>
+    <span class="sub">Add funds from the ranking, the call list or a fund
+    page. It is kept in this browser only — nothing is sent anywhere.</span>
+    <div style="margin-top:14px"><button class="btn" data-goto="calls">Open the
+      call list</button></div></div>`;
   if (!names.length) return watchBlock() + `<div class="msg" style="padding:40px">
     Nothing in the pipeline yet.<br>
     <span class="sub">Add funds from the ranking or the call list. It is kept
@@ -2065,7 +2081,10 @@ function dealsView() {
     <div style="margin-top:14px"><button class="btn" data-goto="founder">Back to
       the ranking</button></div></div>`;
 
-  const byFund = Object.fromEntries((F.investors || []).map(x => [x.investor, x]));
+  // Without a screen there are no per-fund signals; the cards degrade to the
+  // name, the stage you put them at and the contact, which is what a
+  // pipeline is for anyway.
+  const byFund = Object.fromEntries(((F && F.investors) || []).map(x => [x.investor, x]));
   const card = name => {
     const x = byFund[name], p = DEALS[name], c = dealContact(name);
     const blocked = x && x.signals.conflict.label === "\u{1F534}";
@@ -2090,10 +2109,12 @@ function dealsView() {
   };
 
   return `<div class="runline">
-      <div class="rl1"><b>${esc(F.company)}</b>
-        <span class="sub">· ${names.length} fund${names.length === 1 ? "" : "s"} in play</span></div>
+      <div class="rl1"><b>${F ? esc(F.company) : "Your pipeline"}</b>
+        <span class="sub">· ${names.length} fund${names.length === 1 ? "" : "s"} in play${
+          F ? "" : " · not screened against a raise"}</span></div>
       <div class="rl2"><span class="sub">kept in this browser only</span>
-        <button class="lnk" data-goto="founder">Back to the ranking</button></div>
+        <button class="lnk" data-goto="${F ? "founder" : "calls"}">${
+          F ? "Back to the ranking" : "Add from the call list"}</button></div>
     </div>
     ${watchBlock()}
     <div class="deals">${STAGES.map(([k, label, hint]) => {
@@ -3341,9 +3362,62 @@ function facetRail(rows) {
   </aside>`;
 }
 
+let CONTACTS = null;
+
+/* Without a screen there is still a call list. A screen decides the ORDER
+   of the firms, not whether we hold a contact at them, and sending someone
+   away to go and run one first is a page that knows things and says none of
+   them. This is the same people, unranked, and labelled unranked. */
+async function loadContacts() {
+  CONTACTS = { loading: true }; render();
+  const mine = Object.keys(DEALS);
+  try {
+    CONTACTS = await (await fetch("/contacts?limit=24"
+      + (mine.length ? "&names=" + encodeURIComponent(mine.join(",")) : ""))).json();
+  } catch (e) { CONTACTS = { rows: [], error: String(e.message) }; }
+  render();
+}
+
+function contactsPane() {
+  if (!CONTACTS) { loadContacts(); return `<div class="msg" style="padding:40px">
+    <span class="spin"></span>Finding who to contact at each firm…</div>`; }
+  if (CONTACTS.loading) return `<div class="msg" style="padding:40px">
+    <span class="spin"></span>Finding who to contact at each firm…</div>`;
+  if (CONTACTS.error) return errorPanel(CONTACTS.error, "the call list");
+  const rows = CONTACTS.rows || [];
+  const mine = Object.keys(DEALS).length;
+  return kpis([
+    ["Firms", CONTACTS.firms ?? 0, "f", mine ? "in your pipeline" : "we track"],
+    ["We can name somebody", CONTACTS.with_a_name ?? 0, "n", "at these firms"],
+    ["People", CONTACTS.people ?? 0, "p", "with a role on record"],
+  ], "f", null)
+  + `<div class="emptywhy" style="margin-bottom:var(--s3)">
+      <b>Not ranked against a raise.</b> This is who we can name at
+      ${mine ? "the firms in your pipeline" : "the firms we track"}. Run a
+      screen from <b>Ask</b> and the same people come back in the order a
+      specific round makes sensible.</div>`
+  + `<div class="ccards">${rows.map(r => `<div class="ccard">
+      <div class="cchd">${logo(r.investor)}
+        <div style="min-width:0;flex:1">
+          <div class="ccnm">${esc(r.investor)}</div>
+          <div class="sub">${r.named
+            ? `${r.named} ${r.named === 1 ? "person" : "people"} on record`
+            : "nobody on record yet"}</div>
+        </div>
+        <button class="btn sm" data-deal="${esc(r.investor)}"
+          title="Add to your pipeline">${DEALS[r.investor] ? "★" : "+"}</button>
+      </div>
+      ${(r.people || []).length ? `<div class="ccpl">${r.people.map(x => `
+        <div class="ccp"><b>${esc(x.name)}</b>
+          <span>${esc(x.role || "role unknown")}</span>
+          <i>${esc(x.source || "")}</i></div>`).join("")}</div>`
+        : `<div class="ccnone">No name on record. Open the fund page to look
+             them up.</div>`}
+    </div>`).join("")}</div>`;
+}
+
 function callsView() {
-  if (!F) return `<div class="msg">Run a screen first — the call list is built
-    from the funds that survive it.</div>`;
+  if (!F) return contactsPane();
   if (!CALLS || CALLSFOR !== F.company) { loadCalls(); return `<div class="msg">
     <span class="spin"></span>Finding who to contact at each firm…</div>`; }
   if (CALLS.loading) return `<div class="msg" style="padding:40px">
@@ -4206,6 +4280,41 @@ function fundPinColour(p) {
   return "#c2614f";
 }
 
+/* Countries, when the whole continent is on screen.
+   Two hundred overlapping pins over Germany is not a map of Germany. Below
+   the threshold each country collapses to its flag and its count, which is
+   the only thing readable at that zoom anyway, and clicking one flies into
+   it. The centroid is the mean of the points we actually hold rather than a
+   lookup table, so it always sits where our data is. */
+let CMARKERS = [];
+const COUNTRY_ZOOM = 5;
+
+function paintCountries(layer) {
+  const show = ML.getZoom() < COUNTRY_ZOOM;
+  MLMARKERS.forEach(({ el }) => el.classList.toggle("hidepin", show));
+  CMARKERS.forEach(m => m.remove());
+  CMARKERS = [];
+  if (!show) return;
+
+  const by = {};
+  for (const p of layer) {
+    const cc = p.cc || "??";
+    const b = (by[cc] = by[cc] || { cc, n: 0, lat: 0, lon: 0 });
+    b.n++; b.lat += p.lat; b.lon += p.lon;
+  }
+  for (const b of Object.values(by)) {
+    if (!b.n) continue;
+    const el = document.createElement("div");
+    el.className = "cchip";
+    el.innerHTML = `<span class="cf">${flagOf(b.cc)}</span>
+      <span class="cn">${b.n}</span>`;
+    el.title = `${b.n} on the map in ${b.cc === "??" ? "an unresolved country" : b.cc}`;
+    el.onclick = () => ML.flyTo({ center: [b.lon / b.n, b.lat / b.n], zoom: 6.2 });
+    CMARKERS.push(new maplibregl.Marker({ element: el })
+      .setLngLat([b.lon / b.n, b.lat / b.n]).addTo(ML));
+  }
+}
+
 function initMap() {
   const el = document.getElementById("mlmap");
   if (!el || !window.maplibregl || !MAP?.points) return;
@@ -4254,13 +4363,27 @@ function initMap() {
     const d = document.createElement("div");
     const isFund = p.kind === "fund";
     const isPf = p.kind === "portfolio";
-    d.className = "mkr" + (isPf ? " sq" : isFund ? " di" : "");
     const col = isFund ? fundPinColour(p) : statusColor(p);
-    const isPortfolio = p.kind === "portfolio";
-    const sz = isFund ? 15 : (p.score != null ? 13 : 10);
-    d.style.cssText = p.precise
-      ? `width:${sz}px;height:${sz}px;background:${col}${isFund ? ";box-shadow:0 0 0 5px rgba(194,97,79,.18)" : ""}`
-      : `width:${sz}px;height:${sz}px;background:transparent;border:2px dashed ${col};opacity:.75`;
+    // A logo is the fastest way to recognise a firm, and we already hold the
+    // bytes for every domain Cala gave us. The coloured ring still carries
+    // the meaning - leads your stage, backs a competitor - so nothing is
+    // lost by putting the identity inside it. A point with no domain keeps
+    // the plain dot rather than a grey square that says nothing.
+    const dom = (p.website || "").trim();
+    if (dom) {
+      d.className = "mkl" + (p.precise ? "" : " loose");
+      d.style.cssText = `--ring:${col}`;
+      const img = document.createElement("img");
+      img.loading = "lazy"; img.alt = "";
+      img.src = `/logo?domain=${encodeURIComponent(dom)}&name=${encodeURIComponent(p.name || "")}`;
+      d.appendChild(img);
+    } else {
+      d.className = "mkr" + (isPf ? " sq" : isFund ? " di" : "");
+      const sz = isFund ? 15 : (p.score != null ? 13 : 10);
+      d.style.cssText = p.precise
+        ? `width:${sz}px;height:${sz}px;background:${col}${isFund ? ";box-shadow:0 0 0 5px rgba(194,97,79,.18)" : ""}`
+        : `width:${sz}px;height:${sz}px;background:transparent;border:2px dashed ${col};opacity:.75`;
+    }
     const m = new maplibregl.Marker({ element: d })
       .setLngLat([lon, lat])
       .setPopup(new maplibregl.Popup({ offset: 14, closeButton: false }).setHTML(
@@ -4276,6 +4399,9 @@ function initMap() {
     d.onclick = () => sideList([p], p.name);
     MLMARKERS.push({ marker: m, el: d, p });
   }
+  paintCountries(layer);
+  ML.on("zoomend", () => paintCountries(layer));
+
   sideList(layer, PLANONLY && planKeys.size
     ? `Your pipeline on the map (${layer.length} of ${Object.keys(DEALS).length} placeable)`
     : "Everything on the map");

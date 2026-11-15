@@ -1836,6 +1836,45 @@ def builder(handle: str):
     return out
 
 
+@app.get("/contacts")
+def contacts(limit: int = 24, names: str = ""):
+    """Who to contact, without a screen having been run first.
+
+    The call list was built only from the funds that survived a screen, so
+    before anyone typed a company into Ask it was a sentence telling them to
+    go and do that. The firms are known either way, and so are the people at
+    them - a screen changes the ORDER, not whether we hold a contact. This
+    answers the version of the question that does not need a raise: who is
+    at the funds we track, which the caller can narrow to their own pipeline
+    by passing names.
+
+    Nothing here is ranked against a thesis, and the UI says so rather than
+    implying this is a shortlist.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+    want = [n.strip() for n in names.split(",") if n.strip()] or _investor_pool()
+    want = want[:max(1, min(limit, 40))]
+    if not want:
+        return {"rows": [], "unranked": True}
+    def one(n):
+        # _safe returns (result, error). Slicing the tuple instead of the
+        # list gave every firm exactly two "people", one of which was None.
+        people, err = _safe(_people_for_fund, n)
+        return n, (people or []), err
+
+    with ThreadPoolExecutor(max_workers=8) as ex:
+        found = list(ex.map(one, want))
+    rows = [{"investor": name, "people": people[:6], "named": len(people),
+             "error": err} for name, people, err in found]
+    # Most-knowable first: a firm we can name somebody at is actionable, one
+    # we cannot is a lookup waiting to happen.
+    rows.sort(key=lambda r: -r["named"])
+    return {"rows": rows, "unranked": True,
+            "firms": len(rows),
+            "with_a_name": sum(1 for r in rows if r["named"]),
+            "people": sum(r["named"] for r in rows)}
+
+
 _WHEREAMI = {}
 
 
