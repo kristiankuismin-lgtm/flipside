@@ -5151,6 +5151,185 @@ function entityView() {
    evidence it was built from - so the drawer is both the draft and the trail.*/
 let BRIEF = null;
 
+/* ====================================================== SENDING THE DECK
+   The deck beside the thing that will carry it, the way a document looks
+   when you are about to send it to somebody: what you are sending on the
+   left, who it is going to and how on the right.
+
+   A compose link cannot carry an attachment - not mailto:, not Gmail's
+   compose URL. It can carry a link, so the deck goes to the server and the
+   email carries that.
+
+   What that link is, said on the panel rather than discovered by the
+   recipient: it is served by the machine this is running on. Anyone who can
+   reach that machine opens it; anyone who cannot, cannot. On a laptop at a
+   demo that is the room. The id is random so the link is not walkable, and
+   it is not a password: somebody forwarded it can open it, which is what a
+   link is for. */
+let DECK = null, SENDW = null, SENDFOR = "", SENDBRIEF = null;
+
+/* Repaint both halves and rebind. The panel is rebuilt rather than patched
+   because the deck arriving changes the whole right-hand side - the
+   headline, the link block and which buttons exist. */
+function paintSend() {
+  const w = SENDW;
+  if (!w || !w.isConnected || !SENDBRIEF) return;
+  const L = w.querySelector("#sendleft"), R = w.querySelector("#sendright");
+  if (!L || !R) return;
+  L.innerHTML = `<div class="dkhead">${SENDBRIEF.trail || ""}</div>
+    <div class="dkbody">${deckPreview()}</div>`;
+  R.innerHTML = sendPanel(SENDFOR, SENDBRIEF);
+  wireSend(w);
+}
+
+function wireSend(w) {
+  const close = () => { w.remove(); SENDW = null; };
+  w.querySelectorAll("#sdclose, #sdclose2").forEach(b => b.onclick = close);
+  w.querySelectorAll("#dkpick, #dkpick2").forEach(i => i.onchange = () => {
+    const f = i.files[0];
+    if (f) deckUpload(f);
+  });
+  const copy = w.querySelector("#sdcopy");
+  if (copy) copy.onclick = () => {
+    navigator.clipboard?.writeText(DECK.link);
+    copy.textContent = "Copied";
+    setTimeout(() => { copy.textContent = "Copy"; }, 1400);
+  };
+  const dl = w.querySelector("#sddl");
+  if (dl) dl.onclick = () => window.open(`${DECK.url}?download=1`, "_blank", "noopener");
+
+  const val = id => (w.querySelector(id) || {}).value || "";
+  const gm = w.querySelector("#cmail");
+  if (gm) gm.onclick = () => window.open(
+    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(val("#cto").trim())
+      }&su=${encodeURIComponent(val("#csub"))}&body=${encodeURIComponent(val("#cbody"))}`,
+    "_blank", "noopener");
+  const cp = w.querySelector("#ccopy");
+  if (cp) cp.onclick = () => {
+    navigator.clipboard?.writeText(val("#cbody"));
+    cp.textContent = "Copied"; setTimeout(() => { cp.textContent = "Copy"; }, 1400);
+  };
+  const mt = w.querySelector("#cmailto");
+  if (mt) mt.onclick = () => {
+    // Assigning location.href to a mailto: is silently ignored in sandboxed
+    // contexts. Clicking a real anchor is not.
+    const a = document.createElement("a");
+    a.href = `mailto:${encodeURIComponent(val("#cto").trim())}?subject=${
+      encodeURIComponent(val("#csub"))}&body=${encodeURIComponent(val("#cbody"))}`;
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+  // Dropping a file anywhere on the left half is the obvious gesture.
+  const L = w.querySelector("#sendleft");
+  if (L) {
+    L.ondragover = e => { e.preventDefault(); L.classList.add("over"); };
+    L.ondragleave = () => L.classList.remove("over");
+    L.ondrop = e => {
+      e.preventDefault(); L.classList.remove("over");
+      const f = e.dataTransfer?.files?.[0];
+      if (f) deckUpload(f);
+    };
+  }
+}
+
+async function deckUpload(file) {
+  DECK = { uploading: true, name: file.name };
+  paintSend();
+  const fd = new FormData();
+  fd.append("file", file, file.name);
+  try {
+    const d = await (await fetch("/deck", { method: "POST", body: fd })).json();
+    DECK = d.error ? { error: d.error } : { ...d, link: location.origin + d.url };
+  } catch (e) { DECK = { error: String(e.message) }; }
+  paintSend();
+}
+
+function deckPreview() {
+  if (!DECK) return `<div class="dkempty">
+      <div class="dkicon">+</div>
+      <p>Drop your deck here, or choose a file.<br>
+        <span class="sub">PDF, PowerPoint, Keynote, a spreadsheet — up to 25 MB.</span></p>
+      <label class="btn pri"><input type="file" id="dkpick" hidden
+        accept=".pdf,.pptx,.ppt,.key,.xlsx,.csv">Choose a file</label>
+    </div>`;
+  if (DECK.uploading) return `<div class="dkempty"><span class="spin"></span>
+      <p>Reading ${esc(DECK.name)}…</p></div>`;
+  if (DECK.error) return `<div class="dkempty">
+      <p><b>That did not go.</b> ${esc(DECK.error)}</p>
+      <label class="btn"><input type="file" id="dkpick" hidden>Try another file</label>
+    </div>`;
+
+  const o = DECK.outline || {};
+  if (o.render === "browser") {
+    return `<iframe class="dkframe" src="${esc(DECK.url)}#view=FitH"
+      title="${esc(DECK.name)}"></iframe>`;
+  }
+  if (o.render === "outline" && (o.pages || []).length) {
+    return `<div class="dkout">
+      <div class="dkoutnote sub">${o.page_count} ${o.kind === "spreadsheet"
+        ? "rows" : "slides"}, read as text. A browser cannot render a
+        PowerPoint and nothing here turns one into pictures — this is what
+        it says, which is what the screen read your company off.</div>
+      ${o.pages.map((p, i) => `<div class="dkslide">
+        <div class="dknum">${esc(p.where)}</div>
+        ${p.lines.map((l, j) => `<div class="${j ? "dkl" : "dkt"}">${esc(l)}</div>`).join("")}
+      </div>`).join("")}</div>`;
+  }
+  return `<div class="dkempty"><p><b>${esc(DECK.name)}</b><br>
+    <span class="sub">${esc(o.error || "Nothing in it we can show. The file is intact and the link still works.")}</span></p></div>`;
+}
+
+function sendPanel(investor, brief) {
+  const ready = DECK && DECK.link;
+  return `<div class="sendhd">
+      <h3>${ready ? "Your deck is ready to send" : `Sending to ${esc(investor)}`}</h3>
+      <div class="s">${ready
+        ? `${esc(investor)} will get a link to ${esc(DECK.name)}`
+        : "Attach the deck and the email will carry a link to it"}</div>
+      <button class="neox" id="sdclose" title="Close">×</button>
+    </div>
+    <div class="sendbody">
+      ${ready ? `<div class="sendcard">
+        <div class="sendrow"><span class="k">Deck</span>
+          <span class="v">${esc(DECK.name)}</span>
+          <span class="sub">${(DECK.bytes / 1024).toFixed(0)} KB</span></div>
+        <div class="sendlabel">Link to the deck</div>
+        <div class="sendlink">
+          <input id="sdlink" readonly value="${esc(DECK.link)}">
+          <button class="btn sm" id="sdcopy" title="Copy the link">Copy</button>
+          <button class="btn sm" id="sddl" title="Save the file">Save</button>
+        </div>
+        <div class="sendwarn">Served by this machine. Anyone who can reach it
+          can open the link, and anyone who cannot — a recipient on the open
+          internet — cannot. It is not a public file host and does not
+          pretend to be one.</div>
+      </div>` : ""}
+
+      <div class="sendlabel">To</div>
+      <input id="cto" placeholder="name@fund.com" autocomplete="off">
+      <div class="sendlabel">Subject</div>
+      <input id="csub" value="${esc(brief.subject || "")}">
+      <div class="sendlabel">Message</div>
+      <textarea id="cbody" rows="9">${esc(bodyWithLink(brief.body || ""))}</textarea>
+    </div>
+    <div class="sendacts">
+      <button class="btn pri" id="cmail">${GMAIL_ICON}Open in Gmail</button>
+      <button class="btn" id="ccopy">Copy</button>
+      <button class="btn" id="cmailto">Other mail app</button>
+      ${!ready ? `<label class="btn"><input type="file" id="dkpick2" hidden
+        accept=".pdf,.pptx,.ppt,.key,.xlsx,.csv">Attach the deck</label>` : ""}
+      <button class="btn" id="sdclose2" style="margin-left:auto">Close</button>
+    </div>`;
+}
+
+/* The link goes in the message, once, and is kept in step with the file. */
+function bodyWithLink(body) {
+  const stripped = String(body).replace(/\n*The deck:.*$/s, "").trimEnd();
+  if (!DECK || !DECK.link) return stripped;
+  const sig = stripped.endsWith("Best,") ? "\n" : "\n\n";
+  return stripped.replace(/\n*Best,\s*$/, "")
+    + `${sig}The deck: ${DECK.link}\n\nBest,`;
+}
+
 /* The deck, carried from the brief to the email.
    A compose link cannot carry an attachment - neither mailto: nor Gmail's
    compose URL accepts one, and no amount of wanting changes that. What the
@@ -5251,30 +5430,15 @@ async function openBrief(investor) {
         <span>${esc(e.detail || e.claim)}</span></div>` : ""}</div>`;
   }).join("");
 
-  w.innerHTML = `<div class="composebox wide" onclick="event.stopPropagation()">
-    <div class="sidehd"><h3>Slush brief — ${esc(investor)}</h3>
-      <div class="s">${esc(F?.company || "")} \u00b7 ${esc(F?.stage || "")}</div></div>
-    <div style="padding:15px">
-      <div class="btrail">${trail}</div>
-      <div class="fld" style="margin:13px 0 11px"><label>To</label>
-        <input id="cto" placeholder="name@fund.com" style="width:100%"></div>
-      <div class="fld" style="margin-bottom:11px"><label>Subject</label>
-        <input id="csub" value="${esc(b.subject)}" style="width:100%"></div>
-      <div class="fld"><label>Message</label>
-        <textarea id="cbody" rows="8" style="width:100%;border:1px solid var(--line2);
-          border-radius:8px;padding:11px;font:13px/1.65 var(--sans)">${esc(
-            "Hi,\n\n" + b.body + "\n\nBest,")}</textarea></div>
-      <div style="display:flex;gap:8px;margin-top:13px;flex-wrap:wrap">
-        <button class="btn pri" id="cmail">${GMAIL_ICON}Open in Gmail</button>
-        <button class="btn" id="ccopy">Copy</button>
-        <button class="btn" id="cmailto">Other mail app</button>
-        <button class="btn" id="bclose" style="margin-left:auto">Close</button>
-      </div>
-      ${deckRow()}
-    </div></div>`;
+  const trailHtml = `<div class="btrail">${trail}</div>`;
+  SENDW = w; SENDFOR = investor; SENDBRIEF = { ...b, trail: trailHtml };
+
+  w.innerHTML = `<div class="sendbox" onclick="event.stopPropagation()">
+    <div class="sendleft" id="sendleft"></div>
+    <div class="sendright" id="sendright"></div>
+  </div>`;
+  paintSend();
   w.onclick = close;
-  w.querySelector("#bclose").onclick = close;
-  wireDeck(w);
   const val = id => w.querySelector(id).value;
   w.querySelector("#cmail").onclick = () => window.open(
     `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(val("#cto").trim())

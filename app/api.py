@@ -1735,6 +1735,47 @@ def builders(limit: int = 40, pages: int = 10, days: int = 180):
     return out
 
 
+@app.post("/deck")
+async def deck_put(file: UploadFile = File(...)):
+    """Hold the deck so the email can carry a link to it.
+
+    A compose link cannot carry an attachment. It can carry a URL, and this
+    is where that URL points - at the machine this is running on, which the
+    panel says out loud rather than letting a founder discover it.
+    """
+    from . import deck as DK
+    body = await file.read()
+    try:
+        rec = DK.put(file.filename or "deck", body)
+    except ValueError as e:
+        return JSONResponse({"error": str(e)}, status_code=200)
+    rec["url"] = f"/deck/{rec['id']}"
+    rec["outline"] = DK.outline(rec["name"], body)
+    return rec
+
+
+@app.get("/deck/{did}")
+def deck_get(did: str, download: int = 0):
+    from . import deck as DK
+    rec = DK.get(did)
+    if not rec:
+        return JSONResponse({"error": "That link has expired or never existed."},
+                            status_code=404)
+    disp = "attachment" if download else "inline"
+    return Response(rec["body"], media_type=rec["mime"], headers={
+        "Content-Disposition": f'{disp}; filename="{rec["name"]}"',
+        "Cache-Control": "private, max-age=3600"})
+
+
+@app.get("/deck/{did}/outline")
+def deck_outline(did: str):
+    from . import deck as DK
+    rec = DK.get(did)
+    if not rec:
+        return JSONResponse({"error": "not found"}, status_code=404)
+    return {"id": did, "name": rec["name"], **DK.outline(rec["name"], rec["body"])}
+
+
 @app.get("/scout-signal")
 def scout_signal(name: str, id: str = ""):
     """What has happened to one watched person lately.
