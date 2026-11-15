@@ -1,5 +1,11 @@
 # Flipside
 
+### 🔗 [**Live demo → spry-rowan-97bmq8o.tmp.now**](https://spry-rowan-97bmq8o.tmp.now)
+*(cache-only snapshot — a point-in-time harvest, not a live feed; no
+Cala/Context.dev calls are made from the public URL)*
+
+---
+
 **Every tool tells a founder who to pitch. None tells them who not to.**
 
 You send your deck, your metrics and your customer pipeline to a fund that is
@@ -8,10 +14,6 @@ answers the question first — *who is out* — and only then *who is left*.
 
 One audience: a founder raising a round. Built on [Cala](https://cala.ai) for
 Junction 2026.
-
-**Live demo: https://spry-rowan-97bmq8o.tmp.now** (cache-only snapshot — no
-live Cala/Context.dev calls from a public URL, so the figures on screen are
-a point-in-time harvest, not a live feed).
 
 | | The question | Where it is answered |
 |---|---|---|
