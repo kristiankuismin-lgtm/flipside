@@ -39,7 +39,10 @@ def main() -> int:
     funds = [i for n in api._investor_pool() for i in by_name.get(norm.name(n), [])]
     tier("funds we rank", funds)
 
-    # 2. The types we have never fetched a single one of. They are cheap -
+    # 2. Every person we hold: a person is a contact, and contacts are the point.
+    tier("people", [k for k, v in idx.items() if v.get("entity_type") == "Person"])
+
+    # 3. The types we have never fetched a single one of. They are cheap -
     # an Award or an EducationalInstitution is a small entity - and they are
     # what makes two people comparable: the school they share, the prize
     # they both won, the round they were both in.
@@ -47,9 +50,6 @@ def main() -> int:
          [k for k, v in idx.items() if v.get("entity_type") in
           ("FundingRound", "EducationalInstitution", "Award", "Event",
            "Industry", "FundingRoundTranche", "Exchange", "CorporateEvent")])
-
-    # 3. Every person we hold: a person is a contact, and contacts are the point.
-    tier("people", [k for k, v in idx.items() if v.get("entity_type") == "Person"])
 
     # 4. The portfolio companies of the funds we rank. Their own records
     # carry HAS_HEADQUARTERS_IN and OPERATES_IN_INDUSTRY, which is what the
