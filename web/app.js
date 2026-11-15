@@ -409,8 +409,8 @@ function syndicateBlock() {
   if (SYN.loading) return section("fsyn", "Who has been in their rounds", "",
     `<div class="msg"><span class="spin"></span>Assembling syndicates from the round graph…</div>`);
   if (SYN.error || !(SYN.syndicates || []).length) return section("fsyn", "Who has been in their rounds", "",
-    `<div class="msg">No fund on this list both leads at your stage and has funds that
-      repeatedly follow it. That is a finding about this list, not an empty state.</div>`);
+    `<div class="msg">No fund here both leads at your stage and has
+      followers. A finding about this list, not an empty state.</div>`);
 
   const backers = SYN.your_backers || [];
   const anyWarm = SYN.syndicates.some(s => (s.warm_paths || []).length);
@@ -537,10 +537,8 @@ function reachView() {
     the funds that survived it.</div>`;
   return `<div class="reachhd">
       <div><h2>${esc(F.company)} · ${PICKED.size} fund${PICKED.size === 1 ? "" : "s"} you picked</h2>
-      <p class="sub">Who to call at each one, and where they are. The order is
-        the fund's score plus what we know about the person — a partner who
-        has been in your market, has built something, has been there long
-        enough to champion a cheque, and can introduce you onward.</p></div>
+      <p class="sub">Ordered by the fund's score, then what we know about
+        the person.</p></div>
       <button class="btn" data-goto="founder">Back to the screen</button>
     </div>
     <div class="reachgrid">
@@ -958,10 +956,9 @@ function regBlock() {
           ? `<i>touches ${l.industries_touched}</i>` : ""}</span>`).join("")}
       ${LAWS.named > laws.length
         ? `<span class="dchip more">+${LAWS.named - laws.length}</span>` : ""}</div>
-     <div class="sub" style="margin-top:10px">From Cala's AFFECTS_INDUSTRY
-       edges. Ordered by how few industries each law touches, because a law
-       that reaches one is specific to yours and one that reaches twenty is
-       the weather.</div>`);
+     <div class="sub" style="margin-top:10px">Cala AFFECTS_INDUSTRY edges.
+       A law touching one industry is specific to yours; one touching twenty
+       is the weather.</div>`);
 }
 
 function launchPane() {
@@ -1037,9 +1034,7 @@ function enrichDrawer() {
       ${(w?.skills || []).length ? `<div class="sech"><h3>Skills on record</h3></div>
         <div class="sub">${w.skills.map(esc).join(" · ")}</div>` : ""}
       <div class="emptywhy" style="margin-top:var(--s3)">
-        <b>No phone number and no email.</b> Cala's Person entity has no such
-        property, and the enrichment carries social and website URLs only.
-        This is everything either graph holds, not everything we asked for.
+        <b>No phone and no email.</b> Neither graph carries one.
       </div>`;
   return `<div class="scrim on" id="enscrim"><div class="composebox wide"
       onclick="event.stopPropagation()">
@@ -1362,15 +1357,11 @@ function scoutBacktestBlock() {
       ${wrong.length ? `<div class="emptywhy" style="margin-top:var(--s2)">
         <b>${wrong.map(w => esc(w.signal)).join(", ")} currently points the
         wrong way.</b> In this sample people with it founded again
-        <i>less</i> often. At these counts that is as likely to be noise as
-        signal — which is exactly why the weight stays as it is rather than
-        being tuned to twelve people.</div>` : ""}
-      <p class="sub" style="margin:var(--s2) 0 0;line-height:1.7">
-        Method: pick a year, score each person on evidence dated before it
-        only, then look at who founded something after. Anything undated is
-        excluded rather than assumed early — a FOUNDED edge with no date
-        might be from 2004 or last month, and guessing would be grading our
-        own homework.</p>
+        <i>less</i> often. At this sample that is as likely noise as signal,
+        so the weight is unchanged.</div>` : ""}
+      <p class="sub" style="margin:var(--s2) 0 0">
+        Scored on evidence dated before the cutoff only. Undated roles are
+        excluded, not assumed early.</p>
     </div>`);
 }
 
@@ -1556,21 +1547,11 @@ function scoutsView() {
               already on your watchlist.</div>`)
     + scoutBacktestBlock()
     + `<div class="evfoot">
-        <b>What this reads, and what it will not.</b>
-        <span style="display:block;max-width:74ch;line-height:1.7;margin-top:6px">
-          Companies founded, roles held and their dates, from Cala; and the open
-          news index, when it names someone. A watched person is re-read on a
-          timer and what you see is the <i>difference</i> since last time — the
-          first check is a baseline and raises nothing, because everything
-          about them is new to us and none of it is new to the world.
-          Nothing is emailed: there is no mail to send it from, and saying
-          otherwise would be the easiest sentence here to write and the least
-          true. It does not read LinkedIn — that is against their terms — and
-          it does not read anyone's mail. Ranked on
-          ${c.people_with_edges} people of the ${c.people_in_cache} we hold a name
-          for. Whether the order predicts anything is tested above, not
-          asserted here.
-        </span></div>`;
+        Founding dates and roles from Cala, plus the open news index.
+        A watched person is re-read on a timer and you see the difference
+        since last time; the first check is a baseline. Nothing is emailed.
+        No LinkedIn, no mailbox. Ranked on ${c.people_with_edges} of
+        ${c.people_in_cache} people we hold a name for.</div>`;
 }
 
 function investorView() {
@@ -1621,10 +1602,8 @@ function investorView() {
           <span class="sc">${c.score}</span></button>`).join("")}</div>`);
     })()}
     ${(CONV.orphans || []).length ? "" : `<div class="evfoot">
-      <b>What this cannot do.</b> The orphan detector — companies whose
-      insiders stopped — never fires, because Cala holds no headcount series
-      for private companies to confirm distress against. It is in the product
-      saying so rather than quietly returning nothing.</div>`}`;
+      <b>No orphan detection.</b> Cala holds no headcount series for private
+      companies, so distress cannot be confirmed.</div>`}`;
 }
 
 function openConviction(name) {
@@ -2125,9 +2104,8 @@ function founderEntity() {
         ${co.what ? `<div class="sb" style="color:var(--faint);font-size:11.5px">${esc(co.what.slice(0, 120))}</div>` : ""}</div>`).join("")}</div>`);
   }
   if (TAB === 4) {
-    body += `<p class="lede">Every number on this page is computed from Cala's knowledge graph.
-      Text is generated only where the figures already exist — a sentence containing a number the
-      metrics do not support is rejected before it is shown.</p>`
+    body += `<p class="sub">Every figure computed from Cala. Generated text
+      carrying an unsupported number is rejected before display.</p>`
       + Object.entries(s).filter(([, sig]) => sig.evidence?.length).map(([k, sig]) =>
         `<div class="card" style="margin-bottom:9px"><h4>${esc(SIGLBL[k] || k)}</h4>${evidence(sig.evidence)}</div>`).join("")
       + (x.notes?.length ? `<div class="card"><h4>Missing data</h4><div class="sub">reported, not hidden</div>
@@ -2764,10 +2742,8 @@ function teamPanel() {
         </div>
         <button class="btn sm" data-fsname="${esc(p.name)}">Signal</button>
       </div>`).join("")}`).join("")}
-    <div class="teamfoot">Every line is quoted from the page, which is the
-      company speaking about itself. Names and roles only — contact details are
-      dropped even where the page shows them, and no profile aggregator or
-      social network is read.</div>
+    <div class="teamfoot">Quoted from the firm's own page. Names and roles
+      only.</div>
   </div>`;
 }
 
@@ -2776,21 +2752,12 @@ function signalView() {
   return `<div class="fswrap">
     <div class="fshd">
       <h2>Who looks like a founder before they are one?</h2>
-      <p>The same graph, read a third way. Not who should back you, and not
-         who insiders are backing — who has the pattern: has built before,
-         has operated senior, has angel cheques out, ships in public.</p>
+      <p>Has built before, operated senior, written angel cheques, ships in
+         public.</p>
       <div class="emptywhy" style="margin-bottom:var(--s3)">
-        <b>This reading has no backtest. The other two do.</b>
-        Insider conviction is measured on 498 companies against stage
-        progression; the founder screen rests on lead rates that are
-        observable facts. This one is a weighted opinion about what the
-        pattern looks like, and nothing here proves it predicts who founds
-        a company.
-        <span class="sub">Testing it needs each person's state <i>before</i>
-        they founded something, then what they went on to do — a time-sliced
-        person graph. Of the 227 people cached, one carries the
-        relationships at all, so the sample does not exist yet. Said plainly
-        rather than left for a judge to ask.</span>
+        <b>No backtest.</b> The other two readings have one; this is a
+        weighted opinion. Testing it needs each person's state before they
+        founded, and one of 227 cached people carries those edges.
       </div>
     </div>
     <div class="fssearch">
@@ -3305,9 +3272,7 @@ function fundView() {
 function recordTab(f) {
   const d = f.depth || {}, cov = d.coverage || {};
   if (!cov.harvested) return `<div class="emptywhy"><b>Not harvested yet.</b>
-    This profile was assembled from the edges a feature asked for. The full
-    record — every property and every relationship this entity declares — is
-    fetched by the harvester, which works through the fund list first.</div>`;
+    Assembled from the edges a feature asked for, not the full record.</div>`;
 
   const facts = (d.facts || []).filter(x => x.key !== "website");
   const ids = Object.entries(d.identifiers || {});
@@ -3510,10 +3475,9 @@ function renderAlerts() {
 }
 
 function alertRulesPane() {
-  return `<div class="sub" style="margin-bottom:12px;line-height:1.65;max-width:60ch">
-      Rules run against this screen. The one that matters is the first:
-      a competitor raising is what turns a fund you could pitch into one
-      you cannot.</div>
+  return `<div class="sub" style="margin-bottom:12px">
+      A competitor raising is what turns a fund you could pitch into one you
+      cannot.</div>
     <div class="alrules">${(ALERTRULES || []).map(r => `
       <button class="alrule ${ALERTON?.has(r.id) ? "on" : ""}" data-alrule="${esc(r.id)}">
         <span class="sev ${esc(r.severity)}"></span>
@@ -5124,13 +5088,9 @@ function initMap() {
     MLMARKERS.forEach(({ el }) => el.style.opacity = ".25");
     $("#sidet").textContent = "Find a person";
     $("#sides").textContent = "People are searched, not plotted";
-    $("#sideb").innerHTML = `<div class="msg" style="padding:22px;text-align:left;line-height:1.7">
-      Cala holds no address on a Person, and the Slush participant list is
-      made of companies — all 2,000 of them. So there is no people layer to
-      draw from.<br><br>
-      Type a name and we resolve it the only way the graph allows:
-      <b>person → founded / works at → company → headquarters</b>, and the pin
-      names the company that produced it.
+    $("#sideb").innerHTML = `<div class="msg" style="padding:22px;text-align:left">
+      Cala holds no address on a Person, so a name resolves as
+      <b>person → company → headquarters</b> and the pin names the company.
       <div class="ppsug">Try ${["Ilkka Paananen", "Niklas Zennstrom", "Miki Kuusi"]
         .map(n => `<button class="btn sm" data-ppq="${esc(n)}">${esc(n)}</button>`).join("")}</div>
       </div>`;
@@ -5286,10 +5246,8 @@ function accuracyView() {
       "the round architect does not predict the next round",
       `<div class="emptywhy" style="max-width:none">
         <b>We tested our own most distinctive feature and it failed.</b>
-        "Who has been in rounds this fund led" is a record. We asked whether
-        it also forecasts — build the graph from rounds before a cutoff, then
-        check whether the top predicted co-investor actually turned up in
-        rounds that fund led afterwards.
+        Built from rounds before a cutoff, then checked against who actually
+        turned up after.
         <div class="tbl" style="margin:11px 0">
           <table><thead><tr><th>Cutoff</th><th class="num">Held-out rounds</th>
           <th class="num">Architect</th><th class="num">Co-investment baseline</th>
@@ -5301,10 +5259,9 @@ function accuracyView() {
           <tr><td>2025-01</td><td class="num">25</td><td class="num">0.0%</td>
             <td class="num">8.0%</td><td class="num" style="color:var(--red)">−8.0pp</td></tr>
           </tbody></table></div>
-        Below the naive baseline at every cutoff. 63 held-out rounds across 21
-        leads is thin, so this is "not demonstrated" rather than "disproven" —
-        but it is certainly not predictive, and the product no longer says it
-        is. The co-investment record stayed; the forecast came out.
+        Below the naive baseline at every cutoff. 63 held-out rounds across
+        21 leads is thin, so: not demonstrated. The record stayed, the
+        forecast came out.
         <span class="sub">Run it yourself: <code>python backtest_syndicate.py</code></span>
       </div>`)
   + section("acc3", "Controlled for cap-table size",
@@ -5952,11 +5909,8 @@ function errorPanel(msg, what) {
       <b>Cala credits are exhausted.</b> Live lookups return
       <code>402 Insufficient balance</code>, so ${esc(what || "this profile")}
       cannot be opened right now.<br><br>
-      Everything already cached still works: the founder screen, the round
-      architect, outreach briefs, the map and near-me all read from local
-      data. Top up at
-      <a href="https://console.cala.ai" target="_blank" rel="noopener">console.cala.ai</a>
-      and this page works again with no other change.</div>`;
+      Everything cached still works. Top up at
+      <a href="https://console.cala.ai" target="_blank" rel="noopener">console.cala.ai</a>.</div>`;
   }
   return `<div class="msg">Could not open ${esc(what || "this")}.<br>
     <span style="color:var(--dim)">${esc(txt)}</span></div>`;
@@ -6229,10 +6183,8 @@ function sendPanel(investor, brief) {
           <button class="btn sm" id="sdcopy" title="Copy the link">Copy</button>
           <button class="btn sm" id="sddl" title="Save the file">Save</button>
         </div>
-        <div class="sendwarn">Served by this machine. Anyone who can reach it
-          can open the link, and anyone who cannot — a recipient on the open
-          internet — cannot. It is not a public file host and does not
-          pretend to be one.</div>
+        <div class="sendwarn">Served by this machine, so only people who can
+          reach it can open the link.</div>
       </div>` : ""}
 
       <div class="sendlabel">To</div>
@@ -6534,12 +6486,10 @@ function founderSignalBody() {
                token in <code>.env</code> and the limit goes from 60 an hour to
                5,000:<br>
                <code style="display:inline-block;margin-top:6px">GITHUB_TOKEN=ghp_…</code>
-               <span class="sub">Any read-only personal access token works; it needs
-               no scopes at all. Until then this component is counted as unknown,
-               not as zero — it does not drag the score down.</span>`
-            : `<b>No GitHub account matched this name with enough confidence.</b>
-               A same-name account is not evidence. We decline rather than credit
-               someone else's work to this person.`}
+               <span class="sub">Any read-only token, no scopes. Counted as
+               unknown until then, not as zero.</span>`
+            : `<b>No GitHub account matched confidently.</b> A same-name
+               account is not evidence.`}
         </div>`))
   + section("fs-ev", "Everything this reads", "straight from Cala's Person graph",
       `<div class="hl">${(f.groups || []).map(g => `<div class="hlc">
@@ -6597,9 +6547,8 @@ function publicRecordTab(name, rounds) {
         ${url ? ` · <a href="${esc(url)}" target="_blank" rel="noopener">record</a>` : ""}</div>
     </div>`).join("")}</div>`);
   else out += section("pr-reg", "Registered entity", "",
-    `<div class="card"><div class="sub">No register entry matched this name closely enough
-      to attribute. A near-miss is worse than nothing — GLEIF's name search once returned a
-      Swedish company for "Abridge".</div></div>`);
+    `<div class="card"><div class="sub">No register entry matched closely
+      enough to attribute.</div></div>`);
 
   if ((REG.form_d || []).length) out += section("pr-sec", "SEC Form D filings",
     `${REG.form_d.length} on record`,

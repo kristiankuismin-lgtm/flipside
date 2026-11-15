@@ -14,8 +14,8 @@
   --amber:#90610a; --amber-bg:#fcf3de; --amber-line:#ecd9a6;
   --red:#b03628;  --red-bg:#fdece9; --red-line:#f3c7bf;
   --blue:#365e9e; --blue-bg:#eaf0fb; --purple:#67499c; --purple-bg:#f1ecfb;
-  --sh:0 1px 2px rgba(28,26,23,.05);
-  --sh2:0 8px 28px rgba(28,26,23,.12);
+  --sh:0 1px 1px rgba(28,26,23,.04);
+  --sh2:0 1px 2px rgba(28,26,23,.06),0 12px 32px -8px rgba(28,26,23,.14);
   --mono:ui-monospace,"SF Mono",Menlo,monospace;
   --sans:Inter,"Inter var",-apple-system,BlinkMacSystemFont,"Segoe UI",
     system-ui,"Helvetica Neue",sans-serif;
@@ -85,7 +85,9 @@ a:hover{text-decoration:underline}
 .crumb button{background:none;border:0;color:var(--faint);padding:0}
 .crumb button:hover{color:var(--ink);text-decoration:underline}
 .grow{flex:1}
-.btn{background:var(--panel);border:1px solid var(--line2);border-radius:7px;
+.btn:active{transform:translateY(.5px)}
+.btn{background:var(--panel);border:1px solid var(--line2);border-radius:8px;
+  transition:background .12s,border-color .12s,transform .06s;
   padding:6px 12px;font-size:13px;color:var(--dim);box-shadow:var(--sh)}
 .btn:hover{background:var(--hover);color:var(--ink)}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
@@ -172,11 +174,11 @@ input:focus,select:focus{outline:none;border-color:var(--accent);
 .stat .v.mono{font-family:var(--mono);font-size:25px;letter-spacing:-.03em}
 
 /* ---------------- sections ---------------- */
-.sec{margin:34px 0 0}
+.sec{margin:38px 0 0}
 .sech{display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;user-select:none}
 .sech .cv{color:var(--faint);font-size:10px;transition:transform .15s}
 .sech.closed .cv{transform:rotate(-90deg)}
-.sech h3{margin:0;font-size:16px;font-weight:620;letter-spacing:-.02em}
+.sech h3{margin:0;font-size:16.5px;font-weight:650;letter-spacing:-.025em}
 .sech .hint{margin-left:auto;font-size:12px;color:var(--faint)}
 .secb.closed{display:none}
 
@@ -188,10 +190,12 @@ input:focus,select:focus{outline:none;border-color:var(--accent);
   overflow-x:auto;overflow-y:hidden;box-shadow:var(--sh);
   -webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse;min-width:620px}
-th{text-align:left;font:10px var(--mono);letter-spacing:.09em;text-transform:uppercase;
+th{text-align:left;font:9.5px var(--mono);letter-spacing:.11em;text-transform:uppercase;
   color:var(--faint);font-weight:500;padding:11px 16px;background:var(--panel2);
   border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:var(--s2);border-bottom:1px solid var(--line);vertical-align:middle}
+td{padding:13px var(--s2);border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{transition:background .1s}
+tbody tr:last-child td{border-bottom:0}
 tbody tr:last-child td{border-bottom:0}
 tbody tr{cursor:pointer}
 tbody tr:hover{background:var(--panel2)}
@@ -254,6 +258,11 @@ table{table-layout:auto}
 .mailtext:focus{outline:0;border-color:var(--accent)}
 .mailacts{display:flex;align-items:center;gap:9px;margin-top:10px;flex-wrap:wrap}
 .mailacts .sub{flex:1;min-width:16ch}
+
+/* One hover rule for every row surface, so a list feels the same
+   everywhere instead of each view inventing its own. */
+.clr:hover,.convrow:hover,.mvrow:hover,.scrow:hover{background:var(--hover)}
+.convrow,.mvrow,.scrow{transition:background .1s}
 
 /* ---------------- call list, as a worksheet ---------------- */
 .calltbl table{min-width:880px}
@@ -710,13 +719,15 @@ tbody tr.kbd{background:var(--accent-bg)!important;
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);
   margin-bottom:var(--s3)}
 .kpi{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;
-  padding:14px 16px;border:1px solid var(--line);border-radius:11px;background:var(--panel);
-  box-shadow:var(--sh);cursor:pointer;font:inherit}
-.kpi:hover{border-color:var(--line2);background:var(--hover)}
+  padding:15px 17px;border:1px solid var(--line);border-radius:12px;background:var(--panel);
+  box-shadow:var(--sh);cursor:pointer;font:inherit;
+  transition:border-color .12s,background .12s,transform .12s}
+.kpi:hover{border-color:var(--line2);background:var(--hover);transform:translateY(-1px)}
 .kpi.on{border-color:var(--accent);background:var(--accent-bg)}
-.kpi .k{font:10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
-.kpi .v{font:25px/1.1 var(--mono);font-weight:600;color:var(--ink);
-  font-variant-numeric:tabular-nums}
+.kpi .k{font:10px var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint)}
+.kpi .v{font:30px/1.05 var(--sans);font-weight:600;letter-spacing:-.025em;
+  color:var(--ink);font-variant-numeric:tabular-nums;margin-top:1px}
 .kpi.on .v{color:var(--accent-ink)}
 .kpi .why{font-size:11px;color:var(--faint);line-height:1.45}
 .filterline{display:flex;align-items:center;gap:9px;margin:-6px 0 16px;
