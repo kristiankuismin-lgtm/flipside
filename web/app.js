@@ -3273,6 +3273,19 @@ async function openPerson(id, name) {
               - c.timeline.length} more have none.</div>`
         : "")}
 
+      ${block("What they have in common with other people here",
+        (c.affinity || []).length
+        ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
+             Weaker than a shared cap table, which means two people have done
+             business together. These mean they have been in the same room —
+             and the same year is a different thing from the same decade.</div>
+           <div class="pclist">${c.affinity.map(a => `<div class="pcrow">
+            <b>${esc(a.name)}</b>
+            ${a.via.some(v => v.overlapped) ? badge("same year", "green") : ""}
+            <div class="what">${esc(a.says)}</div></div>`).join("")}</div>`
+        : "", `${(c.affinity || []).length} route${
+          (c.affinity || []).length === 1 ? "" : "s"}`)}
+
       ${block("Who can introduce you to them", (c.reachable_through || []).length
         ? `<div class="sub" style="line-height:1.7;margin-bottom:var(--s2)">
              These investors sat in the rounds of what they built. They have

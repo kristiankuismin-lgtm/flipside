@@ -54,6 +54,15 @@ WORTH_VISITING = [
     "ResearchInstitution",
     "EducationalInstitution",
     "Event",
+    # Types we hold thousands of stubs for and had never fetched one of.
+    # A FundingRound is not a PrivateCompanyFundingRound: it carries the
+    # participant list with is_lead, which is the co-investor graph. The
+    # rest are the nodes that make people comparable to each other - the
+    # school two partners share, the award, the industry.
+    "Award",
+    "Industry",
+    "FundingRoundTranche",
+    "Exchange",
 ]
 RANK = {t: i for i, t in enumerate(WORTH_VISITING)}
 

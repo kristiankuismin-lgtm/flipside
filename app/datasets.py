@@ -15,6 +15,12 @@ answer something Cala's graph cannot:
   PRH (Finland)      Finnish company register: incorporation, status, names.
   Brreg (Norway)     Norwegian equivalent.
 
+Finland, Norway and GLEIF moved to registry.py when that grew into a
+per-country layer - Denmark, France and Estonia live there too. The
+functions here stay as the names the rest of the app already calls, and
+delegate, so there is one implementation of each register rather than two
+that can drift apart.
+
 Everything is cached on disk; all of these ask for an identifying User-Agent
 and we give one.
 """

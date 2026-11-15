@@ -52,7 +52,16 @@ def main() -> int:
                     port.append(x["id"])
     tier("portfolio of the funds we rank", port)
 
-    # 3. Funding rounds, for their amounts.
+    # 3. The types we have never fetched a single one of. They are cheap -
+    # an Award or an EducationalInstitution is a small entity - and they are
+    # what makes two people comparable: the school they share, the prize
+    # they both won, the round they were both in.
+    tier("types never fetched",
+         [k for k, v in idx.items() if v.get("entity_type") in
+          ("FundingRound", "EducationalInstitution", "Award", "Event",
+           "Industry", "FundingRoundTranche", "Exchange", "CorporateEvent")])
+
+    # 4. Funding rounds, for their amounts.
     #
     # The product has been telling people that pre-emption detection is
     # starved because only 58 of 837 round records carry an amount. That

@@ -1945,6 +1945,58 @@ def call_list(req: Req):
     return out
 
 
+_AFFINITY: dict = {}
+
+
+def _affinity_index():
+    """Who shares a school, a board, an award or a stage with whom.
+
+    Rebuilt when the cache grows, like every other derived index here.
+    """
+    from . import affinity as AF, cache_index
+    idx = cache_index.build()
+    if _AFFINITY.get("n") == len(idx):
+        return _AFFINITY["net"]
+    net = AF.index(e for e in idx.values() if e.get("entity_type") == "Person")
+    _AFFINITY.update(n=len(idx), net=net)
+    return net
+
+
+@app.get("/affinity/{entity_id}")
+def affinity_routes(entity_id: str, limit: int = 20):
+    """Introductions that are not made of money.
+
+    The warm path a founder already has is a shared cap table. This is
+    everything else the graph holds about people: the board they sit on
+    together, the prize they both won, the school they both went to.
+    """
+    from . import affinity as AF
+    rows = AF.routes(entity_id, _affinity_index(), limit=limit)
+    return {"id": entity_id, "routes": rows,
+            "sentences": [AF.phrase(r) for r in rows[:6]],
+            "weaker_than": "a shared cap table, which means they have done "
+                           "business together; these mean they have been in "
+                           "the same room."}
+
+
+@app.get("/registry/country")
+def registry_lookup(name: str, cc: str = "", cik: str = ""):
+    """One country's register, asked by name.
+
+    /registry answers "what is the paper trail for this name" across every
+    source at once, which is the right question when you have a name and
+    nothing else. This answers "what does THIS country's register say",
+    which is the right question when you know where the company is - and it
+    is the one that knows about Denmark, France and Estonia.
+    """
+    from . import registry as RG
+    rec = RG.lookup(name, cc=cc or None, cik=cik or None)
+    return {"name": name, "country": cc or None, "record": rec,
+            "no_adapter_because": RG.why_not(cc) if cc and not rec else None,
+            "countries_covered": sorted(RG.BY_COUNTRY) + ["any (GLEIF)",
+                                                          "US (by CIK)"]}
+
+
 def _reachable_through(card: dict) -> list[dict]:
     """Who already knows this person, from the cap tables of what they built.
 
@@ -2013,6 +2065,12 @@ def person_card(entity_id: str, company: str = ""):
     card = PS.enrich_markets(card, lambda eid: _entity_description(eid))
     card["confidence"] = PS.confidence(card)
     card["reachable_through"] = _reachable_through(card)
+    try:
+        from . import affinity as AF
+        rs = AF.routes(entity_id, _affinity_index(), limit=8)
+        card["affinity"] = [{**r, "says": AF.phrase(r)} for r in rs]
+    except Exception:                                 # noqa: BLE001
+        card["affinity"] = []
     card["degraded"] = degraded
     return card
 
