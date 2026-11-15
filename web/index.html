@@ -1272,6 +1272,41 @@ tr.picked{background:var(--accent-bg)}
 .scsig.fresh .sub{color:var(--accent-ink);opacity:.75}
 .scsc{text-align:right;font-variant-numeric:tabular-nums;font-weight:620}
 @media (max-width:720px){.scrow{grid-template-columns:24px 1fr auto}.scsc{display:none}}
+
+/* Building a list: the rail beside what it is cutting down. */
+.railwrap{display:grid;grid-template-columns:16.5rem minmax(0,1fr);gap:var(--s3);
+  align-items:start}
+.railmain{min-width:0}
+.rail{position:sticky;top:var(--s3);border:1px solid var(--line);border-radius:12px;
+  background:var(--panel);padding:12px;display:flex;flex-direction:column;gap:14px}
+.railq{display:flex;gap:6px}
+.railq input{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--line2);
+  border-radius:8px;background:var(--bg);font:12.5px var(--sans);color:var(--ink)}
+.railq input:focus{outline:0;border-color:var(--accent)}
+.railon{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.railgrp{display:flex;flex-direction:column;gap:2px}
+.railhd{font:10px var(--mono);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);margin-bottom:4px}
+.railf{display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+  padding:6px 7px;border:0;border-radius:7px;background:none;color:var(--ink);
+  font:12.5px var(--sans)}
+.railf:hover:not([disabled]){background:var(--hover)}
+.railf.on{background:var(--accent-bg);color:var(--accent-ink);font-weight:560}
+.railf[disabled]{opacity:.4}
+.railf .bx{width:14px;height:14px;flex:0 0 14px;border:1.5px solid var(--line2);
+  border-radius:4px;display:grid;place-items:center;font-size:9px;color:#fff}
+.railf.on .bx{background:var(--accent);border-color:var(--accent)}
+.railf .n{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--faint);
+  font-size:11.5px}
+.railf.on .n{color:var(--accent)}
+.railfunds{display:flex;flex-direction:column;gap:4px;font-size:12px}
+.railfunds div{display:flex;align-items:center;gap:6px;min-width:0}
+.railfunds span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.railfunds img,.railfunds .mono{width:14px;height:14px;flex:0 0 14px}
+.railnote{font-size:11px;line-height:1.55;border-top:1px solid var(--line);
+  padding-top:10px}
+@media (max-width:1000px){.railwrap{grid-template-columns:1fr}
+  .rail{position:static}}
 </style>
 </head>
 <body>

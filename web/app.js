@@ -690,6 +690,25 @@ function applyRoleChrome() {
   });
   document.querySelectorAll("[data-sctab]").forEach(b =>
     b.onclick = () => { SCOUTTAB = b.dataset.sctab; render(); });
+  document.querySelectorAll("[data-facet]").forEach(b => b.onclick = () => {
+    const id = b.dataset.facet;
+    FACETS.has(id) ? FACETS.delete(id) : FACETS.add(id);
+    render();
+  });
+  document.querySelectorAll("[data-facetclear]").forEach(b =>
+    b.onclick = () => { FACETS = new Set(); FACETQ = ""; render(); });
+  const rf = $("#railform");
+  if (rf) rf.onsubmit = e => {
+    e.preventDefault();
+    FACETQ = $("#railqin").value;
+    const hit = facetsFromText(FACETQ);
+    if (!hit.size) {
+      toast("Nothing in that matched a filter. Tick them instead — the words " +
+            "it knows are partner, market, angel, operator, tenure, warm.");
+      return;
+    }
+    FACETS = hit; render();
+  };
   document.querySelectorAll("[data-scack]").forEach(b =>
     b.onclick = () => scoutAck(b.dataset.scack));
   document.querySelectorAll("[data-scwatch]").forEach(b => b.onclick = () => {
@@ -3056,6 +3075,112 @@ function reachList() {
         No name found at ${skipped.map(x => esc(x.fund)).join(", ")}.</div>` : "");
 }
 
+/* ===================================================== BUILDING A LIST
+   A call list of twenty-three people is a list you read. A call list of two
+   hundred is one you have to cut down, and the cutting is the work: this
+   week I am only calling partners who have been in my market, who write
+   their own cheques, and who have been at the firm long enough to champion
+   it.
+
+   Every facet here is a field already on the row - nothing is fetched, and
+   nothing is computed that the list did not already show. The counts are
+   what each facet would leave you with given everything else you have
+   already picked, which is the number you actually want: "and 4 of those
+   also invest personally" rather than "14 people invest personally
+   somewhere in a list you are no longer looking at".
+
+   Filters never hide a conflict. A fund that backs a competitor is excluded
+   before this list exists, and no combination of facets can bring one back
+   or make the exclusion invisible. */
+let FACETS = new Set(), FACETQ = "";
+
+const FACET_DEFS = [
+  ["Who they are", [
+    ["partner", "Partner level", r => (r.seniority || 0) >= 70],
+    ["cala", "Named by Cala", r => r.source === "cala"],
+    ["linkedin", "Has a LinkedIn", r => !!r.linkedin],
+  ]],
+  ["What they have done", [
+    ["market", "Been in your market", r => !!r.signals?.market_match],
+    ["angel", "Invests personally", r => !!r.signals?.angel],
+    ["operator", "Has built or run something",
+     r => !!(r.signals?.operator || r.signals?.years_building)],
+    ["tenure", "3+ years at the firm", r => (r.signals?.years_at_firm || 0) >= 3],
+  ]],
+  ["How you reach them", [
+    ["warm", "Warm route", r => !!r.warm],
+    ["intro", "Can introduce you onward", r => (r.signals?.network || 0) > 0],
+  ]],
+];
+const FACET_BY_ID = Object.fromEntries(
+  FACET_DEFS.flatMap(([, fs]) => fs.map(f => [f[0], f])));
+
+/* Plain language into facets. Deliberately a small vocabulary rather than a
+   model: a founder typing "partners who invest personally in health" should
+   get those two facets and see exactly which two were set, not a black box
+   that might have set a third. Anything it does not recognise is said. */
+const FACET_WORDS = [
+  // Plurals included deliberately: "partners who invest personally" is how
+  // somebody actually types this, and \bpartner\b does not match it.
+  [/\b(partners?|gps?|general partners?|senior|principals?)\b/i, "partner"],
+  [/\b(my market|our market|health\w*|fintech|clinical|same market|sectors?|market)\b/i, "market"],
+  [/\b(angels?|invests? personally|investing personally|own cheques?|own checks?|personally)\b/i, "angel"],
+  [/\b(operators?|founded|founders?|built|has built|ex-founders?|has run)\b/i, "operator"],
+  [/\b(tenure|long|years at|been there|established|not new)\b/i, "tenure"],
+  [/\b(warm|intros?|introductions?|connected|someone i know)\b/i, "warm"],
+  [/\b(cala|verified|in the graph)\b/i, "cala"],
+  [/\b(linkedin)\b/i, "linkedin"],
+];
+
+function facetsFromText(q) {
+  const hit = new Set();
+  for (const [rx, id] of FACET_WORDS) if (rx.test(q || "")) hit.add(id);
+  return hit;
+}
+
+function facetMatch(r, ids) {
+  for (const id of ids) {
+    const f = FACET_BY_ID[id];
+    if (f && !f[2](r)) return false;
+  }
+  return true;
+}
+
+function facetRail(rows) {
+  const live = rows.filter(r => facetMatch(r, FACETS));
+  const funds = [...new Set(live.map(r => r.fund))].sort();
+  return `<aside class="rail">
+    <form class="railq" id="railform">
+      <input id="railqin" value="${esc(FACETQ)}" autocomplete="off"
+        placeholder="Describe the list — e.g. partners who invest personally">
+      <button class="btn sm pri" type="submit">Set</button>
+    </form>
+    ${FACETS.size ? `<div class="railon">${[...FACETS].map(id =>
+        `<button class="chip sm" data-facet="${esc(id)}" title="Remove">
+           ${esc((FACET_BY_ID[id] || [])[1] || id)} ×</button>`).join(" ")}
+      <button class="lnk" data-facetclear="1">Clear all</button></div>` : ""}
+    ${FACET_DEFS.map(([group, fs]) => `<div class="railgrp">
+      <div class="railhd">${esc(group)}</div>
+      ${fs.map(([id, label, test]) => {
+        const on = FACETS.has(id);
+        // What this facet leaves you with, given everything already picked.
+        const n = rows.filter(r =>
+          facetMatch(r, new Set([...FACETS].filter(x => x !== id))) && test(r)).length;
+        return `<button class="railf ${on ? "on" : ""} ${n ? "" : "zero"}"
+          data-facet="${esc(id)}" ${n || on ? "" : "disabled"}>
+          <span class="bx">${on ? "✓" : ""}</span>${esc(label)}
+          <span class="n">${n}</span></button>`;
+      }).join("")}</div>`).join("")}
+    <div class="railgrp"><div class="railhd">Firms left</div>
+      <div class="railfunds">${funds.slice(0, 12).map(f =>
+        `<div>${logo(f)}<span>${esc(f)}</span></div>`).join("")}
+        ${funds.length > 12 ? `<div class="sub">and ${funds.length - 12} more</div>` : ""}
+      </div></div>
+    <div class="railnote sub">A fund that backs a competitor is excluded before
+      this list exists. No filter here can bring one back.</div>
+  </aside>`;
+}
+
 function callsView() {
   if (!F) return `<div class="msg">Run a screen first — the call list is built
     from the funds that survive it.</div>`;
@@ -3067,14 +3192,17 @@ function callsView() {
   if (CALLS.error) return `<div class="emptywhy"><b>Could not build it.</b>
     ${esc(CALLS.error)}</div>`;
 
-  const rows = CALLS.rows || [];
+  const all = CALLS.rows || [];
+  const rows = all.filter(r => facetMatch(r, FACETS));
   const done = CALLDONE || new Set();
   const left = rows.filter(r => !done.has(r.person + "|" + r.fund));
 
   return kpis([
-    ["People to call", rows.length, "all", "at funds that survived the exclusion"],
+    ["People to call", rows.length, "all", FACETS.size
+      ? `of ${all.length}, after ${FACETS.size} filter${FACETS.size === 1 ? "" : "s"}`
+      : "at funds that survived the exclusion"],
     ["Still to do", left.length, "todo", "ticked off in this browser"],
-    ["Named by Cala", CALLS.by_source?.cala || 0, "cala",
+    ["Named by Cala", rows.filter(r => r.source === "cala").length, "cala",
      "a Person entity in the graph, with a role and often a start date"],
   ], "all", null)
   + `<div class="sub" style="margin:-6px 0 var(--s2);max-width:66ch;line-height:1.65">
@@ -3084,10 +3212,19 @@ function callsView() {
       seniority, then what we know about the person.
       ${CALLS.enriched ? `<b>${CALLS.enriched}</b> of ${CALLS.rows.length} resolved
         to a Cala person.` : `<span class="sub">Resolving people…</span>`}</div>`
-  + section("cl", "Call list", `${rows.length} contacts`, rows.length
-      ? `<div class="calllist">${rows.map(callRow).join("")}</div>`
-      : `<div class="emptywhy"><b>Nobody to call.</b> Every firm that survived
-          the exclusion came back with no named contact.</div>`)
+  + `<div class="railwrap">${facetRail(all)}
+      <div class="railmain">${section("cl", "Call list",
+        FACETS.size ? `${rows.length} of ${all.length}` : `${rows.length} contacts`,
+        rows.length
+          ? `<div class="calllist">${rows.map(callRow).join("")}</div>`
+          : all.length
+            ? `<div class="emptywhy"><b>Nothing matches all of those.</b>
+                ${[...FACETS].map(id => esc((FACET_BY_ID[id] || [])[1] || id)).join(" + ")}
+                leaves nobody. Drop one and the counts beside each filter say
+                what it would give you back.</div>`
+            : `<div class="emptywhy"><b>Nobody to call.</b> Every firm that
+                survived the exclusion came back with no named contact.</div>`)}
+      </div></div>`
   + ((CALLS.skipped || []).length ? section("clskip", "Not on the list",
       `${CALLS.skipped.length} firms`, `<div class="tbl"><table><tbody>${
         CALLS.skipped.map(sk => `<tr style="cursor:default">
@@ -3465,6 +3602,25 @@ function render() {
   });
   document.querySelectorAll("[data-sctab]").forEach(b =>
     b.onclick = () => { SCOUTTAB = b.dataset.sctab; render(); });
+  document.querySelectorAll("[data-facet]").forEach(b => b.onclick = () => {
+    const id = b.dataset.facet;
+    FACETS.has(id) ? FACETS.delete(id) : FACETS.add(id);
+    render();
+  });
+  document.querySelectorAll("[data-facetclear]").forEach(b =>
+    b.onclick = () => { FACETS = new Set(); FACETQ = ""; render(); });
+  const rf = $("#railform");
+  if (rf) rf.onsubmit = e => {
+    e.preventDefault();
+    FACETQ = $("#railqin").value;
+    const hit = facetsFromText(FACETQ);
+    if (!hit.size) {
+      toast("Nothing in that matched a filter. Tick them instead — the words " +
+            "it knows are partner, market, angel, operator, tenure, warm.");
+      return;
+    }
+    FACETS = hit; render();
+  };
   document.querySelectorAll("[data-scack]").forEach(b =>
     b.onclick = () => scoutAck(b.dataset.scack));
   document.querySelectorAll("[data-scwatch]").forEach(b => b.onclick = () => {
