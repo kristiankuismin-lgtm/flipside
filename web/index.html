@@ -208,6 +208,23 @@ table{table-layout:auto}
 .flags .bdg{margin-left:4px}
 .tdact{text-align:right;white-space:nowrap;width:1%}
 
+/* ---------------- what is in a chart ---------------- */
+.whatsin{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.whatsin summary{cursor:pointer;font-size:12px;color:var(--dim);
+  list-style:none;user-select:none}
+.whatsin summary::-webkit-details-marker{display:none}
+.whatsin summary:before{content:"▸ ";color:var(--faint)}
+.whatsin[open] summary:before{content:"▾ "}
+.whatsin summary:hover{color:var(--ink)}
+.minirows{margin-top:9px;display:flex;flex-direction:column;gap:1px}
+.minirow{display:flex;align-items:baseline;gap:8px;padding:6px 0;
+  border-bottom:1px solid var(--line);font-size:12.5px}
+.minirow:last-child{border-bottom:0}
+.minirow b{font-weight:550}
+.minirow span{color:var(--dim);font-size:11.5px}
+.minirow .bdg{margin-left:auto;flex:none}
+.minirow a{margin-left:auto;font-size:11px;color:var(--faint)}
+
 /* ---------------- contact cards ---------------- */
 .ccards{display:grid;gap:var(--s2);
   grid-template-columns:repeat(auto-fill,minmax(330px,1fr))}

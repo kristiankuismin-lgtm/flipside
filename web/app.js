@@ -169,8 +169,34 @@ function donut(parts, size = 118, opts = {}) {
       ${esc(p.k)} <span style="color:var(--faint)">${p.v}</span></div>`).join("")}</div></div>`;
 }
 
-const chart = (title, caption, body) => `<div class="card"><h4>${esc(title)}</h4>
-  <div class="sub">${esc(caption)}</div>${body}</div>`;
+/* A donut is a claim. The rows behind it are the evidence, and a reader who
+   wants to check 67% should not have to take it on trust - so every chart
+   can open the list it was counted from. */
+const chart = (title, caption, body, detail) => `<div class="card">
+  <h4>${esc(title)}</h4>
+  <div class="sub">${esc(caption)}</div>${body}
+  ${detail ? `<details class="whatsin"><summary>What is in this</summary>
+    ${detail}</details>` : ""}</div>`;
+
+/* Rounds behind the lead/follow split. stage_rounds is the list the rate was
+   computed from - the same denominator, not merely a related one - so what
+   is shown adds up to what the ring says. */
+const roundRows = rows => !rows?.length ? `<div class="sub">No rounds.</div>`
+  : `<div class="minirows">${rows.map(r => `<div class="minirow">
+      <b>${esc(r.company || "—")}</b>
+      <span>${esc(r.stage || "")}${r.date ? " · " + esc(String(r.date).slice(0, 7)) : ""}${
+        r.amount ? " · €" + (r.amount / 1e6).toFixed(1) + "M" : ""}</span>
+      ${r.led ? badge("led", "green") : badge("joined", "grey")}
+    </div>`).join("")}</div>`;
+
+const claimRows = (list, n) => !list?.length ? `<div class="sub">Nothing recorded.</div>`
+  : `<div class="minirows">${list.map(e => `<div class="minirow">
+      <b>${esc(e.claim || "")}</b>${e.source_url
+        ? `<a href="${esc(e.source_url)}" target="_blank" rel="noopener">source</a>` : ""}
+    </div>`).join("")}</div>`
+    + (n && n > list.length ? `<div class="sub" style="margin-top:6px">
+        ${list.length} of ${n} shown — Cala records the rest of the rounds
+        without a per-round claim.</div>` : "");
 
 const badgeGroup = (groups) => `<div class="bgrp">${groups.map(([k, items, cls]) =>
   `<div class="box"><div class="k">${esc(k)}</div><div class="bdgs">${
@@ -1679,13 +1705,20 @@ function founderEntity() {
             ${chart("Lead vs follow",
               s.lead_rate.n ? `led ${Math.round((s.lead_rate.value||0)*s.lead_rate.n)} of ${s.lead_rate.n} rounds` : "no rounds in window",
               donut([{k:"Led",v:Math.round((s.lead_rate.value||0)*s.lead_rate.n),c:"#7fb88a"},
-                     {k:"Participated",v:s.lead_rate.n-Math.round((s.lead_rate.value||0)*s.lead_rate.n),c:"#7d766c"}]))}
+                     {k:"Participated",v:s.lead_rate.n-Math.round((s.lead_rate.value||0)*s.lead_rate.n),c:"#7d766c"}]),
+              roundRows(x.stage_rounds))}
             ${chart("Follow-on", s.follow_on.n ? `${s.follow_on.n} mature portfolio companies` : "no mature portfolio",
               donut([{k:"Followed on",v:Math.round((s.follow_on.value||0)*s.follow_on.n),c:"#8ba3c7"},
-                     {k:"Did not",v:s.follow_on.n-Math.round((s.follow_on.value||0)*s.follow_on.n),c:"#7d766c"}]))}
+                     {k:"Did not",v:s.follow_on.n-Math.round((s.follow_on.value||0)*s.follow_on.n),c:"#7d766c"}]),
+              claimRows(s.follow_on.evidence, s.follow_on.n))}
             ${chart("Conflict check", `${x.portfolio_size||0} portfolio companies vs ${F.competitors.length} competitors`,
               donut([{k:"Competitors backed",v:x.backs?.length||0,c:"#d9685c"},
-                     {k:"Clear",v:Math.max(0,(x.portfolio_size||0)-(x.backs?.length||0)),c:"#7fb88a"}]))}
+                     {k:"Clear",v:Math.max(0,(x.portfolio_size||0)-(x.backs?.length||0)),c:"#7fb88a"}]),
+              (x.backs||[]).length
+                ? `<div class="minirows">${x.backs.map(b => `<div class="minirow">
+                     <b>${esc(b)}</b>${badge("competitor", "red")}</div>`).join("")}</div>`
+                : `<div class="sub">None of the ${x.portfolio_size||0} portfolio
+                     companies we hold matches a competitor we found.</div>`)}
           </div>`)
       + section("fo-ask", "Ask in the meeting", "",
           `<div class="card"><ul class="reasons">${questions(x).map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>`);
