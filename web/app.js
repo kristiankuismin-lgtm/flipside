@@ -731,6 +731,10 @@ function applyRoleChrome() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  document.querySelectorAll("[data-batch]").forEach(b =>
+    b.onclick = () => loadBatches(b.dataset.batch));
+  document.querySelectorAll("[data-bnew]").forEach(b =>
+    b.onclick = () => { BATCHNEW = b.dataset.bnew === "1"; render(); });
   document.querySelectorAll("[data-builder]").forEach(b =>
     b.onclick = () => openBuilder(b.dataset.builder));
   const bs = $("#bscrim");
@@ -3429,6 +3433,59 @@ function contactsPane() {
     </div>`).join("")}</div>`;
 }
 
+/* An accelerator batch is the earliest public record that a company exists.
+   The column worth reading is not the batch - anyone can read the batch -
+   but which rows the graph does not have. */
+let BATCHES = null, BATCHCODE = "s26", BATCHNEW = true;
+
+async function loadBatches(code) {
+  BATCHES = { loading: true }; BATCHCODE = code; render();
+  try { BATCHES = await (await fetch(`/batches?code=${encodeURIComponent(code)}`)).json(); }
+  catch (e) { BATCHES = { rows: [], error: String(e.message) }; }
+  render();
+}
+
+function batchesView() {
+  const head = `<div class="runline">
+      <div class="rl1"><b>Fresh out of a batch</b>
+        <span class="sub">· companies that exist before a database has them</span></div>
+    </div>
+    <div class="sctabs">${["s26", "w26", "f25", "s25"].map(c =>
+      `<button class="sctab ${BATCHCODE === c ? "on" : ""}" data-batch="${c}"
+        >${c.toUpperCase()}</button>`).join("")}</div>`;
+
+  if (!BATCHES) { loadBatches(BATCHCODE); return head + `<div class="msg"
+    style="padding:40px"><span class="spin"></span>Reading the batch…</div>`; }
+  if (BATCHES.loading) return head + `<div class="msg" style="padding:40px">
+    <span class="spin"></span>Reading the batch…</div>`;
+  if (BATCHES.error) return head + errorPanel(BATCHES.error, "the batch list");
+
+  const c = BATCHES.counts || {};
+  const rows = BATCHNEW ? (BATCHES.new_to_cala || []) : (BATCHES.rows || []);
+  return head + kpis([
+    ["In the batch", c.total ?? 0, "t", `${esc(BATCHES.accelerator || "")} ${esc(BATCHES.batch || "")}`],
+    ["Not in Cala", c.new ?? 0, "n", "no investor database has these yet"],
+    ["Already in the graph", c.in_cala ?? 0, "k", "the graph has caught up"],
+  ], BATCHNEW ? "n" : "t", null)
+  + `<div class="sctabs" style="margin-bottom:var(--s2)">
+      <button class="sctab ${BATCHNEW ? "on" : ""}" data-bnew="1">Not in Cala</button>
+      <button class="sctab ${BATCHNEW ? "" : "on"}" data-bnew="0">Everything</button>
+    </div>`
+  + `<div class="ccards">${rows.map(r => `<div class="ccard">
+      <div class="cchd">${logo(r.name, r.website)}
+        <div style="min-width:0;flex:1">
+          <div class="ccnm">${r.website
+            ? `<a href="${esc(r.website)}" target="_blank" rel="noopener">${esc(r.name)}</a>`
+            : esc(r.name)}</div>
+          <div class="sub">${esc(r.batch || "")}${
+            r.status && r.status !== "Active" ? " · " + esc(r.status) : ""}</div>
+        </div>
+        ${r.in_cala ? badge("in Cala", "grey") : badge("new", "green")}
+      </div>
+      <div class="ccnone" style="color:var(--dim)">${esc(r.description || "No description on the list.")}</div>
+    </div>`).join("")}</div>`;
+}
+
 function callsView() {
   if (!F) return contactsPane();
   if (!CALLS || CALLSFOR !== F.company) { loadCalls(); return `<div class="msg">
@@ -3741,6 +3798,9 @@ function render() {
     parts = [{ t: "Your raise", go: 1 }, { t: F?.company || "", go: 1 },
              { t: "Pipeline" }];
     html = dealsView();
+  } else if (MODE === "batches") {
+    parts = [{ t: "Your pipeline", go: 1 }, { t: "Fresh out of a batch" }];
+    html = batchesView();
   } else if (MODE === "calls") {
     parts = [{ t: "Your raise", go: 1 }, { t: "Call list" }];
     html = callsView();
@@ -3854,6 +3914,10 @@ function render() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  document.querySelectorAll("[data-batch]").forEach(b =>
+    b.onclick = () => loadBatches(b.dataset.batch));
+  document.querySelectorAll("[data-bnew]").forEach(b =>
+    b.onclick = () => { BATCHNEW = b.dataset.bnew === "1"; render(); });
   document.querySelectorAll("[data-builder]").forEach(b =>
     b.onclick = () => openBuilder(b.dataset.builder));
   const bs = $("#bscrim");

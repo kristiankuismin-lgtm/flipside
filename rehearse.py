@@ -47,6 +47,7 @@ STEPS = [
      "/fund/6ba00a20-2cb4-4559-8fe2-f39484a9e5f6", None, 30),
     ("Public record on a bare stub", "GET",
      f"/enrich?name={urllib.parse.quote('Andercore GmbH')}", None, 40),
+    ("Fresh out of a batch", "GET", "/batches?code=s26", None, 90),
     ("Building in private", "GET",
      "/private-builders?limit=10&thesis="
      + urllib.parse.quote("ambient AI scribe for clinicians"), None, 60),
@@ -91,6 +92,11 @@ def _checks(label: str, d):
         yield bool(d.get("name")), "profile has no name"
     elif label == "Public record on a bare stub":
         yield bool(d.get("registry") or d.get("site")), "no public record found"
+    elif label == "Fresh out of a batch":
+        c = d.get("counts") or {}
+        yield c.get("total", 0) > 50, "a YC batch is hundreds of companies, not this"
+        yield c.get("new", 0) > 0, "nothing new to the graph, which would be the whole point"
+        yield all(r.get("name") for r in (d.get("rows") or [])), "a row with no company name"
     elif label == "Building in private":
         rows = d.get("rows") or []
         yield bool(rows), "nobody came back, so the third cohort tab is empty"
