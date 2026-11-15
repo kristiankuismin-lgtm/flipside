@@ -28,7 +28,12 @@ last_meta: dict = {}
 # interactive callers leave it at 0 and are not slowed down at all.
 _pace_lock = threading.Lock()
 _pace = {"interval": float(os.getenv("CALA_MIN_INTERVAL", "0") or 0), "next": 0.0}
-PACE_MAX = 20.0
+# Measured against the live API with nothing else running: the limiter is a
+# token bucket of roughly ten, refilling one token every 1.3 to 2.4 seconds.
+# A ceiling of twenty seconds was therefore self-defeating - it paced us an
+# order of magnitude below what the budget allows, and the only way back
+# down was a 10% decay per success that a starved job never earns.
+PACE_MAX = 4.0
 PACE_MIN = 0.3
 
 
@@ -53,7 +58,7 @@ def _pace_slower() -> None:
     with _pace_lock:
         if _pace["interval"] <= 0:
             return
-        _pace["interval"] = min(PACE_MAX, _pace["interval"] * 1.7)
+        _pace["interval"] = min(PACE_MAX, _pace["interval"] * 1.25)
         _pace["next"] = max(_pace["next"], time.time() + _pace["interval"])
 
 
@@ -166,7 +171,11 @@ def _request(method: str, path: str, payload=None, *, ttl=7 * 86400,
             if interactive:
                 raise CalaError("Rate limit", 429, r.text[:300])
             _pace_slower()
-            wait = float(r.headers.get("retry-after", max(5.0, 4 * (2 ** i))))
+            # Sleep for about one refill, not for an exponential backoff.
+            # max(5, 4*2^i) meant a single entity that hit the limit four
+            # times burned sixty-one seconds and dragged the shared pace up
+            # with it, which is how a 40/min budget became 6/min.
+            wait = float(r.headers.get("retry-after", min(6.0, 1.5 * (i + 1))))
             last_err = CalaError("Rate limit", 429, r.text[:500])
             time.sleep(wait)
             continue

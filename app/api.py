@@ -2083,7 +2083,36 @@ def contacts(limit: int = 24, names: str = ""):
         # _safe returns (result, error). Slicing the tuple instead of the
         # list gave every firm exactly two "people", one of which was None.
         people, err = _safe(_people_for_fund, n)
-        return n, (people or []), err
+        people = list(people or [])
+        # Then whatever the bulk query harvest holds for this firm. One
+        # /knowledge/query returns tens of people with their roles for the
+        # cost of a single entity fetch, so most of the names here come
+        # from there rather than from walking the graph one record at a
+        # time. Deduplicated on the name, graph first.
+        try:
+            from . import bulk
+            # First and last token, accents stripped. norm.name alone kept
+            # "Niklas Marten Zennstrom" and "Niklas Zennström" apart - a
+            # middle name in one source and not the other is the normal
+            # case, not the exception, and the call list showed the man
+            # twice at his own firm.
+            import unicodedata
+
+            def ident(nm: str) -> str:
+                flat = "".join(ch for ch in
+                               unicodedata.normalize("NFKD", norm.name(nm) or nm.lower())
+                               if not unicodedata.combining(ch))
+                t = re.findall(r"[a-z]+", flat.lower())
+                return f"{t[0]}|{t[-1]}" if len(t) >= 2 else "".join(t)
+            have = {ident(x.get("name") or "") for x in people}
+            for x in bulk.for_firm(n, limit=40):
+                k = ident(x["name"])
+                if k and k not in have:
+                    people.append(x)
+                    have.add(k)
+        except Exception:
+            pass
+        return n, people, err
 
     with ThreadPoolExecutor(max_workers=8) as ex:
         found = list(ex.map(one, want))
