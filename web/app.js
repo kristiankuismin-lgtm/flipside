@@ -4067,83 +4067,88 @@ async function openPerson(id, name) {
                  ang.company_count} compan${ang.company_count === 1 ? "y" : "ies"}`
              : "")}
 
-      ${block("Started", (op.founded || []).length
-        ? `<div class="pclist">${op.founded.map(x => coRow(x.name, "founder",
-            `${(x.roles || []).map(r => `<span class="tag">${esc(r)}</span>`).join("")}
-             ${x.year ? `<span class="yr">${x.year}</span>` : ""}
-             ${x.what ? `<div class="what">${esc(x.what)}</div>` : ""}`)).join("")}</div>`
-        : "", `${(op.founded || []).length} compan${
-          (op.founded || []).length === 1 ? "y" : "ies"}`)}
-
-      ${block("Seats held", (op.operated || []).length
-        ? `<div class="pclist">${op.operated.map(x => coRow(x.name, x.role || "role",
-            x.year ? `<span class="yr">${x.year}</span>` : "")).join("")}</div>`
-        : "")}
-
-      ${block("Career, in order", (c.timeline || []).length
-        ? `<div class="ptl">${c.timeline.map((t, i) => `<div class="ptlrow">
-            <span class="y">${t.year}</span>
-            <span class="d ${t.founder ? "f" : ""}"></span>
-            <span class="n">${logo(t.name)}<b>${esc(t.name)}</b>
-              <span class="sub">${esc(t.role || "")}</span>${
-              i < c.timeline.length - 1 && c.timeline[i + 1].year
-                ? `<span class="sub"> · ${t.year - c.timeline[i + 1].year} year${
-                    t.year - c.timeline[i + 1].year === 1 ? "" : "s"} later</span>` : ""}</span>
-          </div>`).join("")}</div>
-          <div class="sub" style="margin-top:6px">Only the roles that carry a
-            date. ${(op.founded || []).length + (op.operated || []).length
-              - c.timeline.length} more have none.</div>`
-        : "")}
-
-      ${block("What they own", (c.control?.companies || []).length
-        ? `<div class="pclist">${c.control.companies.slice(0, 10).map(o =>
-            `<div class="pcrow"><b>${esc(o.name)}</b>
-              ${o.owner ? `<span class="tag">beneficial owner</span>` : ""}
-              ${o.control ? `<span class="tag">control person</span>` : ""}</div>`).join("")}
-           ${c.control.companies.length > 10 ? `<div class="sub">and ${
-             c.control.companies.length - 10} more</div>` : ""}</div>`
-        : "", `${(c.control?.companies || []).length}`)}
-
-      ${block("What they have in common with other people here",
-        (c.affinity || []).length
-        ? `<div class="pclist">${c.affinity.map(a => `<div class="pcrow">
-            <b>${esc(a.name)}</b>
-            ${a.via.some(v => v.overlapped) ? badge("same year", "green") : ""}
-            <div class="what">${esc(a.says)}</div></div>`).join("")}</div>`
-        : "", `${(c.affinity || []).length} route${
-          (c.affinity || []).length === 1 ? "" : "s"}`)}
-
-      ${block("Who can introduce you to them", (c.reachable_through || []).length
-        ? `<div class="pclist">${c.reachable_through.map(r => `<div class="pcrow">
-            <b>${esc(r.name)}</b>
-            ${r.led ? badge("led the round", "green") : ""}
-            <span class="mk">via ${esc(r.through.join(", "))}</span></div>`).join("")}</div>`
-        : "", `${(c.reachable_through || []).length} route${
-          (c.reachable_through || []).length === 1 ? "" : "s"}`)}
-
       ${(() => {
-        const fresh = (net.companies || []).filter(n =>
-          !ownKeys.has(String(n.name || "").toLowerCase().replace(/[^a-z0-9]/g, "")));
-        return block("Other doors they open", fresh.length
-          ? `<div class="pclist">${fresh.slice(0, 12).map(n => coRow(n.name,
-               n.via === "board" ? "board seat" : "their cheque",
-               `${n.markets?.length ? `<span class="mk">${esc(n.markets.join(", "))}</span>` : ""}
-                ${n.what ? `<div class="what">${esc(n.what)}</div>` : ""}`)).join("")}
-             ${fresh.length > 12 ? `<div class="sub">and ${fresh.length - 12} more</div>` : ""}</div>`
-          : "", `${fresh.length} beyond the cheques above`);
+        // One career, in one place. "Started", "Seats held" and "Career, in
+        // order" were three lists over the same roles, so a company could
+        // appear three times and nothing said which appearance was the
+        // point.
+        const seen = new Set(), roles = [];
+        for (const x of (op.founded || []))
+          roles.push({ name: x.name, kind: "founded", year: x.year, what: x.what });
+        for (const x of (op.operated || []))
+          roles.push({ name: x.name, kind: "ran", year: x.year, role: x.role });
+        const dated = {};
+        for (const t of (c.timeline || [])) dated[t.name] = t.year;
+        const rows = roles.filter(r => {
+          const k = (r.name || "").toLowerCase();
+          if (!k || seen.has(k)) return false; seen.add(k); return true;
+        }).map(r => ({ ...r, year: r.year || dated[r.name] || null }))
+          .sort((a, b) => (b.year || 0) - (a.year || 0));
+        const undated = rows.filter(r => !r.year).length;
+        return rows.length ? `<div class="sech"><h3>What they have run</h3>
+          <span class="sub">${rows.length} compan${rows.length === 1 ? "y" : "ies"}${
+            undated ? ` · ${undated} with no date on record` : ""}</span></div>
+          <div class="career">${rows.map(r => `<div class="crow">
+            <span class="cy">${r.year || "—"}</span>
+            <span class="cdot ${r.kind === "founded" ? "f" : ""}"></span>
+            ${logo(r.name)}
+            <span class="cn"><b>${esc(r.name)}</b>
+              <span class="sub">${r.kind === "founded" ? "founded it"
+                : esc(r.role || "ran it")}</span>
+              ${r.what ? `<span class="cw">${esc(r.what)}</span>` : ""}</span>
+          </div>`).join("")}</div>` : "";
       })()}
 
-      ${(dom.via || []).length ? block("Why this is your market",
-        `<div class="pclist">${dom.via.map(v => `<div class="pcrow">
-           <b>${esc(v.name)}</b><span class="mk">${esc((v.markets || []).join(", "))}</span>
-           <div class="what">${esc(v.what || "")}</div></div>`).join("")}</div>`) : ""}
+      ${(() => {
+        // Thirteen stacked cards all reading BOARD SEAT is not thirteen
+        // facts, it is one fact with a list attached.
+        const fresh = (net.companies || []).filter(n =>
+          !ownKeys.has(String(n.name || "").toLowerCase().replace(/[^a-z0-9]/g, "")));
+        if (!fresh.length) return "";
+        const by = {};
+        for (const n of fresh) {
+          const k = n.via === "board" ? "On the board of" : "Wrote a cheque into";
+          (by[k] = by[k] || []).push(n);
+        }
+        return `<div class="sech"><h3>Who they can introduce you to</h3>
+            <span class="sub">${fresh.length} beyond their own cheques</span></div>
+          ${Object.entries(by).map(([k, list]) => `<div class="doors">
+            <div class="dlab">${esc(k)}<span>${list.length}</span></div>
+            <div class="dchips">${list.slice(0, 14).map(n => `<span class="dchip"
+              title="${esc(n.what || n.name || "")}">${logo(n.name)}${esc(n.name)}</span>`).join("")}
+              ${list.length > 14 ? `<span class="dchip more">+${list.length - 14}</span>` : ""}
+            </div></div>`).join("")}`;
+      })()}
 
-      ${block("Education", (dom.education || []).length
-        ? `<div class="sub">${esc(dom.education.join(" · "))}</div>` : "")}
+      ${(c.control?.companies || []).length ? `<div class="sech"><h3>What they own</h3>
+          <span class="sub">from beneficial-ownership filings</span></div>
+        <div class="dchips">${c.control.companies.slice(0, 12).map(o =>
+          `<span class="dchip">${logo(o.name)}${esc(o.name)}</span>`).join("")}
+          ${c.control.companies.length > 12
+            ? `<span class="dchip more">+${c.control.companies.length - 12}</span>` : ""}
+        </div>` : ""}
 
-      ${block("Recognition", (c.recognition || []).length
-        ? `<div class="sub">${c.recognition.map(a =>
-            `${esc(a.name)}${a.year ? ` (${a.year})` : ""}`).join(" · ")}</div>` : "")}
+      ${(c.affinity || []).length ? `<div class="sech">
+          <h3>In common with others here</h3></div>
+        <div class="bships">${c.affinity.map(a => `<div class="bship">
+          <b>${esc(a.name)}</b><span class="sub">${esc(a.says)}</span>
+          ${a.via.some(v => v.overlapped) ? badge("same year", "green") : ""}
+        </div>`).join("")}</div>` : ""}
+
+      ${(c.reachable_through || []).length ? `<div class="sech">
+          <h3>Who can introduce you to them</h3></div>
+        <div class="bships">${c.reachable_through.map(r => `<div class="bship">
+          ${logo(r.name)}<b>${esc(r.name)}</b>
+          <span class="sub">via ${esc(r.through.join(", "))}</span>
+          ${r.led ? badge("led the round", "green") : ""}</div>`).join("")}</div>` : ""}
+
+      ${((dom.education || []).length || (c.recognition || []).length) ? `
+        <div class="sech"><h3>On the record</h3></div>
+        <div class="dchips">
+          ${(dom.education || []).map(e => `<span class="dchip ed">${esc(e)}</span>`).join("")}
+          ${(c.recognition || []).map(a => `<span class="dchip aw">${esc(a.name)}${
+            a.year ? ` ${a.year}` : ""}</span>`).join("")}
+        </div>` : ""}
 
       <div class="emptywhy" style="margin-top:var(--s2)">
         <b>We did not check their record.</b> ${esc(c.unchecked?.legal || "")}

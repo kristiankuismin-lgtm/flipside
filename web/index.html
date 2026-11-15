@@ -291,6 +291,36 @@ table{table-layout:auto}
 .bulkbar b{margin-right:auto}
 
 /* ---------------- person card ---------------- */
+/* A career reads as a column of years, not as a stack of boxes. */
+.career{display:flex;flex-direction:column}
+.crow{display:grid;grid-template-columns:46px 11px 20px minmax(0,1fr);
+  gap:9px;align-items:start;padding:9px 0;border-bottom:1px solid var(--line)}
+.crow:last-child{border-bottom:0}
+.crow .cy{font:11.5px var(--mono);color:var(--faint);padding-top:2px}
+.crow .cdot{width:7px;height:7px;border-radius:50%;background:var(--line2);
+  margin-top:7px;justify-self:center}
+.crow .cdot.f{background:var(--accent)}
+.crow .logo{width:20px;height:20px;border-radius:5px;margin-top:1px}
+.crow .cn{min-width:0;display:flex;flex-direction:column;gap:1px}
+.crow .cn b{font-size:13.5px;font-weight:570}
+.crow .cn .sub{font-size:11.5px}
+.crow .cw{font-size:11.5px;color:var(--dim);line-height:1.5;margin-top:2px}
+
+/* Thirteen board seats are one fact with a list, not thirteen cards. */
+.doors{margin-bottom:var(--s2)}
+.dlab{display:flex;align-items:baseline;gap:7px;font:10px var(--mono);
+  letter-spacing:.08em;text-transform:uppercase;color:var(--faint);
+  margin-bottom:7px}
+.dlab span{font-size:11px;color:var(--dim)}
+.dchips{display:flex;flex-wrap:wrap;gap:6px}
+.dchip{display:inline-flex;align-items:center;gap:6px;max-width:30ch;
+  padding:5px 10px 5px 6px;border:1px solid var(--line);border-radius:999px;
+  background:var(--panel);font-size:12px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.dchip .logo{width:16px;height:16px;border-radius:4px;flex:none}
+.dchip.more{color:var(--faint);padding-left:10px}
+.dchip.ed{background:var(--panel2);border-style:dashed}
+.dchip.aw{background:var(--amber-bg);border-color:var(--amber-bg);color:var(--amber)}
 .pchd{display:flex;align-items:center;gap:11px}
 .pchd .logo{width:34px;height:34px;border-radius:8px;flex:none}
 .pcrow .logo{width:18px;height:18px;border-radius:4px;flex:none;margin-right:2px}
