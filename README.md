@@ -9,6 +9,10 @@ answers the question first — *who is out* — and only then *who is left*.
 One audience: a founder raising a round. Built on [Cala](https://cala.ai) for
 Junction 2026.
 
+**Live demo: https://spry-rowan-97bmq8o.tmp.now** (cache-only snapshot — no
+live Cala/Context.dev calls from a public URL, so the figures on screen are
+a point-in-time harvest, not a live feed).
+
 | | The question | Where it is answered |
 |---|---|---|
 | **Who is out** | Which funds already fund my competitor? | Your round |
