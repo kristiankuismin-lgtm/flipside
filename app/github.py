@@ -132,3 +132,64 @@ def signal(p: dict | None) -> dict:
         why.append("mostly " + ", ".join(k for k, _ in p["languages"][:2]))
     return {"value": v, "label": "strong" if v >= .6 else "some" if v >= .25 else "light",
             "why": why}
+
+
+# ---------------------------------------------------- what they actually do
+
+def orgs(login: str, **kw) -> list[dict]:
+    """The communities a person belongs to in public."""
+    d = _get(f"/users/{login}/orgs", **kw) or []
+    return [{"login": o.get("login"), "url": o.get("url", "").replace(
+        "https://api.github.com/orgs/", "https://github.com/"),
+        "description": (o.get("description") or "")[:120]}
+        for o in d if isinstance(o, dict) and o.get("login")]
+
+
+def activity(login: str, **kw) -> dict | None:
+    """The last ~90 days of public activity, as a shape rather than a log.
+
+    This is the one GitHub endpoint that answers the questions the brief
+    actually asked - which repositories someone is making, what they are
+    reading, and whether they turn up in other people's threads - because an
+    event stream records the act, not just its result. A repository listing
+    shows what exists; CreateEvent shows the week it started.
+
+    It costs one call against a budget of sixty an hour, so it is cached hard
+    and only ever fetched for a person somebody clicked on.
+    """
+    ev = _get(f"/users/{login}/events/public?per_page=100", **kw)
+    if not isinstance(ev, list):
+        return None
+    made, pushed, starred, said, helped, shipped = [], {}, [], [], set(), []
+    for e in ev:
+        t, repo = e.get("type"), ((e.get("repo") or {}).get("name") or "")
+        when = (e.get("created_at") or "")[:10]
+        p = e.get("payload") or {}
+        if t == "CreateEvent" and p.get("ref_type") == "repository":
+            made.append({"repo": repo, "when": when})
+        elif t == "PushEvent":
+            pushed[repo] = max(pushed.get(repo, ""), when)
+        elif t == "WatchEvent":
+            starred.append({"repo": repo, "when": when})
+        elif t == "IssueCommentEvent":
+            body = ((p.get("comment") or {}).get("body") or "").strip()
+            said.append({"repo": repo, "when": when, "said": body[:200],
+                         "url": ((p.get("comment") or {}).get("html_url") or "")})
+        elif t == "PullRequestEvent" and not repo.lower().startswith(login.lower() + "/"):
+            helped.add(repo)
+        elif t == "ReleaseEvent":
+            shipped.append({"repo": repo, "when": when})
+    days = sorted({(e.get("created_at") or "")[:10] for e in ev if e.get("created_at")})
+    return {
+        "events": len(ev),
+        "first_seen": days[0] if days else None,
+        "last_seen": days[-1] if days else None,
+        "active_days": len(days),
+        "started": made[:6],
+        "pushing_to": [{"repo": r, "last": d} for r, d in
+                       sorted(pushed.items(), key=lambda kv: kv[1], reverse=True)[:6]],
+        "starred": starred[:8],
+        "commented": said[:6],
+        "contributed_to": sorted(helped)[:8],
+        "released": shipped[:4],
+    }

@@ -1793,6 +1793,96 @@ def builders(limit: int = 40, pages: int = 10, days: int = 180):
     return out
 
 
+@app.get("/builder/{handle}")
+def builder(handle: str):
+    """One person in the private cohort, read properly.
+
+    The cohort list is built from bulk endpoints and costs nothing per
+    person. This is the other half of that bargain: when somebody is worth a
+    closer look, it spends the core GitHub budget - sixty calls an hour
+    without a token - on the three questions the list cannot answer. Which
+    communities they are in, what they have started lately, and whose threads
+    they turn up in.
+
+    Cala comes first where Cala knows. If a Person carries a github_url
+    naming this account, that is Cala's own claim with Cala's own sources
+    behind it, and it is reported as identification rather than as a guess.
+    """
+    from . import github as GH, private_builders as PB, cache_index
+    h = (handle or "").strip()
+    if not h:
+        return {"error": "no handle"}
+
+    idx = cache_index.build()
+    known = PB._people_by_handle(idx).get(h.lower())
+    cala_says = None
+    if known:
+        cala_says = {
+            "id": known.get("id"), "name": known.get("name"),
+            "claimed": bool(known.get("_claimed")),
+            "confidence": ("Cala records this GitHub account as theirs"
+                           if known.get("_claimed")
+                           else "name matches the handle, unverified"),
+        }
+
+    out = {"handle": h, "cala": cala_says, "limited": None}
+    try:
+        out["profile"] = GH.profile(h)
+        out["orgs"] = GH.orgs(h)
+        out["activity"] = GH.activity(h)
+    except GH.RateLimited as e:
+        out["limited"] = str(e)
+        out.setdefault("profile", None)
+    return out
+
+
+_WHEREAMI = {}
+
+
+@app.get("/whereami")
+def whereami():
+    """Approximate location when the browser will not give one.
+
+    The map's "Near me" asked the browser and stopped there, so a denied
+    permission - or any of the browsers that quietly refuse geolocation on a
+    plain-http origin, which is every one of them - left the button dead.
+
+    This resolves the location of THIS MACHINE's outbound IP, not the
+    visitor's. For a tool running on a founder's own laptop those are the
+    same thing, and saying which one it is matters more than the distinction
+    usually does: the answer is a city, never an address, it is used for one
+    request, and it is not written to disk or into the page.
+    """
+    if _WHEREAMI:
+        return _WHEREAMI
+    import httpx
+    sources = [
+        ("ipapi.co", "https://ipapi.co/json/",
+         lambda d: (d.get("latitude"), d.get("longitude"), d.get("city"),
+                    d.get("country_name"))),
+        ("ip-api.com", "http://ip-api.com/json/?fields=status,country,city,lat,lon",
+         lambda d: (d.get("lat"), d.get("lon"), d.get("city"), d.get("country"))),
+    ]
+    for name, url, pick in sources:
+        try:
+            r = httpx.get(url, timeout=6.0,
+                          headers={"User-Agent": "Flipside/0.1 (Junction)"})
+            if r.status_code != 200:
+                continue
+            lat, lon, city, country = pick(r.json())
+            if lat is None or lon is None:
+                continue
+            _WHEREAMI.update({
+                "lat": float(lat), "lon": float(lon),
+                "label": ", ".join(x for x in (city, country) if x) or "your network",
+                "source": name, "approximate": True,
+                "note": "from this machine's network, not the browser"})
+            return _WHEREAMI
+        except Exception:
+            continue
+    return {"lat": None, "error": "No location source answered."}
+
+
 @app.get("/private-builders")
 def private_builders(thesis: str = "", limit: int = 30, months: int = 6):
     """The cohort before "building in public": building, but unannounced.

@@ -73,6 +73,7 @@ W_QUIET = 10             # and nobody has seen it - this is the "private" part
 W_HACKATHON = 14         # turned up and built under a clock
 W_ROOMS = 10             # present in the conversation, not just the code
 W_CORROBORATED = 8       # more than one source knows this handle
+W_IDENTIFIED = 10        # Cala names the person behind the handle
 
 SUSTAIN_FULL = 90        # days from first commit to last at which effort saturates
 SIZE_FULL = 4000         # repository kilobytes at which "real codebase" saturates
@@ -504,30 +505,54 @@ def score(row: dict) -> tuple[float, list[str]]:
         pts += W_CORROBORATED
         why.append("same handle in " + " and ".join(row["sources"]))
 
+    claimed = (row.get("known_to_cala") or {}).get("claimed")
+    if claimed:
+        pts += W_IDENTIFIED
+        why.append(f"Cala records this account as "
+                   f"{row['known_to_cala']['name']}")
+
     return round(min(100.0, pts), 1), why
 
 
 # ---------------------------------------------------------------- Cala join
 
-def _people_by_handle(index: dict) -> dict[str, dict]:
-    """Cala People keyed by the handles their name could plausibly produce.
+def _cala_handle(e: dict) -> str | None:
+    """The GitHub login Cala itself records for a person, if it records one."""
+    v = (e.get("properties") or {}).get("github_url")
+    v = v.get("value") if isinstance(v, dict) else v
+    m = re.search(r"github\.com/([A-Za-z0-9-]+)", str(v or ""))
+    return m.group(1).lower() if m else None
 
-    This is free - it reads the cache we already hold - and it is how the
-    graph reaches a cohort the graph does not contain. A match is a lead, not
-    an identification, and the caller labels it as one.
+
+def _people_by_handle(index: dict) -> dict[str, dict]:
+    """Cala People keyed by the handles that could be theirs.
+
+    Two kinds of key, and the difference is the whole point. Cala stores a
+    github_url on a Person, and when it does, the login in it IS the person -
+    Cala is making the claim and carrying the sources for it, so the match is
+    stated as fact. Everything else is a name rearranged into the shapes a
+    login usually takes, which is a lead worth following and nothing more.
+
+    The claimed ones are written last so they always win the key.
     """
     out: dict[str, dict] = {}
     for e in index.values():
         if e.get("entity_type") != "Person":
             continue
         name = (e.get("name") or "").strip()
-        parts = [p for p in re.findall(r"[A-Za-z]{2,}", name)]
+        parts = re.findall(r"[A-Za-z]{2,}", name)
         if len(parts) < 2:
             continue
         first, last = parts[0].lower(), parts[-1].lower()
         for cand in (first + last, last + first, first + "-" + last,
                      first[0] + last, first + last[0]):
-            out.setdefault(cand, e)
+            out.setdefault(cand, dict(e, _claimed=False))
+    for e in index.values():
+        if e.get("entity_type") != "Person":
+            continue
+        h = _cala_handle(e)
+        if h:
+            out[h] = dict(e, _claimed=True)
     return out
 
 
@@ -577,14 +602,18 @@ def rank(*, thesis: str = "", limit: int = 40, months: int = 6,
         known = by_handle.get(key)
         if known and _already_founded(known):
             continue
+        r["known_to_cala"] = ({
+            "id": known.get("id"), "name": known.get("name"),
+            "claimed": bool(known.get("_claimed")),
+            "confidence": ("Cala records this GitHub account as theirs"
+                           if known.get("_claimed")
+                           else "name matches handle, unverified"),
+        } if known else None)
         s, why = score(r)
         if s <= 0:
             continue
         r["score"] = s
         r["why"] = why
-        r["known_to_cala"] = ({"id": known.get("id"), "name": known.get("name"),
-                               "confidence": "name matches handle, unverified"}
-                              if known else None)
         out.append(r)
 
     out.sort(key=lambda r: -r["score"])

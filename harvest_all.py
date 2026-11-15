@@ -132,6 +132,20 @@ def done_ids(con) -> set[str]:
     return {r[0] for r in con.execute("SELECT id FROM harvest WHERE err IS NULL")}
 
 
+# Properties always asked for, whatever the learned vocabulary says.
+#
+# Introspection returns the properties THAT ENTITY has, not the type's
+# schema. The vocabulary is learned from eight samples, so a field only rich
+# records carry is invisible forever after: Company learned twelve
+# properties from eight sparse companies and github_url was not among them.
+# Two people in the whole cache have a github_url, and that is a measure of
+# what we asked for rather than of what Cala holds. Asking for a property an
+# entity lacks costs nothing and returns empty - the same reason the
+# relationship list is a union - so these are a floor under every fetch.
+ALWAYS = ["github_url", "linkedin_url", "personal_website", "website",
+          "aliases", "description", "employee_count", "birth_date"]
+
+
 def harvest_one(eid: str, etype: str, vocab) -> dict:
     """Ask for everything this kind of entity is known to carry.
 
@@ -151,6 +165,7 @@ def harvest_one(eid: str, etype: str, vocab) -> dict:
         props = sorted(known["props"])
         out_rels = sorted(known["out"])
         in_rels = sorted(known["in"])
+    props = sorted(set(props) | set(ALWAYS))
     return cala.get_entity(eid, properties=props or None,
                            incoming=in_rels or None, outgoing=out_rels or None,
                            limit=PAGE, ttl=TTL) or {}

@@ -217,3 +217,62 @@ def test_a_refusing_source_degrades_instead_of_failing():
     assert out["rows"] == []
     assert "github" not in out["sources_read"]
     assert any("rate limited" in m for m in out["sources_missing"])
+
+
+# ------------------------------------------------- what Cala itself claims
+
+def _person(name, gh=None, founded=False):
+    e = {"id": "p1", "entity_type": "Person", "name": name,
+         "relationships": {"outgoing": ({"FOUNDED": [{"id": "c"}]} if founded else
+                                        {"WORKS_AT": [{"id": "c"}]})}}
+    if gh:
+        e["properties"] = {"github_url": {"value": gh, "sources": []}}
+    return e
+
+
+def test_cala_github_url_beats_a_name_guess_for_the_same_handle():
+    """A login Cala stores is the person. A rearranged name is a lead."""
+    index = {"a": _person("Quiet Dev"), "b": _person("Someone Else",
+                                                     gh="https://github.com/quietdev")}
+    idx = pb._people_by_handle(index)
+    assert idx["quietdev"]["name"] == "Someone Else"
+    assert idx["quietdev"]["_claimed"] is True
+
+
+def test_a_claimed_identity_is_stated_as_fact_and_scores_for_it():
+    index = {"b": _person("Quiet Dev", gh="https://github.com/quietdev")}
+    out = pb.rank(thesis="carbon ledger", today=TODAY, index=index,
+                  fetcher=feed([repo("quietdev", "carbon-ledger",
+                                     created="2026-08-01", pushed="2026-11-14",
+                                     desc="carbon ledger")]))
+    hit = out["rows"][0]["known_to_cala"]
+    assert hit["claimed"] is True
+    assert "Cala records" in hit["confidence"]
+    assert any("Cala records this account as Quiet Dev" in w
+               for w in out["rows"][0]["why"])
+
+
+def test_an_unclaimed_name_match_is_still_marked_unverified():
+    index = {"a": _person("Quiet Dev")}
+    out = pb.rank(thesis="carbon ledger", today=TODAY, index=index,
+                  fetcher=feed([repo("quietdev", "carbon-ledger",
+                                     created="2026-08-01", pushed="2026-11-14",
+                                     desc="carbon ledger")]))
+    hit = out["rows"][0]["known_to_cala"]
+    assert hit["claimed"] is False and "unverified" in hit["confidence"]
+
+
+def test_a_claimed_founder_is_still_dropped_from_this_cohort():
+    index = {"b": _person("Quiet Dev", gh="https://github.com/quietdev",
+                          founded=True)}
+    out = pb.rank(thesis="carbon ledger", today=TODAY, index=index,
+                  fetcher=feed([repo("quietdev", "carbon-ledger",
+                                     created="2026-08-01", pushed="2026-11-14",
+                                     desc="carbon ledger")]))
+    assert out["rows"] == []
+
+
+def test_a_github_url_with_no_login_in_it_is_ignored():
+    index = {"b": _person("Quiet Dev", gh="not a url")}
+    assert "quietdev" in pb._people_by_handle(index)
+    assert pb._people_by_handle(index)["quietdev"]["_claimed"] is False

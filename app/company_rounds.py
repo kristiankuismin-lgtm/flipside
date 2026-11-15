@@ -90,26 +90,27 @@ def from_cache(index: dict) -> dict[str, list[dict]]:
     same facts as structured fields - the issuer, every investor, the date
     and the amount - for the price of one entity fetch.
 
-    One thing it does not carry. The round's participant edges have a role,
-    and the whole vocabulary is ISSUER and INVESTOR: there is no lead marker
-    on the graph at all. company_history() gets lead because the query
-    endpoint computes it, and the entity does not. So rounds read this way
-    contribute co-investment and leave "leads" empty rather than nominating
-    the first investor in the list, which would invent the one fact an
-    investor would most want to rely on.
+    Lead attribution is here too, and it was nearly thrown away. A first
+    scan looked for is_lead at the top level of each participant edge, found
+    none in the rounds fetched that morning, and concluded the graph had no
+    lead marker. It sits one level down, on the edge's own properties,
+    alongside role - 279 of them across the cache. Reading role but not the
+    boolean beside it would have discarded the single fact an investor most
+    wants, while reporting confidently that it did not exist.
     """
     out: dict[str, list[dict]] = {}
     for e in index.values():
         if e.get("entity_type") != "FundingRound":
             continue
         rel = e.get("relationships") or {}
-        issuer, investors = None, []
+        issuer, investors, leads = None, [], []
         for d in ("incoming", "outgoing"):
             for items in (rel.get(d) or {}).values():
                 for x in items or []:
                     if not isinstance(x, dict):
                         continue
-                    role = _val((x.get("properties") or {}).get("role"))
+                    xp = x.get("properties") or {}
+                    role = _val(xp.get("role"))
                     nm = (x.get("name") or "").strip()
                     if not nm:
                         continue
@@ -117,6 +118,8 @@ def from_cache(index: dict) -> dict[str, list[dict]]:
                         issuer = nm
                     elif role == "INVESTOR":
                         investors.append(nm)
+                        if _val(xp.get("is_lead")) is True:
+                            leads.append(nm)
         if not issuer or not investors:
             continue
         p = e.get("properties") or {}
@@ -137,7 +140,7 @@ def from_cache(index: dict) -> dict[str, list[dict]]:
             "amount": amount,
             "currency": _val(p.get("transaction_value_units")),
             "investors": uniq,
-            "leads": [],          # not in the graph; see the docstring
+            "leads": [nm for nm in uniq if nm in set(leads)],
             "source": "cala entity",
         })
     return out

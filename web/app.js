@@ -65,6 +65,14 @@ const logo = (n, domain) => `<img class="logo" alt="" loading="lazy"
 const bigLogo = (n, domain) => `<img class="elogo" alt="" loading="lazy"
   src="/logo?${domain ? "domain=" + encodeURIComponent(domain) + "&" : ""}name=${encodeURIComponent(n || "")}">`;
 const dom = x => x?.website || x?.properties?.website?.value || null;
+/* Their clock, not the server's. A greeting that says good morning to
+   someone working at midnight is worse than no greeting. */
+function greeting() {
+  const h = new Date().getHours();
+  return h < 5 ? "Good night" : h < 12 ? "Good morning"
+       : h < 18 ? "Good afternoon" : "Good evening";
+}
+
 const badge = (t, c) => `<span class="bdg b-${c}">${esc(t)}</span>`;
 const stats = (cols, items) => `<div class="stats" style="grid-template-columns:repeat(${cols},1fr)">${
   items.map(([k, v, cls]) => `<div class="stat"><div class="k">${esc(k)}</div>
@@ -715,10 +723,20 @@ function applyRoleChrome() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  document.querySelectorAll("[data-builder]").forEach(b =>
+    b.onclick = () => openBuilder(b.dataset.builder));
+  const bs = $("#bscrim");
+  if (bs) bs.onclick = () => { BUILDER = null; render(); };
   const nf = $("#needform");
   if (nf) nf.onsubmit = e => { e.preventDefault(); intakeContinue($("#needq").value); };
   const scf = $("#scform");
-  if (scf) scf.onsubmit = e => { e.preventDefault(); loadScouts($("#scq").value); };
+  if (scf) scf.onsubmit = e => {
+    e.preventDefault();
+    const v = $("#scq").value;
+    // Both cohorts are ranked against the same sentence, so both reload.
+    SCOUT_THESIS = v; PRIVATE = null; PRIVATE_FOR = null;
+    loadScouts(v);
+  };
   document.querySelectorAll("[data-role]").forEach(b =>
     b.classList.toggle("on", b.dataset.role === ROLE));
   const f = $("#navfounder"), i = $("#navinvestor");
@@ -790,6 +808,80 @@ async function loadPrivate(thesis) {
   if (MODE === "scouts") render();
 }
 
+let BUILDER = null;
+
+async function openBuilder(handle) {
+  BUILDER = { handle, loading: true }; render();
+  try { BUILDER = await (await fetch(`/builder/${encodeURIComponent(handle)}`)).json(); }
+  catch (e) { BUILDER = { handle, error: String(e.message) }; }
+  render();
+}
+
+function builderDrawer() {
+  if (!BUILDER) return "";
+  const b = BUILDER, a = b.activity || {}, p = b.profile || {};
+  const body = b.loading
+    ? `<div class="msg" style="padding:30px"><span class="spin"></span>
+        Reading what ${esc(b.handle)} has been doing…</div>`
+    : b.error ? errorPanel(b.error, "this person")
+    : b.limited
+      ? `<div class="emptywhy"><b>GitHub is rate limited.</b> ${esc(b.limited)}
+          The list above cost nothing to build — it runs on repository search,
+          which has its own budget — but reading one person in depth spends
+          the core one.</div>`
+    : `${b.cala ? `<div class="${b.cala.claimed ? "goodwhy" : "emptywhy"}"
+          style="margin-bottom:var(--s3)">
+          <b>${esc(b.cala.name)}</b> — ${esc(b.cala.confidence)}.
+          ${b.cala.claimed
+            ? `Cala stores this GitHub account on their record, so this is
+               Cala's identification, not ours.`
+            : `A name rearranged into the shape of a login. Worth checking,
+               not worth acting on.`}</div>` : ""}
+      ${kpis([
+        ["Public events", a.events ?? 0, "ev", "in the last 90 days"],
+        ["Days active", a.active_days ?? 0, "da", "days with something on them"],
+        ["Followers", p.followers ?? 0, "fo", "on GitHub"],
+      ], "ev", null)}
+      ${(a.started || []).length ? `<div class="sech"><h3>Started lately</h3></div>
+        <div class="bships">${a.started.map(x => `<div class="bship">
+          <a href="https://github.com/${esc(x.repo)}" target="_blank" rel="noopener"
+            >${esc(x.repo)}</a><span class="sub">created ${esc(x.when)}</span>
+        </div>`).join("")}</div>` : ""}
+      ${(a.pushing_to || []).length ? `<div class="sech"><h3>Working on</h3></div>
+        <div class="bships">${a.pushing_to.map(x => `<div class="bship">
+          <a href="https://github.com/${esc(x.repo)}" target="_blank" rel="noopener"
+            >${esc(x.repo)}</a><span class="sub">last push ${esc(x.last)}</span>
+        </div>`).join("")}</div>` : ""}
+      ${(b.orgs || []).length ? `<div class="sech"><h3>Communities</h3></div>
+        <div class="bships">${b.orgs.map(o => `<div class="bship">
+          <a href="${esc(o.url)}" target="_blank" rel="noopener">${esc(o.login)}</a>
+          <span class="sub">${esc(o.description || "")}</span></div>`).join("")}</div>` : ""}
+      ${(a.contributed_to || []).length ? `<div class="sech">
+          <h3>Contributing to other people's projects</h3></div>
+        <div class="bships">${a.contributed_to.map(r => `<div class="bship">
+          <a href="https://github.com/${esc(r)}" target="_blank" rel="noopener"
+            >${esc(r)}</a></div>`).join("")}</div>` : ""}
+      ${(a.commented || []).length ? `<div class="sech"><h3>In other people's threads</h3></div>
+        <div class="bships">${a.commented.map(c => `<div class="bship">
+          <a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.repo)}</a>
+          <span class="sub">${esc(c.said)}</span></div>`).join("")}</div>` : ""}
+      ${(a.starred || []).length ? `<div class="sech"><h3>Reading</h3></div>
+        <div class="sub" style="line-height:1.8">${a.starred.map(x =>
+          `<a href="https://github.com/${esc(x.repo)}" target="_blank"
+             rel="noopener">${esc(x.repo)}</a>`).join(" · ")}</div>` : ""}
+      ${!a.events ? `<div class="emptywhy">No public activity in the last 90
+        days. GitHub only keeps that window, so this means quiet recently —
+        not inactive.</div>` : ""}`;
+  return `<div class="scrim on" id="bscrim"><div class="composebox wide"
+      onclick="event.stopPropagation()">
+      <div class="sidehd"><h3>${esc(b.handle)}</h3>
+        <div class="s">${p.name ? esc(p.name) + " · " : ""}
+          <a href="https://github.com/${esc(b.handle)}" target="_blank"
+             rel="noopener">github.com/${esc(b.handle)}</a></div></div>
+      <div style="padding:15px">${body}</div>
+    </div></div>`;
+}
+
 function privateRow(r) {
   const lead = r.lead_repo, key = "gh:" + r.handle;
   const watched = !!SCOUTWATCH[key];
@@ -805,7 +897,8 @@ function privateRow(r) {
         ${quiet ? badge("unseen", "green") : ""}
         ${r.sources.length > 1 ? badge(r.sources.join(" + "), "blue") : ""}
         ${r.known_to_cala ? badge("in Cala", "amber") : ""}</div>
-      <div class="scwhy">${esc((r.why || []).join(" · "))}</div>
+      <div class="scwhy">${esc((r.why || []).join(" · "))}
+        <button class="lnk" data-builder="${esc(r.handle)}">What else are they doing?</button></div>
       ${lead ? `<div class="bships">
         <div class="bship"><a href="${esc(lead.url)}" target="_blank" rel="noopener"
           >${esc(lead.repo)}</a>
@@ -898,13 +991,6 @@ function buildersPane() {
      "the habit, which is what this is looking for"],
     ["Already founders", c.already_known ?? 0, "known", "dropped from this list"],
   ], "all", null)
-  + `<div class="sub" style="max-width:72ch;line-height:1.75;margin:-4px 0 var(--s3)">
-      Read from ${c.posts_read} Show HN posts over ${
-        Math.round((c.window_days || 180) / 30)} months, by ${c.handles} handles.
-      A Show HN post is somebody deliberately publishing a thing they built,
-      under a handle they chose — so this names the handle and the work, and
-      leaves working out who they are to you. A handle is not a person, and
-      nothing here reads a LinkedIn, a mailbox or a private profile.</div>`
   + (rows.length
     ? `<div class="sclist">${rows.map(builderRow).join("")}</div>`
     : `<div class="emptywhy"><b>Nothing came back.</b> The Hacker News search
@@ -1079,9 +1165,12 @@ function scoutsView() {
           ? `<span class="sub">last swept ${esc(since(WATCH.last_sweep))}</span>` : ""}</div>
     </div>
     <form class="scthesis" id="scform">
-      <input id="scq" placeholder="Your thesis — e.g. clinical software for hospitals"
+      <input id="scq" placeholder="${SCOUTTAB === "private"
+        ? "A problem you wish someone was building — e.g. ambient AI scribe for clinicians"
+        : "Your thesis — e.g. clinical software for hospitals"}"
         value="${esc(SCOUT_THESIS)}" autocomplete="off">
-      <button class="btn pri" type="submit">Rank against it</button>
+      <button class="btn pri" type="submit">${SCOUTTAB === "private"
+        ? "Find who is building it" : "Rank against it"}</button>
     </form>`;
 
   const tabs = `<div class="sctabs">
@@ -1108,7 +1197,7 @@ function scoutsView() {
            because “on your thesis” is the entire claim.`}</p>`;
 
   if (SCOUTTAB === "building") return head + tabs + buildersPane();
-  if (SCOUTTAB === "private") return head + tabs + privatePane();
+  if (SCOUTTAB === "private") return head + tabs + privatePane() + builderDrawer();
 
   if (!SCOUTS) { loadScouts(SCOUT_THESIS); return head + tabs + `<div class="msg">
     <span class="spin"></span>Reading the people we have records for…</div>`; }
@@ -1210,7 +1299,7 @@ function openConviction(name) {
       <ul class="why">${(c.reasons || []).map(r => `<li>${esc(r)}</li>`).join("")
         || `<li class="sub">No reason recorded.</li>`}</ul>
       <div class="sech"><h3>The rounds it read</h3></div>
-      <div class="tbl"><table><thead><tr><th>Stage</th><th>Date</th>
+      <div class="tbl convtbl"><table><thead><tr><th>Stage</th><th>Date</th>
         <th class="num">Amount</th><th>Who was in it</th></tr></thead><tbody>${
         (c.rounds || []).map(r => `<tr style="cursor:default">
           <td>${esc(r.stage || "")}</td>
@@ -3720,10 +3809,20 @@ function render() {
     const [id, ...rest] = b.dataset.scwatch.split("|");
     scoutToggle(id, rest.join("|"));
   });
+  document.querySelectorAll("[data-builder]").forEach(b =>
+    b.onclick = () => openBuilder(b.dataset.builder));
+  const bs = $("#bscrim");
+  if (bs) bs.onclick = () => { BUILDER = null; render(); };
   const nf = $("#needform");
   if (nf) nf.onsubmit = e => { e.preventDefault(); intakeContinue($("#needq").value); };
   const scf = $("#scform");
-  if (scf) scf.onsubmit = e => { e.preventDefault(); loadScouts($("#scq").value); };
+  if (scf) scf.onsubmit = e => {
+    e.preventDefault();
+    const v = $("#scq").value;
+    // Both cohorts are ranked against the same sentence, so both reload.
+    SCOUT_THESIS = v; PRIVATE = null; PRIVATE_FOR = null;
+    loadScouts(v);
+  };
   document.querySelectorAll("[data-role]").forEach(b =>
     b.onclick = () => setRole(b.dataset.role));
   document.querySelectorAll("[data-conv]").forEach(b =>
@@ -3875,11 +3974,17 @@ function mapView() {
       `<div class="maproot">
         <div class="mapbox">
           <div class="mapbar">
-            <span class="grp"><span class="lbl">Show</span>
-              ${Object.entries(LAYER_META).map(([k, [lbl, shape]]) =>
-                `<button class="tgl ${LAYERS[k] ? "on" : ""}" data-layer="${k}">
-                   <i class="${shape === "circle" ? "ci" : shape === "square" ? "sq" : "di"}"></i>${lbl}</button>`).join("")}
-            </span>
+            ${MAPMODE === "pp"
+              ? `<span class="grp"><span class="lbl">Show</span>
+                   <button class="tgl on" data-mm="co"
+                     title="Back to plotting companies and funds">← People</button>
+                 </span>`
+              : `<span class="grp"><span class="lbl">Show</span>
+                   ${Object.entries(LAYER_META).map(([k, [lbl, shape]]) =>
+                     `<button class="tgl ${LAYERS[k] ? "on" : ""}" data-layer="${k}">
+                        <i class="${shape === "circle" ? "ci" : shape === "square"
+                          ? "sq" : "di"}"></i>${lbl}</button>`).join("")}
+                 </span>`}
             <span class="mapsearch"><span style="color:var(--faint)">⌕</span>
               <input id="mapq" autocomplete="off" placeholder="${
                 MAPMODE === "pp" ? "Type a founder or investor name"
@@ -4020,13 +4125,34 @@ function sideList(points, title) {
    in order to tell the user their address. */
 let MYMARKER = null;
 
-function locateMe() {
-  if (!navigator.geolocation) {
-    MYLOCERR = "This browser has no geolocation. Type a city in the filter box instead.";
-    return render();
+/* Ask the browser first, fall back to the network. Browsers refuse
+   geolocation outright on a plain-http origin, which is what this runs on,
+   so "ask and give up" meant the button never worked for anybody. The
+   fallback is a city, never an address, and nothing is stored. */
+async function byNetwork(why) {
+  try {
+    const d = await (await fetch("/whereami")).json();
+    if (d.lat == null) {
+      MYLOC = null;
+      MYLOCERR = `${why} And no network location either. Type a city in the filter box.`;
+      return render();
+    }
+    MYLOC = { lat: d.lat, lon: d.lon, approx: true, label: d.label };
+    MYLOCERR = null;
+    loadNear();
+  } catch (e) {
+    MYLOC = null;
+    MYLOCERR = `${why} Type a city in the filter box instead.`;
+    render();
   }
+}
+
+function locateMe() {
   MYLOCERR = "locating";
   render();
+  if (!navigator.geolocation) {
+    return byNetwork("This browser has no geolocation.");
+  }
   navigator.geolocation.getCurrentPosition(
     pos => {
       MYLOC = { lat: pos.coords.latitude, lon: pos.coords.longitude,
@@ -4034,13 +4160,8 @@ function locateMe() {
       MYLOCERR = null;
       loadNear();
     },
-    err => {
-      MYLOC = null;
-      MYLOCERR = err.code === 1
-        ? "Location permission denied. Typing a city in the filter box does the same job."
-        : `Could not get a location (${esc(err.message || "unknown")}). Try the filter box.`;
-      render();
-    },
+    err => byNetwork(err.code === 1 ? "Location permission denied."
+                                    : "The browser could not place you."),
     { enableHighAccuracy: false, timeout: 9000, maximumAge: 300000 });
 }
 
@@ -4570,10 +4691,8 @@ function fileIcon(name) {
 function homeView() {
   return `<div class="home">
     <div class="homehd">
+      <p class="greet">${greeting()}</p>
       <h1>Who should you be talking to?</h1>
-      <p class="homesub">Tell Flipside what you are building and what you are
-        raising. It reads Cala's graph for the investors who can actually lead
-        it — and, just as usefully, the ones who cannot.</p>
     </div>
 
     <div class="ask">

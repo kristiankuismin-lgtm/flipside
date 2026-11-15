@@ -8,9 +8,11 @@ from app import company_rounds as CR
 
 
 def round_entity(issuer, investors, *, stage="SEED", date="2024-01-01",
-                 amount=1000000.0, units="USD"):
+                 amount=1000000.0, units="USD", leads=()):
     parts = [{"id": "c", "name": issuer, "properties": {"role": "ISSUER"}}]
-    parts += [{"id": f"i{n}", "name": nm, "properties": {"role": "INVESTOR"}}
+    parts += [{"id": f"i{n}", "name": nm,
+               "properties": {"role": "INVESTOR",
+                              **({"is_lead": True} if nm in leads else {})}}
               for n, nm in enumerate(investors)]
     return {"id": "r1", "entity_type": "FundingRound", "name": stage,
             "properties": {"round_label": stage, "announcement_date": date,
@@ -28,9 +30,16 @@ def test_reads_the_issuer_and_the_investors_apart():
     assert r["stage"] == "SEED" and r["date"] == "2024-01-01"
 
 
-def test_leads_are_left_empty_because_the_graph_has_none():
-    """Cala's role vocabulary is ISSUER and INVESTOR. Nominating the first
-    investor as lead would invent the fact an investor most relies on."""
+def test_the_lead_is_read_from_the_edge_properties_not_the_edge():
+    """is_lead sits beside role on the edge's own properties, one level below
+    where a first scan looked for it - which nearly lost lead attribution
+    entirely while reporting that the graph did not have it."""
+    out = CR.from_cache({"r1": round_entity("Acme", ["Tesi", "Inventure"],
+                                            leads=["Inventure"])})
+    assert out["acme"][0]["leads"] == ["Inventure"]
+
+
+def test_a_round_nobody_is_marked_leading_has_no_lead_invented():
     out = CR.from_cache({"r1": round_entity("Acme", ["Tesi", "Inventure"])})
     assert out["acme"][0]["leads"] == []
 

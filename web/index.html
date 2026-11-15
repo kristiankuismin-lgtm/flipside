@@ -119,7 +119,7 @@ body.wide .wrap{max-width:none}
 .homehd .sq{width:34px;height:34px;border-radius:9px;background:var(--accent);
   display:grid;place-items:center;font:700 16px var(--sans);color:#fff}
 .homehd h1{margin:0 0 10px;font-size:32px;font-weight:620;letter-spacing:-.035em}
-.homesub{margin:0 auto;max-width:54ch;font-size:14.5px;line-height:1.65;color:var(--dim)}
+.greet{margin:0 0 6px;font-size:13px;letter-spacing:.02em;color:var(--faint)}
 .ask{background:var(--panel);border:1px solid var(--line2);border-radius:14px;
   box-shadow:var(--sh2);padding:4px 4px 4px 0;transition:border-color .15s}
 .ask:focus-within{border-color:var(--accent)}
@@ -565,7 +565,16 @@ tbody tr.kbd{background:var(--accent-bg)!important;
 /* --- outreach brief: the draft and its evidence in one drawer --- */
 .btn.sm{padding:4px 10px;font-size:11.5px;border-radius:6px}
 .tdact{text-align:right;white-space:nowrap}
-.composebox.wide{max-width:680px}
+.composebox.wide{max-width:min(1040px,94vw)}
+/* A Series C can carry twenty-five named investors. At 680px that column
+   wrapped to one word a line and the three columns beside it were squeezed
+   to nothing, so the table said less than the sentence above it. */
+.convtbl table{table-layout:fixed;width:100%}
+.convtbl th:nth-child(1),.convtbl td:nth-child(1){width:88px}
+.convtbl th:nth-child(2),.convtbl td:nth-child(2){width:108px}
+.convtbl th:nth-child(3),.convtbl td:nth-child(3){width:96px}
+.convtbl td:nth-child(4){line-height:1.75;white-space:normal;word-break:normal}
+.convtbl td{vertical-align:top;padding-top:10px;padding-bottom:10px}
 .btrail{border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .bsent{padding:12px 14px;border-bottom:1px solid var(--line);background:var(--panel)}
 .bsent:last-child{border-bottom:0}
@@ -657,6 +666,8 @@ tbody tr.kbd{background:var(--accent-bg)!important;
 .dm.live{color:var(--green)}
 
 /* honest absence */
+.goodwhy{padding:var(--s2);border:1px solid var(--green);border-radius:10px;
+  background:var(--green-bg);line-height:1.7}
 .emptywhy{padding:var(--s2);border:1px dashed var(--line2);border-radius:10px;
   background:var(--panel2);font-size:13px;line-height:1.65;color:var(--dim);
   max-width:66ch}
