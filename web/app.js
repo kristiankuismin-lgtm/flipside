@@ -831,6 +831,7 @@ function applyRoleChrome() {
     if (b.dataset.bulk === "deal") {
       picked.forEach(id => addPersonToPipeline(id));
       CALLSEL = new Set();
+      MODE = "deals";            // you asked for the pipeline; here it is
       return render();
     }
     // Drafting is one firm at a time: the opener is about the firm, and a
@@ -3648,18 +3649,29 @@ async function openMailAll() {
   // raising, at what stage, against whom. Without a screen the draft came
   // back reading "exactly the round  is putting together" - a hole where
   // the company should be. Say what is missing instead of printing it.
-  if (!F?.company) {
-    MAILALL.loading = false;
-    MAILALL.draft = { needs_screen: true };
-    return render();
-  }
   await mailDraft();
 }
 
 async function mailDraft() {
   if (!MAILALL) return;
-  if (!F?.company) { MAILALL.loading = false;
-    MAILALL.draft = { needs_screen: true }; return render(); }
+  if (!F?.company) {
+    // No screen, so no round to argue from - but the person and the firm
+    // are known, and a draft with one blank in it is usable where a panel
+    // telling you to go and run a screen is not.
+    const who = MAILALL.names[MAILALL.at];
+    const c = dealContact(who);
+    MAILALL.loading = false;
+    MAILALL.draft = {
+      subject: `${c?.person ? c.person.split(" ")[0] + " — " : ""}intro`,
+      body: `Hi ${c?.person ? c.person.split(" ")[0] : "there"},\n\n`
+        + `I'm building [what you are building] and I'm raising `
+        + `[what you are raising].\n\n`
+        + `I wanted to reach you at ${who} because [why them].\n\n`
+        + `Would 20 minutes be worth it?\n\nBest,\n`,
+      unscreened: true,
+    };
+    return render();
+  }
   const who = MAILALL.names[MAILALL.at];
   MAILALL.loading = true; render();
   try {
@@ -3703,14 +3715,6 @@ function mailAllPane() {
       <div class="mailbody">${MAILALL.loading
         ? `<div class="msg" style="padding:40px"><span class="spin"></span>
             Reading ${esc(who)}'s record…</div>`
-        : d.needs_screen
-        ? `<div class="emptywhy"><b>These drafts are about a specific round.</b>
-            Every line in one says what you are raising and why this firm fits
-            it — without that the opener has a hole where your company should
-            be. Run a screen from <b>Ask</b> and come back; the pipeline keeps
-            what is in it.
-            <div style="margin-top:12px"><button class="btn"
-              data-goto="home">Go to Ask</button></div></div>`
         : d.error ? errorPanel(d.error, who)
         : `<div class="mailfields">
              <div><span class="k">To</span><span class="v">${logo(who)}
@@ -3721,6 +3725,9 @@ function mailAllPane() {
                esc(d.subject || `${F?.company || "Us"} × ${who}`)}</span></div>
            </div>
            <textarea class="mailtext" id="mailtext">${esc(body)}</textarea>
+           ${d.unscreened ? `<div class="sub" style="margin:-4px 0 8px">
+             Square brackets are yours to fill. Run a screen from Ask and
+             these drafts come back written from each firm's own record.</div>` : ""}
            <div class="mailacts">
              ${d.mailto ? `<a class="btn pri" href="${esc(d.mailto)}">Open in mail</a>` : ""}
              <button class="btn" id="mailcopy">Copy</button>
@@ -4436,6 +4443,7 @@ function render() {
     if (b.dataset.bulk === "deal") {
       picked.forEach(id => addPersonToPipeline(id));
       CALLSEL = new Set();
+      MODE = "deals";            // you asked for the pipeline; here it is
       return render();
     }
     // Drafting is one firm at a time: the opener is about the firm, and a

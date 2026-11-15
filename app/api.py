@@ -851,7 +851,32 @@ def _map_data_uncached():
 
     from collections import Counter
     status_counts = Counter(p["status"] for p in pts)
+    # A coordinate shared by many entities is a city centroid that some
+    # source labelled as an address. Dozens of Helsinki companies sat on
+    # exactly 60.1666, 24.9435 flagged precise, so the map stacked them on
+    # one rooftop instead of spreading them and drawing them hollow - which
+    # reads as the map inventing locations. Precision is a claim; this is
+    # the one check that can falsify it.
+    _seen_at = {}
+    for _layer in (pts, portfolio, funds):
+        for _r in _layer:
+            if _r.get("lat") is None:
+                continue
+            _seen_at[(round(_r["lat"], 4), round(_r["lon"], 4))] = \
+                _seen_at.get((round(_r["lat"], 4), round(_r["lon"], 4)), 0) + 1
+    _crowded = {k for k, n in _seen_at.items() if n > 3}
+    _demoted = 0
+    for _layer in (pts, portfolio, funds):
+        for _r in _layer:
+            if _r.get("lat") is None or not _r.get("precise"):
+                continue
+            if (round(_r["lat"], 4), round(_r["lon"], 4)) in _crowded:
+                _r["precise"] = False
+                _r["precision"] = "city"
+                _demoted += 1
+
     return {"event": "Slush 2026", "event_date": "2026-11-18",
+            "shared_coordinates_demoted": _demoted,
             "total_exhibitors": len(profs), "profiles_fetched": len(ok),
             "placed": len(pts), "exact": exact, "unplaced": unplaced,
             "walked": len(walked), "status": dict(status_counts),
