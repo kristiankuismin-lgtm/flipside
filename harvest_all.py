@@ -204,7 +204,9 @@ def main() -> int:
         # skips it forever. github_url became a floor property after 126
         # people had already been read, which is why Cala's own GitHub claim
         # covered two of them.
-        from app import cache_index
+        # cache_index is imported at module level; re-importing it here
+        # made it a local and every other use in this function an
+        # UnboundLocalError, which killed the run before the first fetch.
         want = {t.strip() for t in a.redo.split(",") if t.strip()}
         idx = cache_index.build()
         drop = {i for i in seen if idx.get(i, {}).get("entity_type") in want}
