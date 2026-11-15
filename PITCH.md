@@ -1,6 +1,6 @@
 # Flipside — 2 minute pitch
 
-~300 words. Numbers are live as of the last harvest; re-check before you walk on.
+~320 words. Numbers are live as of the last harvest; re-check before you walk on.
 
 ---
 
@@ -32,32 +32,27 @@ almost no stars. GitHub, GitLab, Hugging Face, arXiv, Devpost.
 actually leave in: two to five years. The longest-serving person is the
 *least* likely to go.
 
-**[1:05 — SHOW: Insider conviction → "Who just left something".]**
-
-And then the thing Cala already knew and nobody had read.
+**[1:00 — point at a row in "Who just left something".]**
 
 813 relationship edges carry a `valid_until` — the date a role *ended*.
-Every product built on this graph reads `valid_since`. So they watch people
-arrive and never watch them leave.
+Every product built on this graph reads `valid_since`. Nobody had read the
+other half. 88 people, right now, with an ended seat and nothing started
+since. HP's CEO, already announced to leave in January. That gap comes
+before the company.
 
-An ended seat with nothing started since is a person who is, on the record,
-**unaccounted for.** That gap comes before the company.
+**[1:25 — SHOW: a person card's "Where they have been".]**
 
-**[1:30 — point at a row.]**
+We stopped reading the graph and started asking it questions. "Who did
+this fund's founders work for before" turns a person into a career —
+McKinsey into Detectify, GoCardless, Just Eat; F-Secure into Aiven.
+Zero of these existed this morning. 31 real employers now, named, not
+folklore.
 
-87 of them right now. Alex Wang out of Scale AI. Tayenthal out of N26.
-Bruce Broussard leaves HP in January — *already announced.*
-
-**[1:45 — SHOW: type "fintech payments" in the thesis box.]**
-
-Same trick, different edge: 3,777 `AFFECTS_INDUSTRY` edges nobody had touched.
-Type a thesis, get the regulation that governs it. Fintech opens with 5AMLD.
-
-**[1:55 — close. Look up.]**
+**[1:50 — close. Look up.]**
 
 Every number on screen is computed, sourced, and says what it can't do.
 
-We didn't add data to Cala. We read the half of it everyone skips.
+We didn't add data to Cala. We asked it better questions.
 
 ---
 
@@ -68,10 +63,11 @@ They rank people who have founded. Three of our four cohorts have never
 founded anything. Nobody sells "unaccounted for".
 
 **"Is the data real?"**
-26,571 entities held, every figure on screen computed from them. Where the
+26,600+ entities held, every figure on screen computed from them. Where the
 record is thin the panel says so — the backtest on our own round architect
 says it failed, and it's still in the product.
 
 **"What would you do next?"**
-`valid_until` scales with the harvest — 22% of people we read carry one.
-More harvest, more departures, linearly.
+The same trick, run wider: we're asking Cala about people directly now,
+not just firms — a career per person instead of a role per answer. More
+questions, more rows, linearly.
