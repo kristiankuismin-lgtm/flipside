@@ -24,12 +24,25 @@ def repo(handle, name, *, created, pushed, stars=0, size=2000, desc="",
             "created_at": created + "T00:00:00Z", "pushed_at": pushed + "T00:00:00Z"}
 
 
-def feed(items=(), hits=(), software=()):
+def feed(items=(), hits=(), software=(), gitlab=(), models=(), atom=""):
+    """One fetcher standing in for every source rank() reads.
+
+    Each source has its own response shape - GitHub and HN return objects,
+    GitLab and Hugging Face return bare lists, arXiv returns Atom text - so
+    a stub that answers them all has to be shaped per source rather than
+    returning one convenient dict.
+    """
     def fetcher(url, params, *, kind, **kw):
         if kind == "gh":
             return {"items": list(items)}
         if kind == "hn":
             return {"hits": list(hits)}
+        if kind == "gl":
+            return list(gitlab)
+        if kind == "hf":
+            return list(models)
+        if kind == "ax":
+            return atom
         return {"software": list(software)}
     return fetcher
 
@@ -212,7 +225,7 @@ def test_a_refusing_source_degrades_instead_of_failing():
     def fetcher(url, params, *, kind, **kw):
         if kind == "gh":
             raise pb.Unavailable("gh: rate limited")
-        return {"hits": [], "software": []}
+        return feed()(url, params, kind=kind, **kw)
     out = pb.rank(thesis="carbon ledger", today=TODAY, fetcher=fetcher)
     assert out["rows"] == []
     assert "github" not in out["sources_read"]
@@ -276,3 +289,90 @@ def test_a_github_url_with_no_login_in_it_is_ignored():
     index = {"b": _person("Quiet Dev", gh="not a url")}
     assert "quietdev" in pb._people_by_handle(index)
     assert pb._people_by_handle(index)["quietdev"]["_claimed"] is False
+
+
+# ------------------------------------------------- the rest of the internet
+
+def gl(handle, path, *, activity="2026-11-10", desc="", kind="user", stars=0):
+    return {"namespace": {"kind": kind, "path": handle},
+            "path_with_namespace": f"{handle}/{path}", "path": path,
+            "description": desc, "topics": [], "star_count": stars,
+            "created_at": "2026-08-01T00:00:00Z",
+            "last_activity_at": activity + "T00:00:00Z",
+            "web_url": f"https://gitlab.com/{handle}/{path}"}
+
+
+def test_gitlab_groups_are_companies_not_people():
+    rows = pb.gitlab(["carbon ledger"], today=TODAY,
+                     fetcher=lambda u, p, *, kind, **k: [
+                         gl("acme", "carbon-ledger", kind="group"),
+                         gl("dev", "carbon-ledger")])
+    assert [r["handle"] for r in rows] == ["dev"]
+    assert rows[0]["host"] == "gitlab"
+
+
+def test_a_loud_gitlab_project_is_not_private():
+    rows = pb.gitlab(["carbon ledger"], today=TODAY,
+                     fetcher=lambda u, p, *, kind, **k: [
+                         gl("dev", "carbon-ledger", stars=900)])
+    assert rows == []
+
+
+def test_huggingface_models_carry_the_owner_as_the_handle():
+    rows = pb.models(["carbon ledger"], fetcher=lambda u, p, *, kind, **k: [
+        {"id": "someone/carbon-ledger-v2", "likes": 3, "downloads": 40,
+         "tags": ["carbon"], "lastModified": "2026-11-01T00:00:00Z"}])
+    assert rows[0]["handle"] == "someone"
+    assert rows[0]["host"] == "huggingface"
+    assert rows[0]["url"] == "https://huggingface.co/someone/carbon-ledger-v2"
+
+
+ATOM = """<feed><entry><title>A Carbon Ledger for Supply Chains</title>
+<id>http://arxiv.org/abs/2611.00001</id><published>2026-11-10T00:00:00Z</published>
+<author><name>Ada Lovelace</name></author><author><name>Bob Stone</name></author>
+<author><name>Carol Diaz</name></author><author><name>Dan Fourth</name></author>
+</entry></feed>"""
+
+
+def test_only_the_front_of_an_author_list_becomes_a_row():
+    """A six-author paper is not six people about to start a company."""
+    idx = pb.papers(["carbon ledger"], fetcher=lambda u, p, *, kind, **k: ATOM)
+    assert set(idx) == {"ada lovelace", "bob stone", "carol diaz"}
+    assert idx["ada lovelace"][0]["position"] == 0
+
+
+def test_first_author_outranks_a_third_author_on_the_same_paper():
+    idx = pb.papers(["carbon ledger"], fetcher=lambda u, p, *, kind, **k: ATOM)
+    rows = {r["handle"]: r for r in pb.group([], {}, {}, today=TODAY,
+                                             paper_idx=idx)}
+    assert pb.score(rows["Ada Lovelace"])[0] > pb.score(rows["Carol Diaz"])[0]
+    assert any("first author" in w for w in pb.score(rows["Ada Lovelace"])[1])
+
+
+def test_researcher_scores_do_not_all_tie():
+    """The same failure as the repository ranking: everyone at exactly 20.0."""
+    idx = pb.papers(["carbon ledger"], fetcher=lambda u, p, *, kind, **k: ATOM)
+    idx["ada lovelace"].append(dict(idx["ada lovelace"][0], title="Second"))
+    rows = pb.group([], {}, {}, today=TODAY, paper_idx=idx)
+    assert len({pb.score(r)[0] for r in rows}) == len(rows)
+
+
+def test_a_paper_author_lands_on_a_repo_handle_that_is_already_here():
+    """Two identity spaces, one person. Publishing on the thesis and pushing
+    code for it is the strongest thing this module can find."""
+    repo_rows = pb.repos(["carbon ledger"], today=TODAY, fetcher=feed([
+        repo("adalovelace", "carbon-ledger", created="2026-08-01",
+             pushed="2026-11-14", desc="carbon ledger")]))
+    idx = pb.papers(["carbon ledger"], fetcher=lambda u, p, *, kind, **k: ATOM)
+    rows = pb.group(repo_rows, {}, {}, today=TODAY, paper_idx=idx)
+    merged = [r for r in rows if r["repos"] and r["papers"]]
+    assert len(merged) == 1
+    assert set(merged[0]["sources"]) == {"github", "arxiv"}
+
+
+def test_the_same_paper_found_by_two_queries_counts_once():
+    """Queries overlap by design, so a paper comes back more than once.
+    Counting it twice inflates both the claim and the score."""
+    idx = pb.papers(["carbon ledger", "carbon"],
+                    fetcher=lambda u, p, *, kind, **k: ATOM)
+    assert len(idx["ada lovelace"]) == 1

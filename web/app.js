@@ -889,7 +889,8 @@ function privateRow(r) {
         ${r.sources.length > 1 ? badge(r.sources.join(" + "), "blue") : ""}
         ${r.known_to_cala ? badge("in Cala", "amber") : ""}</div>
       <div class="scwhy">${esc((r.why || []).join(" · "))}
-        <button class="lnk" data-builder="${esc(r.handle)}">What else are they doing?</button></div>
+        ${r.profile ? `<button class="lnk" data-builder="${esc(r.handle)}"
+          >What else are they doing?</button>` : ""}</div>
       ${lead ? `<div class="bships">
         <div class="bship"><a href="${esc(lead.url)}" target="_blank" rel="noopener"
           >${esc(lead.repo)}</a>
@@ -904,7 +905,15 @@ function privateRow(r) {
         ${(r.rooms || []).slice(0, 1).map(c => `<div class="bship">
           <a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.story)}</a>
           <span class="sub">commented in this thread</span></div>`).join("")}
-      </div>` : ""}
+        ${(r.papers || []).slice(0, 2).map(w => `<div class="bship">
+          <a href="${esc(w.url)}" target="_blank" rel="noopener">${esc(w.title)}</a>
+          <span class="sub">arXiv${w.when ? " · " + esc(w.when) : ""}</span>
+        </div>`).join("")}
+      </div>` : (r.papers || []).length ? `<div class="bships">
+        ${r.papers.slice(0, 3).map(w => `<div class="bship">
+          <a href="${esc(w.url)}" target="_blank" rel="noopener">${esc(w.title)}</a>
+          <span class="sub">arXiv${w.when ? " · " + esc(w.when) : ""}</span>
+        </div>`).join("")}</div>` : ""}
     </div>
     <div class="scsc">${r.score}</div>
   </div>`;
@@ -930,7 +939,8 @@ function privatePane() {
   ], "all", null)
   + `<div class="sub" style="margin:-4px 0 var(--s3)">
       ${qs || "your thesis"} · GitHub ${c.github_handles || 0} ·
-      Devpost ${c.devpost_members || 0} · HN ${c.hn_commenters || 0}</div>`
+      Devpost ${c.devpost_members || 0} · HN ${c.hn_commenters || 0} ·
+      arXiv ${c.researchers || 0}</div>`
   + (rows.length
     ? `<div class="sclist">${rows.map(privateRow).join("")}</div>`
     : `<div class="emptywhy"><b>Nobody is building this quietly that we can

@@ -55,6 +55,9 @@ from datetime import date, datetime, timedelta, timezone
 import httpx
 
 GH_SEARCH = "https://api.github.com/search/repositories"
+GL_SEARCH = "https://gitlab.com/api/v4/projects"
+HF_SEARCH = "https://huggingface.co/api/models"
+ARXIV = "https://export.arxiv.org/api/query"
 HN_SEARCH = "https://hn.algolia.com/api/v1/search"
 DEVPOST = "https://devpost.com/software/search"
 UA = "Flipside/0.1 (Junction hackathon; github.com/kristiankuismin-lgtm)"
@@ -74,6 +77,7 @@ W_HACKATHON = 14         # turned up and built under a clock
 W_ROOMS = 10             # present in the conversation, not just the code
 W_CORROBORATED = 8       # more than one source knows this handle
 W_IDENTIFIED = 10        # Cala names the person behind the handle
+W_PAPERS = 20            # publishing on the thesis, under a real name
 
 SUSTAIN_FULL = 90        # days from first commit to last at which effort saturates
 SIZE_FULL = 4000         # repository kilobytes at which "real codebase" saturates
@@ -140,6 +144,27 @@ def _get(url, params, *, kind, cache_only=False, timeout=12.0):
         return None
     _store(k, v)
     return v
+
+
+def _get_text(url, params, *, kind, cache_only=False, timeout=15.0):
+    """Same cache, for a source that answers in XML rather than JSON."""
+    k = kind + json.dumps(params, sort_keys=True)
+    hit = _cached(k)
+    if hit is not None:
+        return hit
+    if cache_only:
+        return None
+    try:
+        r = httpx.get(url, params=params, headers={"User-Agent": UA},
+                      timeout=timeout, follow_redirects=True)
+    except httpx.HTTPError:
+        return None
+    if r.status_code in (403, 429):
+        raise Unavailable(f"{kind}: rate limited")
+    if r.status_code != 200:
+        return None
+    _store(k, r.text)
+    return r.text
 
 
 def queries(thesis: str, *, limit: int = 3) -> list[str]:
@@ -368,6 +393,127 @@ def enrich(hack_idx: dict, *, limit: int = 12, fetcher=None) -> dict:
     return out
 
 
+def gitlab(qs: list[str], *, today: date, months: int = 6,
+           fetcher=None, per_query: int = 50) -> list[dict]:
+    """The same question asked of the other code host.
+
+    Not everyone building something is on GitHub, and a cohort that only
+    looks at one host quietly says the others do not exist.
+    """
+    alive = (today - timedelta(days=FRESH_DAYS * 2)).isoformat()
+    out, seen = [], set()
+    for q in qs:
+        d = (fetcher or _get)(GL_SEARCH, {"search": q, "order_by": "last_activity_at",
+                                          "sort": "desc", "per_page": per_query,
+                                          "last_activity_after": alive},
+                              kind="gl")
+        for r in (d or []):
+            if not isinstance(r, dict):
+                continue
+            ns = r.get("namespace") or {}
+            if ns.get("kind") != "user":
+                continue        # a group is a company, not a person starting one
+            full = r.get("path_with_namespace") or ""
+            name = (r.get("path") or "").strip()
+            desc = (r.get("description") or "")[:200]
+            if not full or full in seen or _NOT_A_VENTURE.search(f"{name} {desc}"):
+                continue
+            topics = (r.get("topics") or r.get("tag_list") or [])[:10]
+            fit = _fit(name, topics, desc, q)
+            if fit < 0.5:
+                continue
+            seen.add(full)
+            stars = r.get("star_count", 0)
+            if stars >= MAX_STARS:
+                continue
+            out.append({
+                "handle": ns.get("path"), "repo": full, "host": "gitlab",
+                "url": r.get("web_url") or f"https://gitlab.com/{full}",
+                "description": desc[:160], "topics": topics,
+                "language": None, "stars": stars, "size_kb": 0,
+                "issues": r.get("open_issues_count", 0) or 0,
+                "homepage": None, "licensed": False,
+                "created": (r.get("created_at") or "")[:10],
+                "pushed": (r.get("last_activity_at") or "")[:10],
+                "fit": round(fit, 2),
+                "hack_hint": bool(_HACKATHON.search(desc)), "query": q,
+            })
+    return out
+
+
+def models(qs: list[str], *, fetcher=None, per_query: int = 30) -> list[dict]:
+    """Published models. For an AI thesis this is the artifact itself."""
+    out, seen = [], set()
+    for q in qs:
+        d = (fetcher or _get)(HF_SEARCH, {"search": q, "limit": per_query,
+                                          "sort": "lastModified",
+                                          "direction": -1}, kind="hf")
+        for m in (d or []):
+            if not isinstance(m, dict):
+                continue
+            mid = m.get("id") or ""
+            if "/" not in mid or mid in seen:
+                continue
+            owner, short = mid.split("/", 1)
+            fit = _fit(short, m.get("tags") or [], "", q)
+            if fit < 0.5:
+                continue
+            seen.add(mid)
+            out.append({
+                "handle": owner, "repo": mid, "host": "huggingface",
+                "url": f"https://huggingface.co/{mid}",
+                "description": f"published model · {m.get('downloads', 0)} downloads",
+                "topics": (m.get("tags") or [])[:8], "language": None,
+                "stars": m.get("likes", 0) or 0, "size_kb": 0, "issues": 0,
+                "homepage": None, "licensed": False,
+                "created": (m.get("createdAt") or m.get("lastModified") or "")[:10],
+                "pushed": (m.get("lastModified") or "")[:10],
+                "fit": round(fit, 2), "hack_hint": False, "query": q,
+            })
+    return out
+
+
+def papers(qs: list[str], *, fetcher=None, per_query: int = 25) -> dict[str, list[dict]]:
+    """Researchers publishing on the thesis, keyed by their real name.
+
+    A different identity space from the rest of this module, and a more
+    useful one: arXiv prints the author's name, not a handle, so these join
+    straight to a Cala Person. For a deep-tech thesis the person who will
+    found the company is often publishing about it two years first.
+    """
+    out: dict[str, list[dict]] = {}
+    for q in qs:
+        raw = (fetcher or _get_text)(
+            ARXIV, {"search_query": " AND ".join(f"all:{w}" for w in q.split()),
+                    "max_results": per_query, "sortBy": "submittedDate",
+                    "sortOrder": "descending"}, kind="ax")
+        for e in re.findall(r"<entry>(.*?)</entry>", raw or "", re.S):
+            ti = re.search(r"<title>(.*?)</title>", e, re.S)
+            pu = re.search(r"<published>(.*?)</published>", e)
+            li = re.search(r'<id>(.*?)</id>', e)
+            title = re.sub(r"\s+", " ", ti.group(1)).strip() if ti else ""
+            # Only the front of the author list. A six-author paper is not
+            # six people about to start a company, and taking them all made
+            # forty-four of sixty rows the co-authors of three papers.
+            for pos, nm in enumerate(re.findall(r"<name>(.*?)</name>", e)[:3]):
+                nm = nm.strip()
+                if len(nm.split()) < 2:
+                    continue
+                bucket = out.setdefault(nm.lower(), [])
+                url = li.group(1) if li else ""
+                # The queries overlap by design - narrowest first, then
+                # shorter - so the same paper comes back more than once.
+                # Counting it twice inflates both the claim and the score.
+                if any(w["url"] == url for w in bucket):
+                    continue
+                bucket.append({
+                    "author": nm, "title": title[:120], "position": pos,
+                    "when": (pu.group(1)[:10] if pu else None),
+                    "url": url, "query": q,
+                })
+    return out
+
+
 # ---------------------------------------------------------------- joining
 
 def _days(a: str, b: str) -> int:
@@ -378,7 +524,7 @@ def _days(a: str, b: str) -> int:
 
 
 def group(repo_rows: list[dict], room_idx: dict, hack_idx: dict, *,
-          today: date) -> list[dict]:
+          today: date, paper_idx: dict | None = None) -> list[dict]:
     """One row per handle, carrying everything the three sources said."""
     by: dict[str, dict] = {}
     for r in repo_rows:
@@ -387,7 +533,7 @@ def group(repo_rows: list[dict], room_idx: dict, hack_idx: dict, *,
             continue
         row = by.setdefault(h.lower(), {"handle": h, "repos": [], "sources": set()})
         row["repos"].append(r)
-        row["sources"].add("github")
+        row["sources"].add(r.get("host") or "github")
 
     # A hackathon project or a thread comment is a reason to look at someone
     # even with no repository in the window, so these create rows too.
@@ -402,6 +548,26 @@ def group(repo_rows: list[dict], room_idx: dict, hack_idx: dict, *,
         by[key]["rooms"] = said[:4]
         by[key]["sources"].add("hn")
 
+    # Researchers are keyed by name rather than handle, so before they
+    # become their own rows, try to land them on a handle already here. A
+    # person publishing on the thesis AND pushing code for it is the
+    # strongest thing this module can find, and keying on two different
+    # identity spaces is the only reason it would otherwise miss them.
+    for key, works in (paper_idx or {}).items():
+        parts = re.findall(r"[A-Za-z]{2,}", works[0]["author"])
+        target = key
+        if len(parts) >= 2:
+            first, last = parts[0].lower(), parts[-1].lower()
+            for cand in (first + last, last + first, first + "-" + last,
+                         first[0] + last, first + last[0]):
+                if cand in by:
+                    target = cand
+                    break
+        row = by.setdefault(target, {"handle": works[0]["author"],
+                                     "repos": [], "sources": set()})
+        row["papers"] = works[:4]
+        row["sources"].add("arxiv")
+
     out = []
     for row in by.values():
         rs = sorted(row["repos"], key=lambda r: (-r["fit"],
@@ -411,7 +577,11 @@ def group(repo_rows: list[dict], room_idx: dict, hack_idx: dict, *,
         out.append({
             "handle": row["handle"],
             "profile": (f"https://github.com/{row['handle']}"
-                        if "github" in row["sources"] else None),
+                        if "github" in row["sources"]
+                        else f"https://gitlab.com/{row['handle']}"
+                        if "gitlab" in row["sources"]
+                        else f"https://huggingface.co/{row['handle']}"
+                        if "huggingface" in row["sources"] else None),
             "repos": rs[:4],
             "lead_repo": best,
             "span_days": _days(best["created"], best["pushed"]) if best else 0,
@@ -420,6 +590,8 @@ def group(repo_rows: list[dict], room_idx: dict, hack_idx: dict, *,
             "on_thesis": len(rs),
             "hackathons": row.get("hackathons") or [],
             "rooms": row.get("rooms") or [],
+            "papers": row.get("papers") or [],
+            "hosts": sorted({r.get("host") or "github" for r in rs}),
             "sources": sorted(row["sources"]),
         })
     return out
@@ -495,6 +667,29 @@ def score(row: dict) -> tuple[float, list[str]]:
                        + (f", {won} placed" if won else ""))
         elif hinted:
             why.append("built it at a hackathon, by its own description")
+
+    if row["papers"]:
+        # Volume, recency, and whose work it is. First author is the person
+        # who did it; third is often the group. Without these three every
+        # researcher scored an identical 20.0, which is the same tie that
+        # made the first version of the repository ranking useless.
+        n = min(1.0, len(row["papers"]) / 2.0)
+        best = min(p.get("position", 2) for p in row["papers"])
+        lead = {0: 1.0, 1: 0.7}.get(best, 0.45)
+        newest = max((p.get("when") or "") for p in row["papers"])
+        fresh = 1.0
+        if newest:
+            try:
+                age = (date.today() - date.fromisoformat(newest)).days
+                fresh = max(0.3, 1.0 - age / 540)
+            except ValueError:
+                pass
+        pts += W_PAPERS * (0.45 * n + 0.35 * lead + 0.20 * fresh)
+        where = ("first author" if best == 0 else
+                 "second author" if best == 1 else "co-author")
+        why.append(f"{len(row['papers'])} arXiv paper"
+                   f"{'s' if len(row['papers']) != 1 else ''} on this, {where}"
+                   + (f", latest {newest}" if newest else ""))
 
     if row["rooms"]:
         pts += W_ROOMS * min(1.0, len(row["rooms"]) / 3.0)
@@ -583,10 +778,15 @@ def rank(*, thesis: str = "", limit: int = 40, months: int = 6,
 
     repo_rows = source("github", lambda: repos(qs, today=today, months=months,
                                                fetcher=fetcher), [])
+    repo_rows += source("gitlab", lambda: gitlab(qs, today=today, months=months,
+                                                 fetcher=fetcher), [])
+    repo_rows += source("huggingface", lambda: models(qs, fetcher=fetcher), [])
+    paper_idx = source("arxiv", lambda: papers(qs, fetcher=fetcher), {})
     hack_idx = source("devpost", lambda: enrich(hackathons(qs, fetcher=fetcher)), {})
     room_idx = source("hn", lambda: rooms(qs, fetcher=fetcher), {})
 
-    rows = group(repo_rows, room_idx, hack_idx, today=today)
+    rows = group(repo_rows, room_idx, hack_idx, today=today,
+                 paper_idx=paper_idx)
 
     # The two subtractions that make this cohort "private" rather than just
     # "small". Someone who posted a Show HN has announced - they belong in
@@ -594,12 +794,15 @@ def rank(*, thesis: str = "", limit: int = 40, months: int = 6,
     # anything, and belongs in the first.
     pub = {h.lower() for h in (announced or set())}
     by_handle = _people_by_handle(index or {})
+    by_name = {(e.get("name") or "").strip().lower(): e
+               for e in (index or {}).values()
+               if e.get("entity_type") == "Person" and e.get("name")}
     out = []
     for r in rows:
         key = r["handle"].lower()
         if key in pub:
             continue
-        known = by_handle.get(key)
+        known = by_handle.get(key) or by_name.get(key)
         if known and _already_founded(known):
             continue
         r["known_to_cala"] = ({
@@ -625,6 +828,7 @@ def rank(*, thesis: str = "", limit: int = 40, months: int = 6,
                                    if "github" in r["sources"]}),
             "devpost_members": len(hack_idx),
             "hn_commenters": len(room_idx),
+            "researchers": len(paper_idx),
             "corroborated": sum(1 for r in rows if len(r["sources"]) > 1),
             "cala_matched": sum(1 for r in shown if r.get("known_to_cala")),
         },
