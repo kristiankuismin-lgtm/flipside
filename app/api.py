@@ -1581,10 +1581,32 @@ def _with_open_news(out: dict, name: str) -> dict:
     """
     if out.get("items"):
         return out
+
+    # Context.dev's news index before GDELT, because it can be asked about an
+    # entity rather than a string. Most of these firms are named after
+    # ordinary words - Index, Atomico, Creandum - and a keyword index cannot
+    # tell the fund from the noun. Matched on the domain when we hold one.
+    try:
+        from . import newsfeed as NF, cache_index
+        site = cache_index.websites().get((name or "").strip().lower())
+        n = NF.about(name, website=site, limit=10)
+        if n.get("articles"):
+            out["open"] = [{"title": a["title"], "url": a["url"],
+                            "domain": a["source"], "date": a["published"]}
+                           for a in n["articles"]]
+            out["open_error"] = None
+            out["open_source"] = (
+                f"Context.dev's news index, matched on the "
+                f"{n.get('matched_on') or 'name'}")
+            out["open_outlets"] = n.get("outlets")
+            return out
+    except Exception as e:
+        out["open_error"] = f"{type(e).__name__}: {str(e)[:110]}"
+
     from . import opennews as ON
     r = ON.search(name, limit=10)
     out["open"] = r.get("items") or []
-    out["open_error"] = r.get("error")
+    out["open_error"] = r.get("error") or out.get("open_error")
     out["open_source"] = "GDELT, an open index of world news"
     return out
 
