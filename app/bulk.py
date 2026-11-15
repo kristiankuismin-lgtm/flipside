@@ -37,16 +37,74 @@ _conn = sqlite3.connect(DB, check_same_thread=False)
 _conn.execute("""CREATE TABLE IF NOT EXISTS people (
     k TEXT PRIMARY KEY, person TEXT, role TEXT, employer TEXT,
     source TEXT, ts REAL)""")
+# One table for every other kind of answer, because they are all the same
+# shape - somebody, something they are to it, and the thing - and keeping
+# them apart by kind means a new question needs no migration.
+_conn.execute("""CREATE TABLE IF NOT EXISTS rows (
+    k TEXT PRIMARY KEY, kind TEXT, person TEXT, role TEXT, org TEXT,
+    year TEXT, subject TEXT, ts REAL)""")
+_conn.execute("CREATE INDEX IF NOT EXISTS rows_kind ON rows(kind)")
 _conn.execute("""CREATE TABLE IF NOT EXISTS asked (
     q TEXT PRIMARY KEY, rows INT, ts REAL)""")
 _conn.commit()
 _lock = threading.Lock()
 
-# What to ask about one firm. The wording matters: naming the firm keeps the
-# answer about the firm, and asking for the fields by name is what makes the
-# result a table rather than a paragraph.
-PEOPLE_AT = ("List the people who work at {firm}, with their full name, "
-             "their role or job title, and the firm they work at.")
+# What to ask, and what each answer is a table of. The wording matters
+# twice over: naming the subject keeps the answer about the subject, and
+# asking for the fields by name is what turns a paragraph into rows.
+#
+# Each kind declares the columns it expects and the aliases the model
+# actually returns for them, because "full_name", "person" and "name" all
+# come back depending on how the question was phrased.
+KINDS: dict[str, dict] = {
+    "people": {
+        "q": ("List the people who work at {s}, with their full name, their "
+              "role or job title, and the firm they work at."),
+        "cols": {"person": ("full_name", "person", "name"),
+                 "role": ("role", "title", "job_title"),
+                 "org": ("firm", "employer", "company", "organisation")},
+    },
+    "founders": {
+        "q": ("List the founders of {s}, with their full name, their role, "
+              "and the company they founded."),
+        "cols": {"person": ("full_name", "person", "name", "founder"),
+                 "role": ("role", "title"),
+                 "org": ("company_founded", "company", "startup")},
+    },
+    "left": {
+        "q": ("List the people who have left {s}, with their full name, the "
+              "role they held, and the year they left."),
+        "cols": {"person": ("full_name", "person", "name"),
+                 "role": ("role", "title"),
+                 "org": ("company", "employer", "firm"),
+                 "year": ("year_left", "year", "departed")},
+    },
+    "priors": {
+        "q": ("List the founders of companies backed by {s} and the companies "
+              "they worked at before founding, with the person, the previous "
+              "employer, and the company they founded."),
+        "cols": {"person": ("person", "full_name", "name", "founder"),
+                 "role": ("previous_employer", "prior_employer"),
+                 "org": ("company_founded", "company")},
+    },
+    "board": {
+        "q": ("List the board members of {s}'s portfolio companies, with the "
+              "person, their role, and the company."),
+        "cols": {"person": ("person", "full_name", "name"),
+                 "role": ("role", "title"),
+                 "org": ("company", "organisation")},
+    },
+    "rounds": {
+        "q": ("List the funding rounds of {s}, with the round name, the date, "
+              "the amount, and each investor who participated."),
+        "cols": {"person": ("investors", "investor"),
+                 "role": ("round", "stage"),
+                 "org": ("company",),
+                 "year": ("date",)},
+    },
+}
+
+PEOPLE_AT = KINDS["people"]["q"]
 
 
 def _key(person: str, employer: str, role: str) -> str:
@@ -126,3 +184,69 @@ def everyone(limit: int = 5000) -> list[dict]:
     return [{"name": p, "role": r, "employer": e, "source": "cala query"}
             for p, r, e in _conn.execute(
                 "SELECT person, role, employer FROM people LIMIT ?", (limit,))]
+
+
+def _pick(row: dict, names) -> str:
+    for n in names:
+        v = row.get(n)
+        if v not in (None, ""):
+            return str(v).strip()
+    return ""
+
+
+def ask(kind: str, subject: str, *, timeout: float = 240.0) -> int:
+    """Put one question about one subject and keep the rows."""
+    spec = KINDS.get(kind)
+    if not spec:
+        return 0
+    q = spec["q"].format(s=subject)
+    if asked(q):
+        return 0
+    try:
+        r = cala.query(q, return_entities=False, allow_live=True,
+                       ttl=30 * 86400, timeout=timeout, retries=1)
+    except Exception:
+        return 0
+    rows = (r or {}).get("results") or []
+    cols = spec["cols"]
+    new = 0
+    with _lock:
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            person = _pick(row, cols.get("person", ()))
+            if not person:
+                continue
+            role = _pick(row, cols.get("role", ()))
+            org = _pick(row, cols.get("org", ())) or subject
+            year = _pick(row, cols.get("year", ()))
+            k = "|".join((kind, (norm.name(person) or person.lower())[:60],
+                          (norm.name(org) or org.lower())[:60], role.lower()[:40]))
+            if _conn.execute("SELECT 1 FROM rows WHERE k=?", (k,)).fetchone():
+                continue
+            _conn.execute("INSERT INTO rows VALUES (?,?,?,?,?,?,?,?)",
+                          (k, kind, person, role, org, year, subject, time.time()))
+            new += 1
+        _conn.commit()
+    mark(q, len(rows))
+    # "people" also feeds the older table the call list reads.
+    if kind == "people":
+        store_people([{"name": _pick(r2, cols["person"]),
+                       "role": _pick(r2, cols["role"]),
+                       "employer": _pick(r2, cols["org"]) or subject}
+                      for r2 in rows if isinstance(r2, dict)], source=subject)
+    return new
+
+
+def rows_of(kind: str, limit: int = 4000) -> list[dict]:
+    return [{"person": p, "role": r, "org": o, "year": y, "subject": s2}
+            for p, r, o, y, s2 in _conn.execute(
+                "SELECT person, role, org, year, subject FROM rows "
+                "WHERE kind=? LIMIT ?", (kind, limit))]
+
+
+def kind_stats() -> dict:
+    out = {}
+    for kind, n in _conn.execute("SELECT kind, count(*) FROM rows GROUP BY kind"):
+        out[kind] = n
+    return out

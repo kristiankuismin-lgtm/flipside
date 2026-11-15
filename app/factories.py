@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import collections
 import math
+import re
 
 MIN_PEOPLE = 3          # below this the ratio is an anecdote
 EMPLOYER_EDGES = ("WORKS_AT", "IS_EXECUTIVE_OF", "IS_BOARD_MEMBER_OF")
@@ -52,6 +53,53 @@ def _wilson(k: int, n: int, z: float = 1.96) -> float:
     centre = p + z * z / (2 * n)
     margin = z * math.sqrt((p * (1 - p) + z * z / (4 * n)) / n)
     return max(0.0, (centre - margin) / d)
+
+
+def from_queries(min_people: int = 2) -> list[dict]:
+    """Founder factories as Cala will describe them, not as it edges them.
+
+    rank() below reads WORKS_AT and FOUNDED off the same Person record, and
+    almost nobody carries both: 154 of 3,576 people have an employer edge at
+    all, and exactly one employer cleared three people. Asked instead -
+    "the founders backed by this firm and where they worked before" - the
+    same graph names the previous employer in a row. That is the fact the
+    edges were missing, and it arrives a hundred at a time.
+    """
+    try:
+        from . import bulk, norm
+        rows = bulk.rows_of("priors")
+    except Exception:
+        return []
+    by: dict[str, dict] = {}
+    for r in rows:
+        prior = (r.get("role") or "").strip()      # the previous employer
+        person = (r.get("person") or "").strip()
+        if not prior or not person:
+            continue
+        # The answers write it as prose - "Sumea (co-founder & CEO), then
+        # Digital Chocolate" - so take the employer before the first bracket
+        # and split on the obvious separators.
+        for part in re.split(r",| then | and ", prior):
+            nm = re.sub(r"\(.*?\)", "", part).strip(" .;")
+            if len(nm) < 3 or len(nm) > 48:
+                continue
+            k = norm.name(nm) or nm.lower()
+            b = by.setdefault(k, {"employer": nm, "people": set(), "founded": set()})
+            b["people"].add(person.lower())
+            if r.get("org"):
+                b["founded"].add(r["org"])
+    out = []
+    for b in by.values():
+        n = len(b["people"])
+        if n < min_people:
+            continue
+        out.append({"employer": b["employer"], "founders": n,
+                    "people_held": n, "rate": 1.0,
+                    "companies": sorted(b["founded"])[:6],
+                    "score": round(_wilson(n, n) * 100, 1),
+                    "from_query": True})
+    out.sort(key=lambda r: (-r["founders"], r["employer"]))
+    return out
 
 
 def rank(index: dict, *, min_people: int = MIN_PEOPLE,

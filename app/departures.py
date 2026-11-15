@@ -112,9 +112,57 @@ def score(row: dict, *, today: date) -> tuple[float, list[str]]:
     return round(min(100.0, pts), 1), why
 
 
+def from_bulk(*, today: date, months: int) -> list[dict]:
+    """Departures Cala will describe but has not edged.
+
+    valid_until exists on 192 people-edges in the cache, which is a small
+    number because it depends on how much of the graph has been walked.
+    Asked directly - "who has left Nokia, with the role and the year" - the
+    same graph answers in rows. Those have a year and not a date, so they
+    are scored on the year and say so rather than inventing a month.
+    """
+    try:
+        from . import bulk
+        rows = bulk.rows_of("left")
+    except Exception:
+        return []
+    out = []
+    for r in rows:
+        y = "".join(ch for ch in str(r.get("year") or "") if ch.isdigit())[:4]
+        if len(y) != 4:
+            continue
+        year = int(y)
+        if year < today.year - (months // 12) - 1 or year > today.year + 2:
+            continue
+        on = date(year, 7, 1)        # mid-year: the row carries no month
+        kind = ("IS_CEO_OF" if "chief executive" in (r.get("role") or "").lower()
+                or (r.get("role") or "").upper().startswith("CEO")
+                else "IS_BOARD_MEMBER_OF"
+                if "board" in (r.get("role") or "").lower()
+                else "IS_EXECUTIVE_OF")
+        s, why = score({"kind": kind, "company": r.get("org") or r.get("subject"),
+                        "on": on, "role": r.get("role")}, today=today)
+        out.append({
+            "person": r.get("person"), "person_id": None,
+            "company": r.get("org") or r.get("subject"),
+            "company_id": None, "kind": kind, "on": f"{year}",
+            "announced_only": False, "score": round(s * 0.85, 1),
+            "why": [w.replace(f"{year}-07-01", str(year)) for w in why]
+                   + ["year only, from a Cala answer rather than an edge"],
+            "other_seats": 0, "from_query": True,
+        })
+    return out
+
+
 def find(index: dict, *, today: date | None = None, limit: int = 30,
-         months: int = FRESH_MONTHS) -> dict:
-    """People with an ended seat and nothing recorded since."""
+         months: int = FRESH_MONTHS, queried: list[dict] | None = None) -> dict:
+    """People with an ended seat and nothing recorded since.
+
+    `queried` is the rows from the bulk question, injectable so the tests
+    exercise the edge path on its own - reading the live store inside here
+    made six of them depend on whatever the harvester had collected that
+    minute.
+    """
     today = today or date.today()
     out, with_end, re_seated = [], 0, 0
 
@@ -143,6 +191,15 @@ def find(index: dict, *, today: date | None = None, limit: int = 30,
             "other_seats": len(started),
         })
 
+    edged = len(out)
+    # An edge is the better evidence and keeps its place; a queried row only
+    # appears for somebody the edges do not already name.
+    seen = {(r["person"] or "").strip().lower() for r in out}
+    pool = from_bulk(today=today, months=months) if queried is None else queried
+    asked_rows = [r for r in pool
+                  if (r["person"] or "").strip().lower() not in seen]
+    out += asked_rows
+
     out.sort(key=lambda r: -r["score"])
     return {
         "rows": out[:limit],
@@ -150,6 +207,8 @@ def find(index: dict, *, today: date | None = None, limit: int = 30,
             "people_with_an_end_date": with_end,
             "placed_since": re_seated,
             "open": len(out),
+            "from_edges": edged,
+            "from_queries": len(asked_rows),
             "window_months": months,
         },
         "as_of": today.isoformat(),
